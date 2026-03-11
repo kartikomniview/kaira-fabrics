@@ -7,31 +7,31 @@ interface CollectionCardProps {
 
 const CollectionCard = ({ collection }: CollectionCardProps) => {
   return (
-    <div className="group relative overflow-hidden bg-white">
-      <div className="aspect-[4/3] overflow-hidden">
+    <div className="group bg-white border border-stone-200 hover:border-stone-400 transition-all duration-200">
+      <div className="aspect-[4/3] overflow-hidden bg-stone-100">
         <img
           src={collection.image}
           alt={collection.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </div>
-      <div className="p-6 border border-t-0 border-stone-200">
-        <span className="text-gold text-xs tracking-[0.2em] uppercase font-medium">
-          {collection.category}
-        </span>
-        <h3 className="font-serif text-xl mt-1 mb-2 text-charcoal">{collection.name}</h3>
-        <p className="text-stone-500 text-sm leading-relaxed mb-5 line-clamp-2">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] tracking-[0.2em] uppercase font-medium text-stone-400 bg-stone-100 px-2 py-0.5">
+            {collection.category}
+          </span>
+          <span className="text-[10px] text-stone-400">{collection.itemCount} fabrics</span>
+        </div>
+        <h3 className="font-serif text-sm font-semibold text-stone-900 mb-1.5">{collection.name}</h3>
+        <p className="text-stone-400 text-xs leading-relaxed mb-3 line-clamp-2">
           {collection.description}
         </p>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-stone-400">{collection.itemCount} fabrics</span>
-          <Link
-            to={`/collections`}
-            className="text-xs tracking-widest uppercase text-charcoal border-b border-charcoal pb-0.5 hover:text-gold hover:border-gold transition-colors duration-200"
-          >
-            Explore
-          </Link>
-        </div>
+        <Link
+          to="/collections"
+          className="inline-flex items-center gap-1.5 text-[10px] tracking-widest uppercase text-charcoal border-b border-charcoal/30 pb-0.5 hover:text-gold hover:border-gold transition-colors duration-200"
+        >
+          View Collection →
+        </Link>
       </div>
     </div>
   )

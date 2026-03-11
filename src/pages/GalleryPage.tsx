@@ -45,10 +45,10 @@ const GalleryPage = () => {
       </div>
 
       {/* Gallery */}
-      <div className="bg-cream py-16 lg:py-20">
+      <div className="bg-cream py-10 lg:py-14">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           {/* Filters */}
-          <div className="flex flex-wrap gap-2 mb-12 justify-center">
+          <div className="flex flex-wrap gap-2 mb-8 justify-center">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -69,7 +69,7 @@ const GalleryPage = () => {
             {filtered.map((item) => (
               <div
                 key={item.id}
-                className="break-inside-avoid group relative overflow-hidden cursor-pointer"
+                className="break-inside-avoid group relative overflow-hidden cursor-pointer border border-stone-200 hover:border-stone-400 transition-colors duration-300"
                 onClick={() => setLightbox(item)}
               >
                 <img

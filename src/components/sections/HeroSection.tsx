@@ -2,81 +2,65 @@ import Button from '../ui/Button'
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-charcoal">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-charcoal via-stone-900 to-[#2A1A10]" />
+    <section className="min-h-screen flex items-stretch bg-white">
+      {/* Left: Content */}
+      <div className="flex-1 flex items-center px-8 lg:px-16 xl:px-24 pt-24 pb-16">
+        <div className="max-w-xl w-full">
+          {/* Label */}
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-8 h-px bg-gold" />
+            <span className="text-xs tracking-[0.25em] uppercase text-stone-400 font-medium">
+              Premium Textile Manufacturer Since 1992
+            </span>
+          </div>
 
-      {/* Decorative texture overlay */}
-      <div className="absolute inset-0 opacity-5"
-        style={{
-          backgroundImage: `repeating-linear-gradient(
-            45deg,
-            #C5A552 0px,
-            #C5A552 1px,
-            transparent 1px,
-            transparent 40px
-          )`,
-        }}
-      />
-
-      {/* Hero image placeholder */}
-      <div className="absolute inset-0">
-        <div className="absolute right-0 top-0 bottom-0 w-full lg:w-3/5 opacity-20 lg:opacity-30">
-          <img
-            src="https://placehold.co/1200x900/3B2A1A/C5A552?text=KAIRA+Luxury+Textiles"
-            alt="Luxury fabric"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/80 to-transparent" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 w-full pt-20">
-        <div className="max-w-2xl">
-          <p className="text-gold text-xs tracking-[0.4em] uppercase font-medium mb-6">
-            Premium Luxury Textiles Since 1992
-          </p>
-          <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl text-cream leading-[1.05] mb-6">
-            Elegance,{' '}
-            <span className="italic text-gold">Woven</span>
-            <br />
-            in Every Stitch
+          {/* Heading */}
+          <h1 className="font-serif text-5xl md:text-6xl text-stone-900 leading-[1.1] mb-6">
+            Textile Solutions<br />
+            for Design<br />
+            Professionals
           </h1>
-          <p className="text-stone-300 text-lg leading-relaxed mb-10 max-w-lg">
-            Discover KAIRA's curated range of premium fabrics and fine leather—
-            crafted for the discerning interior designer, architect, and homeowner
-            who demands nothing less than perfection.
+
+          {/* Subtext */}
+          <p className="text-stone-500 text-lg leading-relaxed mb-10 max-w-md">
+            KAIRA supplies premium fabrics and fine leather to interior designers,
+            architects, and project specifiers across 60+ countries.
           </p>
-          <div className="flex flex-wrap gap-4">
+
+          {/* CTAs */}
+          <div className="flex flex-wrap gap-3 mb-14">
             <Button to="/materials" variant="primary" size="lg">
-              Explore Fabrics
+              Browse Fabrics
             </Button>
-            <Button to="/collections" variant="outline" size="lg">
+            <Button to="/collections" variant="secondary" size="lg">
               View Collections
             </Button>
           </div>
 
-          {/* Trust indicators */}
-          <div className="mt-16 flex flex-wrap gap-10">
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-8 pt-8 border-t border-stone-100">
             {[
               { value: '500+', label: 'Fabric Varieties' },
               { value: '30+', label: 'Years Heritage' },
               { value: '60+', label: 'Countries Served' },
             ].map((stat) => (
               <div key={stat.label}>
-                <p className="font-serif text-3xl text-gold">{stat.value}</p>
-                <p className="text-xs text-stone-400 tracking-widest uppercase mt-0.5">{stat.label}</p>
+                <p className="font-serif text-2xl font-bold text-stone-900">{stat.value}</p>
+                <p className="text-xs text-stone-400 tracking-widest uppercase mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-        <span className="text-cream/30 text-xs tracking-widest uppercase">Scroll</span>
-        <div className="w-px h-10 bg-gradient-to-b from-gold/60 to-transparent animate-pulse" />
+      {/* Right: Image */}
+      <div className="hidden lg:block lg:w-[52%] relative bg-stone-100">
+        <img
+          src="https://placehold.co/1000x1000/EDE9E4/74623C?text=KAIRA+Textiles"
+          alt="KAIRA premium textiles"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gold" />
       </div>
     </section>
   )

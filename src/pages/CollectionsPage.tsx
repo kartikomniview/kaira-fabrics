@@ -30,10 +30,10 @@ const CollectionsPage = () => {
       </div>
 
       {/* Filter & Grid */}
-      <div className="bg-cream py-16 lg:py-20">
+      <div className="bg-cream py-10 lg:py-14">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           {/* Category filter */}
-          <div className="flex flex-wrap gap-2 mb-12 justify-center">
+          <div className="flex flex-wrap gap-2 mb-8 justify-center">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -50,14 +50,14 @@ const CollectionsPage = () => {
           </div>
 
           {/* Results info */}
-          <p className="text-stone-400 text-sm text-center mb-10">
+          <p className="text-stone-400 text-sm text-center mb-6">
             {filtered.length} collection{filtered.length !== 1 ? 's' : ''}
             {activeCategory !== 'All' ? ` in ${activeCategory}` : ''}
           </p>
 
           {/* Grid */}
           {filtered.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filtered.map((collection) => (
                 <CollectionCard key={collection.id} collection={collection} />
               ))}
@@ -72,7 +72,7 @@ const CollectionsPage = () => {
       </div>
 
       {/* Info strip */}
-      <div className="bg-stone-100 py-16">
+      <div className="bg-stone-100 py-10">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
             {[

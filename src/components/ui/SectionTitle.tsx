@@ -20,21 +20,24 @@ const SectionTitle = ({
       className={`${align === 'center' ? 'text-center mx-auto' : 'text-left'} max-w-2xl ${className}`}
     >
       {subtitle && (
-        <p className="text-gold tracking-[0.3em] uppercase text-xs font-medium mb-3">
-          {subtitle}
-        </p>
+        <div className={`flex items-center gap-3 mb-3 ${align === 'center' ? 'justify-center' : ''}`}>
+          <div className="w-6 h-px bg-gold shrink-0" />
+          <p className="text-xs tracking-[0.25em] uppercase font-medium text-stone-400">
+            {subtitle}
+          </p>
+        </div>
       )}
       <h2
-        className={`font-serif text-4xl md:text-5xl leading-tight mb-4 ${
-          light ? 'text-cream' : 'text-charcoal'
+        className={`font-serif text-3xl md:text-4xl leading-tight mb-3 ${
+          light ? 'text-white' : 'text-stone-900'
         }`}
       >
         {title}
       </h2>
       {description && (
         <p
-          className={`text-lg leading-relaxed ${
-            light ? 'text-stone-300' : 'text-stone-500'
+          className={`text-base leading-relaxed ${
+            light ? 'text-stone-400' : 'text-stone-500'
           }`}
         >
           {description}

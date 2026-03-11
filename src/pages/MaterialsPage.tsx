@@ -50,10 +50,10 @@ const MaterialsPage = () => {
       </div>
 
       {/* Filter & Cards */}
-      <div className="bg-cream py-16 lg:py-20">
+      <div className="bg-cream py-10 lg:py-14">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           {/* Filters */}
-          <div className="flex flex-wrap gap-2 mb-12">
+          <div className="flex flex-wrap gap-2 mb-8">
             {materialCategories.map((cat) => (
               <button
                 key={cat}
@@ -91,7 +91,7 @@ const MaterialsPage = () => {
       </div>
 
       {/* Care guide promo */}
-      <div className="bg-charcoal py-16">
+      <div className="bg-charcoal py-10">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center">
           <h2 className="font-serif text-3xl text-cream mb-4">
             Download Our Care &amp; Maintenance Guide

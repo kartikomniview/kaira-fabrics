@@ -2,62 +2,63 @@ import Button from '../ui/Button'
 
 const StudioBannerSection = () => {
   return (
-    <section className="bg-charcoal py-20 lg:py-28">
+    <section className="bg-stone-50 py-14 lg:py-20 border-y border-stone-200">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Text */}
           <div>
-            <p className="text-gold text-xs tracking-[0.3em] uppercase font-medium mb-4">
-              Exclusive Feature
-            </p>
-            <h2 className="font-serif text-4xl md:text-5xl text-cream leading-tight mb-6">
-              Visualize Fabrics in{' '}
-              <span className="text-gold italic">3D</span>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-6 h-px bg-gold" />
+              <span className="text-xs tracking-[0.25em] uppercase text-stone-400 font-medium">3D Visualization Studio</span>
+            </div>
+            <h2 className="font-serif text-3xl md:text-4xl text-stone-900 leading-tight mb-4">
+              Preview Fabrics in 3D<br />Before You Order
             </h2>
-            <p className="text-stone-300 text-lg leading-relaxed mb-4">
-              Our industry-first 3D Visualization Studio lets you preview how KAIRA fabrics
-              will look on real furniture models—before you order a single metre.
+            <p className="text-stone-500 text-base leading-relaxed mb-8">
+              Our 3D Visualization Studio lets you preview how KAIRA fabrics
+              will look on real furniture models—eliminating guesswork and reducing sample costs.
             </p>
-            <ul className="space-y-3 mb-10">
+            <ul className="space-y-0 mb-10">
               {[
-                'Rotate and zoom on real-time 3D furniture models',
-                'Swap fabrics across 20+ furniture shapes instantly',
-                'Share photorealistic renders with your clients',
+                { num: '01', text: 'Real-time rotation and zoom on 3D furniture models' },
+                { num: '02', text: 'Instant fabric swaps across 20+ furniture shapes' },
+                { num: '03', text: 'Export photorealistic renders for client presentations' },
               ].map((feature) => (
-                <li key={feature} className="flex items-start gap-3 text-stone-400 text-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
-                  {feature}
+                <li key={feature.num} className="flex items-start gap-5 py-4 border-t border-stone-200 last:border-b">
+                  <span className="text-xs font-bold text-gold tracking-wider shrink-0 pt-0.5">{feature.num}</span>
+                  <span className="text-stone-500 text-sm leading-relaxed">{feature.text}</span>
                 </li>
               ))}
             </ul>
-            <Button to="/3d-visualizer" variant="primary" size="lg">
-              Try Our Visualizer
+            <Button to="/3d-visualizer" variant="primary" size="md">
+              Launch Visualizer
             </Button>
           </div>
 
-          {/* Visual placeholder */}
-          <div className="relative">
-            <div className="aspect-[4/3] relative overflow-hidden border border-white/10">
+          {/* Visual */}
+          <div>
+            <div className="aspect-[4/3] relative overflow-hidden bg-white border border-stone-200">
               <img
-                src="https://placehold.co/800x600/1C1917/C5A552?text=3D+Fabric+Visualization+Studio"
+                src="https://placehold.co/800x600/EDE9E4/74623C?text=3D+Fabric+Visualization"
                 alt="3D Fabric Visualization Studio"
                 className="w-full h-full object-cover"
               />
-              {/* Overlay badge */}
-              <div className="absolute top-5 right-5 bg-gold text-charcoal px-3 py-1.5 text-xs tracking-widest uppercase font-medium">
-                Live 3D Preview
+              <div className="absolute top-4 right-4 bg-white border border-stone-200 px-3 py-1.5 shadow-sm">
+                <span className="text-xs tracking-widest uppercase text-stone-600 font-medium">Live Preview</span>
               </div>
-              {/* Corner accents */}
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-gold" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-gold" />
             </div>
-
-            {/* Floating stat card */}
-            <div className="absolute -bottom-5 -left-5 bg-stone-900 border border-white/10 p-5 shadow-2xl">
-              <p className="font-serif text-gold text-2xl">200+</p>
-              <p className="text-cream/50 text-xs tracking-widest uppercase mt-0.5">
-                Fabric selections
-              </p>
+            {/* Stats bar */}
+            <div className="bg-white border border-t-0 border-stone-200 flex divide-x divide-stone-200">
+              {[
+                { value: '200+', label: 'Fabric Options' },
+                { value: '20+', label: 'Furniture Shapes' },
+                { value: '100%', label: 'Real-Time' },
+              ].map((stat) => (
+                <div key={stat.label} className="flex-1 px-5 py-4">
+                  <p className="font-serif text-xl font-bold text-stone-900">{stat.value}</p>
+                  <p className="text-xs text-stone-400 tracking-wider uppercase mt-0.5">{stat.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

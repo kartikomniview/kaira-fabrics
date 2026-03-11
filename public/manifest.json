@@ -1,0 +1,20 @@
+{
+  "short_name": "Kaira Fabrics",
+  "name": "The house of sofa fabrics",
+  "icons": [
+    {
+      "src": "https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/icon/kaira512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/icon/kaira192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff"
+}

@@ -56,10 +56,10 @@ const FabricDiscoverySection = () => {
   })
 
   return (
-    <section className="bg-stone-50 py-20 lg:py-28">
+    <section className="bg-stone-50 py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-8">
           <p className="text-gold text-xs tracking-[0.3em] uppercase font-medium mb-3">
             Browse Our Range
           </p>
