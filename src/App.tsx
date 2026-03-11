@@ -1,28 +1,67 @@
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
-import HomePage from './pages/HomePage'
-import CollectionsPage from './pages/CollectionsPage'
-import MaterialsPage from './pages/MaterialsPage'
-import GalleryPage from './pages/GalleryPage'
-import ThreeDVisualizerPage from './pages/ThreeDVisualizerPage'
-import AIVisualizerPage from './pages/AIVisualizerPage'
-import ContactPage from './pages/ContactPage'
+import PageLoader from './components/ui/PageLoader'
+
+// Route-level code splitting — each page loads its own JS chunk on first visit
+const HomePage             = lazy(() => import('./pages/HomePage'))
+const CollectionsPage      = lazy(() => import('./pages/CollectionsPage'))
+const MaterialsPage        = lazy(() => import('./pages/MaterialsPage'))
+const GalleryPage          = lazy(() => import('./pages/GalleryPage'))
+const ThreeDVisualizerPage = lazy(() => import('./pages/ThreeDVisualizerPage'))
+const AIVisualizerPage     = lazy(() => import('./pages/AIVisualizerPage'))
+const ContactPage          = lazy(() => import('./pages/ContactPage'))
 
 function App() {
+  // Show the branded PageLoader until all critical resources are ready.
+  // `appReady` drives the fade-out; `showLoader` unmounts it after the transition.
+  const [appReady, setAppReady]   = useState(false)
+  const [showLoader, setShowLoader] = useState(true)
+
+  useEffect(() => {
+    const finish = () => {
+      setAppReady(true)
+      setTimeout(() => setShowLoader(false), 560) // matches PageLoader transition duration
+    }
+
+    if (document.readyState === 'complete') {
+      // Already loaded — show loader briefly so it feels intentional
+      const t = setTimeout(finish, 250)
+      return () => clearTimeout(t)
+    }
+
+    // Wait for window.load (fonts, images) with a safety-net max of 3.5 s
+    const max = setTimeout(finish, 3500)
+    window.addEventListener('load', finish, { once: true })
+    return () => {
+      clearTimeout(max)
+      window.removeEventListener('load', finish)
+    }
+  }, [])
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
-          <Route path="collections" element={<CollectionsPage />} />
-          <Route path="materials" element={<MaterialsPage />} />
-          <Route path="gallery" element={<GalleryPage />} />
-          <Route path="3d-visualizer" element={<ThreeDVisualizerPage />} />
-          <Route path="ai-visualizer" element={<AIVisualizerPage />} />
-          <Route path="contact" element={<ContactPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <>
+      {/* Lazy-route Suspense — Layout is direct-imported so Header/Footer stay
+          visible; the Outlet area shows SectionLoader (wired inside Layout). */}
+      <BrowserRouter>
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<HomePage />} />
+              <Route path="collections" element={<CollectionsPage />} />
+              <Route path="materials" element={<MaterialsPage />} />
+              <Route path="gallery" element={<GalleryPage />} />
+              <Route path="3d-visualizer" element={<ThreeDVisualizerPage />} />
+              <Route path="ai-visualizer" element={<AIVisualizerPage />} />
+              <Route path="contact" element={<ContactPage />} />
+            </Route>
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+
+      {/* Full-screen branded loader — overlays everything on initial page load */}
+      {showLoader && <PageLoader exiting={appReady} />}
+    </>
   )
 }
 
