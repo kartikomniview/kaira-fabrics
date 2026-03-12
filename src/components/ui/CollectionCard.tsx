@@ -7,33 +7,33 @@ interface CollectionCardProps {
 
 const CollectionCard = ({ collection }: CollectionCardProps) => {
   return (
-    <div className="group bg-white border border-stone-200 hover:border-stone-400 transition-all duration-200">
-      <div className="aspect-[4/3] overflow-hidden bg-stone-100">
-        <img
-          src={collection.image}
-          alt={collection.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+    <Link
+      to="/collections"
+      className="group relative block rounded-2xl overflow-hidden aspect-[3/4] bg-stone-200 shadow-sm"
+    >
+      {/* Image */}
+      <img
+        src={collection.image}
+        alt={collection.name}
+        className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+      />
+
+      {/* Permanent subtle gradient at bottom */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+      {/* Hover overlay */}
+      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+      {/* Collection name at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+        <h3 className="font-serif text-base font-semibold text-white leading-tight">
+          {collection.name}
+        </h3>
+        <span className="text-xs text-stone-300 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
+          {collection.category}
+        </span>
       </div>
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] tracking-[0.2em] uppercase font-medium text-stone-400 bg-stone-100 px-2 py-0.5">
-            {collection.category}
-          </span>
-          <span className="text-[10px] text-stone-400">{collection.itemCount} fabrics</span>
-        </div>
-        <h3 className="font-serif text-sm font-semibold text-stone-900 mb-1.5">{collection.name}</h3>
-        <p className="text-stone-400 text-xs leading-relaxed mb-3 line-clamp-2">
-          {collection.description}
-        </p>
-        <Link
-          to="/collections"
-          className="inline-flex items-center gap-1.5 text-[10px] tracking-widest uppercase text-charcoal border-b border-charcoal/30 pb-0.5 hover:text-gold hover:border-gold transition-colors duration-200"
-        >
-          View Collection →
-        </Link>
-      </div>
-    </div>
+    </Link>
   )
 }
 

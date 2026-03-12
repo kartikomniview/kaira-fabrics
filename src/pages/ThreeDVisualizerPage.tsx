@@ -1,293 +1,396 @@
-import { useEffect, useRef, useState } from 'react'
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { useEffect, useRef, useState, useMemo } from 'react'
+import { newMaterials } from '../data/newmaterials'
 
-const fabricOptions = [
-  { id: 'gold-velvet',    label: 'Gold Velvet',      color: 0xC5A552, metalness: 0.1, roughness: 0.6 },
-  { id: 'midnight-blue',  label: 'Midnight Blue',    color: 0x1A2C5B, metalness: 0.0, roughness: 0.8 },
-  { id: 'ivory-linen',   label: 'Ivory Linen',      color: 0xF5F0E8, metalness: 0.0, roughness: 0.9 },
-  { id: 'forest-green',  label: 'Forest Cashmere',  color: 0x2D4A35, metalness: 0.0, roughness: 0.75 },
-  { id: 'blush-velvet',  label: 'Blush Velvet',     color: 0xD4A0A0, metalness: 0.0, roughness: 0.65 },
-  { id: 'cognac-leather',label: 'Cognac Leather',   color: 0x8B4A2A, metalness: 0.15, roughness: 0.5 },
-  { id: 'charcoal-wool', label: 'Charcoal Wool',    color: 0x2C2C2C, metalness: 0.0, roughness: 0.85 },
-  { id: 'terracotta',    label: 'Terracotta Linen', color: 0xC4704A, metalness: 0.0, roughness: 0.8 },
-]
+const MODEL_URL = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
+const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
 
-const modelOptions = [
-  { id: 'torus-knot', label: 'Fabric Roll', shape: 'torusKnot' },
-  { id: 'sphere',     label: 'Cushion',     shape: 'sphere' },
-  { id: 'torus',      label: 'Ring Sample', shape: 'torus' },
-  { id: 'box',        label: 'Upholstery',  shape: 'box' },
-]
+const materialTypeOptions = ['All', ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort()]
+const collectionOptions = ['All', ...Array.from(new Set(newMaterials.map((m) => m.collection_name).filter(Boolean))).sort()]
+
+interface SelectedMaterial {
+  id: number
+  fabricName: string
+  textureUrl: string
+  roughness: number
+  metalness: number
+  collectionName: string
+  materialCode: string
+  materialType: string
+  colorGroup: string | null
+}
 
 const ThreeDVisualizerPage = () => {
-  const mountRef = useRef<HTMLDivElement>(null)
-  const sceneRef = useRef<{
-    renderer: THREE.WebGLRenderer
-    scene: THREE.Scene
-    camera: THREE.PerspectiveCamera
-    mesh: THREE.Mesh
-    controls: OrbitControls
-    animId: number
-  } | null>(null)
+  const mvRef = useRef<HTMLElement>(null)
+  const [selected, setSelected] = useState<SelectedMaterial | null>(null)
+  const [isApplying, setIsApplying] = useState(false)
+  const [modelLoaded, setModelLoaded] = useState(false)
+  const [activeMaterialType, setActiveMaterialType] = useState('All')
+  const [activeCollection, setActiveCollection] = useState('All')
+  const [search, setSearch] = useState('')
 
-  const [activeFabric, setActiveFabric] = useState(fabricOptions[0])
-  const [activeModel, setActiveModel] = useState(modelOptions[0])
-  const [isRotating, setIsRotating] = useState(true)
-
-  // Build scene on mount
-  useEffect(() => {
-    const mount = mountRef.current
-    if (!mount) return
-
-    // Scene
-    const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x0f0e0b)
-    scene.fog = new THREE.Fog(0x0f0e0b, 8, 20)
-
-    // Camera
-    const camera = new THREE.PerspectiveCamera(
-      60,
-      mount.clientWidth / mount.clientHeight,
-      0.1,
-      100,
-    )
-    camera.position.set(0, 0, 4)
-
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.setSize(mount.clientWidth, mount.clientHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
-    mount.appendChild(renderer.domElement)
-
-    // Lighting
-    const ambient = new THREE.AmbientLight(0xffffff, 0.4)
-    scene.add(ambient)
-
-    const keyLight = new THREE.DirectionalLight(0xfff4e0, 2.5)
-    keyLight.position.set(5, 8, 5)
-    keyLight.castShadow = true
-    scene.add(keyLight)
-
-    const fillLight = new THREE.DirectionalLight(0xc5a552, 0.8)
-    fillLight.position.set(-5, 0, -3)
-    scene.add(fillLight)
-
-    const rimLight = new THREE.PointLight(0xffffff, 0.6)
-    rimLight.position.set(0, -4, -3)
-    scene.add(rimLight)
-
-    // Ground plane (subtle)
-    const groundGeo = new THREE.PlaneGeometry(20, 20)
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0x1a1610, roughness: 1 })
-    const ground = new THREE.Mesh(groundGeo, groundMat)
-    ground.rotation.x = -Math.PI / 2
-    ground.position.y = -2.2
-    ground.receiveShadow = true
-    scene.add(ground)
-
-    // Initial mesh
-    const geometry = buildGeometry(activeModel.shape)
-    const material = new THREE.MeshStandardMaterial({
-      color: activeFabric.color,
-      metalness: activeFabric.metalness,
-      roughness: activeFabric.roughness,
-    })
-    const mesh = new THREE.Mesh(geometry, material)
-    mesh.castShadow = true
-    scene.add(mesh)
-
-    // OrbitControls
-    const controls = new OrbitControls(camera, renderer.domElement)
-    controls.enableDamping = true
-    controls.dampingFactor = 0.06
-    controls.minDistance = 2
-    controls.maxDistance = 10
-    controls.autoRotate = true
-    controls.autoRotateSpeed = 1.5
-
-    // Animate
-    let animId: number = 0
-    const animate = () => {
-      animId = requestAnimationFrame(animate)
-      controls.update()
-      renderer.render(scene, camera)
+  const filtered = useMemo(() => newMaterials.filter((m) => {
+    if (activeMaterialType !== 'All' && m.material_type !== activeMaterialType) return false
+    if (activeCollection !== 'All' && m.collection_name !== activeCollection) return false
+    if (search) {
+      const q = search.toLowerCase()
+      const matchName = m.material_name?.toLowerCase().includes(q)
+      const matchColl = m.collection_name?.toLowerCase().includes(q)
+      const matchColor = m.color_group?.toLowerCase().includes(q)
+      if (!matchName && !matchColl && !matchColor) return false
     }
-    animate()
+    return true
+  }), [activeMaterialType, activeCollection, search])
 
-    // Resize
-    const handleResize = () => {
-      if (!mount) return
-      const w = mount.clientWidth
-      const h = mount.clientHeight
-      camera.aspect = w / h
-      camera.updateProjectionMatrix()
-      renderer.setSize(w, h)
-    }
-    window.addEventListener('resize', handleResize)
-
-    sceneRef.current = { renderer, scene, camera, mesh, controls, animId }
-
-    return () => {
-      cancelAnimationFrame(animId)
-      window.removeEventListener('resize', handleResize)
-      controls.dispose()
-      renderer.dispose()
-      if (mount.contains(renderer.domElement)) {
-        mount.removeChild(renderer.domElement)
+  const applyTexture = async (mat: SelectedMaterial) => {
+    const mv = mvRef.current as any
+    if (!mv) return
+    setIsApplying(true)
+    try {
+      const fetchUrl = import.meta.env.DEV
+        ? mat.textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
+        : mat.textureUrl
+      const res = await fetch(fetchUrl)
+      const blob = await res.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const texture = await mv.createTexture(objectUrl)
+      const model = mv.model
+      if (model) {
+        for (const m of model.materials) {
+          m.pbrMetallicRoughness.setRoughnessFactor(mat.roughness)
+          m.pbrMetallicRoughness.setMetallicFactor(mat.metalness)
+          await m.pbrMetallicRoughness.baseColorTexture.setTexture(texture)
+        }
       }
+      URL.revokeObjectURL(objectUrl)
+    } catch {
+      // silently ignore
+    } finally {
+      setIsApplying(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }
+
+  const handleSelect = (m: typeof newMaterials[0]) => {
+    const mat: SelectedMaterial = {
+      id: m.id,
+      fabricName: `${m.collection_name} ${m.material_name}`,
+      textureUrl: `${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`,
+      roughness: m.roughness ?? 0.5,
+      metalness: m.metalness ?? 0,
+      collectionName: m.collection_name,
+      materialCode: m.material_code,
+      materialType: m.material_type ?? '',
+      colorGroup: m.color_group,
+    }
+    setSelected(mat)
+    if (modelLoaded) applyTexture(mat)
+  }
+
+  // Listen for model load
+  useEffect(() => {
+    const mv = mvRef.current as any
+    if (!mv) return
+    const onLoad = () => setModelLoaded(true)
+    mv.addEventListener('load', onLoad)
+    return () => mv.removeEventListener('load', onLoad)
   }, [])
 
-  // Update fabric / material
+  // If model loads after a material was already selected, apply it
   useEffect(() => {
-    if (!sceneRef.current) return
-    const mat = sceneRef.current.mesh.material as THREE.MeshStandardMaterial
-    mat.color.setHex(activeFabric.color)
-    mat.metalness = activeFabric.metalness
-    mat.roughness = activeFabric.roughness
-    mat.needsUpdate = true
-  }, [activeFabric])
-
-  // Update model shape
-  useEffect(() => {
-    if (!sceneRef.current) return
-    const { mesh } = sceneRef.current
-    mesh.geometry.dispose()
-    mesh.geometry = buildGeometry(activeModel.shape)
-  }, [activeModel])
-
-  // Toggle auto-rotation
-  useEffect(() => {
-    if (!sceneRef.current) return
-    sceneRef.current.controls.autoRotate = isRotating
-  }, [isRotating])
+    if (modelLoaded && selected) applyTexture(selected)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelLoaded])
 
   return (
-    <div className="min-h-screen bg-charcoal flex flex-col">
-      {/* Page heading */}
-      <div className="pt-24 pb-6 px-6 lg:px-10 max-w-7xl mx-auto w-full">
-        <p className="text-gold text-xs tracking-[0.3em] uppercase font-medium mb-2">
-          Interactive Studio
-        </p>
-        <h1 className="font-serif text-4xl md:text-5xl text-cream">
-          3D Fabric Visualizer
-        </h1>
-        <p className="text-stone-400 mt-2 max-w-xl">
-          Select a fabric and model shape, then drag to rotate. Experience KAIRA textures in
-          photorealistic 3D before you order.
-        </p>
+    <div
+      className="flex flex-col overflow-hidden bg-stone-100"
+      style={{ height: 'calc(100vh - 64px)' }}
+    >
+      {/* ── Studio Toolbar ── */}
+      <div className="h-10 shrink-0 bg-white border-b border-stone-200 flex items-center px-4 gap-3 shadow-sm">
+        {/* Brand */}
+        <div className="flex items-center gap-2 select-none">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#C5A552]" />
+          <span className="text-[11px] text-stone-400 font-medium tracking-[0.18em] uppercase">Kaira</span>
+          <span className="text-stone-300 text-xs">›</span>
+          <span className="text-[11px] text-stone-700 tracking-widest uppercase">3D Fabric Studio</span>
+        </div>
+
+        <div className="w-px h-4 bg-stone-200 mx-1" />
+
+        {/* Model badge */}
+        <div className="flex items-center gap-1.5 bg-stone-50 border border-stone-200 px-2.5 py-1 rounded-sm">
+          <svg className="w-3 h-3 text-[#C5A552]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <span className="text-[10px] text-stone-500 tracking-wide">Linda Sofa Set</span>
+        </div>
+
+        <div className="flex-1" />
+
+        {/* Active texture chip */}
+        {selected && (
+          <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 px-2.5 py-1 rounded-sm">
+            <img
+              src={selected.textureUrl}
+              alt=""
+              className="w-4 h-4 rounded-sm object-cover border border-stone-200 shrink-0"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+            />
+            <span className="text-[10px] text-stone-600 truncate max-w-[160px]">{selected.fabricName}</span>
+            {isApplying && (
+              <div className="w-3 h-3 border border-[#C5A552]/40 border-t-[#C5A552] rounded-full animate-spin shrink-0" />
+            )}
+          </div>
+        )}
+
+        {/* Model status dot */}
+        <div className="flex items-center gap-1.5">
+          <div className={`w-1.5 h-1.5 rounded-full transition-colors ${modelLoaded ? 'bg-emerald-500' : 'bg-stone-300 animate-pulse'}`} />
+          <span className="text-[10px] text-stone-400 tracking-wider">{modelLoaded ? 'Ready' : 'Loading'}</span>
+        </div>
       </div>
 
-      {/* Main layout */}
-      <div className="flex-1 grid lg:grid-cols-[280px_1fr] gap-0 max-w-7xl mx-auto w-full px-6 lg:px-10 pb-10">
-        {/* Sidebar */}
-        <aside className="space-y-6 lg:pr-8">
-          {/* Fabric selector */}
-          <div>
-            <h3 className="text-cream/60 text-xs tracking-widest uppercase mb-3">
-              Select Fabric
-            </h3>
-            <div className="grid grid-cols-4 lg:grid-cols-2 gap-2">
-              {fabricOptions.map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setActiveFabric(f)}
-                  title={f.label}
-                  className={`group relative aspect-square border-2 transition-all duration-200 ${
-                    activeFabric.id === f.id
-                      ? 'border-gold scale-105'
-                      : 'border-transparent hover:border-white/20'
-                  }`}
-                  style={{ backgroundColor: `#${f.color.toString(16).padStart(6, '0')}` }}
-                >
-                  <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-cream text-[9px] p-0.5 text-center opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                    {f.label}
-                  </span>
-                </button>
-              ))}
+      {/* ── Main Content ── */}
+      <div className="flex-1 flex overflow-hidden">
+
+        {/* ── LEFT: 3D Viewport ── */}
+        <div className="flex-1 relative flex flex-col bg-white overflow-hidden">
+          {/* Viewport title bar */}
+          <div className="h-7 shrink-0 bg-stone-50 border-b border-stone-200 flex items-center px-3 gap-2">
+            <div className="flex gap-1">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
             </div>
-            <p className="text-gold text-xs mt-3 tracking-wider">{activeFabric.label}</p>
+            <div className="w-px h-3 bg-stone-300 mx-1" />
+            <span className="text-[9px] text-stone-400 tracking-widest uppercase select-none">Viewport · Perspective</span>
+            <div className="flex-1" />
+            <span className="text-[9px] text-stone-300 select-none">Drag to orbit · Scroll to zoom</span>
           </div>
 
-          {/* Model selector */}
-          <div>
-            <h3 className="text-cream/60 text-xs tracking-widest uppercase mb-3">
-              Model Shape
-            </h3>
-            <div className="space-y-2">
-              {modelOptions.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setActiveModel(m)}
-                  className={`w-full text-left px-3 py-2.5 text-sm transition-all duration-200 ${
-                    activeModel.id === m.id
-                      ? 'bg-gold text-charcoal'
-                      : 'border border-white/10 text-cream/70 hover:border-gold/50 hover:text-cream'
-                  }`}
-                >
-                  {m.label}
-                </button>
-              ))}
+          {/* model-viewer fills remaining space */}
+          <div className="flex-1 relative">
+            {/* @ts-ignore */}
+            <model-viewer
+              ref={mvRef as any}
+              src={MODEL_URL}
+              alt="Linda Sofa 3D model"
+              camera-controls
+              auto-rotate
+              shadow-intensity="1.5"
+              exposure="1.1"
+              environment-image="neutral"
+              style={{ width: '100%', height: '100%', background: '#ffffff' }}
+            />
+
+            {/* Corner bracket decorations */}
+            <div className="absolute top-3 left-3 w-5 h-5 border-t border-l border-[#C5A552]/30 pointer-events-none" />
+            <div className="absolute top-3 right-3 w-5 h-5 border-t border-r border-[#C5A552]/30 pointer-events-none" />
+            <div className="absolute bottom-3 left-3 w-5 h-5 border-b border-l border-[#C5A552]/30 pointer-events-none" />
+            <div className="absolute bottom-3 right-3 w-5 h-5 border-b border-r border-[#C5A552]/30 pointer-events-none" />
+
+            {/* Model loading overlay */}
+            {!modelLoaded && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-10 pointer-events-none">
+                <div className="w-8 h-8 border-2 border-stone-200 border-t-[#C5A552] rounded-full animate-spin mb-4" />
+                <p className="text-stone-400 text-[11px] tracking-[0.2em] uppercase">Loading 3D Model</p>
+                <p className="text-stone-300 text-[10px] mt-1 tracking-wide">Linda Sofa Set</p>
+              </div>
+            )}
+
+            {/* Texture applying overlay */}
+            {isApplying && modelLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-[2px] z-10 pointer-events-none">
+                <div className="bg-white border border-stone-200 px-6 py-3 flex items-center gap-3 shadow-lg">
+                  <div className="w-4 h-4 border-2 border-stone-200 border-t-[#C5A552] rounded-full animate-spin" />
+                  <span className="text-stone-500 text-[11px] tracking-[0.15em] uppercase">Applying texture…</span>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom info bar */}
+            {selected && modelLoaded && !isApplying && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm border border-stone-200 shadow-md px-4 py-2 pointer-events-none flex items-center gap-3">
+                <img
+                  src={selected.textureUrl}
+                  alt=""
+                  className="w-6 h-6 rounded object-cover border border-stone-200"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                />
+                <div>
+                  <span className="text-[10px] text-stone-600 tracking-widest uppercase">{selected.fabricName}</span>
+                  <span className="text-[10px] text-stone-400 ml-2">R:{selected.roughness.toFixed(1)} M:{selected.metalness.toFixed(1)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── RIGHT: Materials Panel ── */}
+        <div className="w-72 xl:w-80 shrink-0 flex flex-col bg-white border-l border-stone-200 overflow-hidden">
+
+          {/* Panel header */}
+          <div className="h-7 shrink-0 bg-stone-50 border-b border-stone-200 flex items-center px-3 gap-2">
+            <svg className="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <span className="text-[9px] text-stone-500 tracking-widest uppercase select-none flex-1">Materials Library</span>
+            <span className="text-[9px] text-stone-400 tabular-nums">{filtered.length}</span>
+          </div>
+
+          {/* ── Filters ── */}
+          <div className="shrink-0 border-b border-stone-200 p-2.5 space-y-2.5 bg-stone-50">
+
+            {/* Search */}
+            <div className="relative">
+              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search fabrics…"
+                className="w-full bg-white border border-stone-200 text-stone-600 text-[11px] pl-7 pr-3 py-1.5 placeholder-stone-300 focus:outline-none focus:border-[#C5A552]/60 transition-colors rounded-sm"
+              />
             </div>
+
+            {/* Material Type pills */}
+            <div>
+              <p className="text-[9px] text-stone-400 uppercase tracking-[0.15em] mb-1.5">Material Type</p>
+              <div className="flex flex-wrap gap-1">
+                {materialTypeOptions.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setActiveMaterialType(t)}
+                    className={`text-[9px] tracking-wide px-2 py-0.5 border transition-all duration-150 rounded-sm ${
+                      activeMaterialType === t
+                        ? 'border-[#C5A552]/60 bg-[#C5A552]/10 text-[#C5A552]'
+                        : 'border-stone-200 text-stone-400 hover:border-stone-300 hover:text-stone-600'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Collection dropdown */}
+            <div>
+              <p className="text-[9px] text-stone-400 uppercase tracking-[0.15em] mb-1.5">Collection</p>
+              <div className="relative">
+                <select
+                  value={activeCollection}
+                  onChange={(e) => setActiveCollection(e.target.value)}
+                  className="w-full bg-white border border-stone-200 text-stone-600 text-[11px] px-2.5 py-1.5 focus:outline-none focus:border-[#C5A552]/60 appearance-none cursor-pointer transition-colors rounded-sm"
+                >
+                  {collectionOptions.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-stone-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Clear filters */}
+            {(activeMaterialType !== 'All' || activeCollection !== 'All' || search) && (
+              <button
+                onClick={() => { setActiveMaterialType('All'); setActiveCollection('All'); setSearch('') }}
+                className="text-[9px] text-[#C5A552]/70 hover:text-[#C5A552] uppercase tracking-widest transition-colors"
+              >
+                ✕ Clear filters
+              </button>
+            )}
           </div>
 
-          {/* Controls */}
-          <div>
-            <h3 className="text-cream/60 text-xs tracking-widest uppercase mb-3">
-              Controls
-            </h3>
-            <button
-              onClick={() => setIsRotating((r) => !r)}
-              className={`w-full px-3 py-2.5 text-xs tracking-widest uppercase transition-all ${
-                isRotating
-                  ? 'bg-gold/20 border border-gold text-gold'
-                  : 'border border-white/20 text-cream/50 hover:border-gold/50'
-              }`}
-            >
-              {isRotating ? 'Auto-Rotate: On' : 'Auto-Rotate: Off'}
-            </button>
-            <p className="text-stone-500 text-xs mt-3 leading-relaxed">
-              Drag to rotate · Scroll to zoom · Right-click to pan
-            </p>
+          {/* ── Swatches Grid ── */}
+          <div className="flex-1 overflow-y-auto p-2.5 bg-white">
+            {filtered.length > 0 ? (
+              <div className="grid grid-cols-3 gap-1.5">
+                {filtered.map((m) => {
+                  const isActive = selected?.id === m.id
+                  return (
+                    <button
+                      key={m.id}
+                      onClick={() => handleSelect(m)}
+                      title={`${m.collection_name} ${m.material_name}`}
+                      className={`group relative aspect-square overflow-hidden border transition-all duration-150 rounded-sm ${
+                        isActive
+                          ? 'border-[#C5A552] shadow-[0_0_0_1px_rgba(197,165,82,0.25)] scale-[1.03]'
+                          : 'border-stone-200 hover:border-stone-400'
+                      }`}
+                    >
+                      <img
+                        src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
+                        alt={`${m.collection_name} ${m.material_name}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const el = e.currentTarget as HTMLImageElement
+                          el.style.display = 'none'
+                          if (el.parentElement) el.parentElement.style.backgroundColor = '#e7e5e4'
+                        }}
+                      />
+                      {/* Hover / selected info overlay */}
+                      <div className={`absolute inset-0 bg-black/55 flex flex-col items-center justify-center p-1 transition-opacity ${
+                        isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      }`}>
+                        <p className="text-[8px] text-white font-semibold uppercase text-center leading-tight tracking-wide line-clamp-2">{m.collection_name}</p>
+                        <p className="text-[7px] text-white/70 mt-0.5 tracking-wide">{m.material_name}</p>
+                      </div>
+                      {/* Selected checkmark */}
+                      {isActive && (
+                        <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#C5A552] rounded-full flex items-center justify-center shadow-md">
+                          <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                          </svg>
+                        </div>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-32 gap-2">
+                <p className="text-stone-400 text-[11px] tracking-wide">No materials found</p>
+                <button
+                  onClick={() => { setActiveMaterialType('All'); setActiveCollection('All'); setSearch('') }}
+                  className="text-[10px] text-[#C5A552]/70 hover:text-[#C5A552] uppercase tracking-widest transition-colors"
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
           </div>
-        </aside>
 
-        {/* Canvas */}
-        <div className="relative min-h-[500px] lg:min-h-0 border border-white/5">
-          <div ref={mountRef} className="w-full h-full absolute inset-0" />
-          {/* Overlay corner decorations */}
-          <div className="absolute top-3 left-3 w-6 h-6 border-t border-l border-gold/40 pointer-events-none" />
-          <div className="absolute top-3 right-3 w-6 h-6 border-t border-r border-gold/40 pointer-events-none" />
-          <div className="absolute bottom-3 left-3 w-6 h-6 border-b border-l border-gold/40 pointer-events-none" />
-          <div className="absolute bottom-3 right-3 w-6 h-6 border-b border-r border-gold/40 pointer-events-none" />
-          {/* Label */}
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm px-4 py-1.5 border border-white/10 pointer-events-none">
-            <p className="text-cream/60 text-xs tracking-widest uppercase">
-              {activeModel.label} · {activeFabric.label}
-            </p>
-          </div>
+          {/* ── Selected Material Info Footer ── */}
+          {selected ? (
+            <div className="shrink-0 border-t border-stone-200 p-3 bg-stone-50">
+              <p className="text-[9px] text-stone-400 uppercase tracking-widest mb-2">Selected</p>
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={selected.textureUrl}
+                  alt={selected.fabricName}
+                  className="w-10 h-10 rounded-sm object-cover border border-stone-200 shrink-0"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] text-stone-700 font-semibold uppercase tracking-tight truncate">{selected.collectionName}</p>
+                  <p className="text-[9px] text-stone-500 truncate">{selected.materialType} · {selected.colorGroup}</p>
+                  <p className="text-[9px] text-stone-400 mt-0.5">R {selected.roughness.toFixed(2)} · M {selected.metalness.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="shrink-0 border-t border-stone-200 p-3 bg-stone-50">
+              <p className="text-[9px] text-stone-400 text-center tracking-widest uppercase">Select a material to apply</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
   )
-}
-
-function buildGeometry(shape: string): THREE.BufferGeometry {
-  switch (shape) {
-    case 'sphere':
-      return new THREE.SphereGeometry(1.4, 64, 64)
-    case 'torus':
-      return new THREE.TorusGeometry(1.2, 0.45, 32, 100)
-    case 'box':
-      return new THREE.BoxGeometry(2, 1.4, 2, 4, 4, 4)
-    case 'torusKnot':
-    default:
-      return new THREE.TorusKnotGeometry(1, 0.35, 128, 16)
-  }
 }
 
 export default ThreeDVisualizerPage

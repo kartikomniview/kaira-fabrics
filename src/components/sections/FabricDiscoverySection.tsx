@@ -1,139 +1,178 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { newMaterials } from '../../data/newmaterials'
+import ThreeDModal from '../ui/ThreeDModal'
 
-const fabrics = [
-  { id: 1, name: 'Ivory Linen', color: 'Neutral', pattern: 'Solid', material: 'Linen', collection: 'Linen Masters', hex: '#F5F0E8' },
-  { id: 2, name: 'Midnight Velvet', color: 'Dark', pattern: 'Solid', material: 'Velvet', collection: 'Royal Velvet', hex: '#1A0A2E' },
-  { id: 3, name: 'Amber Silk', color: 'Warm', pattern: 'Solid', material: 'Silk', collection: 'Silk Heritage', hex: '#C5A552' },
-  { id: 4, name: 'Storm Herringbone', color: 'Neutral', pattern: 'Herringbone', material: 'Wool', collection: 'Contemporary Weave', hex: '#5A5D6B' },
-  { id: 5, name: 'Terracotta Linen', color: 'Warm', pattern: 'Solid', material: 'Linen', collection: 'Linen Masters', hex: '#C4704A' },
-  { id: 6, name: 'Forest Cashmere', color: 'Cool', pattern: 'Solid', material: 'Cashmere', collection: 'Cashmere Touch', hex: '#2D4A35' },
-  { id: 7, name: 'Blush Velvet', color: 'Warm', pattern: 'Solid', material: 'Velvet', collection: 'Royal Velvet', hex: '#D4A0A0' },
-  { id: 8, name: 'Midnight Blue Silk', color: 'Cool', pattern: 'Solid', material: 'Silk', collection: 'Silk Heritage', hex: '#1A2C5B' },
-  { id: 9, name: 'Warm Greige', color: 'Neutral', pattern: 'Textured', material: 'Linen', collection: 'Linen Masters', hex: '#C8BBA8' },
-  { id: 10, name: 'Emerald Jacquard', color: 'Cool', pattern: 'Geometric', material: 'Jacquard', collection: 'Contemporary Weave', hex: '#1A5440' },
-  { id: 11, name: 'Cognac Leather', color: 'Warm', pattern: 'Solid', material: 'Leather', collection: 'Italian Leather', hex: '#8B4A2A' },
-  { id: 12, name: 'Pearl Cashmere', color: 'Neutral', pattern: 'Solid', material: 'Cashmere', collection: 'Cashmere Touch', hex: '#E8E0D5' },
-]
+interface ModalState {
+  fabricName: string
+  textureUrl: string
+  roughness: number
+  metalness: number
+}
 
-const colorFilters = ['All', 'Neutral', 'Warm', 'Cool', 'Dark']
-const patternFilters = ['All', 'Solid', 'Herringbone', 'Geometric', 'Textured']
-const materialFilters = ['All', 'Linen', 'Velvet', 'Silk', 'Cashmere', 'Wool', 'Leather', 'Jacquard']
-const collectionFilters = ['All', 'Linen Masters', 'Royal Velvet', 'Silk Heritage', 'Cashmere Touch', 'Contemporary Weave', 'Italian Leather']
+const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
 
-const FilterPill = ({
-  label,
-  active,
-  onClick,
-}: {
-  label: string
-  active: boolean
-  onClick: () => void
-}) => (
-  <button
-    onClick={onClick}
-    className={`px-3 py-1.5 text-xs tracking-wider uppercase transition-all duration-200 ${
-      active
-        ? 'bg-charcoal text-cream'
-        : 'bg-transparent border border-stone-300 text-stone-500 hover:border-charcoal hover:text-charcoal'
-    }`}
-  >
-    {label}
-  </button>
-)
+const fabrics = newMaterials.map((m) => ({
+  id: m.id,
+  name: `${m.collection_name} ${m.material_name}`,
+  colorGroup: m.color_group ?? '',
+  pattern: m.pattern ?? '',
+  material: m.material_type,
+  collection: m.collection_name,
+  image: `${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`,
+  roughness: m.roughness ?? 0.5,
+  metalness: m.metalness ?? 0,
+}))
+
+const colorOptions: string[] = ['All', ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => v !== null))).sort()]
+const patternOptions: string[] = ['All', ...Array.from(new Set(newMaterials.map((m) => m.pattern).filter((v): v is string => v !== null))).sort()]
+const materialOptions: string[] = ['All', ...Array.from(new Set(newMaterials.map((m) => m.material_type))).sort()]
+const collectionOptions: string[] = ['All', ...Array.from(new Set(newMaterials.map((m) => m.collection_name)))]
+
+const DISPLAY_LIMIT = 12
 
 const FabricDiscoverySection = () => {
   const [activeColor, setActiveColor] = useState('All')
   const [activePattern, setActivePattern] = useState('All')
   const [activeMaterial, setActiveMaterial] = useState('All')
   const [activeCollection, setActiveCollection] = useState('All')
+  const [modal, setModal] = useState<ModalState | null>(null)
 
-  const filtered = fabrics.filter((f) => {
-    if (activeColor !== 'All' && f.color !== activeColor) return false
+  const filtered = useMemo(() => fabrics.filter((f) => {
+    if (activeColor !== 'All' && f.colorGroup !== activeColor) return false
     if (activePattern !== 'All' && f.pattern !== activePattern) return false
     if (activeMaterial !== 'All' && f.material !== activeMaterial) return false
     if (activeCollection !== 'All' && f.collection !== activeCollection) return false
     return true
-  })
+  }), [activeColor, activePattern, activeMaterial, activeCollection])
+
+  const displayed = filtered.slice(0, DISPLAY_LIMIT)
 
   return (
-    <section className="bg-stone-50 py-12 lg:py-16">
+    <>
+    <section className="bg-stone-50 py-10 lg:py-14 border-b border-stone-200">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        {/* Header */}
-        <div className="mb-8">
-          <p className="text-gold text-xs tracking-[0.3em] uppercase font-medium mb-3">
-            Browse Our Range
-          </p>
-          <h2 className="font-serif text-4xl md:text-5xl text-charcoal mb-4">
-            Fabric Discovery
+        {/* Heading */}
+        <div className="text-center mb-10">
+          <h2 className="font-serif text-2xl md:text-3xl text-stone-900">
+            Fabric <span className="text-secondary font-medium">Discovery</span>
           </h2>
-          <p className="text-stone-500 text-lg max-w-xl">
-            Explore over 500 premium textile swatches. Filter by colour, pattern, material, or collection.
+          <p className="mt-2 text-stone-400 text-xs md:text-sm max-w-lg mx-auto font-normal tracking-wide leading-relaxed">
+            Filter by color, pattern, material or collection
           </p>
-        </div>
-
-        {/* Filters */}
-        <div className="bg-white p-6 mb-10 border border-stone-200 space-y-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs text-stone-400 tracking-widest uppercase w-20 shrink-0">Colour</span>
-            <div className="flex flex-wrap gap-2">
-              {colorFilters.map((f) => (
-                <FilterPill key={f} label={f} active={activeColor === f} onClick={() => setActiveColor(f)} />
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs text-stone-400 tracking-widest uppercase w-20 shrink-0">Pattern</span>
-            <div className="flex flex-wrap gap-2">
-              {patternFilters.map((f) => (
-                <FilterPill key={f} label={f} active={activePattern === f} onClick={() => setActivePattern(f)} />
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs text-stone-400 tracking-widest uppercase w-20 shrink-0">Material</span>
-            <div className="flex flex-wrap gap-2">
-              {materialFilters.map((f) => (
-                <FilterPill key={f} label={f} active={activeMaterial === f} onClick={() => setActiveMaterial(f)} />
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs text-stone-400 tracking-widest uppercase w-20 shrink-0">Collection</span>
-            <div className="flex flex-wrap gap-2">
-              {collectionFilters.map((f) => (
-                <FilterPill key={f} label={f} active={activeCollection === f} onClick={() => setActiveCollection(f)} />
-              ))}
-            </div>
+          {/* Decorative divider */}
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-stone-300" />
+            <span className="w-1 h-1 rotate-45 bg-secondary inline-block" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-stone-300" />
           </div>
         </div>
 
-        {/* Results count */}
-        <p className="text-sm text-stone-400 mb-6">
-          Showing <span className="text-charcoal font-medium">{filtered.length}</span> of {fabrics.length} fabrics
-        </p>
+        {/* Filter bar */}
+        <div className="flex flex-wrap gap-3 mb-6 pb-5 border-b border-stone-200">
+          {[
+            { label: 'Color', value: activeColor, options: colorOptions, set: setActiveColor },
+            { label: 'Pattern', value: activePattern, options: patternOptions, set: setActivePattern },
+            { label: 'Material', value: activeMaterial, options: materialOptions, set: setActiveMaterial },
+            { label: 'Collection', value: activeCollection, options: collectionOptions, set: setActiveCollection },
+          ].map(({ label, value, options, set }) => (
+            <div key={label} className="flex items-center gap-2">
+              <span className="text-[10px] uppercase tracking-widest text-stone-400 font-medium">{label}</span>
+              <select
+                value={value}
+                onChange={(e) => set(e.target.value)}
+                className="border border-stone-200 bg-white text-xs text-stone-700 px-3 py-1.5 focus:outline-none focus:border-secondary appearance-none pr-6 cursor-pointer"
+              >
+                {options.map((o) => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            </div>
+          ))}
+          {(activeColor !== 'All' || activePattern !== 'All' || activeMaterial !== 'All' || activeCollection !== 'All') && (
+            <button
+              onClick={() => { setActiveColor('All'); setActivePattern('All'); setActiveMaterial('All'); setActiveCollection('All') }}
+              className="text-[10px] uppercase tracking-widest text-stone-400 hover:text-secondary transition-colors border-b border-stone-300 pb-px ml-2"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
 
-        {/* Fabric Grid */}
+        {/* Result count */}
+        {filtered.length > 0 && (
+          <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-4">
+            Showing {displayed.length} of {filtered.length} fabrics
+          </p>
+        )}
+
+        {/* Fabric grid */}
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {filtered.map((fabric) => (
-              <div key={fabric.id} className="group cursor-pointer">
-                <div
-                  className="aspect-square mb-3 border border-stone-200 group-hover:border-gold transition-colors duration-300"
-                  style={{ backgroundColor: fabric.hex }}
-                />
-                <p className="text-xs font-medium text-charcoal truncate">{fabric.name}</p>
-                <p className="text-xs text-stone-400">{fabric.material}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6">
+            {displayed.map((fabric) => (
+              <div key={fabric.id} className="group bg-stone-100/50 p-2 rounded-lg border border-stone-200/60 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-full aspect-square rounded-md overflow-hidden mb-3 bg-stone-200">
+                  <img
+                    src={fabric.image}
+                    alt={fabric.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                  />
+                </div>
+
+                <div className="px-1 mb-3">
+                  <p className="text-[11px] font-bold text-stone-800 leading-tight truncate uppercase tracking-tight">{fabric.collection}</p>
+                  <p className="text-[10px] text-stone-500">{fabric.material} · {fabric.colorGroup}</p>
+                </div>
+
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => setModal({
+                      fabricName: fabric.name,
+                      textureUrl: fabric.image,
+                      roughness: fabric.roughness,
+                      metalness: fabric.metalness,
+                    })}
+                    className="flex-1 flex items-center justify-center gap-1 bg-[#C08156] hover:bg-[#A66E45] text-white text-[10px] font-bold py-1.5 rounded transition-colors shadow-sm"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 20 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                    </svg>
+                    3D
+                  </button>
+                  <button className="flex-1 flex items-center justify-center gap-1 bg-[#2D3142] hover:bg-[#1C1E2B] text-white text-[10px] font-bold py-1.5 rounded transition-colors shadow-sm">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2L14.85 8.65L22 9.24L16.5 13.97L18.18 21L12 17.27L5.82 21L7.5 13.97L2 9.24L9.15 8.65L12 2Z" />
+                    </svg>
+                    AI
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <p className="font-serif text-2xl text-charcoal mb-2">No fabrics found</p>
-            <p className="text-stone-400 text-sm">Try adjusting your filters</p>
+          <div className="flex flex-col items-center justify-center gap-3 h-32 border border-dashed border-stone-300">
+            <p className="text-stone-400 text-xs tracking-wide">No fabrics match your filters</p>
+            <button
+              onClick={() => { setActiveColor('All'); setActivePattern('All'); setActiveMaterial('All'); setActiveCollection('All') }}
+              className="text-[11px] uppercase tracking-widest text-secondary border-b border-secondary pb-px hover:opacity-70 transition-opacity"
+            >
+              View all
+            </button>
           </div>
         )}
       </div>
     </section>
+
+    {modal && (
+      <ThreeDModal
+        fabricName={modal!.fabricName}
+        textureUrl={modal!.textureUrl}
+        roughness={modal!.roughness}
+        metalness={modal!.metalness}
+        onClose={() => setModal(null)}
+      />
+    )}
+    </>
   )
 }
 

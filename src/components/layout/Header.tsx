@@ -28,35 +28,33 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
-        isScrolled || isMobileOpen
-          ? 'bg-charcoal shadow-2xl'
-          : 'bg-gradient-to-b from-black/60 to-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-stone-200 transition-shadow duration-300 ${
+        isScrolled ? 'shadow-sm' : ''
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <img
               src="https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/clientLogos/KairaFabrics.png"
               alt="Kaira Fabrics & Leather"
-              className="h-12 w-auto object-contain group-hover:opacity-80 transition-opacity duration-300"
+              className="h-10 w-auto object-contain group-hover:opacity-80 transition-opacity duration-300"
             />
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-7">
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.to === '/'}
                 className={({ isActive }) =>
-                  `text-xs tracking-widest uppercase transition-colors duration-200 ${
+                  `text-xs tracking-wider transition-colors duration-200 ${
                     isActive
-                      ? 'text-gold'
-                      : 'text-cream/80 hover:text-gold'
+                      ? 'text-stone-900 underline underline-offset-4'
+                      : 'text-stone-600 hover:text-stone-900'
                   }`
                 }
               >
@@ -68,10 +66,10 @@ const Header = () => {
           {/* CTA + Mobile Toggle */}
           <div className="flex items-center gap-4">
             <Link
-              to="/collections"
-              className="hidden lg:inline-flex items-center justify-center px-5 py-2 text-xs tracking-widest uppercase border border-gold text-gold hover:bg-gold hover:text-charcoal transition-all duration-300"
+              to="/materials"
+              className="hidden lg:inline-flex items-center justify-center px-5 py-2 text-xs tracking-widest uppercase bg-stone-900 text-white hover:bg-stone-700 transition-all duration-300"
             >
-              Shop Now
+              Explore Fabrics
             </Link>
 
             {/* Hamburger */}
@@ -81,17 +79,17 @@ const Header = () => {
               className="lg:hidden flex flex-col gap-1.5 p-2"
             >
               <span
-                className={`block w-6 h-px bg-cream transition-all duration-300 ${
+                className={`block w-6 h-px bg-stone-700 transition-all duration-300 ${
                   isMobileOpen ? 'rotate-45 translate-y-2.5' : ''
                 }`}
               />
               <span
-                className={`block w-6 h-px bg-cream transition-all duration-300 ${
+                className={`block w-6 h-px bg-stone-700 transition-all duration-300 ${
                   isMobileOpen ? 'opacity-0' : ''
                 }`}
               />
               <span
-                className={`block w-6 h-px bg-cream transition-all duration-300 ${
+                className={`block w-6 h-px bg-stone-700 transition-all duration-300 ${
                   isMobileOpen ? '-rotate-45 -translate-y-2.5' : ''
                 }`}
               />
@@ -103,10 +101,10 @@ const Header = () => {
       {/* Mobile Menu */}
       <div
         className={`lg:hidden overflow-hidden transition-all duration-400 ${
-          isMobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'
+          isMobileOpen ? 'max-h-screen border-t border-stone-200' : 'max-h-0'
         }`}
       >
-        <nav className="bg-charcoal px-6 py-6 flex flex-col gap-5">
+        <nav className="bg-white px-6 py-6 flex flex-col gap-5">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -114,8 +112,8 @@ const Header = () => {
               end={link.to === '/'}
               onClick={() => setIsMobileOpen(false)}
               className={({ isActive }) =>
-                `text-sm tracking-widest uppercase ${
-                  isActive ? 'text-gold' : 'text-cream/80 hover:text-gold'
+                `text-sm ${
+                  isActive ? 'text-stone-900 font-medium' : 'text-stone-600 hover:text-stone-900'
                 }`
               }
             >
@@ -123,11 +121,11 @@ const Header = () => {
             </NavLink>
           ))}
           <Link
-            to="/collections"
+            to="/materials"
             onClick={() => setIsMobileOpen(false)}
-            className="mt-2 text-center border border-gold text-gold py-3 text-xs tracking-widest uppercase hover:bg-gold hover:text-charcoal transition-all"
+            className="mt-2 text-center bg-stone-900 text-white py-3 text-xs tracking-widest uppercase hover:bg-stone-700 transition-all"
           >
-            Shop Now
+            Explore Fabrics
           </Link>
         </nav>
       </div>
