@@ -11,6 +11,7 @@ const GalleryPage          = lazy(() => import('./pages/GalleryPage'))
 const ThreeDVisualizerPage = lazy(() => import('./pages/ThreeDVisualizerPage'))
 const AIVisualizerPage     = lazy(() => import('./pages/AIVisualizerPage'))
 const ContactPage          = lazy(() => import('./pages/ContactPage'))
+const AdminPage            = lazy(() => import('./pages/AdminPage'))
 
 function App() {
   // Show the branded PageLoader until all critical resources are ready.
@@ -55,6 +56,8 @@ function App() {
               <Route path="ai-visualizer" element={<AIVisualizerPage />} />
               <Route path="contact" element={<ContactPage />} />
             </Route>
+            {/* Admin — rendered outside Layout (no header/footer) */}
+            <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+const weaveBg = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23A2EF0F' stroke-width='0.4' opacity='0.18'%3E%3Cpath d='M0 10h40M0 20h40M0 30h40M10 0v40M20 0v40M30 0v40'/%3E%3C/g%3E%3C/svg%3E")`
+
 const galleryItems = [
   { id: 1, src: 'https://placehold.co/800x600/3B2A1A/C5A552?text=Living+Room+I', alt: 'Elegant living room with Royal Velvet sofa', category: 'Living Room', fabric: 'Royal Velvet' },
   { id: 2, src: 'https://placehold.co/600x800/1A2F4A/C5A552?text=Bedroom+I', alt: 'Luxury master bedroom', category: 'Bedroom', fabric: 'Cashmere Touch' },
@@ -27,28 +29,56 @@ const GalleryPage = () => {
       : galleryItems.filter((g) => g.category === activeCategory)
 
   return (
-    <div className="min-h-screen">
-      {/* Page Hero */}
-      <div className="bg-charcoal pt-20 pb-16">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center">
-          <p className="text-gold text-xs tracking-[0.3em] uppercase font-medium mb-3">
-            Inspiration Portfolio
+    <div className="min-h-screen bg-cream">
+
+      {/* ── Hero Banner ─────────────────────────────────────────── */}
+      <div
+        className="relative bg-charcoal pt-28 pb-20 overflow-hidden"
+        style={{ backgroundImage: weaveBg }}
+      >
+        <span className="absolute left-0 top-0 h-full w-px bg-gold/20" />
+        <span className="absolute right-0 top-0 h-full w-px bg-gold/20" />
+        <span className="absolute left-1/2 top-0 h-full w-px bg-gold/10 -translate-x-1/2" />
+
+        <div className="relative max-w-4xl mx-auto px-6 lg:px-10 text-center">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="h-px w-12 bg-gold/50" />
+            <svg className="w-5 h-5 text-gold opacity-70" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            <span className="h-px w-12 bg-gold/50" />
+          </div>
+          <p className="text-gold text-xs tracking-[0.35em] uppercase font-medium mb-4">
+            Inspiration Portfolio · Real Interiors
           </p>
-          <h1 className="font-serif text-5xl md:text-6xl text-cream mb-4">
+          <h1 className="font-serif text-5xl md:text-7xl text-cream mb-5 leading-tight">
             KAIRA Gallery
           </h1>
-          <p className="text-stone-400 text-lg max-w-xl mx-auto">
+          <p className="text-stone-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Real interiors. Real luxury. Browse our portfolio of spaces brought to life
             with KAIRA's premium fabrics and fine leather.
           </p>
+          <div className="mt-10 flex justify-center gap-2">
+            {['bg-gold', 'bg-charcoal', 'bg-stone-300', 'bg-gold/60', 'bg-stone-500'].map((c, i) => (
+              <span key={i} className={`${c} h-1.5 w-8 rounded-full`} />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Gallery */}
-      <div className="bg-cream py-10 lg:py-14">
+      {/* ── Gallery ──────────────────────────────────────────────── */}
+      <div className="py-14 lg:py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
+
+          {/* Section label */}
+          <div className="flex items-center gap-3 mb-8">
+            <span className="h-px flex-1 bg-stone-200" />
+            <p className="text-xs tracking-[0.3em] uppercase text-gold font-medium whitespace-nowrap">Browse By Space</p>
+            <span className="h-px flex-1 bg-stone-200" />
+          </div>
+
           {/* Filters */}
-          <div className="flex flex-wrap gap-2 mb-8 justify-center">
+          <div className="flex flex-wrap gap-2 mb-10 justify-center">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -56,7 +86,7 @@ const GalleryPage = () => {
                 className={`px-5 py-2 text-xs tracking-widest uppercase transition-all duration-200 ${
                   activeCategory === cat
                     ? 'bg-charcoal text-cream'
-                    : 'border border-stone-300 text-stone-500 hover:border-charcoal hover:text-charcoal'
+                    : 'border border-stone-200 text-stone-400 hover:border-gold hover:text-charcoal'
                 }`}
               >
                 {cat}
@@ -69,39 +99,48 @@ const GalleryPage = () => {
             {filtered.map((item) => (
               <div
                 key={item.id}
-                className="break-inside-avoid group relative overflow-hidden cursor-pointer border border-stone-200 hover:border-stone-400 transition-colors duration-300"
+                className="break-inside-avoid group relative overflow-hidden cursor-pointer border border-stone-200 hover:border-gold/50 transition-colors duration-300"
                 onClick={() => setLightbox(item)}
               >
+                {/* gold accent bar on hover */}
+                <span className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gold z-10 transition-all duration-300" />
                 <img
                   src={item.src}
                   alt={item.alt}
                   className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 {/* Hover overlay */}
-                <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/60 transition-all duration-300 flex flex-col justify-end p-5 opacity-0 group-hover:opacity-100">
-                  <span className="text-gold text-xs tracking-widest uppercase">{item.category}</span>
+                <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/65 transition-all duration-300 flex flex-col justify-end p-5 opacity-0 group-hover:opacity-100">
+                  <span className="text-gold text-xs tracking-widest uppercase font-medium">{item.category}</span>
                   <p className="text-cream text-sm font-medium mt-1">{item.fabric}</p>
+                  <p className="text-stone-400 text-xs mt-0.5">Tap to view</p>
                 </div>
               </div>
             ))}
           </div>
 
           {filtered.length === 0 && (
-            <div className="text-center py-20">
-              <p className="font-serif text-3xl text-charcoal">No images in this category</p>
+            <div className="text-center py-20 border border-dashed border-stone-200">
+              <p className="font-serif text-2xl text-charcoal mb-3">No images in this category</p>
+              <button
+                onClick={() => setActiveCategory('All')}
+                className="text-xs uppercase tracking-widest text-gold border border-gold/40 px-5 py-2 hover:bg-charcoal hover:text-cream transition-colors"
+              >
+                View All
+              </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Lightbox */}
+      {/* ── Lightbox ─────────────────────────────────────────────── */}
       {lightbox && (
         <div
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6"
+          className="fixed inset-0 z-[100] bg-black/92 flex items-center justify-center p-6"
           onClick={() => setLightbox(null)}
         >
           <button
-            className="absolute top-6 right-6 text-white/60 hover:text-white text-4xl leading-none"
+            className="absolute top-6 right-6 w-10 h-10 border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-gold transition-colors text-2xl leading-none"
             onClick={() => setLightbox(null)}
             aria-label="Close lightbox"
           >
@@ -114,14 +153,21 @@ const GalleryPage = () => {
             <img
               src={lightbox.src}
               alt={lightbox.alt}
-              className="w-full max-h-[80vh] object-contain"
+              className="w-full max-h-[78vh] object-contain"
             />
-            <div className="bg-charcoal p-4 flex justify-between items-center">
+            <div
+              className="relative p-5 flex justify-between items-center overflow-hidden"
+              style={{ backgroundImage: weaveBg, backgroundColor: 'rgb(116,98,60)' }}
+            >
+              <span className="absolute top-0 left-0 w-full h-0.5 bg-gold" />
               <div>
-                <p className="text-gold text-xs tracking-widest uppercase">{lightbox.category}</p>
-                <p className="text-cream text-sm mt-0.5">{lightbox.alt}</p>
+                <p className="text-gold text-xs tracking-widest uppercase font-medium">{lightbox.category}</p>
+                <p className="text-cream text-sm mt-1 font-medium">{lightbox.alt}</p>
               </div>
-              <span className="text-cream/50 text-sm">{lightbox.fabric}</span>
+              <div className="text-right">
+                <p className="text-gold/70 text-xs tracking-widest uppercase">Fabric</p>
+                <p className="text-cream/80 text-sm mt-0.5">{lightbox.fabric}</p>
+              </div>
             </div>
           </div>
         </div>
