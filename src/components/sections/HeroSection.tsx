@@ -3,50 +3,49 @@ import Button from '../ui/Button'
 
 const SLIDES = [
   {
-    url: 'https://supoassets.s3.ap-south-1.amazonaws.com/public/websites/KairaFabrics/Banner/1.jpg',
+    url: 'https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/hero/Banner1.webp',
     label: 'Woven Excellence',
   },
   {
-    url: 'https://supoassets.s3.ap-south-1.amazonaws.com/public/websites/KairaFabrics/Banner/2.jpg',
+    url: 'https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/hero/Banner2.webp',
     label: 'Premium Textiles',
   },
   {
-    url: 'https://media.istockphoto.com/id/1191254426/photo/modern-scandinavian-living-room-interior-3d-render.jpg?s=2048x2048&w=is&k=20&c=RnYRtDSBL1j3Mr3FN20EngWGNRpEPlXmF591DDGJFfw=',
+    url: 'https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/hero/Banner3.webp',
     label: 'Artisan Craftsmanship',
   },
 ]
 
+// Pre-offset delays so each image is already mid-cycle at page load:
+// image 0 starts fresh, image 1 picks up from 10 s in, image 2 from 5 s in.
+const DELAYS = ['0s', '-10s', '-5s']
+
 const HeroSection = () => {
   const [isLoaded, setIsLoaded] = useState(false)
-  const [activeSlide, setActiveSlide] = useState(0)
 
   useEffect(() => {
-    // Trigger entrance animation
     const loadTimer = setTimeout(() => setIsLoaded(true), 100)
-
-    // Auto-advance slides every 5 seconds
-    const slideTimer = setInterval(() => {
-      setActiveSlide(prev => (prev + 1) % SLIDES.length)
-    }, 5000)
-
-    return () => {
-      clearTimeout(loadTimer)
-      clearInterval(slideTimer)
-    }
+    return () => clearTimeout(loadTimer)
   }, [])
 
   return (
-    <section className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+    <section className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-stone-900">
 
-      {/* ── Background Slideshow ── */}
+      {/* ── Cinematic background — all images animate in CSS, no JS timer ── */}
       {SLIDES.map((slide, i) => (
         <img
           key={slide.url}
           src={slide.url}
           alt={slide.label}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-            i === activeSlide ? 'opacity-100' : 'opacity-0'
-          }`}
+          style={{
+            animationName: i % 2 === 0 ? 'heroSlideZoomIn' : 'heroSlideZoomOut',
+            animationDuration: '15s',
+            animationTimingFunction: 'ease-in-out',
+            animationIterationCount: 'infinite',
+            animationDelay: DELAYS[i],
+            animationFillMode: 'both',
+          }}
+          className="absolute inset-0 w-full h-full object-contain"
         />
       ))}
 
@@ -142,21 +141,7 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* ── Slide indicators ── */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">
-        {SLIDES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setActiveSlide(i)}
-            className={`transition-all duration-500 rounded-full ${
-              i === activeSlide
-                ? 'w-8 h-2 bg-white'
-                : 'w-2 h-2 bg-white/40 hover:bg-white/70'
-            }`}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
-      </div>
+
 
     </section>
   )

@@ -82,6 +82,28 @@
   --font-serif:     "LEMON MILK", sans-serif;
 }
 
+/* ─── Hero Cinematic Background Keyframes ───────────────────────────────────
+   15 s total cycle. Each image occupies a 5 s slot but fades out over 6 s so
+   consecutive images overlap by ~1 s, creating seamless crossfade transitions.
+   Delays: image 0 → 0s | image 1 → -10s | image 2 → -5s
+   ─────────────────────────────────────────────────────────────────────────── */
+@keyframes heroSlideZoomIn {
+  0%      { opacity: 0; transform: scale(1);    }
+  6.67%   { opacity: 1; transform: scale(1.01); }
+  26.67%  { opacity: 1; transform: scale(1.08); }
+  40%     { opacity: 0; transform: scale(1.1);  }
+  40.01%  { opacity: 0; transform: scale(1);    }
+  100%    { opacity: 0; transform: scale(1);    }
+}
+@keyframes heroSlideZoomOut {
+  0%      { opacity: 0; transform: scale(1.1);  }
+  6.67%   { opacity: 1; transform: scale(1.09); }
+  26.67%  { opacity: 1; transform: scale(1.02); }
+  40%     { opacity: 0; transform: scale(1);    }
+  40.01%  { opacity: 0; transform: scale(1.1);  }
+  100%    { opacity: 0; transform: scale(1.1);  }
+}
+
 /* ─── Loader Keyframes ───────────────────────────────────────────────────── */
 @keyframes kaira-weave-rise {
   from { transform: translateY(12%); opacity: 0.08; }

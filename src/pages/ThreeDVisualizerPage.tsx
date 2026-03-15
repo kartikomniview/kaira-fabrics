@@ -24,6 +24,40 @@ const COLOR_MAP: Record<string, string> = {
 // Collection thumbnail URL constant
 const getCollectionThumbUrl = (name: string) => `https://supoassets.s3.ap-south-1.amazonaws.com/public/store/ThumbnailsCover/KairaFabrics/${name}.webp`
 
+const S3_BASE = 'https://supoassets.s3.ap-south-1.amazonaws.com'
+const COMPANY = 'KairaFabrics'
+
+function getRoughnessMapURL(collectionName: string) {
+  return `${S3_BASE}/public/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
+}
+
+function getNormalMapURL(collectionName: string) {
+  return `${S3_BASE}/public/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
+}
+
+function getSheenMapUrl(materialType: string) {
+  if (materialType.includes('Fabric') || materialType.includes('Velvet') || materialType.includes('Suede')) {
+    return `${S3_BASE}/public/textures/Common/SheenColorMap.webp`
+  }
+  return ''
+}
+
+function getUvValue(collectionName: string): number {
+  if (
+    collectionName === 'Florious' || collectionName === 'Indigo' ||
+    collectionName === 'Aboone' || collectionName === 'Perth' ||
+    collectionName === 'Ibiza' || collectionName === 'Intense'
+  ) return 8
+  if (collectionName.includes('DigitalPrint') || collectionName === 'Kadillac') return 8
+  if (collectionName === 'Impression') return 14
+  return 16
+}
+
+function getRoughnessValue(collectionName: string, baseRoughness: number): number {
+  if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
+  return baseRoughness
+}
+
 interface SelectedMaterial {
   id: number
   fabricName: string
@@ -49,6 +83,17 @@ const ThreeDVisualizerPage = () => {
   const [currentProduct, setCurrentProduct] = useState<Product>(dummyProducts[0])
   const [productPanelOpen, setProductPanelOpen] = useState(false)
   const [quotationOpen, setQuotationOpen] = useState(false)
+
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 700)
+    return () => clearTimeout(t)
+  }, [])
+
+  // Toggle flags for material maps
+  const [applyRoughnessMap] = useState(false)
+  const [applyNormalMap] = useState(false)
+  const [applySheenMap] = useState(false)
 
   const modelUrl = getProductGlbUrl(currentProduct)
 
@@ -95,32 +140,75 @@ const ThreeDVisualizerPage = () => {
     return counts
   }, [activeMaterialType, activeColorGroup, search])
 
+  // Returns a blob URL that must be revoked by the caller after all textures are created.
+  const fetchBlobUrl = async (url: string): Promise<string | null> => {
+    try {
+      const fetchUrl = import.meta.env.DEV
+        ? url.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
+        : url
+      const res = await fetch(fetchUrl)
+      if (!res.ok) return null
+      const blob = await res.blob()
+      return URL.createObjectURL(blob)
+    } catch {
+      return null
+    }
+  }
+
   const applyTexture = async (mat: SelectedMaterial) => {
     const mv = mvRef.current as any
     if (!mv) return
     setIsApplying(true)
-    try {
-      const fetchUrl = import.meta.env.DEV
-        ? mat.textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
-        : mat.textureUrl
-      const res = await fetch(fetchUrl)
-      const blob = await res.blob()
-      const objectUrl = URL.createObjectURL(blob)
-      const texture = await mv.createTexture(objectUrl)
-      const model = mv.model
-      if (model) {
-        for (const m of model.materials) {
-          m.pbrMetallicRoughness.setRoughnessFactor(mat.roughness)
+    // Fetch blob URLs once (one network request each), then create a fresh
+    // texture object per material so every mesh receives the texture.
+    const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
+      fetchBlobUrl(mat.textureUrl),
+      applyRoughnessMap ? fetchBlobUrl(getRoughnessMapURL(mat.collectionName)) : Promise.resolve(null),
+      applyNormalMap ? fetchBlobUrl(getNormalMapURL(mat.collectionName)) : Promise.resolve(null),
+      applySheenMap ? (() => { const u = getSheenMapUrl(mat.materialType); return u ? fetchBlobUrl(u) : Promise.resolve(null) })() : Promise.resolve(null),
+    ])
+    const uvScale = getUvValue(mat.collectionName)
+    const roughness = getRoughnessValue(mat.collectionName, mat.roughness)
+    const uvTransform = { scale: [uvScale, uvScale] as [number, number] }
+
+    const model = mv.model
+    if (model) {
+      for (const m of model.materials) {
+        // Wrap each material individually so a failure on one doesn't skip the rest
+        try {
+          m.pbrMetallicRoughness.setRoughnessFactor(roughness)
           m.pbrMetallicRoughness.setMetallicFactor(mat.metalness)
-          await m.pbrMetallicRoughness.baseColorTexture.setTexture(texture)
+          if (baseBlobUrl) {
+            const tex = await mv.createTexture(baseBlobUrl)
+            await m.pbrMetallicRoughness.baseColorTexture.setTexture(tex)
+            m.pbrMetallicRoughness.baseColorTexture.setTransform(uvTransform)
+          }
+          if (roughnessBlobUrl && applyRoughnessMap) {
+            const tex = await mv.createTexture(roughnessBlobUrl)
+            await m.pbrMetallicRoughness.metallicRoughnessTexture.setTexture(tex)
+            m.pbrMetallicRoughness.metallicRoughnessTexture.setTransform(uvTransform)
+          }
+          if (normalBlobUrl && applyNormalMap) {
+            const tex = await mv.createTexture(normalBlobUrl)
+            await m.normalTexture.setTexture(tex)
+            m.normalTexture.setTransform(uvTransform)
+          }
+          if (sheenBlobUrl && m.sheen && applySheenMap) {
+            const tex = await mv.createTexture(sheenBlobUrl)
+            await m.sheen.sheenColorTexture?.setTexture(tex)
+            m.sheen.sheenColorTexture?.setTransform(uvTransform)
+          }
+        } catch {
+          // skip this material and continue with the rest
         }
       }
-      URL.revokeObjectURL(objectUrl)
-    } catch {
-      // silently ignore
-    } finally {
-      setIsApplying(false)
     }
+    // Revoke blob URLs now that all texture objects have been created
+    if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
+    if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
+    if (normalBlobUrl) URL.revokeObjectURL(normalBlobUrl)
+    if (sheenBlobUrl) URL.revokeObjectURL(sheenBlobUrl)
+    setIsApplying(false)
   }
 
   const handleSelect = (m: typeof newMaterials[0]) => {
@@ -433,7 +521,25 @@ const ThreeDVisualizerPage = () => {
                 <span className="text-[9px] text-stone-400 tabular-nums shrink-0 ml-2 bg-stone-200 px-1.5 py-0.5 rounded-full">{filtered.length}</span>
               </div>
               <div className="flex-1 overflow-y-auto p-2.5">
-                {filtered.length > 0 ? (
+                {isLoading ? (
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {Array.from({ length: 16 }, (_, i) => (
+                      <div
+                        key={i}
+                        className="relative aspect-square rounded-lg bg-stone-200 overflow-hidden border border-stone-100"
+                        aria-hidden="true"
+                      >
+                        <div
+                          className="absolute inset-0 -translate-x-full"
+                          style={{
+                            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%)',
+                            animation: `kaira-shimmer 1.6s ease-in-out ${i * 0.05}s infinite`,
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : filtered.length > 0 ? (
                   <div className="grid grid-cols-4 gap-1.5">
                     {filtered.map((m) => {
                       const isActive = selected?.id === m.id

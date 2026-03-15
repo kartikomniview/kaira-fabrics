@@ -48,77 +48,8 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-cream">
 
-      {/* ── Hero Banner ─────────────────────────────────────────── */}
-      <div
-        className="relative bg-charcoal pt-28 pb-20 overflow-hidden"
-        style={{ backgroundImage: weaveBg }}
-      >
-        {/* decorative thread lines */}
-        <span className="absolute left-0 top-0 h-full w-px bg-gold/20" />
-        <span className="absolute right-0 top-0 h-full w-px bg-gold/20" />
-        <span className="absolute left-1/2 top-0 h-full w-px bg-gold/10 -translate-x-1/2" />
-
-        <div className="relative max-w-4xl mx-auto px-6 lg:px-10 text-center">
-          {/* fabric swatch accent */}
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="h-px w-12 bg-gold/50" />
-            <svg className="w-5 h-5 text-gold opacity-70" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
-            </svg>
-            <span className="h-px w-12 bg-gold/50" />
-          </div>
-
-          <p className="text-gold text-xs tracking-[0.35em] uppercase font-medium mb-4">
-            Woven With Care · Crafted For You
-          </p>
-          <h1 className="font-serif text-5xl md:text-7xl text-cream mb-5 leading-tight">
-            Contact Us
-          </h1>
-          <p className="text-stone-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Whether you have a project in mind, need fabric samples, or want to explore
-            our exclusive collections — our textile experts are here to help.
-          </p>
-
-          {/* brand fabric strip */}
-          <div className="mt-10 flex justify-center gap-2">
-            {['bg-gold', 'bg-charcoal', 'bg-stone-300', 'bg-gold/60', 'bg-stone-500'].map((c, i) => (
-              <span key={i} className={`${c} h-1.5 w-8 rounded-full`} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Quick-contact pills ──────────────────────────────────── */}
-      <div className="bg-charcoal/95 border-b border-gold/20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-4 flex flex-wrap items-center justify-center gap-6 text-sm">
-          <a href="tel:+918589925111" className="flex items-center gap-2 text-stone-300 hover:text-gold transition-colors">
-            <svg className="w-4 h-4 text-gold flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498A1 1 0 0121 15.72V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-            </svg>
-            +91 8589925111
-          </a>
-          <span className="text-gold/30 hidden sm:block">|</span>
-          <a href="tel:+918589925222" className="flex items-center gap-2 text-stone-300 hover:text-gold transition-colors">
-            <svg className="w-4 h-4 text-gold flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498A1 1 0 0121 15.72V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-            </svg>
-            +91 8589925222
-          </a>
-          <span className="text-gold/30 hidden sm:block">|</span>
-          <a href="mailto:info@kairafabrics.in" className="flex items-center gap-2 text-stone-300 hover:text-gold transition-colors">
-            <svg className="w-4 h-4 text-gold flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            info@kairafabrics.in
-          </a>
-        </div>
-      </div>
-
       {/* ── Main content area ────────────────────────────────────── */}
-      <div className="py-16 lg:py-24">
+      <div className="pt-28 pb-16 lg:pb-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="grid lg:grid-cols-[1fr_420px] gap-14 xl:gap-20 items-start">
 

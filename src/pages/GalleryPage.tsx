@@ -31,43 +31,8 @@ const GalleryPage = () => {
   return (
     <div className="min-h-screen bg-cream">
 
-      {/* ── Hero Banner ─────────────────────────────────────────── */}
-      <div
-        className="relative bg-charcoal pt-28 pb-20 overflow-hidden"
-        style={{ backgroundImage: weaveBg }}
-      >
-        <span className="absolute left-0 top-0 h-full w-px bg-gold/20" />
-        <span className="absolute right-0 top-0 h-full w-px bg-gold/20" />
-        <span className="absolute left-1/2 top-0 h-full w-px bg-gold/10 -translate-x-1/2" />
-
-        <div className="relative max-w-4xl mx-auto px-6 lg:px-10 text-center">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="h-px w-12 bg-gold/50" />
-            <svg className="w-5 h-5 text-gold opacity-70" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-            </svg>
-            <span className="h-px w-12 bg-gold/50" />
-          </div>
-          <p className="text-gold text-xs tracking-[0.35em] uppercase font-medium mb-4">
-            Inspiration Portfolio · Real Interiors
-          </p>
-          <h1 className="font-serif text-5xl md:text-7xl text-cream mb-5 leading-tight">
-            KAIRA Gallery
-          </h1>
-          <p className="text-stone-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Real interiors. Real luxury. Browse our portfolio of spaces brought to life
-            with KAIRA's premium fabrics and fine leather.
-          </p>
-          <div className="mt-10 flex justify-center gap-2">
-            {['bg-gold', 'bg-charcoal', 'bg-stone-300', 'bg-gold/60', 'bg-stone-500'].map((c, i) => (
-              <span key={i} className={`${c} h-1.5 w-8 rounded-full`} />
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* ── Gallery ──────────────────────────────────────────────── */}
-      <div className="py-14 lg:py-20">
+      <div className="pt-28 pb-14 lg:pb-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
           {/* Section label */}
