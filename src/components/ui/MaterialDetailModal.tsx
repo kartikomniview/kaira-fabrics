@@ -109,19 +109,25 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
         const model = mv.model
         if (!model) { setIsTextureLoading(false); return }
 
-        const fetchUrl = textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
+        let textureSource = textureUrl
+        let objectUrl: string | null = null
 
-        const response = await fetch(fetchUrl)
-        const blob = await response.blob()
-        const objectUrl = URL.createObjectURL(blob)
-        const texture = await mv.createTexture(objectUrl)
+        if (import.meta.env.DEV) {
+          const fetchUrl = textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
+          const response = await fetch(fetchUrl)
+          const blob = await response.blob()
+          objectUrl = URL.createObjectURL(blob)
+          textureSource = objectUrl
+        }
+
+        const texture = await mv.createTexture(textureSource)
+        if (objectUrl) URL.revokeObjectURL(objectUrl)
 
         for (const mat of model.materials) {
           mat.pbrMetallicRoughness.setRoughnessFactor(material.roughness)
           mat.pbrMetallicRoughness.setMetallicFactor(material.metalness)
           await mat.pbrMetallicRoughness.baseColorTexture.setTexture(texture)
         }
-        URL.revokeObjectURL(objectUrl)
       } catch {
         // silent — model still renders without texture
       } finally {
