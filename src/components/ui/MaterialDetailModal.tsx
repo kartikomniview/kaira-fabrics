@@ -109,12 +109,19 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
         const model = mv.model
         if (!model) { setIsTextureLoading(false); return }
 
-        const proxyUrl = textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
-        const response = await fetch(proxyUrl)
-        const blob = await response.blob()
-        const objectUrl = URL.createObjectURL(blob)
-        const texture = await mv.createTexture(objectUrl)
-        URL.revokeObjectURL(objectUrl)
+        let textureSource = textureUrl
+        let objectUrl: string | null = null
+
+        if (import.meta.env.DEV) {
+          const fetchUrl = textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
+          const response = await fetch(fetchUrl)
+          const blob = await response.blob()
+          objectUrl = URL.createObjectURL(blob)
+          textureSource = objectUrl
+        }
+
+        const texture = await mv.createTexture(textureSource)
+        if (objectUrl) URL.revokeObjectURL(objectUrl)
 
         for (const mat of model.materials) {
           mat.pbrMetallicRoughness.setRoughnessFactor(material.roughness)
