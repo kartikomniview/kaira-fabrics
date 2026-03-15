@@ -109,9 +109,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
         const model = mv.model
         if (!model) { setIsTextureLoading(false); return }
 
-        const fetchUrl = import.meta.env.DEV
-          ? textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
-          : textureUrl
+        const fetchUrl = textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
 
         const response = await fetch(fetchUrl)
         const blob = await response.blob()
