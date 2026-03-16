@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo } from 'react'
 import { newMaterials } from '../data/newmaterials'
 import { dummyProducts, getProductGlbUrl, getProductImageUrl } from '../data/products'
 import type { Product } from '../data/products'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../utils/textureUtils'
 
 const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
 
@@ -57,6 +58,8 @@ function getRoughnessValue(collectionName: string, baseRoughness: number): numbe
   if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
   return baseRoughness
 }
+
+
 
 interface SelectedMaterial {
   id: number
@@ -140,27 +143,10 @@ const ThreeDVisualizerPage = () => {
     return counts
   }, [activeMaterialType, activeColorGroup, search])
 
-  // Returns a blob URL that must be revoked by the caller after all textures are created.
-  const fetchBlobUrl = async (url: string): Promise<string | null> => {
-    try {
-      const fetchUrl = import.meta.env.DEV
-        ? url.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
-        : url
-      const res = await fetch(fetchUrl)
-      if (!res.ok) return null
-      const blob = await res.blob()
-      return URL.createObjectURL(blob)
-    } catch {
-      return null
-    }
-  }
-
   const applyTexture = async (mat: SelectedMaterial) => {
     const mv = mvRef.current as any
     if (!mv) return
     setIsApplying(true)
-    // Fetch blob URLs once (one network request each), then create a fresh
-    // texture object per material so every mesh receives the texture.
     const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
       fetchBlobUrl(mat.textureUrl),
       applyRoughnessMap ? fetchBlobUrl(getRoughnessMapURL(mat.collectionName)) : Promise.resolve(null),
@@ -169,40 +155,16 @@ const ThreeDVisualizerPage = () => {
     ])
     const uvScale = getUvValue(mat.collectionName)
     const roughness = getRoughnessValue(mat.collectionName, mat.roughness)
-    const uvTransform = { scale: [uvScale, uvScale] as [number, number] }
-
-    const model = mv.model
-    if (model) {
-      for (const m of model.materials) {
-        // Wrap each material individually so a failure on one doesn't skip the rest
-        try {
-          m.pbrMetallicRoughness.setRoughnessFactor(roughness)
-          m.pbrMetallicRoughness.setMetallicFactor(mat.metalness)
-          if (baseBlobUrl) {
-            const tex = await mv.createTexture(baseBlobUrl)
-            await m.pbrMetallicRoughness.baseColorTexture.setTexture(tex)
-            m.pbrMetallicRoughness.baseColorTexture.setTransform(uvTransform)
-          }
-          if (roughnessBlobUrl && applyRoughnessMap) {
-            const tex = await mv.createTexture(roughnessBlobUrl)
-            await m.pbrMetallicRoughness.metallicRoughnessTexture.setTexture(tex)
-            m.pbrMetallicRoughness.metallicRoughnessTexture.setTransform(uvTransform)
-          }
-          if (normalBlobUrl && applyNormalMap) {
-            const tex = await mv.createTexture(normalBlobUrl)
-            await m.normalTexture.setTexture(tex)
-            m.normalTexture.setTransform(uvTransform)
-          }
-          if (sheenBlobUrl && m.sheen && applySheenMap) {
-            const tex = await mv.createTexture(sheenBlobUrl)
-            await m.sheen.sheenColorTexture?.setTexture(tex)
-            m.sheen.sheenColorTexture?.setTransform(uvTransform)
-          }
-        } catch {
-          // skip this material and continue with the rest
-        }
-      }
-    }
+    await applyTextureToModel(mv, {
+      baseBlobUrl,
+      roughness,
+      metalness: mat.metalness,
+      uvScale,
+      skipParts: NO_FABRIC_PARTS,
+      roughnessBlobUrl,
+      normalBlobUrl,
+      sheenBlobUrl,
+    })
     // Revoke blob URLs now that all texture objects have been created
     if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
     if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
@@ -697,10 +659,15 @@ const ThreeDVisualizerPage = () => {
               src={modelUrl}
               alt={`${currentProduct.product_name} 3D model`}
               camera-controls
-              auto-rotate
-              shadow-intensity="1.5"
-              exposure="1.1"
-              environment-image="neutral"
+              disable-pan
+              tone-mapping="neutral"
+              exposure="0.8"
+              shadow-intensity="1"
+              shadow-softness="0.5"
+              max-camera-orbit="Infinity 90deg auto"
+              camera-orbit="auto auto 4m"
+              ar
+              ar-modes="scene-viewer quick-look"
               style={{ width: '100%', height: '100%', background: '#ffffff' }}
             />
 

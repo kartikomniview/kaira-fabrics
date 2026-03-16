@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import InlineLoader from './InlineLoader'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../../utils/textureUtils'
 // model-viewer is loaded via CDN script in index.html
 
 const MODEL_URL = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
@@ -24,28 +25,9 @@ const ThreeDModal = ({ fabricName, textureUrl, roughness, metalness, onClose }: 
     const applyTexture = async () => {
       setIsTextureLoading(true)
       try {
-        const model = mv.model
-        if (!model) {
-          setIsTextureLoading(false)
-          return
-        }
-
-        // In dev, route through Vite's proxy to avoid S3 CORS restriction on localhost
-        const fetchUrl = import.meta.env.DEV
-          ? textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
-          : textureUrl
-        const response = await fetch(fetchUrl)
-        const blob = await response.blob()
-        const objectUrl = URL.createObjectURL(blob)
-
-        const texture = await mv.createTexture(objectUrl)
-        for (const material of model.materials) {
-          material.pbrMetallicRoughness.setRoughnessFactor(roughness)
-          material.pbrMetallicRoughness.setMetallicFactor(metalness)
-          await material.pbrMetallicRoughness.baseColorTexture.setTexture(texture)
-        }
-
-        URL.revokeObjectURL(objectUrl)
+        const baseBlobUrl = await fetchBlobUrl(textureUrl)
+        await applyTextureToModel(mv, { baseBlobUrl, roughness, metalness, skipParts: NO_FABRIC_PARTS })
+        if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
       } catch {
         // texture apply failed silently — model still visible
       } finally {

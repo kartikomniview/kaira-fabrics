@@ -4,6 +4,7 @@ import InlineLoader from './InlineLoader'
 import type { Material } from '../../data/materials'
 import { getCollectionImageUrl } from '../../data/materials'
 import { collections } from '../../data/collections'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../../utils/textureUtils'
 
 const MODEL_URL =
   'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
@@ -106,22 +107,14 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
     const applyTexture = async () => {
       setIsTextureLoading(true)
       try {
-        const model = mv.model
-        if (!model) { setIsTextureLoading(false); return }
-
-        const fetchUrl = textureUrl.replace('https://supoassets.s3.ap-south-1.amazonaws.com', '/s3proxy')
-        const response = await fetch(fetchUrl)
-        const blob = await response.blob()
-        const objectUrl = URL.createObjectURL(blob)
-
-        const texture = await mv.createTexture(objectUrl)
-        URL.revokeObjectURL(objectUrl)
-
-        for (const mat of model.materials) {
-          mat.pbrMetallicRoughness.setRoughnessFactor(material.roughness)
-          mat.pbrMetallicRoughness.setMetallicFactor(material.metalness)
-          await mat.pbrMetallicRoughness.baseColorTexture.setTexture(texture)
-        }
+        const baseBlobUrl = await fetchBlobUrl(textureUrl)
+        await applyTextureToModel(mv, {
+          baseBlobUrl,
+          roughness: material.roughness,
+          metalness: material.metalness,
+          skipParts: NO_FABRIC_PARTS,
+        })
+        if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
       } catch {
         // silent — model still renders without texture
       } finally {
