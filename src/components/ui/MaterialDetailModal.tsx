@@ -134,14 +134,14 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
       <div className="relative bg-white w-full max-w-5xl shadow-2xl flex flex-col max-h-[94vh] overflow-hidden">
 
         {/* ── Header ─────────────────────────────────────────── */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100 shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-stone-100 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
             <span className="h-5 w-0.5 bg-gold shrink-0" />
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] uppercase tracking-[0.25em] text-gold font-semibold">
                 {material.material_type}
               </p>
-              <p className="font-serif text-base text-charcoal mt-0.5">
+              <p className="font-serif text-sm md:text-base text-charcoal mt-0.5 truncate">
                 {material.collection_name}
                 <span className="text-stone-400 mx-1.5">·</span>
                 {material.material_name}
@@ -160,12 +160,11 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
         </div>
 
         {/* ── Body ──────────────────────────────────────────── */}
-        <div className="flex flex-col md:flex-row overflow-y-auto">
+        <div className="flex flex-col md:flex-row overflow-y-auto min-h-0 flex-1">
 
           {/* Left – Image / 3D Viewer */}
           <div
-            className={`md:w-[48%] bg-stone-50 relative shrink-0${!show3D ? ' cursor-crosshair' : ''}`}
-            style={{ height: 480 }}
+            className={`md:w-[48%] bg-stone-50 relative shrink-0 h-[350px] sm:h-[420px] md:h-[480px]${!show3D ? ' md:cursor-crosshair' : ''}`}
             onMouseMove={!show3D ? handleImageMouseMove : undefined}
             onMouseLeave={!show3D ? () => setZoomPos(null) : undefined}
           >
@@ -212,7 +211,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
                     }}
                   />
                 ) : (
-                  <div className="absolute bottom-10 right-3 z-[5] flex items-center gap-1.5 bg-charcoal/60 text-cream px-2.5 py-1.5 pointer-events-none">
+                  <div className="hidden md:flex absolute bottom-10 right-3 z-[5] items-center gap-1.5 bg-charcoal/60 text-cream px-2.5 py-1.5 pointer-events-none">
                     <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -229,33 +228,33 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
           </div>
 
           {/* Right – Info panel */}
-          <div className="md:w-[52%] p-7 flex flex-col gap-6 overflow-y-auto">
+          <div className="md:w-[52%] p-4 md:p-7 flex flex-col gap-4 md:gap-6 overflow-y-auto">
 
             {/* Material properties */}
             <div>
               <p className="text-[9px] uppercase tracking-[0.25em] text-stone-400 font-semibold mb-3">
                 Material Details
               </p>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-stone-50 border border-stone-100 p-4">
-                  <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-2">Type</p>
-                  <p className="text-sm font-semibold text-charcoal leading-tight">{material.material_type}</p>
+              <div className="grid grid-cols-3 gap-2 md:gap-3">
+                <div className="bg-stone-50 border border-stone-100 p-3 md:p-4">
+                  <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-1.5">Type</p>
+                  <p className="text-xs md:text-sm font-semibold text-charcoal leading-tight">{material.material_type}</p>
                 </div>
-                <div className="bg-stone-50 border border-stone-100 p-4">
-                  <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-2">Color</p>
-                  <div className="flex items-center gap-2">
+                <div className="bg-stone-50 border border-stone-100 p-3 md:p-4">
+                  <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-1.5">Color</p>
+                  <div className="flex items-center gap-1.5">
                     <span
-                      className="w-4 h-4 rounded-full shrink-0 border border-stone-300/60"
+                      className="w-3.5 h-3.5 rounded-full shrink-0 border border-stone-300/60"
                       style={{ background: colorSwatch }}
                     />
-                    <p className="text-sm font-semibold text-charcoal leading-tight truncate">
+                    <p className="text-xs md:text-sm font-semibold text-charcoal leading-tight truncate">
                       {material.color_group ?? '–'}
                     </p>
                   </div>
                 </div>
-                <div className="bg-stone-50 border border-stone-100 p-4">
-                  <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-2">Pattern</p>
-                  <p className="text-sm font-semibold text-charcoal leading-tight">{material.pattern ?? '–'}</p>
+                <div className="bg-stone-50 border border-stone-100 p-3 md:p-4">
+                  <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-1.5">Pattern</p>
+                  <p className="text-xs md:text-sm font-semibold text-charcoal leading-tight">{material.pattern ?? '–'}</p>
                 </div>
               </div>
             </div>
@@ -271,7 +270,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
                 <img
                   src={coverUrl}
                   alt={material.collection_name}
-                  className="w-28 h-28 object-cover border border-stone-200 shrink-0"
+                  className="w-20 h-20 md:w-28 md:h-28 object-cover border border-stone-200 shrink-0"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0' }}
                 />
                 <div className="flex-1 flex flex-col gap-2.5 min-w-0">

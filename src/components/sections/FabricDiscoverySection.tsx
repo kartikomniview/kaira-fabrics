@@ -39,11 +39,11 @@ const FabricDiscoverySection = () => {
 
   return (
     <>
-    <section className="bg-stone-50 py-10 lg:py-14 border-b border-stone-200">
+    <section className="bg-stone-50 py-6 lg:py-14 border-b border-stone-200">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
         {/* Heading */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-5 lg:mb-8">
           <p className="text-[10px] uppercase tracking-[0.3em] text-gold font-semibold mb-1">Materials Library</p>
           <h2 className="font-serif text-2xl md:text-3xl">
             Explore <span className="text-secondary font-medium">Materials</span>
@@ -59,12 +59,12 @@ const FabricDiscoverySection = () => {
         </div>
 
         {/* ── Filter bar ─────────────────────────────────────────── */}
-        <div className="bg-white border border-stone-100 shadow-sm px-5 py-4 mb-6 space-y-3">
+        <div className="bg-white border border-stone-100 shadow-sm px-3 py-3 md:px-5 md:py-4 mb-4 md:mb-6 space-y-2.5 md:space-y-3">
 
           {/* Color swatches */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0 w-14">Color</span>
-            <div className="flex flex-wrap gap-1.5">
+          <div className="flex items-center gap-x-2">
+            <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0 w-12 md:w-14">Color</span>
+            <div className="hide-scrollbar flex gap-1.5 overflow-x-auto pb-0.5 flex-nowrap md:flex-wrap min-w-0">
               {allColorGroups.map((c) => (
                 <button
                   key={c}
@@ -89,10 +89,10 @@ const FabricDiscoverySection = () => {
           <div className="h-px bg-stone-100" />
 
           {/* Pattern + Material pills in one row */}
-          <div className="flex flex-wrap gap-x-6 gap-y-2 items-start">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-              <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0 w-14">Pattern</span>
-              <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-2 items-start">
+            <div className="flex items-center gap-x-2 min-w-0 w-full sm:w-auto">
+              <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0 w-12 md:w-14">Pattern</span>
+              <div className="hide-scrollbar flex gap-1.5 overflow-x-auto pb-0.5 flex-nowrap md:flex-wrap min-w-0">
                 {allPatterns.map((p) => (
                   <button
                     key={p}
@@ -111,9 +111,9 @@ const FabricDiscoverySection = () => {
 
             <div className="w-px self-stretch bg-stone-100 hidden sm:block" />
 
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-              <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0 w-14">Material</span>
-              <div className="flex flex-wrap gap-1.5">
+            <div className="flex items-center gap-x-2 min-w-0 w-full sm:w-auto">
+              <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0 w-12 md:w-14">Material</span>
+              <div className="hide-scrollbar flex gap-1.5 overflow-x-auto pb-0.5 flex-nowrap md:flex-wrap min-w-0">
                 {allMaterialTypes.map((t) => (
                   <button
                     key={t}
@@ -146,13 +146,13 @@ const FabricDiscoverySection = () => {
         </div>
 
         {/* Result count */}
-        <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-4">
+        <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-3">
           Showing {displayed.length} of {filtered.length} fabrics
         </p>
 
         {/* ── Fabric grid ────────────────────────────────────────── */}
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5 md:gap-2.5">
             {displayed.map((m) => (
               <button
                 key={m.id}
@@ -212,7 +212,7 @@ const FabricDiscoverySection = () => {
         )}
 
         {/* View All CTA */}
-        <div className="mt-8 flex flex-col items-center gap-3">
+        <div className="mt-5 md:mt-8 flex flex-col items-center gap-2 md:gap-3">
           <p className="text-[10px] uppercase tracking-widest text-stone-400">
             Showing {Math.min(DISPLAY_LIMIT, filtered.length)} of {filtered.length} — explore the full library
           </p>

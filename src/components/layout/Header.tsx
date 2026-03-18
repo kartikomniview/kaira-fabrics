@@ -3,12 +3,9 @@ import { NavLink, Link, useLocation } from 'react-router-dom'
 
 const navLinks = [
   { to: '/', label: 'Home' },
-  { to: '/collections', label: 'Collections' },
-  { to: '/materials', label: 'Materials' },
-  { to: '/gallery', label: 'Gallery' },
-  { to: '/3d-visualizer', label: '3D Visualizer' },
-  { to: '/ai-visualizer', label: 'AI Visualizer' },
-  { to: '/contact', label: 'Contact' },
+  { to: '/#collections', label: 'Collections & Fabrics' },
+  { to: '/#why-kaira', label: 'Why Kaira' },
+  { to: '/#portfolio', label: 'Our Portfolio' },
 ]
 
 const Header = () => {
@@ -37,107 +34,115 @@ const Header = () => {
   return (
     <>
       {/* Brand accent stripe */}
-      <div className="fixed top-0 left-0 right-0 z-[51] h-[3px] bg-primary" />
+      <div className="fixed top-0 left-0 right-0 z-[51] h-[2px] bg-primary" />
 
-      <header
-        className={`fixed top-[3px] left-0 right-0 z-50 transition-all duration-500 ${
-          transparent
-            ? 'bg-transparent border-b border-white/10'
-            : 'bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-sm'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="flex items-center justify-between h-16 lg:h-[68px]">
-
-            {/* Logo */}
-            <Link to="/" className="flex items-center flex-shrink-0 group">
-              <img
-                src="https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/clientLogos/KairaFabrics.png"
-                alt="Kaira Fabrics & Leather"
-                className={`h-9 w-auto object-contain transition-all duration-500 group-hover:opacity-75 ${
-                  transparent ? 'brightness-0 invert' : ''
-                }`}
-              />
-            </Link>
-
-            {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-7">
-              {navLinks.map((link) => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  end={link.to === '/'}
-                  className={({ isActive }) =>
-                    `relative text-[11px] tracking-[0.15em] uppercase font-medium transition-colors duration-200 group/nav pb-0.5 ${
-                      transparent
-                        ? isActive
-                          ? 'text-primary'
-                          : 'text-white/75 hover:text-white'
-                        : isActive
-                          ? 'text-secondary'
-                          : 'text-stone-500 hover:text-stone-900'
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      {link.label}
-                      <span
-                        className={`absolute bottom-0 left-0 h-px bg-primary transition-all duration-300 ${
-                          isActive ? 'w-full' : 'w-0 group-hover/nav:w-full'
-                        }`}
-                      />
-                    </>
-                  )}
-                </NavLink>
-              ))}
-            </nav>
-
-            {/* CTA + Mobile Toggle */}
-            <div className="flex items-center gap-4">
-              <Link
-                to="/materials"
-                className={`hidden lg:inline-flex items-center justify-center px-5 py-2.5 text-[10px] tracking-[0.22em] uppercase font-medium transition-all duration-300 ${
+      <div className="flex justify-center w-full">
+        <header
+          className={`fixed z-50 transition-all duration-300 ease-in-out ${
+            isScrolled
+              ? 'top-4 lg:top-5 w-[calc(100%-2rem)] max-w-[1400px] rounded-full bg-white/95 backdrop-blur-md border border-stone-200 shadow-[0_8px_30px_rgb(0,0,0,0.08)]'
+              : `top-[2px] w-full ${
                   transparent
-                    ? 'bg-primary text-stone-900 hover:bg-primary-light'
-                    : 'bg-stone-900 text-white hover:bg-secondary'
-                }`}
-              >
-                Explore Fabrics
+                    ? 'bg-transparent border-b border-white/10'
+                    : 'bg-white/95 backdrop-blur-md border-b border-stone-200'
+                }`
+          }`}
+        >
+          <div className={`${isScrolled ? 'px-6 sm:px-8' : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12'}`}>
+            <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'h-16' : 'h-16 lg:h-[76px]'}`}>
+
+              {/* Logo */}
+              <Link to="/" className="flex items-center flex-shrink-0 group">
+                <img
+                  src="https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/clientLogos/KairaFabrics.png"
+                  alt="Kaira Fabrics & Leather"
+                  className={`h-8 w-auto object-contain transition-all duration-500 group-hover:opacity-75 ${
+                    transparent && !isScrolled ? 'brightness-0 invert' : ''
+                  }`}
+                />
               </Link>
 
-              {/* Hamburger */}
-              <button
-                aria-label="Toggle navigation"
-                onClick={() => setIsMobileOpen((prev) => !prev)}
-                className="lg:hidden flex flex-col gap-[5px] p-2 -mr-1"
-              >
-                <span
-                  className={`block w-5 h-px transition-all duration-300 ${
-                    isMobileOpen
-                      ? 'rotate-45 translate-y-[6px] bg-stone-800'
-                      : transparent ? 'bg-white' : 'bg-stone-700'
-                  }`}
-                />
-                <span
-                  className={`block w-5 h-px transition-all duration-300 ${
-                    isMobileOpen
-                      ? 'opacity-0 scale-x-0'
-                      : transparent ? 'bg-white' : 'bg-stone-700'
-                  }`}
-                />
-                <span
-                  className={`block w-5 h-px transition-all duration-300 ${
-                    isMobileOpen
-                      ? '-rotate-45 -translate-y-[6px] bg-stone-800'
-                      : transparent ? 'bg-white' : 'bg-stone-700'
-                  }`}
-                />
-              </button>
+              {/* Right Side: Nav & CTA */}
+              <div className="flex items-center justify-end flex-1 gap-6 lg:gap-10">
+                {/* Desktop Nav */}
+                <nav className="hidden lg:flex items-center gap-8">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={(e) => {
+                        if (link.to.includes('#') && location.pathname === '/') {
+                          const hash = link.to.split('#')[1]
+                          const el = document.getElementById(hash)
+                          if (el) {
+                            e.preventDefault()
+                            el.scrollIntoView({ behavior: 'smooth' })
+                            window.history.pushState(null, '', link.to)
+                          }
+                        } else if (link.to === '/' && location.pathname === '/') {
+                          e.preventDefault()
+                          window.scrollTo({ top: 0, behavior: 'smooth' })
+                        }
+                      }}
+                      className={`relative text-[13px] tracking-[0.08em] font-semibold transition-colors duration-200 group/nav py-1.5 ${
+                        transparent && !isScrolled
+                          ? 'text-white/85 hover:text-white drop-shadow-sm'
+                          : 'text-stone-600 hover:text-stone-950'
+                      }`}
+                    >
+                      {link.label}
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transition-all duration-300 w-0 group-hover/nav:w-full" />
+                    </Link>
+                  ))}
+                </nav>
+
+                {/* CTA + Mobile Toggle */}
+                <div className="flex items-center gap-4">
+                  <Link
+                    to="/contact"
+                    className={`hidden lg:inline-flex items-center justify-center px-7 py-3 text-[11px] tracking-[0.2em] uppercase font-bold transition-all duration-300 rounded-full border ${
+                      transparent && !isScrolled
+                        ? 'bg-white/10 border-white/30 text-white hover:bg-white hover:border-white hover:text-stone-900 shadow-lg backdrop-blur-sm'
+                        : 'bg-stone-900 border-stone-900 text-white hover:bg-stone-800 hover:shadow-lg'
+                    }`}
+                  >
+                    Book Consultation
+                  </Link>
+
+                  {/* Hamburger */}
+                  <button
+                    aria-label="Toggle navigation"
+                    onClick={() => setIsMobileOpen((prev) => !prev)}
+                    className="lg:hidden flex flex-col gap-[5px] p-2.5 -mr-2 touch-manipulation"
+                  >
+                    <span
+                      className={`block w-5 h-px transition-all duration-300 ${
+                        isMobileOpen
+                          ? 'rotate-45 translate-y-[6px] bg-stone-800'
+                          : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
+                      }`}
+                    />
+                    <span
+                      className={`block w-5 h-px transition-all duration-300 ${
+                        isMobileOpen
+                          ? 'opacity-0 scale-x-0'
+                          : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
+                      }`}
+                    />
+                    <span
+                      className={`block w-5 h-px transition-all duration-300 ${
+                        isMobileOpen
+                          ? '-rotate-45 -translate-y-[6px] bg-stone-800'
+                          : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
       {/* ── Mobile Menu ──────────────────────────────────────────────────── */}
       <div
@@ -183,41 +188,39 @@ const Header = () => {
           {/* Nav links */}
           <nav className="flex-1 overflow-y-auto px-6 py-4 flex flex-col">
             {navLinks.map((link) => (
-              <NavLink
+              <Link
                 key={link.to}
                 to={link.to}
-                end={link.to === '/'}
-                onClick={() => setIsMobileOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center justify-between py-3.5 border-b border-stone-50 text-[11px] tracking-[0.15em] uppercase transition-colors duration-200 ${
-                    isActive
-                      ? 'text-secondary font-semibold'
-                      : 'text-stone-500 hover:text-stone-900'
-                  }`
-                }
+                onClick={(e) => {
+                  setIsMobileOpen(false)
+                  if (link.to.includes('#') && location.pathname === '/') {
+                    const hash = link.to.split('#')[1]
+                    const el = document.getElementById(hash)
+                    if (el) {
+                      e.preventDefault()
+                      el.scrollIntoView({ behavior: 'smooth' })
+                      window.history.pushState(null, '', link.to)
+                    }
+                  } else if (link.to === '/' && location.pathname === '/') {
+                    e.preventDefault()
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }
+                }}
+                className="flex items-center justify-between py-4 border-b border-stone-50 text-[11px] tracking-[0.15em] uppercase transition-colors duration-200 text-stone-500 hover:text-stone-900"
               >
-                {({ isActive }) => (
-                  <>
-                    <span>{link.label}</span>
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full bg-primary transition-opacity duration-200 ${
-                        isActive ? 'opacity-100' : 'opacity-0'
-                      }`}
-                    />
-                  </>
-                )}
-              </NavLink>
+                <span>{link.label}</span>
+              </Link>
             ))}
           </nav>
 
           {/* Mobile CTA */}
-          <div className="px-6 py-6 border-t border-stone-100">
+          <div className="px-6 py-6 border-t border-stone-100 mt-auto">
             <Link
-              to="/materials"
+              to="/contact"
               onClick={() => setIsMobileOpen(false)}
-              className="block w-full text-center bg-stone-900 text-white py-3.5 text-[10px] tracking-[0.25em] uppercase font-medium hover:bg-secondary transition-colors duration-300"
+              className="block w-full text-center bg-stone-900 rounded-full text-white py-4 text-[11px] tracking-[0.2em] uppercase font-bold hover:bg-stone-800 hover:shadow-lg transition-all duration-300"
             >
-              Explore Fabrics
+              Book Consultation
             </Link>
           </div>
         </div>

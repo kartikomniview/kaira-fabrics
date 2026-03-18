@@ -59,6 +59,7 @@ const MaterialsPage = () => {
   const activeFilterCount = [activeMaterialType, activeColorGroup, activePattern].filter((v) => v !== 'All').length
   const clearAll = () => { setActiveMaterialType('All'); setActiveColorGroup('All'); setActivePattern('All') }
 
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 700)
@@ -70,7 +71,7 @@ const MaterialsPage = () => {
       <div className="min-h-screen bg-cream pt-[72px]"> {/* offset for fixed header */}
 
         {/* ── Page title bar ───────────────────────────────────────── */}
-        <div className="bg-white border-b border-stone-100 px-6 lg:px-10 py-4">
+        <div className="bg-white border-b border-stone-100 px-4 lg:px-10 py-4">
           <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-4">
             <div>
               {collectionParam ? (
@@ -101,19 +102,19 @@ const MaterialsPage = () => {
         </div>
 
         {/* ── Color / Pattern top bar ──────────────────────────────── */}
-        <div className="bg-white border-b border-stone-100 px-6 lg:px-10 py-3">
-          <div className="max-w-[1600px] mx-auto flex flex-wrap gap-x-8 gap-y-3 items-start">
+        <div className="bg-white border-b border-stone-100 px-4 lg:px-10 py-3">
+          <div className="max-w-[1600px] mx-auto flex flex-col gap-3 md:flex-row md:flex-wrap md:gap-x-8 md:gap-y-3 md:items-start">
 
             {/* Color Group */}
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0">Color</span>
-              <div className="flex flex-wrap gap-1.5">
+            <div className="flex items-center gap-2 md:gap-3">
+              <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0 w-12 md:w-auto">Color</span>
+              <div className="flex gap-1.5 overflow-x-auto pb-0.5 flex-nowrap md:flex-wrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {allColorGroups.map((c) => (
                   <button
                     key={c}
                     onClick={() => setActiveColorGroup(c)}
                     title={c}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] transition-all duration-150 border font-medium ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] transition-all duration-150 border font-medium shrink-0 ${
                       activeColorGroup === c
                         ? 'bg-charcoal text-cream border-charcoal'
                         : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-charcoal'
@@ -129,17 +130,17 @@ const MaterialsPage = () => {
               </div>
             </div>
 
-            <div className="w-px self-stretch bg-stone-100 hidden sm:block" />
+            <div className="w-px self-stretch bg-stone-100 hidden md:block" />
 
             {/* Pattern */}
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0">Pattern</span>
-              <div className="flex flex-wrap gap-1.5">
+            <div className="flex items-center gap-2 md:gap-3">
+              <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0 w-12 md:w-auto">Pattern</span>
+              <div className="flex gap-1.5 overflow-x-auto pb-0.5 flex-nowrap md:flex-wrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {allPatterns.map((p) => (
                   <button
                     key={p}
                     onClick={() => setActivePattern(p)}
-                    className={`px-2.5 py-1 text-[10px] uppercase tracking-widest transition-all duration-150 border font-medium ${
+                    className={`px-2.5 py-1 text-[10px] uppercase tracking-widest transition-all duration-150 border font-medium shrink-0 ${
                       activePattern === p
                         ? 'bg-gold text-charcoal border-gold'
                         : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-charcoal'
@@ -155,10 +156,10 @@ const MaterialsPage = () => {
         </div>
 
         {/* ── Two-column layout ────────────────────────────────────── */}
-        <div className="max-w-[1600px] mx-auto px-6 lg:px-10 py-8 flex gap-7 items-start">
+        <div className="max-w-[1600px] mx-auto px-4 lg:px-10 py-6 md:py-8 flex flex-col md:flex-row gap-4 md:gap-7 items-start">
 
           {/* ── LEFT: Sticky Filter Panel (Material Type only) ─────── */}
-          <aside className="w-52 shrink-0 sticky top-[88px] bg-white border border-stone-200 shadow-sm self-start">
+          <aside className="hidden md:block w-52 shrink-0 sticky top-[88px] bg-white border border-stone-200 shadow-sm self-start">
 
             {/* Panel header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100">
@@ -206,10 +207,54 @@ const MaterialsPage = () => {
           </aside>
 
           {/* ── RIGHT: Materials Grid ───────────────────────────────── */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 w-full">
+
+            {/* Mobile: Material Type filter toggle */}
+            <div className="md:hidden mb-3 flex items-center justify-between gap-3">
+              <button
+                onClick={() => setShowMobileFilters((v) => !v)}
+                className={`flex items-center gap-2 border px-4 py-2 text-[11px] uppercase tracking-widest font-medium transition-colors ${
+                  showMobileFilters ? 'bg-charcoal text-cream border-charcoal' : 'bg-white text-charcoal border-stone-200'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 4h18M7 8h10M11 12h2" />
+                </svg>
+                Material Type
+                {activeMaterialType !== 'All' && (
+                  <span className="bg-gold text-charcoal text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">1</span>
+                )}
+              </button>
+              {activeFilterCount > 0 && (
+                <button onClick={clearAll} className="text-[9px] uppercase tracking-widest text-stone-400 hover:text-gold transition-colors">
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            {/* Mobile: Material Type filter panel */}
+            {showMobileFilters && (
+              <div className="md:hidden mb-4 bg-white border border-stone-200 p-4 shadow-sm">
+                <div className="flex flex-wrap gap-1.5">
+                  {allMaterialTypes.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => { setActiveMaterialType(t); setShowMobileFilters(false) }}
+                      className={`px-2.5 py-1.5 text-[10px] uppercase tracking-widest transition-all duration-150 border font-medium ${
+                        activeMaterialType === t
+                          ? 'bg-charcoal text-cream border-charcoal'
+                          : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-charcoal'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {isLoading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5">
+              <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5">
                 {Array.from({ length: 24 }, (_, i) => (
                   <div
                     key={i}
@@ -228,7 +273,7 @@ const MaterialsPage = () => {
                 ))}
               </div>
             ) : filtered.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5">
+              <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5">
                 {filtered.map((m) => (
                   <button
                     key={m.id}

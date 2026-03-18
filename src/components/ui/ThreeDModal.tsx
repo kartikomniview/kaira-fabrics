@@ -51,9 +51,9 @@ const ThreeDModal = ({ fabricName, textureUrl, roughness, metalness, onClose }: 
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="relative bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-stone-200">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-stone-200 shrink-0">
           <div>
             <p className="text-[10px] uppercase tracking-widest text-stone-400 font-medium">3D Preview</p>
             <p className="text-sm font-bold text-stone-800 uppercase tracking-tight leading-tight mt-0.5">{fabricName}</p>
@@ -69,7 +69,7 @@ const ThreeDModal = ({ fabricName, textureUrl, roughness, metalness, onClose }: 
         </div>
 
         {/* model-viewer */}
-        <div className="bg-stone-100 w-full relative" style={{ height: '420px' }}>
+        <div className="bg-stone-100 w-full relative h-[350px] sm:h-[420px] md:h-[480px]">
           {isTextureLoading && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[2px]">
               <InlineLoader color="secondary" />
@@ -92,7 +92,7 @@ const ThreeDModal = ({ fabricName, textureUrl, roughness, metalness, onClose }: 
         </div>
 
         {/* Fabric swatch + info */}
-        <div className="flex items-center gap-4 px-5 py-4 border-t border-stone-200">
+        <div className="flex items-center gap-4 px-5 py-4 border-t border-stone-200 shrink-0">
           <img
             src={textureUrl}
             alt={fabricName}
