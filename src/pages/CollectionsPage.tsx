@@ -571,7 +571,7 @@ const CollectionsPage = () => {
                     <img
                       src={col.image}
                       alt={col.name}
-                      className="max-w-[75%] max-h-[75%] object-contain transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => {
                         const el = e.currentTarget as HTMLImageElement
                         el.style.display = 'none'
@@ -588,10 +588,10 @@ const CollectionsPage = () => {
 
                   {/* Info */}
                   <div className="p-3 border-t border-stone-200 bg-white">
-                    <p className="text-[11px] font-bold text-stone-900 group-hover:text-primary transition-colors uppercase tracking-tight leading-tight truncate">{col.name}</p>
+                    <p className="text-[11px] font-bold text-stone-900 group-hover:text-secondary transition-colors uppercase tracking-tight leading-tight truncate">{col.name}</p>
                     <div className="flex items-center justify-between mt-1.5">
                       <span className="text-[10px] text-stone-500 truncate max-w-[60%] font-semibold tracking-wider uppercase">{col.category}</span>
-                      <span className="text-[10px] text-primary font-bold tracking-widest">{col.itemCount} var.</span>
+                      <span className="text-[10px] text-secondary font-bold tracking-widest">{col.itemCount} var.</span>
                     </div>
                   </div>
                 </div>
