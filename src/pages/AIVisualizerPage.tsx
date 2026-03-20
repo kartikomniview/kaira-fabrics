@@ -1,15 +1,8 @@
-﻿import { useEffect, useState } from 'react'
-import CTASection from '../components/sections/CTASection'
+﻿import CTASection from '../components/sections/CTASection'
 import AIVisualizerDesktop from './AIVisualizerDesktop'
 
 const AIVisualizerPage = () => {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
-  useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 768)
-    window.addEventListener('resize', handler)
-    return () => window.removeEventListener('resize', handler)
-  }, [])
-  
+ 
   
   return (
     <main className="min-h-screen bg-stone-50 flex flex-col">
