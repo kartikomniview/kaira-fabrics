@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
-import { newMaterials } from '../../data/newmaterials'
+import { useMemo, useState } from 'react'
 import { collections } from '../../data/collections'
+import { newMaterials } from '../../data/newmaterials'
 
 export const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
 
@@ -12,10 +12,6 @@ const materialTypeOptions = [
 const allColorGroups = [
   'All',
   ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => !!v))).sort(),
-]
-const allPatterns = [
-  'All',
-  ...Array.from(new Set(newMaterials.map((m) => m.pattern).filter((v): v is string => !!v))).sort(),
 ]
 const COLOR_SWATCH: Record<string, string> = {
   Whites: '#f5f0eb', Creams: '#f2e9d0', Beiges: '#c9b49a', Browns: '#8b5a2b',
