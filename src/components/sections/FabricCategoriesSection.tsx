@@ -3,12 +3,16 @@ import { materials } from '../../data/materials'
 
 const categoryCounts = materials.reduce((acc, material) => {
   const type = material.material_type?.toUpperCase().replace(/\s+/g, '') || 'OTHER'
-  if (!acc[type]) acc[type] = 0
-  acc[type]++
+  if (!acc[type]) acc[type] = new Set<string>()
+  acc[type].add(material.collection_name)
   return acc
-}, {} as Record<string, number>)
+}, {} as Record<string, Set<string>>)
 
-const categories = Object.entries(categoryCounts).sort((a, b) => a[0].localeCompare(b[0]))
+const categoryCollectionCounts: Record<string, number> = Object.fromEntries(
+  Object.entries(categoryCounts).map(([k, v]) => [k, v.size])
+)
+
+const categories = Object.entries(categoryCollectionCounts).sort((a, b) => a[0].localeCompare(b[0]))
 
 const categoryImages: Record<string, string> = {
   'CHENILLE':     'https://supoassets.s3.ap-south-1.amazonaws.com/public/store/ThumbnailsCover/KairaFabrics/Ripple.webp',
@@ -55,7 +59,7 @@ const FabricCategoriesSection = () => {
                 {name}
               </h3>
               <p className="mt-0.5 text-[9px] text-stone-400 uppercase tracking-widest text-center">
-                {count} {count === 1 ? 'Fabric' : 'Fabrics'}
+                {count} {count === 1 ? 'Collection' : 'Collections'}
               </p>
             </Link>
           )
@@ -85,7 +89,7 @@ const FabricCategoriesSection = () => {
                   {name}
                 </h3>
                 <p className="mt-1 text-[11px] text-stone-500 uppercase tracking-widest">
-                  {count} {count === 1 ? 'Fabric' : 'Fabrics'}
+                  {count} {count === 1 ? 'Collection' : 'Collections'}
                 </p>
               </div>
             </Link>

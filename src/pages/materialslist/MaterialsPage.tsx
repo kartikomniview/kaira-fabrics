@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { newMaterials } from '../data/newmaterials'
-import type { Material } from '../data/materials'
-import MaterialDetailModal from '../components/ui/MaterialDetailModal'
+import { newMaterials } from '../../data/newmaterials'
+import type { Material } from '../../data/materials'
+import MaterialDetailModal from '../../components/ui/MaterialDetailModal'
+import Collections from './Collections'
 
 const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
 
@@ -70,7 +71,34 @@ const MaterialsPage = () => {
     <>
       <div className="min-h-screen bg-cream pt-[72px]"> {/* offset for fixed header */}
 
-        {/* ── Page title bar ───────────────────────────────────────── */}
+        {!collectionParam ? (
+          <Collections />
+        ) : (
+          <>
+            {/* ── Page title bar ───────────────────────────────────────── */}
+            <div className="bg-white border-b border-stone-100 px-4 lg:px-10 py-4">
+              <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => {
+                        const newParams = new URLSearchParams(searchParams)
+                        newParams.delete('collection')
+                        window.history.pushState(null, '', `?${newParams.toString()}`)
+                        // Wait, it's safer to use react-router DOM
+                      }}
+                    >
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
         <div className="bg-white border-b border-stone-100 px-4 lg:px-10 py-4">
           <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-4">
             <div>

@@ -1,30 +1,8 @@
-import { useState, useRef, useMemo } from 'react'
-import { newMaterials } from '../data/newmaterials'
-import { dummyProducts, getProductImageUrl } from '../data/products'
-import type { Product } from '../data/products'
-
-const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
-
-// -- Material filter constants -------------------------------------------------
-const materialTypeOptions = [
-  'All',
-  ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort(),
-]
-const allColorGroups = [
-  'All',
-  ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => !!v))).sort(),
-]
-const allPatterns = [
-  'All',
-  ...Array.from(new Set(newMaterials.map((m) => m.pattern).filter((v): v is string => !!v))).sort(),
-]
-const COLOR_SWATCH: Record<string, string> = {
-  Whites: '#f5f0eb', Creams: '#f2e9d0', Beiges: '#c9b49a', Browns: '#8b5a2b',
-  Tans: '#d2b48c', Grays: '#8a8a8a', 'Light Grays': '#c4c4c4', 'Dark Grays': '#555555',
-  Blacks: '#1c1c1c', Blues: '#3b6ea5', Navys: '#1b2f6b', Teals: '#19787d',
-  Greens: '#2e7d32', Reds: '#c0392b', Oranges: '#e07020', Yellows: '#d4a017',
-  Pinks: '#d4607a', Purples: '#7b3fa0', Mauves: '#9e7b9b', Coals: '#3c3c3c',
-}
+import { useState, useRef } from 'react'
+import { newMaterials } from '../../data/newmaterials'
+import { dummyProducts, getProductImageUrl } from '../../data/products'
+import type { Product } from '../../data/products'
+import { MaterialsInventory, S3_THUMB } from './MaterialsInventory'
 
 // -- Types ---------------------------------------------------------------------
 interface SelectedMaterial {
@@ -46,14 +24,10 @@ interface SelectedProduct {
 const AIVisualizerDesktop = () => {
   // Step state
   const [currentStep, setCurrentStep] = useState(1)
+  const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false)
 
   // Material state
   const [selectedMaterial, setSelectedMaterial] = useState<SelectedMaterial | null>(null)
-  const [activeMaterialType, setActiveMaterialType] = useState('All')
-  const [activeCollection, setActiveCollection] = useState('All')
-  const [activeColorGroup, setActiveColorGroup] = useState('All')
-  const [activePattern, setActivePattern] = useState('All')
-  const [search, setSearch] = useState('')
   const fabricUploadRef = useRef<HTMLInputElement>(null)
 
   // Product state
@@ -68,31 +42,6 @@ const AIVisualizerDesktop = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
 
-  // -- Derived ----------------------------------------------------------------
-  const filteredMaterials = useMemo(() => newMaterials.filter((m) => {
-    if (activeMaterialType !== 'All' && m.material_type !== activeMaterialType) return false
-    if (activeCollection !== 'All' && m.collection_name !== activeCollection) return false
-    if (activeColorGroup !== 'All' && m.color_group !== activeColorGroup) return false
-    if (activePattern !== 'All' && m.pattern !== activePattern) return false
-    if (search) {
-      const q = search.toLowerCase()
-      if (
-        !m.material_name?.toLowerCase().includes(q) &&
-        !m.collection_name?.toLowerCase().includes(q)
-      ) return false
-    }
-    return true
-  }), [activeMaterialType, activeCollection, activeColorGroup, activePattern, search])
-
-  const activeFilterCount = [activeMaterialType, activeCollection, activeColorGroup, activePattern].filter((v) => v !== 'All').length
-  const clearInventoryFilters = () => {
-    setActiveMaterialType('All')
-    setActiveCollection('All')
-    setActiveColorGroup('All')
-    setActivePattern('All')
-    setSearch('')
-  }
-
   // -- Handlers ---------------------------------------------------------------
   const handleFabricUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -106,6 +55,7 @@ const AIVisualizerDesktop = () => {
         collectionName: 'Custom Upload',
         isCustom: true,
       })
+      setCurrentStep(2) // Move directly to product selection
     }
     reader.readAsDataURL(file)
     e.target.value = ''
@@ -119,6 +69,7 @@ const AIVisualizerDesktop = () => {
       collectionName: m.collection_name,
       isCustom: false,
     })
+    setCurrentStep(2) // Move directly to product selection
   }
 
   const handleProductUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,16 +134,92 @@ const AIVisualizerDesktop = () => {
   }
 
   return (
-    <div className="flex flex-col h-full w-full bg-stone-100 overflow-y-auto items-center p-4 sm:p-8">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden flex flex-col min-h-[520px] sm:min-h-[600px]">
-        
-        {/* Header */}
-        <div className="shrink-0 bg-stone-50 border-b border-stone-200 px-4 py-3 sm:p-6 text-center">
-            <h1 className="text-base sm:text-xl font-bold tracking-widest uppercase text-stone-800">AI Studio</h1>
-            <p className="text-[10px] sm:text-xs text-stone-500 mt-0.5 uppercase tracking-wider">Visualize Your Future</p>
-        </div>
+    <div className="relative flex flex-col w-full min-h-screen overflow-y-auto bg-white pt-24 lg:pt-32 pb-12 lg:pb-20">
+      
+      {/* ── Content Wrapper ── */}
+      <div className="relative z-10 flex flex-col w-full max-w-6xl mx-auto px-4 sm:px-8">
 
-        <div className="flex-1 flex flex-col p-4 sm:p-6 overflow-y-auto">
+        {/* Unified AI Studio Card */}
+        <div className="w-full bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col lg:flex-row min-h-[600px] mb-8 lg:mb-0 lg:mt-6">
+          
+          {/* Left Side: Header & Info */}
+          <div className="relative w-full lg:w-[45%] bg-stone-900 border-b lg:border-b-0 lg:border-r border-stone-800 px-8 py-10 sm:px-10 sm:py-16 flex flex-col justify-center">
+            {/* Subtle motion background */}
+            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
+            
+            <div className="relative z-10 flex flex-col text-left items-start">
+              {/* AI Powered Badge */}
+              <div className="inline-flex items-center gap-2 bg-stone-800 backdrop-blur-sm border border-stone-700 rounded-full px-3 py-1 mb-6 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-[10px] sm:text-[11px] text-stone-300 font-medium uppercase tracking-widest">AI Powered</span>
+              </div>
+
+              {/* Title */}
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white leading-[1.1] mb-5">
+                AI Fabric<br />
+                <em className="not-italic text-primary">Visualizer</em>
+              </h1>
+
+              {/* Divider */}
+              <div className="flex items-center justify-start gap-2 mb-6">
+                <span className="w-8 h-px bg-stone-700" />
+                <span className="w-1 h-1 rotate-45 bg-amber-400/70 inline-block" />
+                <span className="w-8 h-px bg-stone-700" />
+              </div>
+
+              {/* Description */}
+              <p className="text-[12px] sm:text-sm text-stone-300 font-light leading-relaxed mb-10">
+                Select a fabric, choose a product, and watch AI generate a photorealistic preview — see exactly how it looks before you order.
+              </p>
+
+              {/* Feature Highlights */}
+              <div className="flex flex-col gap-4 w-full">
+                <div className="flex items-center gap-3 text-stone-300">
+                  <div className="w-7 h-7 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+                    <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium">Any Fabric Overlay</span>
+                </div>
+                <div className="flex items-center gap-3 text-stone-300">
+                  <div className="w-7 h-7 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+                    <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium">Any Product Silhouette</span>
+                </div>
+                <div className="flex items-center gap-3 text-stone-300">
+                  <div className="w-7 h-7 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+                    <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium">Instant Photorealistic Preview</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side: Interactive Studio */}
+          <div className="w-full lg:w-[55%] flex flex-col bg-stone-50/30">
+        
+            {/* Studio Header */}
+            <div className="shrink-0 bg-white/50 backdrop-blur border-b border-stone-100 px-6 py-5 flex justify-between items-center">
+                <div>
+                  <h1 className="text-sm sm:text-base font-bold tracking-widest uppercase text-stone-800">AI Studio Workspace</h1>
+                  <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Step {Math.floor(currentStep)} of 3</p>
+                </div>
+                {/* Progress Indicator */}
+                <div className="flex gap-1.5">
+                  <div className={`h-1.5 w-6 rounded-full transition-colors ${currentStep >= 1 ? 'bg-primary' : 'bg-stone-200'}`} />
+                  <div className={`h-1.5 w-6 rounded-full transition-colors ${currentStep >= 2 ? 'bg-primary' : 'bg-stone-200'}`} />
+                  <div className={`h-1.5 w-6 rounded-full transition-colors ${currentStep >= 3 ? 'bg-primary' : 'bg-stone-200'}`} />
+                </div>
+            </div>
+
+            <div className="flex-1 flex flex-col p-6 sm:p-10 overflow-y-auto min-h-[400px]">
           {/* Step 1: Material Selection */}
           {currentStep === 1 && (
             <div className="flex flex-col h-full items-center justify-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4">
@@ -209,7 +236,7 @@ const AIVisualizerDesktop = () => {
                 </div>
                 <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-stone-600 group-hover:text-primary transition-colors">Upload Your Fabric</span>
               </button>
-              <input ref={fabricUploadRef} type="file" accept="image/*" onChange={(e) => { handleFabricUpload(e); setCurrentStep(1.5); }} className="sr-only" />
+              <input ref={fabricUploadRef} type="file" accept="image/*" onChange={handleFabricUpload} className="sr-only" />
 
               <div className="flex items-center gap-4 w-full">
                 <div className="flex-1 h-px bg-stone-200"></div>
@@ -218,7 +245,7 @@ const AIVisualizerDesktop = () => {
               </div>
 
               <button
-                onClick={() => setCurrentStep(1.1)}
+                onClick={() => setIsInventoryModalOpen(true)}
                 className="w-full h-24 sm:h-32 flex flex-col items-center justify-center gap-2 sm:gap-3 border border-stone-200 rounded-xl shadow-sm hover:border-stone-400 hover:shadow-md transition-all group overflow-hidden relative"
               >
                 <div className="absolute inset-0 bg-stone-800/5 group-hover:bg-stone-800/10 transition-colors" />
@@ -232,148 +259,11 @@ const AIVisualizerDesktop = () => {
             </div>
           )}
 
-          {/* Kaira Inventory Selection */}
-          {currentStep === 1.1 && (
-            <div className="flex flex-col h-full -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 animate-in fade-in">
-
-              {/* Sticky top bar */}
-              <div className="shrink-0 bg-white border-b border-stone-100 px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3 space-y-2 sm:space-y-3">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <button onClick={() => setCurrentStep(1)} className="p-1 sm:p-1.5 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-[10px]">←</button>
-                  <h2 className="text-[10px] sm:text-[11px] font-bold text-stone-700 uppercase tracking-widest flex-1">Kaira Inventory</h2>
-                  <span className="text-[9px] sm:text-[10px] text-stone-400">{filteredMaterials.length} fabrics</span>
-                  {activeFilterCount > 0 && (
-                    <button onClick={clearInventoryFilters} className="text-[9px] uppercase tracking-widest text-primary hover:underline">
-                      Clear ({activeFilterCount})
-                    </button>
-                  )}
-                </div>
-
-                {/* Search */}
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search fabrics…"
-                  className="w-full bg-stone-50 border border-stone-200 text-[10px] sm:text-[11px] px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg focus:outline-none focus:border-primary/60"
-                />
-
-                {/* Color swatches */}
-                <div className="flex items-center gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-0.5">
-                  {allColorGroups.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => setActiveColorGroup(c)}
-                      title={c}
-                      className={`flex items-center gap-0.5 sm:gap-1 shrink-0 px-1.5 sm:px-2 py-0.5 sm:py-1 text-[8px] sm:text-[9px] font-semibold uppercase tracking-wide border transition-all ${
-                        activeColorGroup === c
-                          ? 'bg-stone-800 text-white border-stone-800'
-                          : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400'
-                      }`}
-                    >
-                      <span
-                        className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full shrink-0 border border-white/30"
-                        style={{ background: c === 'All' ? 'linear-gradient(135deg,#f5f0eb,#8b5a2b,#1c1c1c)' : (COLOR_SWATCH[c] ?? '#d0c8c0') }}
-                      />
-                      {c}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Pattern + Material Type chips — two rows */}
-                <div className="flex gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-0.5">
-                  {allPatterns.map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setActivePattern(p)}
-                      className={`shrink-0 px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[8px] sm:text-[9px] font-semibold uppercase tracking-wide border transition-all ${
-                        activePattern === p
-                          ? 'bg-primary text-white border-primary'
-                          : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="flex gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-0.5">
-                  {materialTypeOptions.map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => setActiveMaterialType(t)}
-                      className={`shrink-0 px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[8px] sm:text-[9px] font-semibold uppercase tracking-wide border transition-all ${
-                        activeMaterialType === t
-                          ? 'bg-stone-600 text-white border-stone-600'
-                          : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400'
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Grid */}
-              <div className="flex-1 overflow-y-auto p-2 sm:p-3 bg-stone-50">
-                {filteredMaterials.length === 0 ? (
-                  <div className="h-full flex items-center justify-center text-[10px] sm:text-[11px] text-stone-400 uppercase tracking-widest">No fabrics found</div>
-                ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 sm:gap-2">
-                    {filteredMaterials.map((m) => {
-                      const isActive = selectedMaterial?.id === m.id
-                      return (
-                        <button
-                          key={m.id}
-                          onClick={() => { handleSelectMaterial(m); setCurrentStep(1.5) }}
-                          className={`aspect-square overflow-hidden rounded-lg border-2 relative transition-all ${
-                            isActive ? 'border-primary shadow-md scale-[1.03]' : 'border-transparent hover:border-stone-300'
-                          }`}
-                        >
-                          <img
-                            src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
-                            alt={`${m.collection_name} ${m.material_name}`}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex flex-col items-center justify-center transition-opacity p-1 text-center">
-                            <span className="text-[8px] text-white font-bold uppercase leading-tight">{m.collection_name}</span>
-                            <span className="text-[7px] text-white/70 mt-0.5">{m.material_name}</span>
-                          </div>
-                          {isActive && (
-                            <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center">
-                              <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" /></svg>
-                            </div>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Review Selected Material & Proceed */}
-          {currentStep === 1.5 && (
-            <div className="flex flex-col h-full items-center justify-center gap-4 sm:gap-6 animate-in fade-in zoom-in-95">
-               <h2 className="text-[11px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest mb-1 sm:mb-2">Selected Fabric</h2>
-               <div className="w-36 h-36 sm:w-48 sm:h-48 rounded-xl border-4 border-white shadow-xl overflow-hidden relative">
-                 <img src={selectedMaterial?.textureUrl} className="w-full h-full object-cover" alt="" />
-                 <button onClick={() => setCurrentStep(1)} className="absolute top-2 right-2 bg-white/90 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-sm text-stone-600 hover:text-red-500 text-[10px]">✕</button>
-               </div>
-               <p className="text-xs sm:text-sm font-bold text-stone-800 text-center">{selectedMaterial?.fabricName}</p>
-               <button onClick={() => setCurrentStep(2)} className="w-full h-10 sm:h-12 bg-primary text-white rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-[#b8943f] transition-colors mt-2 sm:mt-4 text-[11px] sm:text-xs">
-                 Choose Product
-               </button>
-            </div>
-          )}
-
           {/* Step 2: Product Selection */}
           {currentStep === 2 && (
             <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4">
               <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                 <button onClick={() => setCurrentStep(1.5)} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-xs">←</button>
+                 <button onClick={() => setCurrentStep(1)} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-xs">←</button>
                  <h2 className="text-[11px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest flex-1">Step 2: Choose Product</h2>
               </div>
 
@@ -461,6 +351,40 @@ const AIVisualizerDesktop = () => {
         </div>
       </div>
 
+      </div>
+
+      {isInventoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 mt-16 lg:mt-20">
+          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => setIsInventoryModalOpen(false)} />
+          <div className="relative w-full max-w-md h-[85vh] sm:h-[80vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50 shrink-0">
+              <h3 className="text-xs sm:text-sm font-bold text-stone-800 uppercase tracking-widest">Kaira Inventory</h3>
+              <button 
+                onClick={() => setIsInventoryModalOpen(false)} 
+                className="text-stone-400 hover:text-stone-800 transition-colors p-1"
+                aria-label="Close"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Modal Body */}
+            <div className="flex-1 overflow-hidden p-4 sm:p-6 flex flex-col relative bg-white">
+              <MaterialsInventory
+                onBack={() => setIsInventoryModalOpen(false)}
+                onSelectMaterial={(m) => {
+                  handleSelectMaterial(m)
+                  setIsInventoryModalOpen(false)
+                }}
+                selectedMaterialId={selectedMaterial?.id}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {showOTP && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => !isGenerating && setShowOTP(false)} />
@@ -475,7 +399,7 @@ const AIVisualizerDesktop = () => {
              ) : (
                <>
                  <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50">
-                   <h3 className="text-[12px] font-bold text-stone-800 uppercase tracking-widest">Verification</h3>
+                   <h3 className="text-[12px] font-bold text-stone-800 uppercase tracking-widest">Almost There</h3>
                    <button onClick={() => setShowOTP(false)} className="text-stone-400 hover:text-stone-700">
                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                    </button>
@@ -483,6 +407,7 @@ const AIVisualizerDesktop = () => {
                  <div className="p-6">
                    {otpStep === 1 ? (
                      <div className="flex flex-col gap-4">
+                       <p className="text-xs text-stone-500 mb-2">Provide your mobile number to get the result generated by AI.</p>
                        <div>
                          <label className="block text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-2">Mobile Number</label>
                          <input type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} placeholder="10-digit number" className="w-full h-10 px-3 border border-stone-300 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-xs" />
@@ -493,7 +418,10 @@ const AIVisualizerDesktop = () => {
                      </div>
                    ) : (
                      <div className="flex flex-col gap-4">
-                       <p className="text-xs text-stone-500">OTP sent to <span className="font-semibold text-stone-800">{mobileNumber}</span></p>
+                       <p className="text-xs text-stone-500">
+                           To view the final render, please enter the OTP sent to <br/>
+                           <span className="font-semibold text-stone-800 text-sm mt-1 inline-block">{mobileNumber}</span>
+                       </p>
                        <div>
                          <label className="block text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-2">Enter OTP</label>
                          <input type="text" value={otpCode} onChange={(e) => setOtpCode(e.target.value)} placeholder="1234" maxLength={4} className="w-full h-10 px-3 border border-stone-300 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-center tracking-[0.5em] font-mono text-sm" />
@@ -509,6 +437,7 @@ const AIVisualizerDesktop = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   )
 }

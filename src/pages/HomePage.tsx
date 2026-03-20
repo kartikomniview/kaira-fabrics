@@ -107,20 +107,20 @@ const HomePage = () => {
       </section>
 
       {/* Unified About & Categories Section */}
-      <section id="collections" className="bg-white border-b border-stone-200 pt-10 md:pt-24 pb-8 md:pb-16 relative">
+      <section id="collections" className="bg-white border-b border-stone-200 pt-8 md:pt-14 pb-6 md:pb-10 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
           
           {/* Centered About / Intro Area */}
-          <div className="max-w-4xl mx-auto text-center mb-12 md:mb-28">
-            <div className="inline-flex items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <span className="h-px w-6 sm:w-8 bg-primary" />
-              <h2 className="text-[9px] sm:text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-stone-500">
+          <div className="max-w-3xl mx-auto text-center mb-8 md:mb-16">
+            <div className="inline-flex items-center justify-center gap-3 mb-3 sm:mb-4">
+              <span className="h-px w-5 sm:w-6 bg-primary" />
+              <h2 className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.3em] text-stone-500">
                 The Luxe Comfort
               </h2>
-              <span className="h-px w-6 sm:w-8 bg-primary" />
+              <span className="h-px w-5 sm:w-6 bg-primary" />
             </div>
             
-            <h3 ref={aboutRef} className="font-serif text-2xl sm:text-3xl md:text-5xl lg:text-6xl text-stone-900 leading-[1.2] mb-6 md:mb-8 overflow-hidden flex flex-col items-center">
+            <h3 ref={aboutRef} className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl text-stone-900 leading-[1.2] mb-4 md:mb-6 overflow-hidden flex flex-col items-center">
               <span className={`block transition-all duration-1000 ease-out transform ${isAboutVisible ? 'translate-x-0 opacity-100' : '-translate-x-12 opacity-0'}`}>
                 Redefining luxury and
               </span>
@@ -129,18 +129,18 @@ const HomePage = () => {
               </span>
             </h3>
             
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-stone-600 font-sans font-light leading-relaxed mb-8 md:mb-12 max-w-3xl mx-auto px-2 md:px-0">
-              Welcome to <strong className="font-medium text-stone-900 uppercase tracking-widest text-xs sm:text-sm">KAIRA</strong>. Our passion for creating exquisite sofa fabrics has led us on a journey to redefine the way you experience your living spaces. Step into a world of sophistication, style, and unparalleled quality.
+            <p className="text-xs sm:text-sm md:text-base text-stone-600 font-sans font-light leading-relaxed mb-6 md:mb-8 max-w-2xl mx-auto px-2 md:px-0">
+              Welcome to <strong className="font-medium text-stone-900 uppercase tracking-widest text-[10px] sm:text-xs">KAIRA</strong>. Our passion for creating exquisite sofa fabrics has led us on a journey to redefine the way you experience your living spaces. Step into a world of sophistication, style, and unparalleled quality.
             </p>
 
             {/* Centered Interactive CTA Button */}
             <div className="flex justify-center w-full sm:w-auto px-4 sm:px-0">
               <button 
                 onClick={() => document.getElementById('fabric-collections')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden"
+                className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden"
               >
-                <span className="text-xs font-bold uppercase tracking-widest relative z-10">Explore Our Collections</span>
-                <svg className="w-4 h-4 relative z-10 group-hover:translate-y-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest relative z-10">Explore Our Collections</span>
+                <svg className="w-3.5 h-3.5 relative z-10 group-hover:translate-y-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
                 {/* Hover Reveal Effect */}
@@ -200,7 +200,7 @@ const HomePage = () => {
       {/* Unified Advantage & Specialties Section */}
       <WhyKairaSection />
 
-      {/* Materials Inventory Banner Component */}
+      {/* Smart Catalog Banner Component */}
       <section className="bg-stone-900 py-10 md:py-20 border-y border-stone-800 relative overflow-hidden">
         {/* Subtle Background Elements */}
         <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/woven-light.png')]" />
@@ -214,9 +214,9 @@ const HomePage = () => {
             </div>
             
             <div className="text-center mb-4 md:mb-6">
-              <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold mb-2 md:mb-3">Complete Catalog</p>
+              <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold mb-2 md:mb-3">Smart Discovery</p>
               <h2 className="font-serif text-2xl md:text-5xl text-white font-medium tracking-tight">
-                Materials Inventory
+                Smart Catalog
               </h2>
             </div>
             
@@ -249,7 +249,7 @@ const HomePage = () => {
               to="/materials" 
               className="group inline-flex flex-col items-center justify-center gap-1.5 px-6 py-3 md:px-8 md:py-4 bg-white text-stone-900 border border-transparent hover:bg-transparent hover:border-white hover:text-white transition-all duration-300 rounded-sm shadow-xl"
             >
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">Open Materials Inventory</span>
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">Open Smart Catalog</span>
               <span className="text-[8px] md:text-[9px] text-stone-500 group-hover:text-stone-300 transition-colors uppercase tracking-widest">View Full Collection</span>
             </Link>
         </div>

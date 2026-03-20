@@ -6,7 +6,7 @@ import PageLoader from './components/ui/PageLoader'
 // Route-level code splitting — each page loads its own JS chunk on first visit
 const HomePage             = lazy(() => import('./pages/HomePage'))
 const CollectionsPage      = lazy(() => import('./pages/CollectionsPage'))
-const MaterialsPage        = lazy(() => import('./pages/MaterialsPage'))
+const MaterialsPage        = lazy(() => import('./pages/materialslist/MaterialsPage'))
 const GalleryPage          = lazy(() => import('./pages/GalleryPage'))
 const ThreeDVisualizerPage = lazy(() => import('./pages/ThreeDVisualizerPage'))
 const AIVisualizerPage     = lazy(() => import('./pages/AIVisualizerPage'))
