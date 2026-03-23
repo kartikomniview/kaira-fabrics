@@ -39,7 +39,7 @@ const Header = () => {
       <div className="flex justify-center w-full">
         <header
           className={`absolute lg:fixed z-50 transition-all duration-300 ease-in-out ${
-            isScrolled
+            isHeroPage && isScrolled
               ? 'top-0 lg:top-5 w-full lg:w-[calc(100%-2rem)] max-w-[1400px] lg:rounded-full bg-white/95 backdrop-blur-md border-b lg:border border-stone-200 shadow-[0_4px_20px_rgb(0,0,0,0.05)] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)]'
               : `top-[2px] w-full ${
                   transparent
@@ -48,8 +48,8 @@ const Header = () => {
                 }`
           }`}
         >
-          <div className={`${isScrolled ? 'px-6 sm:px-8' : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12'}`}>
-            <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'h-16' : 'h-16 lg:h-[76px]'}`}>
+          <div className={`${(isHeroPage && isScrolled) ? 'px-6 sm:px-8' : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12'}`}>
+            <div className={`flex items-center justify-between transition-all duration-300 ${(isHeroPage && isScrolled) ? 'h-16' : 'h-16 lg:h-[76px]'}`}>
 
               {/* Logo */}
               <Link to="/" className="flex items-center flex-shrink-0 group">

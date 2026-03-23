@@ -4,6 +4,7 @@ import HeroSection from '../components/sections/HeroSection'
 import CTASection from '../components/sections/CTASection'
 import WhyKairaSection from '../components/sections/WhyKairaSection'
 import FabricCategoriesSection from '../components/sections/FabricCategoriesSection'
+import TestimonialsSection from '../components/sections/TestimonialsSection'
 
 // Counter Component to handle the numeric increment effect
 const Counter = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
@@ -107,11 +108,11 @@ const HomePage = () => {
       </section>
 
       {/* Unified About & Categories Section */}
-      <section id="collections" className="bg-white border-b border-stone-200 pt-8 md:pt-14 pb-6 md:pb-10 relative">
+      <section id="collections" className="bg-white border-b border-stone-200 pt-14 md:pt-24 pb-12 md:pb-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
           
-          {/* Centered About / Intro Area */}
-          <div className="max-w-3xl mx-auto text-center mb-8 md:mb-16">
+          {/* Section Header */}
+          <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
             <div className="inline-flex items-center justify-center gap-3 mb-3 sm:mb-4">
               <span className="h-px w-5 sm:w-6 bg-primary" />
               <h2 className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.3em] text-stone-500">
@@ -119,8 +120,8 @@ const HomePage = () => {
               </h2>
               <span className="h-px w-5 sm:w-6 bg-primary" />
             </div>
-            
-            <h3 ref={aboutRef} className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl text-stone-900 leading-[1.2] mb-4 md:mb-6 overflow-hidden flex flex-col items-center">
+
+            <h3 ref={aboutRef} className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl text-stone-900 leading-[1.2] overflow-hidden flex flex-col items-center">
               <span className={`block transition-all duration-1000 ease-out transform ${isAboutVisible ? 'translate-x-0 opacity-100' : '-translate-x-12 opacity-0'}`}>
                 Redefining luxury and
               </span>
@@ -128,28 +129,23 @@ const HomePage = () => {
                 comfort in <span className="italic text-stone-400">every thread.</span>
               </span>
             </h3>
-            
-            <p className="text-xs sm:text-sm md:text-base text-stone-600 font-sans font-light leading-relaxed mb-6 md:mb-8 max-w-2xl mx-auto px-2 md:px-0">
-              Welcome to <strong className="font-medium text-stone-900 uppercase tracking-widest text-[10px] sm:text-xs">KAIRA</strong>. Our passion for creating exquisite sofa fabrics has led us on a journey to redefine the way you experience your living spaces. Step into a world of sophistication, style, and unparalleled quality.
-            </p>
-
-            {/* Centered Interactive CTA Button */}
-            <div className="flex justify-center w-full sm:w-auto px-4 sm:px-0">
-              <button 
-                onClick={() => document.getElementById('fabric-collections')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden"
-              >
-                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest relative z-10">Explore Our Collections</span>
-                <svg className="w-3.5 h-3.5 relative z-10 group-hover:translate-y-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-                {/* Hover Reveal Effect */}
-                <div className="absolute inset-0 bg-primary translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-              </button>
-            </div>
           </div>
 
           <FabricCategoriesSection />
+
+          {/* Bottom CTA */}
+          <div className="flex justify-center mt-12 md:mt-16">
+            <Link
+              to="/collections"
+              className="group relative inline-flex items-center justify-center gap-3 px-10 sm:px-14 py-4 sm:py-5 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden shadow-lg"
+            >
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-widest relative z-10">Explore All Collections</span>
+              <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+              <div className="absolute inset-0 bg-primary translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -255,6 +251,9 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <TestimonialsSection />
+
       {/* 6. Portfolio */}
       <section id="portfolio" className="bg-stone-50 py-10 md:py-24 border-t border-stone-200">
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-10">
@@ -293,15 +292,6 @@ const HomePage = () => {
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className="text-center mt-8 md:mt-12">
-            <Link
-              to="/gallery"
-              className="inline-flex items-center justify-center gap-3 px-6 md:px-8 py-2.5 md:py-3 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold text-stone-900 border border-stone-300 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-300 rounded-sm"
-            >
-              Explore Full Portfolio
-            </Link>
           </div>
         </div>
       </section>

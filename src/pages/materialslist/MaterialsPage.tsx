@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { newMaterials } from '../../data/newmaterials'
 import { collections } from '../../data/collections'
 import type { Material } from '../../data/materials'
@@ -33,6 +33,10 @@ const MaterialsPage = () => {
   // Reset filters when collection changes
   useEffect(() => { clearAll() }, [selectedCollection])
 
+  useEffect(() => {
+      window.scrollTo(0, 0)
+  }, [])
+
   const selectCollection = (name: string) => {
     setSearchParams({ collection: name })
   }
@@ -48,23 +52,31 @@ const MaterialsPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-cream pt-[72px]"> {/* offset for fixed header */}
+      <div className="min-h-screen bg-cream">
 
-        {/* ── Page title bar ───────────────────────────────────────── */}
-        <div className="bg-white border-b border-stone-100 px-4 lg:px-10 py-4">
-          <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-gold font-semibold">Fabric Collections</p>
-              <h1 className="font-serif text-2xl text-charcoal mt-0.5">Materials Library</h1>
-            </div>
-            <p className="text-[11px] text-stone-400 shrink-0">
-              <span className="font-semibold text-charcoal">{filtered.length}</span> of {collectionMaterials.length} fabrics in <span className="font-semibold text-charcoal">{selectedCollection}</span>
+        {/* ── Page Header ──────────────────────────────────────────── */}
+        <div className="bg-stone-900 pt-28 pb-12">
+          <div className="max-w-7xl mx-auto px-6 lg:px-10">
+            <button
+              onClick={() => window.history.back()}
+              className="group flex items-center gap-2 px-4 py-2 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500 hover:bg-stone-800 transition-all rounded-sm mb-6"
+            >
+              <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="text-[10px] uppercase font-bold tracking-widest">Back to Home</span>
+            </button>
+
+            <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-primary mb-3">Fabric Collections</p>
+            <h1 className="font-serif text-4xl md:text-5xl text-white">Materials Library</h1>
+            <p className="mt-3 text-stone-400 text-sm max-w-xl leading-relaxed">
+              Browse our curated range of premium fabrics &mdash; filter by collection or pattern to find your perfect textile.
             </p>
           </div>
         </div>
 
         {/* ── Main two-column layout ───────────────────────────────── */}
-        <div className="max-w-[1600px] mx-auto px-4 lg:px-10 py-6 md:py-8 flex flex-col md:flex-row gap-4 md:gap-7 items-start">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6 md:py-8 flex flex-col md:flex-row gap-4 md:gap-7 items-start">
 
           {/* ── LEFT: Collections Sidebar ──────────────────────────── */}
           <aside className="hidden md:flex flex-col w-60 shrink-0 sticky top-[88px] bg-white border border-stone-200 shadow-sm self-start max-h-[calc(100vh-110px)]">
@@ -104,19 +116,30 @@ const MaterialsPage = () => {
                   <button
                     key={c.id}
                     onClick={() => selectCollection(c.name)}
-                    className={`w-full text-left px-4 py-2.5 flex items-center justify-between gap-2 border-b border-stone-50 transition-all duration-150 ${
+                    className={`w-full text-left px-3 py-2.5 flex items-center justify-between gap-3 border-b border-stone-50 transition-all duration-150 ${
                       isActive
                         ? 'bg-charcoal text-cream'
                         : 'bg-white text-stone-600 hover:bg-stone-50 hover:text-charcoal'
                     }`}
                   >
-                    <div className="min-w-0">
-                      <p className={`text-[11px] font-semibold uppercase tracking-wide truncate ${isActive ? 'text-cream' : 'text-charcoal'}`}>
-                        {c.name}
-                      </p>
-                      <p className={`text-[9px] uppercase tracking-widest mt-0.5 ${isActive ? 'text-gold' : 'text-stone-400'}`}>
-                        {c.category}
-                      </p>
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Collection Thumbnail */}
+                      <div className={`w-10 h-10 rounded-sm overflow-hidden shrink-0 border ${isActive ? 'border-stone-700' : 'border-stone-100'}`}>
+                        <img 
+                          src={c.image} 
+                          alt={c.name} 
+                          className="w-full h-full object-cover"
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).src = 'https://via.placeholder.com/40?text=K' }}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-[11px] font-semibold uppercase tracking-wide truncate ${isActive ? 'text-cream' : 'text-charcoal'}`}>
+                          {c.name}
+                        </p>
+                        <p className={`text-[9px] uppercase tracking-widest mt-0.5 ${isActive ? 'text-gold' : 'text-stone-400'}`}>
+                          {c.category}
+                        </p>
+                      </div>
                     </div>
                     <span className={`text-[9px] font-bold shrink-0 px-1.5 py-0.5 rounded-full min-w-[22px] text-center leading-none ${
                       isActive ? 'bg-gold text-charcoal' : 'bg-stone-100 text-stone-400'
@@ -157,7 +180,16 @@ const MaterialsPage = () => {
                       c.name === selectedCollection ? 'bg-stone-100 text-charcoal' : 'text-stone-500 hover:bg-stone-50 hover:text-charcoal'
                     }`}
                   >
-                    {c.name}
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-sm overflow-hidden shrink-0 border border-stone-100">
+                        <img 
+                          src={c.image} 
+                          alt={c.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      {c.name}
+                    </div>
                     <span className="text-[9px] text-stone-400">{c.itemCount}</span>
                   </button>
                 ))}
@@ -279,6 +311,43 @@ const MaterialsPage = () => {
             )}
 
           </div>
+        </div>
+      </div>
+
+      {/* ── 3D Visualizer Promo Strip ───────────────────────── */}
+      <div className="bg-stone-900 border-t border-stone-800 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+
+          {/* Left */}
+          <div className="flex items-center gap-5">
+            <div className="w-11 h-11 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+              <svg className="w-5.5 h-5.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">3D Powered</span>
+              </div>
+              <p className="text-base md:text-lg font-semibold text-white leading-tight">
+                Drape any fabric on a 3D model — <span className="text-primary">in real time</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Right */}
+          <Link
+            to="/3d-visualizer"
+            className="shrink-0 flex items-center gap-3 px-8 py-4 bg-primary text-stone-900 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            Try 3D Fabric Studio
+          </Link>
+
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { newMaterials } from '../../data/newmaterials'
 import { dummyProducts, getProductImageUrl } from '../../data/products'
 import type { Product } from '../../data/products'
@@ -55,7 +56,7 @@ const AIVisualizerDesktop = () => {
         collectionName: 'Custom Upload',
         isCustom: true,
       })
-      setCurrentStep(2) // Move directly to product selection
+      setCurrentStep(1.5) // Show material preview first
     }
     reader.readAsDataURL(file)
     e.target.value = ''
@@ -69,7 +70,7 @@ const AIVisualizerDesktop = () => {
       collectionName: m.collection_name,
       isCustom: false,
     })
-    setCurrentStep(2) // Move directly to product selection
+    setCurrentStep(1.5) // Show material preview first
   }
 
   const handleProductUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,13 +135,34 @@ const AIVisualizerDesktop = () => {
   }
 
   return (
-    <div className="relative flex flex-col w-full min-h-screen overflow-y-auto bg-white pt-24 lg:pt-32 pb-12 lg:pb-20">
-      
+    <div className="relative flex flex-col w-full min-h-screen bg-white">
+
+      {/* ── Page Header ────────────────────────────────────────── */}
+      <div className="bg-stone-900 pt-28 pb-12">
+        <div className="max-w-6xl mx-auto px-6 lg:px-10">
+          <button
+            onClick={() => window.history.back()}
+            className="group flex items-center gap-2 px-4 py-2 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500 hover:bg-stone-800 transition-all rounded-sm mb-6"
+          >
+            <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span className="text-[10px] uppercase font-bold tracking-widest">Back to Home</span>
+          </button>
+
+          <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-primary mb-3">AI-Powered Tool</p>
+          <h1 className="font-serif text-4xl md:text-5xl text-white">AI Fabric Visualizer</h1>
+          <p className="mt-3 text-stone-400 text-sm max-w-xl leading-relaxed">
+            Select a fabric, choose a product, and watch AI generate a photorealistic preview &mdash; see exactly how it looks before you order.
+          </p>
+        </div>
+      </div>
+
       {/* ── Content Wrapper ── */}
-      <div className="relative z-10 flex flex-col w-full max-w-6xl mx-auto px-4 sm:px-8">
+      <div className="relative z-10 flex flex-col w-full max-w-6xl mx-auto px-4 sm:px-8 pb-12 lg:pb-16">
 
         {/* Unified AI Studio Card */}
-        <div className="w-full bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col lg:flex-row min-h-[600px] mb-8 lg:mb-0 lg:mt-6">
+        <div className="w-full bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col lg:flex-row min-h-[600px] mt-8 lg:mt-10 mb-8 lg:mb-0">
           
           {/* Left Side: Header & Info */}
           <div className="relative w-full lg:w-[45%] bg-stone-900 border-b lg:border-b-0 lg:border-r border-stone-800 px-8 py-10 sm:px-10 sm:py-16 flex flex-col justify-center">
@@ -259,11 +281,55 @@ const AIVisualizerDesktop = () => {
             </div>
           )}
 
+          {/* Step 1.5: Material Preview */}
+          {currentStep === 1.5 && (
+            <div className="flex flex-col h-full items-center justify-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4">
+              <div className="flex items-center w-full mb-1">
+                <button onClick={() => { setSelectedMaterial(null); setCurrentStep(1); }} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-xs">←</button>
+                <h2 className="text-[11px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest mx-auto pr-8">Fabric Preview</h2>
+              </div>
+
+              {/* Large texture preview */}
+              <div className="w-auto aspect-square max-h-[260px] sm:max-h-[320px] rounded-2xl overflow-hidden border border-stone-200 shadow-md bg-stone-100">
+                <img
+                  src={selectedMaterial?.textureUrl}
+                  alt={selectedMaterial?.fabricName}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Fabric info */}
+              <div className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 flex flex-col gap-1">
+                <p className="text-[9px] sm:text-[10px] text-stone-500 uppercase tracking-widest">
+                  {selectedMaterial?.isCustom ? 'Custom Upload' : selectedMaterial?.collectionName}
+                </p>
+                <p className="text-xs sm:text-sm font-bold text-stone-800 truncate">{selectedMaterial?.fabricName}</p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 w-full mt-auto">
+                <button
+                  onClick={() => { setSelectedMaterial(null); setCurrentStep(1); }}
+                  className="flex-1 h-11 sm:h-12 border-2 border-stone-200 text-stone-600 rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] hover:border-stone-400 transition-colors"
+                >
+                  Change
+                </button>
+                <button
+                  onClick={() => setCurrentStep(2)}
+                  className="flex-1 h-11 sm:h-12 bg-stone-900 text-white rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] shadow-lg hover:bg-black transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                >
+                  <span>Use This Fabric</span>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Step 2: Product Selection */}
           {currentStep === 2 && (
             <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4">
               <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                 <button onClick={() => setCurrentStep(1)} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-xs">←</button>
+                 <button onClick={() => setCurrentStep(1.5)} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-xs">←</button>
                  <h2 className="text-[11px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest flex-1">Step 2: Choose Product</h2>
               </div>
 
@@ -353,25 +419,51 @@ const AIVisualizerDesktop = () => {
 
       </div>
 
+      </div>
+
+      {/* ── Smart Catalog Promo Strip ─────────────────────────────── */}
+      <div className="bg-stone-900 border-t border-stone-800 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
+        <div className="relative max-w-6xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+
+          {/* Left */}
+          <div className="flex items-center gap-5">
+            <div className="w-11 h-11 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+              <svg className="w-5.5 h-5.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">Smart Discovery</span>
+              </div>
+              <p className="text-base md:text-lg font-semibold text-white leading-tight">
+                Browse <span className="text-primary">500+ premium fabrics</span> across 100+ collections
+              </p>
+            </div>
+          </div>
+
+          {/* Right */}
+          <Link
+            to="/materials"
+            className="shrink-0 flex items-center gap-3 px-8 py-4 bg-primary text-stone-900 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Open Smart Catalog
+          </Link>
+
+        </div>
+      </div>
+
       {isInventoryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 mt-16 lg:mt-20">
           <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => setIsInventoryModalOpen(false)} />
-          <div className="relative w-full max-w-md h-[85vh] sm:h-[80vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-            {/* Modal Header */}
-            <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50 shrink-0">
-              <h3 className="text-xs sm:text-sm font-bold text-stone-800 uppercase tracking-widest">Kaira Inventory</h3>
-              <button 
-                onClick={() => setIsInventoryModalOpen(false)} 
-                className="text-stone-400 hover:text-stone-800 transition-colors p-1"
-                aria-label="Close"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+          <div className="relative w-full max-w-md h-[85vh] sm:h-[80vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col uppercase">
             {/* Modal Body */}
-            <div className="flex-1 overflow-hidden p-4 sm:p-6 flex flex-col relative bg-white">
+            <div className="flex-1 overflow-hidden flex flex-col relative bg-white">
               <MaterialsInventory
                 onBack={() => setIsInventoryModalOpen(false)}
                 onSelectMaterial={(m) => {
@@ -437,7 +529,6 @@ const AIVisualizerDesktop = () => {
           </div>
         </div>
       )}
-    </div>
     </div>
   )
 }

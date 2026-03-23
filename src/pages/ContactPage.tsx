@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 /* ── Fabric weave pattern as inline SVG data-URI ── */
 const weaveBg = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23A2EF0F' stroke-width='0.4' opacity='0.18'%3E%3Cpath d='M0 10h40M0 20h40M0 30h40M10 0v40M20 0v40M30 0v40'/%3E%3C/g%3E%3C/svg%3E")`
@@ -13,6 +13,10 @@ const ContactPage = () => {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+        window.scrollTo(0, 0)
+  }, [])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -47,24 +51,30 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* ── Main content area ────────────────────────────────────── */}
-      <section className="bg-white border-b border-stone-200 pt-24 md:pt-32 pb-12 md:pb-16 relative">
+      {/* ── Page Header ──────────────────────────────────────────── */}
+      <div className="bg-stone-900 pt-28 pb-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          
-          {/* Header */}
-          <div className="text-center max-w-2xl mx-auto mb-16 md:mb-24">
-            <div className="inline-flex items-center gap-3 mb-4 justify-center">
-              <span className="w-1 h-1 bg-primary rounded-full" />
-              <span className="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold">Get In Touch</span>
-              <span className="w-1 h-1 bg-primary rounded-full" />
-            </div>
-            <h2 className="font-serif text-3xl md:text-5xl text-stone-900 font-medium leading-tight mb-6">
-              Let's Discuss <span className="italic text-stone-400">Your Project</span>
-            </h2>
-            <p className="text-base md:text-lg text-stone-500 leading-relaxed font-sans font-light">
-              Reach out to our experts to find the perfect fabrics for your high-end bespoke furniture and envision elegant living spaces.
-            </p>
-          </div>
+          <button
+            onClick={() => window.history.back()}
+            className="group flex items-center gap-2 px-4 py-2 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500 hover:bg-stone-800 transition-all rounded-sm mb-6"
+          >
+            <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span className="text-[10px] uppercase font-bold tracking-widest">Back to Home</span>
+          </button>
+
+          <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-primary mb-3">Get In Touch</p>
+          <h1 className="font-serif text-4xl md:text-5xl text-white">Contact Us</h1>
+          <p className="mt-3 text-stone-400 text-sm max-w-xl leading-relaxed">
+            Reach out to our experts to find the perfect fabrics for your high-end bespoke furniture and envision elegant living spaces.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Main content area ────────────────────────────────────── */}
+      <section className="bg-white border-b border-stone-200 py-12 md:py-16 relative">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
           <div className="grid lg:grid-cols-[1fr_420px] gap-14 xl:gap-20 items-start">
 

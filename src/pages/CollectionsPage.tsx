@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { collections, type Collection } from '../data/collections'
 import { newMaterials } from '../data/newmaterials'
 
@@ -293,17 +293,67 @@ function CollectionModal({
   onClose: () => void
 }) {
   const [showCatalog, setShowCatalog] = useState(false)
+  const [zoomedIndex, setZoomedIndex] = useState<number | null>(null)
   const materials = useMemo(
     () => newMaterials.filter((m) => m.collection_name === collection.name),
     [collection.name]
   )
 
-  // Close on Escape
+  // ── Image zoom / pan state ──────────────────────────────────
+  const [imgScale, setImgScale] = useState(1)
+  const [imgOffset, setImgOffset] = useState({ x: 0, y: 0 })
+  const dragStart = useRef<{ mx: number; my: number; ox: number; oy: number } | null>(null)
+
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    setImgScale(1)
+    setImgOffset({ x: 0, y: 0 })
+  }, [zoomedIndex])
+
+  const handleImgWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setImgScale((s) => {
+      const next = Math.min(4, Math.max(1, s - e.deltaY * 0.004))
+      if (next === 1) setImgOffset({ x: 0, y: 0 })
+      return next
+    })
+  }, [])
+
+  const handleImgMouseDown = useCallback((e: React.MouseEvent) => {
+    if (imgScale <= 1) return
+    e.preventDefault()
+    dragStart.current = { mx: e.clientX, my: e.clientY, ox: imgOffset.x, oy: imgOffset.y }
+  }, [imgScale, imgOffset])
+
+  const handleImgMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragStart.current) return
+    setImgOffset({
+      x: dragStart.current.ox + (e.clientX - dragStart.current.mx),
+      y: dragStart.current.oy + (e.clientY - dragStart.current.my),
+    })
+  }, [])
+
+  const handleImgMouseUp = useCallback(() => { dragStart.current = null }, [])
+
+  const handleImgDblClick = useCallback(() => {
+    setImgScale(1)
+    setImgOffset({ x: 0, y: 0 })
+  }, [])
+
+  // Close on Escape, arrow-key navigation for zoom
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (zoomedIndex !== null) {
+        if (e.key === 'Escape') { setZoomedIndex(null); return }
+        if (e.key === 'ArrowRight') { setZoomedIndex((i) => ((i ?? 0) + 1) % materials.length); return }
+        if (e.key === 'ArrowLeft') { setZoomedIndex((i) => ((i ?? 0) - 1 + materials.length) % materials.length); return }
+      } else {
+        if (e.key === 'Escape') onClose()
+      }
+    }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
+  }, [onClose, zoomedIndex, materials.length])
 
   // Prevent body scroll
   useEffect(() => {
@@ -379,7 +429,7 @@ function CollectionModal({
 
         {/* ── Right: Materials List ──────────────────── */}
         <div className="flex-1 flex flex-col min-h-0 bg-stone-50">
-          <div className="px-6 py-4 border-b border-stone-200 bg-white flex items-center justify-between">
+          <div className="pl-6 pr-14 py-4 border-b border-stone-200 bg-white flex items-center justify-between">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500">
               Materials in this collection
             </p>
@@ -389,8 +439,12 @@ function CollectionModal({
           </div>
           <div className="overflow-y-auto flex-1 p-5">
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
-              {materials.map((m) => (
-                <div key={m.id} className="group flex flex-col">
+              {materials.map((m, idx) => (
+                <div
+                  key={m.id}
+                  className="group flex flex-col cursor-pointer"
+                  onClick={() => setZoomedIndex(idx)}
+                >
                   <div className="aspect-square overflow-hidden bg-white border border-stone-200 rounded-sm shadow-sm hover:shadow-md transition-all group-hover:border-primary/40 relative">
                     <img
                       src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
@@ -398,6 +452,11 @@ function CollectionModal({
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
                     />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-stone-900/30">
+                      <svg className="w-5 h-5 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0zm-2 0h-4m2-2v4" />
+                      </svg>
+                    </div>
                   </div>
                   <div className="mt-1.5 px-0.5">
                     <p className="text-[10px] font-semibold text-charcoal uppercase truncate leading-tight">{m.material_name}</p>
@@ -418,6 +477,156 @@ function CollectionModal({
           onClose={() => setShowCatalog(false)}
         />
       )}
+
+      {/* ── Material Zoom Overlay ────────────────────────────────── */}
+      {zoomedIndex !== null && (() => {
+        const m = materials[zoomedIndex]
+        return (
+          <div
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)' }}
+            onClick={(e) => { e.stopPropagation(); setZoomedIndex(null) }}
+          >
+            {/* Close button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); setZoomedIndex(null) }}
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-stone-800 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-700 transition-colors shadow-lg"
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div
+              className="relative flex flex-col items-stretch w-full max-w-lg overflow-hidden rounded-sm shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Image pane — big, on top */}
+              <div
+                className="relative w-full aspect-square bg-stone-900 flex items-center justify-center flex-shrink-0 overflow-hidden"
+                style={{ cursor: imgScale > 1 ? (dragStart.current ? 'grabbing' : 'grab') : 'zoom-in' }}
+                onWheel={handleImgWheel}
+                onMouseDown={handleImgMouseDown}
+                onMouseMove={handleImgMouseMove}
+                onMouseUp={handleImgMouseUp}
+                onMouseLeave={handleImgMouseUp}
+              >
+                <img
+                  key={m.id}
+                  src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
+                  alt={m.material_name}
+                  className="w-full h-full object-cover select-none"
+                  style={{
+                    transform: `scale(${imgScale}) translate(${imgOffset.x / imgScale}px, ${imgOffset.y / imgScale}px)`,
+                    transition: dragStart.current ? 'none' : 'transform 0.15s ease',
+                  }}
+                  draggable={false}
+                  onDoubleClick={handleImgDblClick}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0' }}
+                />
+                {/* Zoom controls */}
+                <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setImgScale((s) => { const n = Math.min(4, s + 0.5); if (n === 1) setImgOffset({ x: 0, y: 0 }); return n }) }}
+                    className="w-7 h-7 rounded-full bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow"
+                    aria-label="Zoom in"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setImgScale((s) => { const n = Math.max(1, s - 0.5); if (n === 1) setImgOffset({ x: 0, y: 0 }); return n }) }}
+                    className="w-7 h-7 rounded-full bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow"
+                    aria-label="Zoom out"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16" />
+                    </svg>
+                  </button>
+                  {imgScale > 1 && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setImgScale(1); setImgOffset({ x: 0, y: 0 }) }}
+                      className="w-7 h-7 rounded-full bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow text-[9px] font-bold"
+                      aria-label="Reset zoom"
+                    >
+                      1:1
+                    </button>
+                  )}
+                </div>
+                {/* Zoom level badge */}
+                {imgScale > 1 && (
+                  <span className="absolute top-3 left-3 text-[9px] font-bold tabular-nums text-white/80 bg-stone-900/60 px-2 py-0.5 rounded-full tracking-wider">
+                    {Math.round(imgScale * 100)}%
+                  </span>
+                )}
+                {imgScale === 1 && (
+                  <span className="absolute top-3 left-3 text-[9px] text-white/40 bg-stone-900/40 px-2 py-0.5 rounded-full tracking-wide">
+                    scroll to zoom
+                  </span>
+                )}
+                {/* Prev */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setZoomedIndex((zoomedIndex - 1 + materials.length) % materials.length) }}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-stone-900/70 text-white flex items-center justify-center hover:bg-stone-900 transition-colors"
+                  aria-label="Previous"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                {/* Next */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setZoomedIndex((zoomedIndex + 1) % materials.length) }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-stone-900/70 text-white flex items-center justify-center hover:bg-stone-900 transition-colors"
+                  aria-label="Next"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                {/* Counter badge */}
+                <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] font-bold tabular-nums text-white/70 bg-stone-900/60 px-2.5 py-1 rounded-full tracking-widest">
+                  {zoomedIndex + 1} / {materials.length}
+                </span>
+              </div>
+
+              {/* Info pane — compact, at bottom */}
+              <div className="w-full bg-white px-6 py-4 flex flex-col gap-2.5">
+                <div>
+                  <p className="text-[9px] tracking-[0.3em] uppercase font-bold text-primary mb-0.5">{m.collection_name}</p>
+                  <h3 className="font-serif text-xl text-stone-900 leading-tight">{m.material_name}</h3>
+                </div>
+                <div className="flex flex-wrap gap-x-6 gap-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400">Code</span>
+                    <span className="text-[11px] font-bold text-stone-700 tracking-wide">{m.material_code}</span>
+                  </div>
+                  {m.material_type && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400">Type</span>
+                      <span className="text-[11px] text-stone-700">{m.material_type}</span>
+                    </div>
+                  )}
+                  {m.color_group && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400">Colour</span>
+                      <span className="text-[11px] text-stone-700">{m.color_group}</span>
+                    </div>
+                  )}
+                  {m.pattern && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400">Pattern</span>
+                      <span className="text-[11px] text-stone-700">{m.pattern}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
@@ -475,6 +684,7 @@ const CollectionsPage = () => {
     [activeMaterialType]
   )
 
+  const navigate = useNavigate()
   const openModal = useCallback((col: Collection) => setSelectedCollection(col), [])
   const closeModal = useCallback(() => setSelectedCollection(null), [])
 
@@ -484,7 +694,17 @@ const CollectionsPage = () => {
       {/* ── Minimal Page Header ──────────────────────────────────── */}
       <div className="bg-stone-900 pt-28 pb-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-primary mb-3">Our Portfolio</p>
+          <button 
+            onClick={() => window.history.back()}
+            className="group flex items-center gap-2 px-4 py-2 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500 hover:bg-stone-800 transition-all rounded-sm mb-6"
+          >
+            <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span className="text-[10px] uppercase font-bold tracking-widest">Back to Home</span>
+          </button>
+
+          <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-primary mb-3">Curated Textile Collections</p>
           <h1 className="font-serif text-4xl md:text-5xl text-white">Fabric Collections</h1>
           <p className="mt-3 text-stone-400 text-sm max-w-xl leading-relaxed">
             Explore our curated range of textile collections &mdash; click any collection to preview its swatches.
@@ -532,8 +752,8 @@ const CollectionsPage = () => {
 
           {/* Grid */}
           {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-5">
-              {Array.from({ length: 10 }, (_, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+              {Array.from({ length: 12 }, (_, i) => (
                 <div key={i} className="bg-white border border-stone-200 overflow-hidden shadow-sm rounded-sm" aria-hidden="true">
                   <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
                     <div
@@ -556,7 +776,7 @@ const CollectionsPage = () => {
               ))}
             </div>
           ) : filtered.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
               {filtered.map((col) => (
                 <div
                   key={col.name}
@@ -567,15 +787,16 @@ const CollectionsPage = () => {
                   <span className="block h-0.5 w-0 group-hover:w-full bg-primary transition-all duration-300" />
 
                   {/* Cover image */}
-                  <div className="aspect-[4/3] overflow-hidden bg-stone-50 relative flex items-center justify-center">
+                  <div className="w-full h-auto overflow-hidden bg-stone-50 relative flex items-center justify-center">
                     <img
                       src={col.image}
                       alt={col.name}
-                      className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-auto block transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => {
                         const el = e.currentTarget as HTMLImageElement
                         el.style.display = 'none'
                         el.parentElement!.classList.add('bg-stone-200')
+                        el.parentElement!.classList.add('aspect-[4/3]')
                       }}
                     />
                     {/* Overlay hint */}
@@ -608,6 +829,44 @@ const CollectionsPage = () => {
               </button>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── AI Visualizer Promo Strip ────────────────────────────── */}
+      <div className="bg-stone-900 border-t border-stone-800 relative overflow-hidden">
+        {/* Subtle motion background */}
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+
+          {/* Left */}
+          <div className="flex items-center gap-5">
+            <div className="w-11 h-11 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+              <svg className="w-5.5 h-5.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">AI Powered</span>
+              </div>
+              <p className="text-base md:text-lg font-semibold text-white leading-tight">
+                Visualize any fabric on real products — <span className="text-primary">instantly</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Right */}
+          <button
+            onClick={() => navigate('/ai-visualizer')}
+            className="shrink-0 flex items-center gap-3 px-8 py-4 bg-primary text-stone-900 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Try AI Visualizer
+          </button>
+
         </div>
       </div>
 

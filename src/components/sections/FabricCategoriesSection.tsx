@@ -26,17 +26,6 @@ const categoryImages: Record<string, string> = {
 const FabricCategoriesSection = () => {
   return (
     <div id="fabric-collections" className="scroll-mt-24">
-      {/* Header */}
-      <div className="text-center mb-5 md:mb-10">
-        <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-1 md:mb-2">Browse By Type</p>
-        <h2 className="font-serif text-2xl md:text-4xl text-stone-900 font-medium">Fabric Collections</h2>
-        <div className="flex items-center justify-center gap-2 mt-3 md:mt-4">
-          <span className="h-px w-8 md:w-12 bg-stone-300" />
-          <span className="w-1.5 h-1.5 bg-secondary rounded-full" />
-          <span className="h-px w-8 md:w-12 bg-stone-300" />
-        </div>
-      </div>
-
       {/* Mobile: horizontal scroll strip / Desktop: grid */}
       <div className="md:hidden -mx-4 px-4 overflow-x-auto flex gap-3 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {categories.map(([name, count]) => {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { collections } from '../../data/collections'
 import { newMaterials } from '../../data/newmaterials'
 
@@ -21,6 +21,19 @@ const COLOR_SWATCH: Record<string, string> = {
   Pinks: '#d4607a', Purples: '#7b3fa0', Mauves: '#9e7b9b', Coals: '#3c3c3c',
 }
 
+function highlight(text: string, query: string) {
+  if (!query) return <>{text}</>
+  const idx = text.toLowerCase().indexOf(query.toLowerCase())
+  if (idx === -1) return <>{text}</>
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="bg-secondary/25 text-secondary rounded-[2px] px-[1px]">{text.slice(idx, idx + query.length)}</mark>
+      {text.slice(idx + query.length)}
+    </>
+  )
+}
+
 interface MaterialsInventoryProps {
   onBack: () => void;
   onSelectMaterial: (m: typeof newMaterials[0]) => void;
@@ -34,32 +47,75 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
   const [activePattern, setActivePattern] = useState('All')
   const [search, setSearch] = useState('')
   const [showColDropdown, setShowColDropdown] = useState(false)
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false)
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(24)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
-  const collectionsWithThumbs = useMemo(() => {
-    return collections.map(c => ({
-      name: c.name,
-      thumb: c.image
-    })).sort((a, b) => a.name.localeCompare(b.name))
+  const isSearchMode = search.trim().length > 0
+  const PAGE_SIZE = 24
+
+  // Auto-focus search on mount
+  useEffect(() => {
+    const t = setTimeout(() => searchInputRef.current?.focus(), 100)
+    return () => clearTimeout(t)
   }, [])
 
-  const filteredMaterials = useMemo(() => newMaterials.filter((m) => {
-    if (activeMaterialType !== 'All' && m.material_type !== activeMaterialType) return false
-    if (activeCollection !== 'All' && m.collection_name !== activeCollection) return false
-    if (activeColorGroup !== 'All' && m.color_group !== activeColorGroup) return false
-    if (activePattern !== 'All' && m.pattern !== activePattern) return false
-    if (search) {
-      const q = search.toLowerCase()
-      if (
-        !m.material_name?.toLowerCase().includes(q) &&
-        !m.collection_name?.toLowerCase().includes(q)
-      ) return false
+  // Close collection dropdown on outside click
+  useEffect(() => {
+    if (!showColDropdown) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-col-dropdown]')) setShowColDropdown(false)
     }
-    return true
-  }), [activeMaterialType, activeCollection, activeColorGroup, activePattern, search])
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showColDropdown])
+
+  const collectionsWithThumbs = useMemo(() => {
+    return collections
+      .filter(c => activeMaterialType === 'All' || c.category === activeMaterialType)
+      .map(c => ({ name: c.name, thumb: c.image }))
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [activeMaterialType])
+
+  // Global search — ignores all filters, searches across every material
+  const filteredMaterials = useMemo(() => {
+    if (search.trim()) {
+      const q = search.trim().toLowerCase()
+      return newMaterials.filter((m) =>
+        m.material_name?.toLowerCase().includes(q) ||
+        m.collection_name?.toLowerCase().includes(q) ||
+        m.material_code?.toLowerCase().includes(q) ||
+        m.material_type?.toLowerCase().includes(q) ||
+        m.color_group?.toLowerCase().includes(q) ||
+        m.pattern?.toLowerCase().includes(q)
+      )
+    }
+    // When not searching, apply all filters normally
+    return newMaterials.filter((m) => {
+      if (activeMaterialType !== 'All' && m.material_type !== activeMaterialType) return false
+      if (activeCollection !== 'All' && m.collection_name !== activeCollection) return false
+      if (activeColorGroup !== 'All' && m.color_group !== activeColorGroup) return false
+      if (activePattern !== 'All' && m.pattern !== activePattern) return false
+      return true
+    })
+  }, [activeMaterialType, activeCollection, activeColorGroup, activePattern, search])
 
   const activeFilterCount = [activeMaterialType, activeCollection, activeColorGroup, activePattern].filter((v) => v !== 'All').length
-  
+
+  // Reset activeCollection when material type changes (collection may not belong to new type)
+  useEffect(() => {
+    setActiveCollection('All')
+  }, [activeMaterialType])
+
+  // Reset pagination whenever filters or search change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [search, activeMaterialType, activeCollection, activeColorGroup, activePattern])
+
+  const visibleMaterials = filteredMaterials.slice(0, visibleCount)
+  const hasMore = visibleCount < filteredMaterials.length
+
   const clearInventoryFilters = () => {
     setActiveMaterialType('All')
     setActiveCollection('All')
@@ -69,134 +125,270 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
   }
 
   return (
-    <div className="flex flex-col h-full -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 animate-in fade-in">
+    <div className="flex flex-col h-full animate-in fade-in">
       {/* Sticky top bar */}
-      <div className="shrink-0 bg-white border-b border-stone-100 px-3 sm:px-4 pt-3 sm:pt-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4">
+      <div className="shrink-0 bg-stone-50 border-b border-stone-100 px-3 sm:px-4 pt-3 sm:pt-4 pb-3 sm:pb-4 space-y-2.5 sm:space-y-3">
+
+        {/* Title row */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <button onClick={onBack} className="p-1 sm:p-1.5 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-[10px]">←</button>
-          <h2 className="text-[10px] sm:text-[11px] font-bold text-stone-700 uppercase tracking-widest flex-1">Kaira Inventory</h2>
+          <h2 className="text-[10px] sm:text-[11px] font-bold text-stone-700 uppercase tracking-widest flex-1 px-1">Kaira Inventory</h2>
           <span className="text-[9px] sm:text-[10px] text-stone-400">{filteredMaterials.length} fabrics</span>
-          {activeFilterCount > 0 && (
-            <button onClick={clearInventoryFilters} className="text-[9px] uppercase tracking-widest text-primary hover:underline">
-              Clear ({activeFilterCount})
+          {(activeFilterCount > 0 || isSearchMode) && (
+            <button onClick={clearInventoryFilters} className="text-[9px] uppercase tracking-widest text-secondary hover:underline ml-2">
+              Clear {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
             </button>
           )}
-        </div>
-
-        {/* Collection Dropdown */}
-        <div className="relative">
           <button 
-            onClick={() => setShowColDropdown(!showColDropdown)}
-            className="w-full bg-white border border-stone-200 text-[10px] sm:text-[11px] px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg flex items-center justify-between hover:border-stone-300"
+            onClick={onBack} 
+            className="ml-2 p-1 text-stone-400 hover:text-stone-800 transition-colors"
+            aria-label="Close"
           >
-            <span className="font-semibold text-stone-700 uppercase tracking-wider">
-              {activeCollection === 'All' ? 'All Collections' : activeCollection}
-            </span>
-            <svg className={`w-3 h-3 text-stone-500 transition-transform ${showColDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
-          
-          {showColDropdown && (
-            <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-stone-200 rounded-lg shadow-xl p-3 max-h-72 overflow-y-auto">
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                <div 
-                  className="flex flex-col items-center gap-1.5 cursor-pointer group"
-                  onClick={() => { setActiveCollection('All'); setShowColDropdown(false); }}
-                >
-                  <div className={`w-full aspect-square rounded-lg border flex items-center justify-center transition-all ${activeCollection === 'All' ? 'border-primary shadow-sm bg-primary/5' : 'border-stone-200 bg-stone-50 group-hover:border-stone-300'}`}>
-                    <span className="text-xs font-bold text-stone-500">ALL</span>
-                  </div>
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-stone-700 uppercase tracking-wider text-center w-full truncate">All Collections</span>
-                </div>
-                {collectionsWithThumbs.map(c => {
-                  const isActive = activeCollection === c.name;
-                  return (
-                    <div 
-                      key={c.name}
-                      className="flex flex-col items-center gap-1.5 cursor-pointer group"
-                      onClick={() => { setActiveCollection(c.name); setShowColDropdown(false); }}
-                    >
-                      <div className={`w-full aspect-square rounded-lg overflow-hidden border transition-all ${isActive ? 'border-primary ring-1 ring-primary shadow-sm' : 'border-stone-200 group-hover:border-stone-300'}`}>
-                        <img src={c.thumb} alt={c.name} className="w-full h-full object-cover" />
-                      </div>
-                      <span className="text-[9px] sm:text-[10px] font-semibold text-stone-700 uppercase tracking-wider text-center w-full truncate">{c.name}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+        </div>
+
+        {/* Prominent Search Bar */}
+        <div
+          className={`flex items-center gap-2 rounded-xl border transition-all duration-200 px-3 py-2 ${
+            isSearchFocused
+              ? 'border-secondary/60 bg-white shadow-md shadow-secondary/10 ring-1 ring-secondary/20'
+              : isSearchMode
+              ? 'border-secondary/30 bg-secondary/5'
+              : 'border-stone-200 bg-white hover:border-stone-300'
+          }`}
+        >
+          <svg className={`w-3.5 h-3.5 shrink-0 transition-colors ${isSearchFocused || isSearchMode ? 'text-secondary' : 'text-stone-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
+            placeholder="Search by name, code, type, pattern, color..."
+            className="flex-1 bg-transparent text-[10px] sm:text-[11px] focus:outline-none placeholder-stone-400 text-stone-700 min-w-0"
+          />
+          {isSearchMode && (
+            <button
+              onMouseDown={(e) => { e.preventDefault(); setSearch(''); searchInputRef.current?.focus() }}
+              className="shrink-0 text-stone-400 hover:text-stone-600 transition-colors"
+            >
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
+            </button>
           )}
         </div>
 
-        {/* Row: Search + Type Dropdown + Color Group Filter */}
-        <div className="flex items-center gap-2">
-          
-          {/* Expandable Search */}
-          <div className={`flex items-center bg-stone-50 border border-stone-200 rounded-lg transition-all duration-300 ${isSearchExpanded ? 'w-1/2 px-2.5 flex-none' : 'w-8 px-0 justify-center shrink-0'} h-7 sm:h-8`}>
-            <button onClick={() => setIsSearchExpanded(!isSearchExpanded)} className="text-stone-500 hover:text-stone-800">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-            </button>
-            {isSearchExpanded && (
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search..."
-                className="w-full bg-transparent text-[10px] sm:text-[11px] ml-2 focus:outline-none placeholder-stone-400"
-                autoFocus
-              />
+        {/* Search mode: show compact tag strip instead of full filters */}
+        {isSearchMode ? (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[9px] uppercase tracking-widest text-stone-400 shrink-0">Results for</span>
+            <span className="text-[9px] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full font-semibold">"{search.trim()}"</span>
+            {activeFilterCount > 0 && (
+              <span className="text-[9px] text-stone-400">+ {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
             )}
           </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            {/* Type Dropdown — first */}
+            <div className="flex shrink-0">
+              <select
+                value={activeMaterialType}
+                onChange={(e) => setActiveMaterialType(e.target.value)}
+                className="bg-white border border-stone-200 text-[10px] sm:text-[11px] px-2 py-1 h-7 sm:h-8 rounded-lg focus:outline-none focus:border-secondary/60 text-stone-700 font-semibold uppercase tracking-wider cursor-pointer max-w-[90px] sm:max-w-none"
+              >
+                <option value="All">Types</option>
+                {materialTypeOptions.filter(t => t !== 'All').map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
 
-          <div className="flex shrink-0">
-            <select
-              value={activeMaterialType}
-              onChange={(e) => setActiveMaterialType(e.target.value)}
-              className="bg-white border border-stone-200 text-[10px] sm:text-[11px] px-2 py-1 h-7 sm:h-8 rounded-lg focus:outline-none focus:border-primary/60 text-stone-700 font-semibold uppercase tracking-wider cursor-pointer"
-            >
-              <option value="All">All Types</option>
-              {materialTypeOptions.filter(t => t !== 'All').map(t => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
+            {/* Collection Dropdown — filtered by selected type */}
+            <div className="relative shrink-0 w-[110px] sm:w-[130px]" data-col-dropdown>
+              <button
+                onClick={() => setShowColDropdown(!showColDropdown)}
+                className="w-full bg-white border border-stone-200 text-[10px] sm:text-[11px] px-2.5 py-1.5 h-7 sm:h-8 rounded-lg flex items-center justify-between hover:border-stone-300"
+              >
+                <span className="font-semibold text-stone-700 uppercase tracking-wider truncate">
+                  {activeCollection === 'All' ? 'Collections' : activeCollection}
+                </span>
+                <svg className={`w-3 h-3 text-stone-500 shrink-0 transition-transform ${showColDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+              </button>
+
+              {showColDropdown && (
+                <div className="absolute z-20 top-full left-0 mt-1 bg-white border border-stone-200 rounded-lg shadow-xl p-3 w-[260px] sm:w-[320px] max-h-72 overflow-y-auto">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div
+                      className="flex flex-col items-center gap-1.5 cursor-pointer group"
+                      onClick={() => { setActiveCollection('All'); setShowColDropdown(false) }}
+                    >
+                      <div className={`w-full aspect-square rounded-lg border flex items-center justify-center transition-all ${activeCollection === 'All' ? 'border-secondary shadow-sm bg-secondary/5' : 'border-stone-200 bg-stone-50 group-hover:border-stone-300'}`}>
+                        <span className="text-xs font-bold text-stone-500">ALL</span>
+                      </div>
+                      <span className="text-[9px] sm:text-[10px] font-semibold text-stone-700 uppercase tracking-wider text-center w-full truncate">All</span>
+                    </div>
+                    {collectionsWithThumbs.map(c => {
+                      const isActive = activeCollection === c.name
+                      return (
+                        <div
+                          key={c.name}
+                          className="flex flex-col items-center gap-1.5 cursor-pointer group"
+                          onClick={() => { setActiveCollection(c.name); setShowColDropdown(false) }}
+                        >
+                          <div className={`w-full aspect-square rounded-lg overflow-hidden border transition-all ${isActive ? 'border-secondary ring-1 ring-secondary shadow-sm' : 'border-stone-200 group-hover:border-stone-300'}`}>
+                            <img src={c.thumb} alt={c.name} className="w-full h-full object-cover" />
+                          </div>
+                          <span className="text-[9px] sm:text-[10px] font-semibold text-stone-700 uppercase tracking-wider text-center w-full truncate">{c.name}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Color Group Filter with Scroll Buttons */}
+            <div className="flex-1 flex items-center min-w-0 gap-1 overflow-hidden relative group/scroll">
+              <button 
+                onClick={(e) => {
+                  const el = e.currentTarget.nextElementSibling;
+                  el?.scrollBy({ left: -100, behavior: 'smooth' });
+                }}
+                className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded shadow-sm text-stone-400 hover:text-stone-600 z-10"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+
+              <div className="flex-1 flex items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1">
+                {allColorGroups.map((c) => {
+                  const isActive = activeColorGroup === c
+                  return (
+                    <button
+                      key={c}
+                      onClick={() => setActiveColorGroup(c)}
+                      title={c}
+                      className={`relative shrink-0 flex items-center justify-center w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-full transition-all ${
+                        isActive ? 'ring-2 ring-offset-1 ring-secondary scale-110' : 'hover:scale-110 hover:ring-1 hover:ring-stone-300 ring-offset-1 z-10'
+                      }`}
+                    >
+                      <span
+                        className="absolute inset-0 rounded-full border border-stone-200 shadow-sm"
+                        style={{ background: c === 'All' ? 'linear-gradient(135deg,#f5f0eb,#8b5a2b,#1c1c1c)' : (COLOR_SWATCH[c] ?? '#d0c8c0') }}
+                      />
+                    </button>
+                  )
+                })}
+              </div>
+
+              <button 
+                onClick={(e) => {
+                  const el = e.currentTarget.previousElementSibling;
+                  el?.scrollBy({ left: 100, behavior: 'smooth' });
+                }}
+                className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded shadow-sm text-stone-400 hover:text-stone-600 z-10"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
           </div>
+        )}
 
-          <div className="flex-1 flex items-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pl-1 pr-1 py-1 relative">
-            {allColorGroups.map((c) => {
-              const isActive = activeColorGroup === c
-              return (
+        {/* Active filter chips */}
+        {activeFilterCount > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {activeMaterialType !== 'All' && (
+              <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
+                <span className="text-stone-400 mr-0.5">Type:</span>{activeMaterialType}
                 <button
-                  key={c}
-                  onClick={() => setActiveColorGroup(c)}
-                  title={c}
-                  className={`relative shrink-0 flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full transition-all ${
-                    isActive ? 'ring-2 ring-offset-1 ring-primary scale-110' : 'hover:scale-110 hover:ring-1 hover:ring-stone-300 ring-offset-1 z-10'
-                  }`}
+                  onClick={() => setActiveMaterialType('All')}
+                  className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
+                  aria-label="Remove type filter"
                 >
-                  <span
-                    className="absolute inset-0 rounded-full border border-stone-200 shadow-sm"
-                    style={{ background: c === 'All' ? 'linear-gradient(135deg,#f5f0eb,#8b5a2b,#1c1c1c)' : (COLOR_SWATCH[c] ?? '#d0c8c0') }}
-                  />
+                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
-              )
-            })}
+              </span>
+            )}
+            {activeCollection !== 'All' && (
+              <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
+                <span className="text-stone-400 mr-0.5">Col:</span>{activeCollection}
+                <button
+                  onClick={() => setActiveCollection('All')}
+                  className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
+                  aria-label="Remove collection filter"
+                >
+                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+              </span>
+            )}
+            {activeColorGroup !== 'All' && (
+              <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-wider pl-2 pr-1.5 py-1 rounded-full">
+                <span
+                  className="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0"
+                  style={{ background: COLOR_SWATCH[activeColorGroup] ?? '#d0c8c0' }}
+                />
+                {activeColorGroup}
+                <button
+                  onClick={() => setActiveColorGroup('All')}
+                  className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
+                  aria-label="Remove color filter"
+                >
+                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+              </span>
+            )}
+            {activePattern !== 'All' && (
+              <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
+                <span className="text-stone-400 mr-0.5">Pattern:</span>{activePattern}
+                <button
+                  onClick={() => setActivePattern('All')}
+                  className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
+                  aria-label="Remove pattern filter"
+                >
+                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+              </span>
+            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Grid */}
       <div className="flex-1 overflow-y-auto p-2 sm:p-3 bg-stone-50">
         {filteredMaterials.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-[10px] sm:text-[11px] text-stone-400 uppercase tracking-widest">No fabrics found</div>
+          <div className="h-full flex flex-col items-center justify-center gap-2 text-center px-4">
+            <svg className="w-8 h-8 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <p className="text-[10px] sm:text-[11px] text-stone-400 uppercase tracking-widest">No materials found</p>
+            {isSearchMode ? (
+              <p className="text-[9px] text-stone-400">
+                No results for <span className="text-secondary font-semibold">"{search.trim()}"</span> — try a different keyword
+              </p>
+            ) : (
+              <p className="text-[9px] text-stone-400">Adjust your filters or</p>
+            )}
+            <button
+              onClick={clearInventoryFilters}
+              className="text-[9px] text-secondary hover:underline uppercase tracking-widest font-semibold"
+            >
+              View all
+            </button>
+          </div>
         ) : (
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 sm:gap-2">
-            {filteredMaterials.map((m) => {
+          <>
+          <div className={`grid gap-1.5 sm:gap-2 ${isSearchMode ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-3 sm:grid-cols-4'}`}>
+            {visibleMaterials.map((m) => {
               const isActive = selectedMaterialId === m.id
               return (
                 <button
                   key={m.id}
                   onClick={() => onSelectMaterial(m)}
-                  className={`aspect-square overflow-hidden rounded-lg border-2 relative transition-all ${
-                    isActive ? 'border-primary shadow-md scale-[1.03]' : 'border-transparent hover:border-stone-300'
+                  className={`overflow-hidden rounded-lg border-2 relative transition-all ${
+                    isSearchMode ? 'aspect-[4/5]' : 'aspect-square'
+                  } ${
+                    isActive ? 'border-secondary shadow-md scale-[1.03]' : 'border-transparent hover:border-stone-300'
                   }`}
                 >
                   <img
@@ -205,12 +397,31 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex flex-col items-center justify-center transition-opacity p-1 text-center">
-                    <span className="text-[8px] text-white font-bold uppercase leading-tight">{m.collection_name}</span>
-                    <span className="text-[7px] text-white/70 mt-0.5">{m.material_name}</span>
-                  </div>
+                  {/* In search mode, always show label at bottom */}
+                  {isSearchMode ? (
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pt-4 pb-1.5 px-1.5">
+                      <p className="text-[8px] text-white font-bold uppercase leading-tight truncate">
+                        {highlight(m.collection_name ?? '', search.trim())}
+                      </p>
+                      <p className="text-[7px] text-white/70 mt-0.5 truncate">
+                        {highlight(m.material_name ?? '', search.trim())}
+                      </p>
+                      {(m.material_type?.toLowerCase().includes(search.toLowerCase()) ||
+                        m.color_group?.toLowerCase().includes(search.toLowerCase()) ||
+                        m.pattern?.toLowerCase().includes(search.toLowerCase())) && (
+                        <p className="text-[7px] text-secondary/80 mt-0.5 truncate">
+                          {highlight(m.material_type ?? '', search.trim())} · {highlight(m.color_group ?? '', search.trim())}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex flex-col items-center justify-center transition-opacity p-1 text-center">
+                      <span className="text-[8px] text-white font-bold uppercase leading-tight">{m.collection_name}</span>
+                      <span className="text-[7px] text-white/70 mt-0.5">{m.material_name}</span>
+                    </div>
+                  )}
                   {isActive && (
-                    <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center">
+                    <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-secondary rounded-full flex items-center justify-center">
                       <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" /></svg>
                     </div>
                   )}
@@ -218,6 +429,15 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
               )
             })}
           </div>
+          {hasMore && (
+            <button
+              onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+              className="mt-3 w-full py-2 rounded-xl border border-stone-200 bg-white text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-stone-500 hover:border-secondary/40 hover:text-secondary transition-colors"
+            >
+              Load more ({filteredMaterials.length - visibleCount} remaining)
+            </button>
+          )}
+          </>
         )}
       </div>
     </div>
