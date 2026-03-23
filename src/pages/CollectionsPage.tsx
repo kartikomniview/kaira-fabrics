@@ -367,7 +367,7 @@ function CollectionModal({
       onClick={onClose}
     >
       <div
-        className="relative bg-white w-full max-w-5xl max-h-[88vh] flex flex-col md:flex-row overflow-hidden shadow-2xl rounded-sm border border-stone-200"
+        className="relative bg-white w-full max-w-5xl max-h-[88vh] flex flex-col md:flex-row overflow-y-auto md:overflow-hidden shadow-2xl rounded-sm border border-stone-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close */}
@@ -428,7 +428,7 @@ function CollectionModal({
         </div>
 
         {/* ── Right: Materials List ──────────────────── */}
-        <div className="flex-1 flex flex-col min-h-0 bg-stone-50">
+        <div className="flex-1 flex flex-col md:min-h-0 bg-stone-50">
           <div className="pl-6 pr-14 py-4 border-b border-stone-200 bg-white flex items-center justify-between">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500">
               Materials in this collection
@@ -437,7 +437,7 @@ function CollectionModal({
               {materials.length} items
             </span>
           </div>
-          <div className="overflow-y-auto flex-1 p-5">
+          <div className="md:overflow-y-auto flex-1 p-5">
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
               {materials.map((m, idx) => (
                 <div
@@ -717,35 +717,56 @@ const CollectionsPage = () => {
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
           {/* Filter bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400 mr-2 hidden sm:block">Filter:</span>
-              <div className="flex flex-wrap gap-2">
-                {materialTypeOptions.map((type) => {
-                  const isActive = activeMaterialType === type
-                  const count = type === 'All'
-                    ? collections.length
-                    : collections.filter((c) => c.category === type).length
-                  return (
-                    <button
-                      key={type}
-                      onClick={() => setActiveMaterialType(type)}
-                      className={`group flex items-center gap-1.5 px-4 py-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200 rounded-sm shadow-sm ${
-                        isActive
-                          ? 'bg-stone-900 text-white'
-                          : 'bg-white border border-stone-200 text-stone-600 hover:border-primary/40 hover:text-stone-900'
-                      }`}
-                    >
-                      {type}
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-sm ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-500 group-hover:bg-stone-200'}`}>
-                        {count}
-                      </span>
-                    </button>
-                  )
-                })}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-2 w-full sm:w-auto relative group">
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400 mr-2 hidden sm:block shrink-0">Filter:</span>
+              
+              <div className="relative flex-1 flex items-center min-w-0">
+                {/* Horizontal Scroll with manual controls for mobile */}
+                <div 
+                  id="filter-scroll-container"
+                  className="flex overflow-x-auto gap-2 pb-1 sm:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth"
+                >
+                  {materialTypeOptions.map((type) => {
+                    const isActive = activeMaterialType === type
+                    const count = type === 'All'
+                      ? collections.length
+                      : collections.filter((c) => c.category === type).length
+                    return (
+                      <button
+                        key={type}
+                        onClick={() => setActiveMaterialType(type)}
+                        className={`group flex items-center gap-1.5 px-4 py-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200 rounded-sm shadow-sm whitespace-nowrap ${
+                          isActive
+                            ? 'bg-stone-900 text-white'
+                            : 'bg-white border border-stone-200 text-stone-600 hover:border-primary/40 hover:text-stone-900'
+                        }`}
+                      >
+                        {type}
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded-sm ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-500 group-hover:bg-stone-200'}`}>
+                          {count}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* Mobile Scroll Arrows */}
+                <button 
+                  onClick={() => document.getElementById('filter-scroll-container')?.scrollBy({ left: -120, behavior: 'smooth' })}
+                  className="sm:hidden absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-white/90 border border-stone-200 rounded-full shadow-sm text-stone-400 z-10"
+                >
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <button 
+                  onClick={() => document.getElementById('filter-scroll-container')?.scrollBy({ left: 120, behavior: 'smooth' })}
+                  className="sm:hidden absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-white/90 border border-stone-200 rounded-full shadow-sm text-stone-400 z-10"
+                >
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </button>
               </div>
             </div>
-            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400 bg-white px-3 py-1.5 border border-stone-200 rounded-sm shadow-sm">
+            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400 bg-white px-3 py-1.5 border border-stone-200 rounded-sm shadow-sm whitespace-nowrap hidden sm:block">
               {filtered.length} collection{filtered.length !== 1 ? 's' : ''}
             </span>
           </div>

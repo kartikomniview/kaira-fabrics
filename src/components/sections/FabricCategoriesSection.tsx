@@ -27,16 +27,16 @@ const FabricCategoriesSection = () => {
   return (
     <div id="fabric-collections" className="scroll-mt-24">
       {/* Mobile: horizontal scroll strip / Desktop: grid */}
-      <div className="md:hidden -mx-4 px-4 overflow-x-auto flex gap-3 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="md:hidden -mx-4 px-4 overflow-x-auto flex gap-4 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {categories.map(([name, count]) => {
           const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
           return (
             <Link
               key={name}
               to={`/collections?category=${name}`}
-              className="group flex-none flex flex-col items-center w-28"
+              className="group flex-none flex flex-col items-center w-36"
             >
-              <div className="w-28 h-36 overflow-hidden bg-stone-100 rounded-lg border border-stone-100 shadow-sm relative mb-2">
+              <div className="w-36 h-48 overflow-hidden bg-stone-100 rounded-lg border border-stone-100 shadow-sm relative mb-2">
                 <img
                   src={imgUrl}
                   alt={name}

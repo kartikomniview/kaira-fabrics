@@ -150,11 +150,11 @@ const HomePage = () => {
       </section>
 
       {/* AI & 3D Visualizer Banner Strip */}
-      <section className="bg-stone-900 py-8 md:py-16 border-y border-stone-800 relative overflow-hidden">
+      <section className="bg-stone-900 py-14 md:py-16 border-y border-stone-800 relative overflow-hidden">
         {/* Subtle motion background */}
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-5 lg:gap-10">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10">
           <div className="flex-1 text-center lg:text-left w-full">
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-stone-800 border border-stone-700 mb-2 sm:mb-4">
               <span className="relative flex h-1.5 w-1.5 md:h-2 md:w-2">

@@ -165,7 +165,7 @@ const AIVisualizerDesktop = () => {
         <div className="w-full bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col lg:flex-row min-h-[600px] mt-8 lg:mt-10 mb-8 lg:mb-0">
           
           {/* Left Side: Header & Info */}
-          <div className="relative w-full lg:w-[45%] bg-stone-900 border-b lg:border-b-0 lg:border-r border-stone-800 px-8 py-10 sm:px-10 sm:py-16 flex flex-col justify-center">
+          <div className="relative w-full lg:w-[45%] bg-stone-900 border-b lg:border-b-0 lg:border-r border-stone-800 px-8 py-10 sm:px-10 sm:py-16 hidden lg:flex flex-col justify-center">
             {/* Subtle motion background */}
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
             
