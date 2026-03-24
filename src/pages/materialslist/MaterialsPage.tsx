@@ -22,16 +22,30 @@ const MaterialsPage = () => {
     [selectedCollection],
   )
 
-  const filtered = useMemo(() => collectionMaterials.filter((m) => {
-    if (activePattern !== 'All' && m.pattern !== activePattern) return false
-    return true
-  }), [collectionMaterials, activePattern])
+  // Collections filtered by the active pattern
+  const filteredCollections = useMemo(() => {
+    if (activePattern === 'All') return collections
+    const collectionsWithPattern = new Set(
+      newMaterials
+        .filter((m) => m.pattern === activePattern)
+        .map((m) => m.collection_name)
+    )
+    return collections.filter((c) => collectionsWithPattern.has(c.name))
+  }, [activePattern])
+
+  // Materials grid shows all materials in the selected collection (pattern drives collection list)
+  const filtered = collectionMaterials
 
   const activeFilterCount = [activePattern].filter((v) => v !== 'All').length
   const clearAll = () => { setActivePattern('All') }
 
-  // Reset filters when collection changes
-  useEffect(() => { clearAll() }, [selectedCollection])
+  // Auto-select the first matching collection whenever the pattern changes
+  useEffect(() => {
+    if (filteredCollections.length > 0) {
+      selectCollection(filteredCollections[0].name)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePattern])
 
   useEffect(() => {
       window.scrollTo(0, 0)
@@ -57,16 +71,16 @@ const MaterialsPage = () => {
         {/* ── Page Header ──────────────────────────────────────────── */}
         <div className="bg-stone-900 pt-24 pb-6">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
-            <button
-              onClick={() => window.history.back()}
-              className="group flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm mb-4"
+            <Link
+              to="/"
+              className="group inline-flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm mb-4"
             >
               <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              <span className="text-[9px] uppercase font-bold tracking-widest">Back to Home</span>
-            </button>
-            <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">Fabric Collections</p>
+              <span className="text-[11px] uppercase font-bold tracking-widest">Back to Home</span>
+            </Link>
+            <p className="text-[11px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">Fabric Collections</p>
             <h1 className="font-serif text-2xl md:text-3xl text-white">Materials Library</h1>
           </div>
         </div>
@@ -106,7 +120,7 @@ const MaterialsPage = () => {
 
             {/* Collection list */}
             <div className="overflow-y-auto flex-1 [-ms-overflow-style:none] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-stone-300">
-              {collections.map((c) => {
+              {filteredCollections.map((c) => {
                 const isActive = c.name === selectedCollection
                 return (
                   <button
@@ -152,7 +166,7 @@ const MaterialsPage = () => {
           <div className="md:hidden w-full">
             <button
               onClick={() => setShowMobileCollections((v) => !v)}
-              className={`w-full flex items-center justify-between gap-2 border px-4 py-2.5 text-[11px] uppercase tracking-widest font-medium transition-colors ${
+              className={`w-full flex items-center justify-between gap-2 border px-4 py-2.5 text-[12px] uppercase tracking-widest font-medium transition-colors ${
                 showMobileCollections ? 'bg-charcoal text-cream border-charcoal' : 'bg-white text-charcoal border-stone-200'
               }`}
             >
@@ -168,11 +182,11 @@ const MaterialsPage = () => {
             </button>
             {showMobileCollections && (
               <div className="bg-white border border-t-0 border-stone-200 shadow-sm max-h-64 overflow-y-auto">
-                {collections.map((c) => (
+                {filteredCollections.map((c) => (
                   <button
                     key={c.id}
                     onClick={() => { selectCollection(c.name); setShowMobileCollections(false) }}
-                    className={`w-full text-left px-4 py-2.5 flex items-center justify-between border-b border-stone-50 text-[11px] uppercase tracking-widest font-medium transition-colors ${
+                    className={`w-full text-left px-4 py-2.5 flex items-center justify-between border-b border-stone-50 text-[12px] uppercase tracking-widest font-medium transition-colors ${
                       c.name === selectedCollection ? 'bg-stone-100 text-charcoal' : 'text-stone-500 hover:bg-stone-50 hover:text-charcoal'
                     }`}
                   >
@@ -186,18 +200,18 @@ const MaterialsPage = () => {
                       </div>
                       {c.name}
                     </div>
-                    <span className="text-[9px] text-stone-400">{c.itemCount}</span>
+                    <span className="text-[10px] text-stone-400">{c.itemCount}</span>
                   </button>
                 ))}
               </div>
             )}
             {/* Mobile: Pattern dropdown */}
             <div className="mt-2 flex items-center gap-2">
-              <span className="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0">Pattern</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-stone-400 font-semibold shrink-0">Pattern</span>
               <select
                 value={activePattern}
                 onChange={(e) => setActivePattern(e.target.value)}
-                className="flex-1 px-3 py-1.5 text-[11px] uppercase tracking-widest border border-stone-200 bg-white text-charcoal focus:outline-none focus:border-gold/50 transition-colors"
+                className="flex-1 px-3 py-1.5 text-[12px] uppercase tracking-widest border border-stone-200 bg-white text-charcoal focus:outline-none focus:border-gold/50 transition-colors"
               >
                 {allPatterns.map((p) => (
                   <option key={p} value={p}>{p}</option>
@@ -205,7 +219,7 @@ const MaterialsPage = () => {
               </select>
             </div>
             {activeFilterCount > 0 && (
-              <button onClick={clearAll} className="mt-2 text-[9px] uppercase tracking-widest text-stone-400 hover:text-gold transition-colors">
+              <button onClick={clearAll} className="mt-2 text-[10px] uppercase tracking-widest text-stone-400 hover:text-gold transition-colors">
                 Clear filters
               </button>
             )}
@@ -272,17 +286,17 @@ const MaterialsPage = () => {
 
                     {/* Hover overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/55 to-transparent translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-2.5 text-left">
-                      <span className="text-[9px] text-gold uppercase tracking-[0.2em] font-semibold leading-tight">
+                      <span className="text-[10px] text-gold uppercase tracking-[0.2em] font-semibold leading-tight">
                         {m.material_type}
                       </span>
-                      <p className="text-[11px] font-bold text-cream uppercase tracking-tight leading-tight mt-0.5 truncate">
+                      <p className="text-[12px] font-bold text-cream uppercase tracking-tight leading-tight mt-0.5 truncate">
                         {m.collection_name}
                       </p>
-                      <p className="text-[10px] text-stone-300 mt-0.5 truncate">
+                      <p className="text-[11px] text-stone-300 mt-0.5 truncate">
                         {m.color_group}{m.pattern ? ` · ${m.pattern}` : ''}
                       </p>
                       <div className="mt-1.5 flex items-center gap-1 text-gold">
-                        <span className="text-[9px] uppercase tracking-widest font-semibold">Details</span>
+                        <span className="text-[10px] uppercase tracking-widest font-semibold">Details</span>
                         <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 12h14M12 5l7 7-7 7" />
                         </svg>

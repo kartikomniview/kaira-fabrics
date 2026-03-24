@@ -50,43 +50,43 @@ const SmartCatalogSection = () => {
           </div>
           
           <div className="text-center mb-4 md:mb-6">
-            <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold mb-2 md:mb-3">Explore & Discover</p>
-            <h2 className="font-serif text-2xl md:text-5xl text-white font-medium tracking-tight">
+            <p className="text-[10px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold mb-2 md:mb-3">Explore & Discover</p>
+            <h2 className="font-serif text-3xl md:text-5xl text-white font-medium tracking-tight">
               Find Your Perfect Fabric
             </h2>
           </div>
           
-          <p className="text-stone-300 text-xs md:text-lg max-w-2xl mx-auto mb-6 md:mb-10 font-sans font-light leading-relaxed">
+          <p className="text-stone-300 text-sm md:text-lg max-w-2xl mx-auto mb-6 md:mb-10 font-sans font-light leading-relaxed">
             Explore our comprehensive catalog of <strong className="text-white font-medium">premium fabrics</strong>. Easily filter by color, texture, and material category to find the exact match for your project.
           </p>
 
           <div className="grid grid-cols-3 gap-2 md:gap-4 border-y border-stone-800 py-5 md:py-8 mb-6 md:mb-10 max-w-3xl mx-auto">
             <div className="flex flex-col items-center">
-              <span className="text-2xl md:text-4xl lg:text-5xl font-serif text-white mb-1 md:mb-2">
+              <span className="text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-1 md:mb-2">
                 <Counter end={500} suffix="+" />
               </span>
-              <span className="text-[9px] md:text-xs uppercase tracking-[0.2em] text-stone-400 font-bold">Materials</span>
+              <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-stone-400 font-bold">Materials</span>
             </div>
             <div className="flex flex-col items-center border-l border-stone-800/50">
-              <span className="text-2xl md:text-4xl lg:text-5xl font-serif text-white mb-1 md:mb-2">
+              <span className="text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-1 md:mb-2">
                 <Counter end={100} suffix="+" />
               </span>
-              <span className="text-[9px] md:text-xs uppercase tracking-[0.2em] text-stone-400 font-bold">Collections</span>
+              <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-stone-400 font-bold">Collections</span>
             </div>
             <div className="flex flex-col items-center border-l border-stone-800/50">
-              <span className="text-2xl md:text-4xl lg:text-5xl font-serif text-white mb-1 md:mb-2">
+              <span className="text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-1 md:mb-2">
                 <Counter end={50} suffix="+" />
               </span>
-              <span className="text-[9px] md:text-xs uppercase tracking-[0.2em] text-stone-400 font-bold">Clients</span>
+              <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-stone-400 font-bold">Clients</span>
             </div>
           </div>
           
           <Link 
             to="/materials" 
-            className="group inline-flex flex-col items-center justify-center gap-1.5 px-6 py-3 md:px-8 md:py-4 bg-white text-stone-900 border border-transparent hover:bg-transparent hover:border-white hover:text-white transition-all duration-300 rounded-sm shadow-xl"
+            className="group inline-flex flex-col items-center justify-center gap-1.5 px-8 py-4 md:px-8 md:py-4 bg-white text-stone-900 border border-transparent hover:bg-transparent hover:border-white hover:text-white transition-all duration-300 rounded-sm shadow-xl"
           >
-            <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">Browse the Catalog</span>
-            <span className="text-[8px] md:text-[9px] text-stone-500 group-hover:text-stone-300 transition-colors uppercase tracking-widest">View Full Collection</span>
+            <span className="text-sm md:text-xs font-bold uppercase tracking-widest">Browse the Catalog</span>
+            <span className="text-[10px] md:text-[9px] text-stone-500 group-hover:text-stone-300 transition-colors uppercase tracking-widest">View Full Collection</span>
           </Link>
       </div>
     </section>

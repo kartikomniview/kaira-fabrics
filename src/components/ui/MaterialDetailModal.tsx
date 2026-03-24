@@ -138,10 +138,10 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
           <div className="flex items-center gap-3 min-w-0">
             <span className="h-5 w-0.5 bg-gold shrink-0" />
             <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-[0.25em] text-gold font-semibold">
+              <p className="text-[11px] uppercase tracking-[0.25em] text-gold font-semibold">
                 {material.material_type}
               </p>
-              <p className="font-serif text-sm md:text-base text-charcoal mt-0.5 truncate">
+              <p className="font-serif text-[13px] md:text-base text-charcoal mt-0.5 truncate">
                 {material.collection_name}
                 <span className="text-stone-400 mx-1.5">·</span>
                 {material.material_name}
@@ -164,7 +164,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
 
           {/* Left – Image / 3D Viewer */}
           <div
-            className={`md:w-[48%] bg-stone-50 relative shrink-0 h-[350px] sm:h-[420px] md:h-[480px]${!show3D ? ' md:cursor-crosshair' : ''}`}
+            className={`w-full md:w-[48%] bg-stone-50 relative shrink-0 h-[350px] sm:h-[420px] md:h-[480px] overflow-hidden${!show3D ? ' md:cursor-crosshair' : ''}`}
             onMouseMove={!show3D ? handleImageMouseMove : undefined}
             onMouseLeave={!show3D ? () => setZoomPos(null) : undefined}
           >
@@ -173,7 +173,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
                 {isTextureLoading && (
                   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm">
                     <InlineLoader color="secondary" />
-                    <p className="mt-2 text-[10px] uppercase tracking-widest text-stone-500 animate-pulse">
+                    <p className="mt-2 text-[11px] uppercase tracking-widest text-stone-500 animate-pulse">
                       Applying Texture…
                     </p>
                   </div>
@@ -195,7 +195,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
                 <img
                   src={textureUrl}
                   alt={material.material_name}
-                  className="absolute inset-0 w-full h-full object-cover pl-4 pb-4"
+                  className="absolute inset-0 w-full h-full object-cover"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).style.opacity = '0.2'
                   }}
@@ -222,7 +222,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
             )}
 
             {/* Material code badge */}
-            <span className="absolute bottom-3 left-3 bg-charcoal/75 text-cream text-[10px] px-2.5 py-0.5 uppercase tracking-widest font-mono z-10">
+            <span className="absolute bottom-3 left-3 bg-charcoal/75 text-cream text-[11px] px-2.5 py-1 uppercase tracking-widest font-mono z-10">
               {material.material_code}
             </span>
           </div>
@@ -232,29 +232,29 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
 
             {/* Material properties */}
             <div>
-              <p className="text-[9px] uppercase tracking-[0.25em] text-stone-400 font-semibold mb-3">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-stone-400 font-semibold mb-3">
                 Material Details
               </p>
               <div className="grid grid-cols-3 gap-2 md:gap-3">
                 <div className="bg-stone-50 border border-stone-100 p-3 md:p-4">
-                  <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-1.5">Type</p>
-                  <p className="text-xs md:text-sm font-semibold text-charcoal leading-tight">{material.material_type}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1.5">Type</p>
+                  <p className="text-[13px] md:text-sm font-semibold text-charcoal leading-tight">{material.material_type}</p>
                 </div>
                 <div className="bg-stone-50 border border-stone-100 p-3 md:p-4">
-                  <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-1.5">Color</p>
+                  <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1.5">Color</p>
                   <div className="flex items-center gap-1.5">
                     <span
                       className="w-3.5 h-3.5 rounded-full shrink-0 border border-stone-300/60"
                       style={{ background: colorSwatch }}
                     />
-                    <p className="text-xs md:text-sm font-semibold text-charcoal leading-tight truncate">
+                    <p className="text-[13px] md:text-sm font-semibold text-charcoal leading-tight truncate">
                       {material.color_group ?? '–'}
                     </p>
                   </div>
                 </div>
                 <div className="bg-stone-50 border border-stone-100 p-3 md:p-4">
-                  <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-1.5">Pattern</p>
-                  <p className="text-xs md:text-sm font-semibold text-charcoal leading-tight">{material.pattern ?? '–'}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1.5">Pattern</p>
+                  <p className="text-[13px] md:text-sm font-semibold text-charcoal leading-tight">{material.pattern ?? '–'}</p>
                 </div>
               </div>
             </div>
@@ -263,7 +263,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
 
             {/* Collection info */}
             <div>
-              <p className="text-[9px] uppercase tracking-[0.25em] text-stone-400 font-semibold mb-3">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-stone-400 font-semibold mb-3">
                 Collection
               </p>
               <div className="flex gap-5 items-start">
@@ -274,9 +274,9 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0' }}
                 />
                 <div className="flex-1 flex flex-col gap-2.5 min-w-0">
-                  <p className="font-serif text-base text-charcoal">{material.collection_name}</p>
+                  <p className="font-serif text-[17px] md:text-base text-charcoal">{material.collection_name}</p>
                   <StarRating rating={stats.rating} />
-                  <p className="text-xs text-stone-400">
+                  <p className="text-[13px] md:text-xs text-stone-400">
                     {stats.itemCount} fabric variant{stats.itemCount !== 1 ? 's' : ''}
                   </p>
                 </div>
@@ -289,7 +289,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
             <div className="flex flex-col gap-2.5 mt-auto">
               <button
                 onClick={() => { setShow3D((v) => !v); setZoomPos(null) }}
-                className={`flex items-center justify-center gap-2 border text-xs uppercase tracking-widest py-3 transition-colors duration-200 font-medium ${
+                className={`flex items-center justify-center gap-2 border text-[11px] uppercase tracking-widest py-4 transition-colors duration-200 font-medium ${
                   show3D
                     ? 'border-stone-200 text-stone-500 hover:border-stone-400 hover:text-charcoal'
                     : 'border-charcoal text-charcoal hover:bg-charcoal hover:text-cream'
@@ -308,7 +308,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
 
               <button
                 onClick={() => navigate('/ai-visualizer')}
-                className="flex items-center justify-center gap-2 bg-gold text-charcoal text-xs uppercase tracking-widest py-3 hover:bg-gold/80 transition-colors duration-200 font-bold"
+                className="flex items-center justify-center gap-2 bg-gold text-charcoal text-[11px] uppercase tracking-widest py-4 hover:bg-gold/80 transition-colors duration-200 font-bold"
               >
                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L14.85 8.65L22 9.24L16.5 13.97L18.18 21L12 17.27L5.82 21L7.5 13.97L2 9.24L9.15 8.65L12 2Z" />

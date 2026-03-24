@@ -37,13 +37,13 @@ const WhyKairaSection = () => {
         <div className="text-center max-w-2xl mx-auto mb-6 md:mb-16">
           <div className="inline-flex items-center gap-2 sm:gap-3 mb-2 sm:mb-4 justify-center">
             <span className="w-1 h-1 bg-primary rounded-full" />
-            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold">The Kaira Advantage</span>
+            <span className="text-[10px] sm:text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold">The Kaira Advantage</span>
             <span className="w-1 h-1 bg-primary rounded-full" />
           </div>
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-stone-900 font-medium leading-tight mb-2 sm:mb-4">
+          <h2 className="font-serif text-3xl sm:text-3xl md:text-4xl text-stone-900 font-medium leading-tight mb-2 sm:mb-4">
             Why <span className="italic text-stone-400">Kaira</span>
           </h2>
-          <p className="text-xs sm:text-sm md:text-base text-stone-500 leading-relaxed font-sans px-4 sm:px-0">
+          <p className="text-sm sm:text-sm md:text-base text-stone-500 leading-relaxed font-sans px-4 sm:px-0">
             We merge uncompromising quality with unparalleled variety, serving as the trusted fabric partner for bespoke luxury environments.
           </p>
         </div>
@@ -53,7 +53,7 @@ const WhyKairaSection = () => {
           {features.map((feature, idx) => (
             <div key={idx} className="w-[58vw] h-auto min-h-[180px] md:min-h-[220px] max-w-[240px] md:w-auto md:h-auto md:max-w-none md:max-h-none flex-shrink-0 snap-center group relative p-4 md:p-8 bg-white border border-stone-100 hover:border-primary/30 transition-all duration-500 rounded-sm overflow-hidden flex flex-col items-start justify-center md:block text-left shadow-sm hover:shadow-md">
               {/* Minimalist Background Number */}
-              <div className="absolute top-3 right-4 md:top-4 md:right-6 text-[10px] md:text-sm font-serif text-stone-100 group-hover:text-primary/10 transition-colors duration-500 font-bold">
+              <div className="absolute top-3 right-4 md:top-4 md:right-6 text-[11px] md:text-sm font-serif text-stone-100 group-hover:text-primary/10 transition-colors duration-500 font-bold">
                 {feature.id}
               </div>
               
@@ -63,10 +63,10 @@ const WhyKairaSection = () => {
               </div>
               
               {/* Content */}
-              <h3 className="font-serif text-xs md:text-lg text-stone-900 mb-1 md:mb-2 group-hover:text-primary transition-colors duration-300">
+              <h3 className="font-serif text-base md:text-lg text-stone-900 mb-1 md:mb-2 group-hover:text-primary transition-colors duration-300">
                 {feature.title}
               </h3>
-              <p className="text-[10px] md:text-[13px] lg:text-sm text-stone-500 font-sans font-normal leading-snug md:leading-relaxed line-clamp-4 md:line-clamp-3 group-hover:text-stone-600">
+              <p className="text-[12px] md:text-[13px] lg:text-sm text-stone-500 font-sans font-normal leading-snug md:leading-relaxed line-clamp-4 md:line-clamp-3 group-hover:text-stone-600">
                 {feature.desc}
               </p>
 

@@ -143,17 +143,17 @@ const AIVisualizerDesktop = () => {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => window.history.back()}
-              className="group flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm"
+              className="group flex items-center gap-2 px-4 py-2 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm"
             >
-              <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              <span className="text-[9px] uppercase font-bold tracking-widest">Back to Home</span>
+              <span className="text-[11px] uppercase font-bold tracking-widest">Back to Home</span>
             </button>
           </div>
 
-          <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">AI-Powered Tool</p>
-          <h1 className="font-serif text-2xl md:text-3xl text-white">AI Fabric Visualizer</h1>
+          <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">AI-Powered Tool</p>
+          <h1 className="font-serif text-3xl md:text-3xl text-white">AI Fabric Visualizer</h1>
         </div>
       </div>
 
@@ -229,8 +229,8 @@ const AIVisualizerDesktop = () => {
             {/* Studio Header */}
             <div className="shrink-0 bg-white/50 backdrop-blur border-b border-stone-100 px-6 py-5 flex justify-between items-center">
                 <div>
-                  <h1 className="text-sm sm:text-base font-bold tracking-widest uppercase text-stone-800">AI Studio Workspace</h1>
-                  <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Step {Math.floor(currentStep)} of 3</p>
+                  <h1 className="text-base sm:text-base font-bold tracking-widest uppercase text-stone-800">AI Studio Workspace</h1>
+                  <p className="text-[11px] text-stone-500 uppercase tracking-widest mt-0.5">Step {Math.floor(currentStep)} of 3</p>
                 </div>
                 {/* Progress Indicator */}
                 <div className="flex gap-1.5">
@@ -244,7 +244,7 @@ const AIVisualizerDesktop = () => {
           {/* Step 1: Material Selection */}
           {currentStep === 1 && (
             <div className="flex flex-col h-full items-center justify-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4">
-              <h2 className="text-[11px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest mb-1 sm:mb-2">Step 1: Choose Fabric</h2>
+              <h2 className="text-[13px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest mb-1 sm:mb-2">Step 1: Choose Fabric</h2>
               
               <button
                 onClick={() => fabricUploadRef.current?.click()}
@@ -255,13 +255,13 @@ const AIVisualizerDesktop = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
-                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-stone-600 group-hover:text-primary transition-colors">Upload Your Fabric</span>
+                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-stone-600 group-hover:text-primary transition-colors">Upload Your Fabric</span>
               </button>
               <input ref={fabricUploadRef} type="file" accept="image/*" onChange={handleFabricUpload} className="sr-only" />
 
               <div className="flex items-center gap-4 w-full">
                 <div className="flex-1 h-px bg-stone-200"></div>
-                <span className="text-[10px] text-stone-400 font-medium uppercase tracking-widest">OR</span>
+                <span className="text-[11px] text-stone-400 font-medium uppercase tracking-widest">OR</span>
                 <div className="flex-1 h-px bg-stone-200"></div>
               </div>
 
@@ -275,7 +275,7 @@ const AIVisualizerDesktop = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>
-                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-stone-700 relative z-10">Select from Kaira Inventory</span>
+                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-stone-700 relative z-10">Select from Kaira Inventory</span>
               </button>
             </div>
           )}
@@ -289,7 +289,7 @@ const AIVisualizerDesktop = () => {
               </div>
 
               {/* Large texture preview */}
-              <div className="w-auto aspect-square max-h-[260px] sm:max-h-[320px] rounded-2xl overflow-hidden border border-stone-200 shadow-md bg-stone-100">
+              <div className="w-auto aspect-square max-h-[160px] sm:max-h-[320px] rounded-2xl overflow-hidden border border-stone-200 shadow-md bg-stone-100">
                 <img
                   src={selectedMaterial?.textureUrl}
                   alt={selectedMaterial?.fabricName}
@@ -329,13 +329,13 @@ const AIVisualizerDesktop = () => {
             <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4">
               <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                  <button onClick={() => setCurrentStep(1.5)} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-xs">←</button>
-                 <h2 className="text-[11px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest flex-1">Step 2: Choose Product</h2>
+                 <h2 className="text-[13px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest flex-1">Step 2: Choose Product</h2>
               </div>
 
               <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6 overflow-y-auto max-h-[340px] sm:max-h-[400px] p-0.5 sm:p-1">
                 <button onClick={() => productUploadRef.current?.click()} className="aspect-square border-2 border-dashed border-stone-300 rounded-xl flex items-center justify-center flex-col gap-1.5 sm:gap-2 hover:border-primary hover:bg-primary/5 transition-all text-stone-500">
                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-                   <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest">Upload Own</span>
+                   <span className="text-[10px] sm:text-[10px] uppercase font-bold tracking-widest">Upload Own</span>
                 </button>
                 <input ref={productUploadRef} type="file" accept="image/*" onChange={(e) => { handleProductUpload(e); setCurrentStep(2.5); }} className="sr-only" />
                 
@@ -348,7 +348,7 @@ const AIVisualizerDesktop = () => {
                          className={`aspect-square border-2 rounded-xl flex flex-col items-center justify-center p-2 sm:p-4 gap-1.5 sm:gap-2 transition-all ${isActive ? 'border-primary bg-primary/5' : 'border-stone-200 bg-white hover:border-stone-400'}`}
                        >
                          <img src={getProductImageUrl(p)} alt="" className="h-20 sm:h-28 object-contain" />
-                         <span className="text-[9px] sm:text-[10px] font-bold uppercase text-stone-700 text-center leading-tight">{p.product_name}</span>
+                         <span className="text-[10px] sm:text-[10px] font-bold uppercase text-stone-700 text-center leading-tight">{p.product_name}</span>
                        </button>
                     )
                 })}
@@ -361,14 +361,14 @@ const AIVisualizerDesktop = () => {
             <div className="flex flex-col h-full items-center justify-center gap-3 sm:gap-6 animate-in fade-in zoom-in-95">
                <div className="flex items-center w-full mb-1 sm:mb-2">
                  <button onClick={() => setCurrentStep(2)} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 mr-auto text-xs">←</button>
-                 <h2 className="text-[11px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest mx-auto pr-8 sm:pr-10">Review</h2>
+                 <h2 className="text-[13px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest mx-auto pr-8 sm:pr-10">Review</h2>
                </div>
                
                <div className="flex items-center gap-3 sm:gap-4 bg-stone-50 p-3 sm:p-4 border border-stone-200 rounded-xl w-full">
                   <img src={selectedMaterial?.textureUrl} className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover shadow-sm border border-stone-200" alt="" />
                   <div className="flex-1 min-w-0">
-                     <p className="text-[9px] sm:text-[10px] text-stone-500 uppercase tracking-widest">Fabric</p>
-                     <p className="text-[11px] sm:text-xs font-bold text-stone-800 truncate">{selectedMaterial?.fabricName}</p>
+                     <p className="text-[10px] sm:text-[10px] text-stone-500 uppercase tracking-widest">Fabric</p>
+                     <p className="text-[13px] sm:text-xs font-bold text-stone-800 truncate">{selectedMaterial?.fabricName}</p>
                   </div>
                </div>
 
@@ -379,12 +379,12 @@ const AIVisualizerDesktop = () => {
                     <img src={selectedProduct?.imageUrl} className="max-w-full max-h-full object-contain" alt="" />
                   </div>
                   <div className="flex-1 min-w-0">
-                     <p className="text-[9px] sm:text-[10px] text-stone-500 uppercase tracking-widest">Product</p>
-                     <p className="text-[11px] sm:text-xs font-bold text-stone-800 truncate">{selectedProduct?.productName}</p>
+                     <p className="text-[10px] sm:text-[10px] text-stone-500 uppercase tracking-widest">Product</p>
+                     <p className="text-[13px] sm:text-xs font-bold text-stone-800 truncate">{selectedProduct?.productName}</p>
                   </div>
                </div>
 
-               <button onClick={handleGenerateClick} className="w-full h-12 sm:h-14 bg-stone-900 text-white rounded-xl font-bold uppercase tracking-widest shadow-xl hover:bg-black transition-all hover:-translate-y-1 mt-2 sm:mt-4 flex justify-center items-center gap-2 text-[10px] sm:text-xs">
+               <button onClick={handleGenerateClick} className="w-full h-12 sm:h-14 bg-stone-900 text-white rounded-xl font-bold uppercase tracking-widest shadow-xl hover:bg-black transition-all hover:-translate-y-1 mt-2 sm:mt-4 flex justify-center items-center gap-2 text-[11px] sm:text-xs">
                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                  Generate Render
                </button>

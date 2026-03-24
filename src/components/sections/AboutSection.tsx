@@ -30,11 +30,11 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
               </h2>
             </div>
 
-            <h3 className={`font-serif text-2xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] mb-6 md:mb-8 transition-all duration-700 delay-100 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <h3 className={`font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] mb-6 md:mb-8 transition-all duration-700 delay-100 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Kaira: The House of Sofa Fabrics
             </h3>
 
-            <div className={`space-y-4 md:space-y-6 text-stone-500 text-xs sm:text-base leading-relaxed font-light transition-all duration-700 delay-200 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className={`space-y-4 md:space-y-6 text-stone-500 text-sm sm:text-base leading-relaxed font-light transition-all duration-700 delay-200 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <p>
                 Kaira is an entity under the <strong>Kurikkal group</strong>, specializing in a wide range of premium sofa fabrics and leathers. We ensure remarkable quality and availability right to your doorstep.
               </p>

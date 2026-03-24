@@ -44,14 +44,14 @@ function CatalogPreviewModal({
             <svg className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
-            <span className="text-[8px] md:text-[10px] uppercase tracking-widest text-stone-400 truncate max-w-[120px] md:max-w-none">
+            <span className="text-[9px] md:text-[10px] uppercase tracking-widest text-stone-400 truncate max-w-[120px] md:max-w-none">
               {collection.name} &mdash; Catalog Preview
             </span>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={() => setShowContactForm(true)}
-              className="flex items-center gap-1.5 px-2 md:px-3 py-1 md:py-1.5 text-[8px] md:text-[10px] uppercase tracking-widest bg-primary text-stone-900 hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-1.5 px-2 md:px-3 py-1 md:py-1.5 text-[9px] md:text-[10px] uppercase tracking-widest bg-primary text-stone-900 hover:bg-primary/90 transition-colors"
             >
               <svg className="w-2.5 h-2.5 md:w-3 md:h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -102,12 +102,12 @@ function CatalogPreviewModal({
             {/* ── Collection Info ──────────────────────── */}
             <div className="px-4 md:px-8 py-3 md:py-5 border-b border-stone-100 flex items-start gap-4 md:gap-8">
               <div className="flex-1 min-w-0">
-                <p className="text-[7px] md:text-[8px] tracking-[0.3em] uppercase text-stone-400 mb-1 md:mb-2">About this Collection</p>
-                <p className="text-[9px] md:text-[11px] text-stone-600 leading-relaxed">{collection.description}</p>
+                <p className="text-[9px] md:text-[8px] tracking-[0.3em] uppercase text-stone-400 mb-1 md:mb-2">About this Collection</p>
+                <p className="text-[11px] md:text-[11px] text-stone-600 leading-relaxed">{collection.description}</p>
                 {collection.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2 md:mt-3">
                     {collection.tags.map((tag) => (
-                      <span key={tag} className="text-[6px] md:text-[8px] px-1.5 md:px-2 py-0.5 border border-stone-200 text-stone-400 tracking-wide uppercase">
+                      <span key={tag} className="text-[8px] md:text-[8px] px-1.5 md:px-2 py-0.5 border border-stone-200 text-stone-400 tracking-wide uppercase">
                         {tag}
                       </span>
                     ))}
@@ -115,9 +115,9 @@ function CatalogPreviewModal({
                 )}
               </div>
               <div className="flex-shrink-0 text-right border-l border-stone-100 pl-3 md:pl-6">
-                <p className="text-[7px] md:text-[8px] tracking-[0.2em] uppercase text-stone-400 mb-0.5 md:mb-1">Variants</p>
-                <p className="font-serif text-2xl md:text-4xl text-gold leading-none">{collection.itemCount}</p>
-                <p className="text-[7px] md:text-[8px] text-stone-400 mt-0.5 md:mt-1 tracking-wide">SKUs</p>
+                <p className="text-[9px] md:text-[8px] tracking-[0.2em] uppercase text-stone-400 mb-0.5 md:mb-1">Variants</p>
+                <p className="font-serif text-3xl md:text-4xl text-gold leading-none">{collection.itemCount}</p>
+                <p className="text-[9px] md:text-[8px] text-stone-400 mt-0.5 md:mt-1 tracking-wide">SKUs</p>
               </div>
             </div>
 
@@ -395,14 +395,14 @@ function CollectionModal({
           </div>
           <div className="p-6 flex flex-col gap-3">
             <div>
-              <p className="text-[10px] tracking-[0.3em] font-bold uppercase text-primary mb-1">{collection.category}</p>
-              <h2 className="font-serif text-2xl text-white leading-tight">{collection.name}</h2>
+              <p className="text-[11px] md:text-[10px] tracking-[0.3em] font-bold uppercase text-primary mb-1">{collection.category}</p>
+              <h2 className="font-serif text-3xl md:text-2xl text-white leading-tight">{collection.name}</h2>
             </div>
-            <p className="text-stone-400 text-xs leading-relaxed">{collection.description}</p>
+            <p className="text-stone-300 text-sm md:text-xs leading-relaxed">{collection.description}</p>
             {collection.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {collection.tags.map((tag) => (
-                  <span key={tag} className="text-[9px] font-bold px-2 py-0.5 border border-stone-700 text-stone-400 tracking-[0.2em] uppercase">
+                  <span key={tag} className="text-[10px] md:text-[9px] font-bold px-2 py-0.5 border border-stone-700 text-stone-400 tracking-[0.2em] uppercase">
                     {tag}
                   </span>
                 ))}
@@ -428,7 +428,7 @@ function CollectionModal({
         {/* ── Right: Materials List ──────────────────── */}
         <div className="flex-1 flex flex-col md:min-h-0 bg-stone-50">
           <div className="pl-6 pr-14 py-3 border-b border-stone-200 bg-white flex items-center gap-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 shrink-0">
+            <p className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 shrink-0">
               Materials in this collection
             </p>
             <div className="flex items-center gap-2 border border-stone-200 rounded-sm bg-stone-50 px-2.5 py-1 flex-1 max-w-xs focus-within:border-stone-400 focus-within:bg-white transition-all">
@@ -867,6 +867,10 @@ const CollectionsPage = () => {
   const openModal = useCallback((col: Collection) => setSelectedCollection(col), [])
   const closeModal = useCallback(() => setSelectedCollection(null), [])
   const [showQuoteModal, setShowQuoteModal] = useState(false)
+  const chipsRef = useRef<HTMLDivElement>(null)
+  const scrollChips = (dir: 'left' | 'right') => {
+    if (chipsRef.current) chipsRef.current.scrollBy({ left: dir === 'right' ? 140 : -140, behavior: 'smooth' })
+  }
 
   return (
     <div className="min-h-screen bg-cream">
@@ -909,8 +913,8 @@ const CollectionsPage = () => {
               </a>
             </div>
           </div>
-          <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">Curated Textile Collections</p>
-          <h1 className="font-serif text-2xl md:text-3xl text-white">Fabric Collections</h1>
+          <p className="text-[10px] md:text-[9px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">Curated Textile Collections</p>
+          <h1 className="font-serif text-3xl md:text-3xl text-white">Fabric Collections</h1>
         </div>
       </div>
 
@@ -923,7 +927,18 @@ const CollectionsPage = () => {
             {/* Row: chips left, search right */}
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 md:gap-4">
               {/* Left: type chips — horizontally scrollable */}
-              <div className="flex-1 min-w-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex-1 min-w-0 flex items-center gap-1">
+                {/* Scroll left — mobile only */}
+                <button
+                  onClick={() => scrollChips('left')}
+                  className="lg:hidden shrink-0 w-7 h-7 flex items-center justify-center bg-white border border-stone-200 rounded-sm shadow-sm text-stone-500 hover:text-stone-900 hover:border-stone-400 transition-colors"
+                  aria-label="Scroll left"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <div ref={chipsRef} className="flex-1 min-w-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <div className="flex gap-2 pb-0.5">
                   {materialTypeOptions.map((type) => {
                     const isActive = activeMaterialType === type
@@ -934,20 +949,31 @@ const CollectionsPage = () => {
                       <button
                         key={type}
                         onClick={() => setActiveMaterialType(type)}
-                        className={`flex items-center gap-1.5 px-3 md:px-4 py-2 md:py-2.5 text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200 rounded-sm shadow-sm whitespace-nowrap ${
+                        className={`flex items-center gap-1.5 px-3 md:px-4 py-2 md:py-2.5 text-[11px] md:text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200 rounded-sm shadow-sm whitespace-nowrap ${
                           isActive
                             ? 'bg-stone-900 text-white'
                             : 'bg-white border border-stone-200 text-stone-600 hover:border-primary/40 hover:text-stone-900'
                         }`}
                       >
                         {type}
-                        <span className={`text-[8px] md:text-[9px] px-1.5 py-0.5 rounded-sm ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                        <span className={`text-[10px] md:text-[9px] px-1.5 py-0.5 rounded-sm ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-500'}`}>
                           {count}
                         </span>
                       </button>
                     )
                   })}
                 </div>
+                </div>
+                {/* Scroll right — mobile only */}
+                <button
+                  onClick={() => scrollChips('right')}
+                  className="lg:hidden shrink-0 w-7 h-7 flex items-center justify-center bg-white border border-stone-200 rounded-sm shadow-sm text-stone-500 hover:text-stone-900 hover:border-stone-400 transition-colors"
+                  aria-label="Scroll right"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
 
               {/* Right: search input — pinned, bigger */}
@@ -971,7 +997,7 @@ const CollectionsPage = () => {
             </div>
 
             {/* Bottom: count text */}
-            <p className="mt-2 md:mt-3 text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400">
+            <p className="mt-2 md:mt-3 text-[10px] md:text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400">
               {filtered.length} collection{filtered.length !== 1 ? 's' : ''}{collectionSearch ? ` matching "${collectionSearch}"` : ''}
             </p>
           </div>
@@ -1035,10 +1061,10 @@ const CollectionsPage = () => {
 
                   {/* Info */}
                   <div className="p-2.5 md:p-3 border-t border-stone-200 bg-white">
-                    <p className="text-[10px] md:text-[11px] font-bold text-stone-900 group-hover:text-secondary transition-colors uppercase tracking-tight leading-tight truncate">{col.name}</p>
+                    <p className="text-[13px] md:text-[11px] font-bold text-stone-900 group-hover:text-secondary transition-colors uppercase tracking-tight leading-tight truncate">{col.name}</p>
                     <div className="flex items-center justify-between mt-1 md:mt-1.5">
-                      <span className="text-[9px] md:text-[10px] text-stone-500 truncate max-w-[60%] font-semibold tracking-wider uppercase">{col.category}</span>
-                      <span className="text-[9px] md:text-[10px] text-secondary font-bold tracking-widest">{col.itemCount} var.</span>
+                      <span className="text-[11px] md:text-[10px] text-stone-500 truncate max-w-[60%] font-semibold tracking-wider uppercase">{col.category}</span>
+                      <span className="text-[11px] md:text-[10px] text-secondary font-bold tracking-widest">{col.itemCount} var.</span>
                     </div>
                   </div>
                 </div>

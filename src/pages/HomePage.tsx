@@ -42,7 +42,7 @@ const HomePage = () => {
       {/* Clients Scrollbar */}
       <section className="bg-stone-50 border-b border-stone-200 py-8 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 mb-6 text-center">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Trusted by Global Brands</p>
+          <p className="text-[12px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Trusted by Global Brands</p>
         </div>
         
         {/* Infinite Scroll Container */}
@@ -82,15 +82,15 @@ const HomePage = () => {
           <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
             <div className="inline-flex items-center justify-center gap-3 mb-3 sm:mb-4">
               <span className="h-px w-5 sm:w-6 bg-primary" />
-              <h2 className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.3em] text-stone-500">
+              <h2 className="text-[10px] sm:text-[9px] font-bold uppercase tracking-[0.3em] text-stone-500">
                 Curated Selection
               </h2>
               <span className="h-px w-5 sm:w-6 bg-primary" />
             </div>
-            <h3 className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl text-stone-900 leading-[1.2]">
+            <h3 className="font-serif text-2xl sm:text-2xl md:text-4xl lg:text-5xl text-stone-900 leading-[1.2]">
               Latest Collections
             </h3>
-            <p className="mt-3 sm:mt-4 text-stone-500 text-xs sm:text-sm font-light max-w-md mx-auto leading-relaxed">
+            <p className="mt-3 sm:mt-4 text-stone-500 text-sm sm:text-sm font-light max-w-md mx-auto leading-relaxed">
               Discover our newest arrivals — premium fabrics and leathers crafted for the finest interiors.
             </p>
           </div>
@@ -128,12 +128,12 @@ const HomePage = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 md:h-2 md:w-2 bg-primary"></span>
               </span>
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-stone-300 font-bold">Cutting-Edge Tech</span>
+              <span className="text-[10px] sm:text-[10px] uppercase tracking-[0.2em] text-stone-300 font-bold">Cutting-Edge Tech</span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-white mb-4 sm:mb-4 leading-tight">
+            <h2 className="font-serif text-3xl sm:text-3xl md:text-4xl text-white mb-4 sm:mb-4 leading-tight">
               Experience Fabrics in <span className="text-primary italic">Real-Time</span>
             </h2>
-            <p className="text-stone-400 text-xs sm:text-sm md:text-base max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed px-2 lg:px-0">
+            <p className="text-stone-400 text-sm sm:text-sm md:text-base max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed px-2 lg:px-0">
               Visualize our premium collection in your space using AI or explore every thread in 3D.
             </p>
           </div>
@@ -143,8 +143,8 @@ const HomePage = () => {
               to="/ai-visualizer" 
               className="flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-primary hover:bg-white transition-all duration-500 rounded-sm text-center"
             >
-              <span className="text-stone-900 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1">Room View</span>
-              <span className="text-stone-900 text-[13px] sm:text-lg font-serif leading-tight whitespace-nowrap">Try AI Visualizer</span>
+              <span className="text-stone-900 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1">Room View</span>
+              <span className="text-stone-900 text-[15px] sm:text-lg font-serif leading-tight whitespace-nowrap">Try AI Visualizer</span>
               <div className="absolute bottom-0 left-0 h-1 w-0 bg-stone-900 transition-all duration-500 group-hover:w-full" />
             </Link>
 
@@ -152,8 +152,8 @@ const HomePage = () => {
               to="/3d-visualizer" 
               className="flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-transparent border border-stone-700 hover:border-primary transition-all duration-500 rounded-sm text-center"
             >
-              <span className="text-stone-500 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1 group-hover:text-primary">Macro View</span>
-              <span className="text-white text-[13px] sm:text-lg font-serif leading-tight whitespace-nowrap group-hover:text-primary">Explore in 3D</span>
+              <span className="text-stone-500 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1 group-hover:text-primary">Macro View</span>
+              <span className="text-white text-[15px] sm:text-lg font-serif leading-tight whitespace-nowrap group-hover:text-primary">Explore in 3D</span>
               <div className="absolute bottom-0 left-0 h-1 w-0 bg-primary transition-all duration-500 group-hover:w-full" />
             </Link>
           </div>

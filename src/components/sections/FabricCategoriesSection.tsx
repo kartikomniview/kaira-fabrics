@@ -44,10 +44,10 @@ const FabricCategoriesSection = () => {
                 />
                 <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/5 transition-colors duration-300" />
               </div>
-              <h3 className="text-[11px] font-serif text-stone-900 tracking-wide group-hover:text-secondary transition-colors text-center leading-tight">
+              <h3 className="text-sm font-serif text-stone-900 tracking-wide group-hover:text-secondary transition-colors text-center leading-tight">
                 {name}
               </h3>
-              <p className="mt-0.5 text-[9px] text-stone-400 uppercase tracking-widest text-center">
+              <p className="mt-0.5 text-[11px] text-stone-400 uppercase tracking-widest text-center">
                 {count} {count === 1 ? 'Collection' : 'Collections'}
               </p>
             </Link>

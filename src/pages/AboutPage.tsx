@@ -79,15 +79,15 @@ const AboutPage = () => {
           <div className="flex items-center justify-between mb-5">
             <button
               onClick={() => window.history.back()}
-              className="group flex items-center gap-2 px-3 py-1.5 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500 transition-all rounded-sm"
+              className="group flex items-center gap-2 px-4 py-2 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500 transition-all rounded-sm"
             >
-              <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              <span className="text-[9px] uppercase font-bold tracking-widest">Back to Home</span>
+              <span className="text-[11px] uppercase font-bold tracking-widest">Back to Home</span>
             </button>
           </div>
-          <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-primary mb-2">The House of Sofa Fabrics</p>
+          <p className="text-[11px] tracking-[0.4em] uppercase font-bold text-primary mb-2">The House of Sofa Fabrics</p>
           <h1 className="font-serif text-3xl md:text-4xl text-white mb-1">About Us</h1>
           <p className="text-stone-400 text-sm font-light mt-2 max-w-md">Born from a deep understanding of the furniture industry — crafting comfort, quality & style.</p>
         </div>
@@ -112,13 +112,13 @@ const AboutPage = () => {
         <div className="max-w-4xl mx-auto px-6 lg:px-10 text-center">
           <div className="inline-flex items-center justify-center gap-3 mb-4 md:mb-6">
             <span className="h-px w-6 bg-primary" />
-            <span className={`text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500 transition-all duration-700 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <span className={`text-[12px] font-bold uppercase tracking-[0.3em] text-stone-500 transition-all duration-700 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Our Story
             </span>
             <span className="h-px w-6 bg-primary" />
           </div>
           
-          <h2 className={`font-serif text-2xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] mb-8 transition-all duration-700 delay-100 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <h2 className={`font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] mb-8 transition-all duration-700 delay-100 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             Who We Are
           </h2>
           
@@ -140,10 +140,10 @@ const AboutPage = () => {
           <div className="text-center mb-8 md:mb-14">
             <div className="inline-flex items-center justify-center gap-3 mb-3">
               <span className="h-px w-6 bg-primary" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500">Purpose & Direction</span>
+              <span className="text-[12px] font-bold uppercase tracking-[0.3em] text-stone-500">Purpose & Direction</span>
               <span className="h-px w-6 bg-primary" />
             </div>
-            <h2 className={`font-serif text-2xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] transition-all duration-700 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <h2 className={`font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] transition-all duration-700 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Mission & Vision
             </h2>
           </div>
@@ -151,18 +151,18 @@ const AboutPage = () => {
           <div className="flex overflow-x-auto snap-x snap-mandatory md:grid md:grid-cols-2 gap-4 md:gap-8 pb-6 -mx-6 px-6 md:mx-auto md:px-0 [&::-webkit-scrollbar]:hidden max-w-5xl">
             {/* Mission */}
             <div className={`shrink-0 snap-center w-[85%] md:w-auto bg-stone-50 border border-stone-200 p-8 md:p-12 text-center rounded-sm transition-all duration-700 delay-100 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold block mb-4">Our Mission</span>
-              <h3 className="font-serif text-xl md:text-3xl text-stone-900 mb-4 md:mb-6">Market Leadership Through Quality</h3>
-              <p className="text-stone-500 leading-relaxed font-light text-xs md:text-base">
+              <span className="text-[11px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold block mb-4">Our Mission</span>
+              <h3 className="font-serif text-2xl md:text-3xl text-stone-900 mb-4 md:mb-6">Market Leadership Through Quality</h3>
+              <p className="text-stone-500 leading-relaxed font-light text-sm md:text-base">
                 To be the market leader by providing enhanced quality materials with an affordable price — making premium fabrics accessible to every home and interior.
               </p>
             </div>
 
             {/* Vision */}
             <div className={`shrink-0 snap-center w-[85%] md:w-auto bg-stone-50 border border-stone-200 p-8 md:p-12 text-center rounded-sm transition-all duration-700 delay-200 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold block mb-4">Our Vision</span>
-              <h3 className="font-serif text-xl md:text-3xl text-stone-900 mb-4 md:mb-6">A Brand Valued by People</h3>
-              <p className="text-stone-500 leading-relaxed font-light text-xs md:text-base">
+              <span className="text-[11px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold block mb-4">Our Vision</span>
+              <h3 className="font-serif text-2xl md:text-3xl text-stone-900 mb-4 md:mb-6">A Brand Valued by People</h3>
+              <p className="text-stone-500 leading-relaxed font-light text-sm md:text-base">
                 To be the most valued brand among people & creating an opportunity to grow together — fostering partnerships, inspiring interiors, and enriching lives through design.
               </p>
             </div>

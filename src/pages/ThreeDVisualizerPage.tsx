@@ -273,7 +273,7 @@ const ThreeDVisualizerDesktop = () => {
           <svg className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          <span className="text-[9px] font-bold tracking-[0.15em] uppercase">Home</span>
+          <span className="text-[11px] font-bold tracking-[0.15em] uppercase">Home</span>
         </Link>
 
         <div className="w-px h-5 bg-stone-700" />
@@ -281,9 +281,9 @@ const ThreeDVisualizerDesktop = () => {
         {/* Brand */}
         <div className="flex items-center gap-2 select-none">
           <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-          <span className="text-[10px] text-stone-500 font-bold tracking-[0.2em] uppercase">Kaira</span>
+          <span className="text-[11px] text-stone-500 font-bold tracking-[0.2em] uppercase">Kaira</span>
           <span className="text-stone-600 text-xs">›</span>
-          <span className="text-[10px] text-stone-200 font-bold tracking-[0.2em] uppercase">3D Fabric Studio</span>
+          <span className="text-[11px] text-stone-200 font-bold tracking-[0.2em] uppercase">3D Fabric Studio</span>
         </div>
 
         <div className="w-px h-5 bg-stone-700 mx-2" />
@@ -293,7 +293,7 @@ const ThreeDVisualizerDesktop = () => {
           <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
-          <span className="text-[10px] text-stone-300 font-medium tracking-[0.1em] uppercase">{currentProduct.product_name}</span>
+          <span className="text-[11px] text-stone-300 font-medium tracking-[0.1em] uppercase">{currentProduct.product_name}</span>
         </div>
 
         <div className="flex-1" />
@@ -307,7 +307,7 @@ const ThreeDVisualizerDesktop = () => {
               className="w-5 h-5 rounded-sm object-cover border border-stone-700 shrink-0"
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
             />
-            <span className="text-[10px] text-stone-300 font-medium tracking-wide truncate max-w-[160px]">{selected.fabricName}</span>
+            <span className="text-[11px] text-stone-300 font-medium tracking-wide truncate max-w-[160px]">{selected.fabricName}</span>
             {isApplying && (
               <div className="w-3.5 h-3.5 border border-primary/40 border-t-primary rounded-full animate-spin shrink-0" />
             )}
@@ -317,7 +317,7 @@ const ThreeDVisualizerDesktop = () => {
         {/* Model status dot */}
         <div className="flex items-center gap-2 ml-2">
           <div className={`w-1.5 h-1.5 rounded-full transition-colors ${modelLoaded ? 'bg-emerald-500' : 'bg-stone-300 animate-pulse'}`} />
-          <span className="text-[10px] text-stone-500 font-bold tracking-[0.2em] uppercase">{modelLoaded ? 'Ready' : 'Loading'}</span>
+          <span className="text-[11px] text-stone-500 font-bold tracking-[0.2em] uppercase">{modelLoaded ? 'Ready' : 'Loading'}</span>
         </div>
       </div>
 
@@ -332,10 +332,10 @@ const ThreeDVisualizerDesktop = () => {
 
             {/* Title row */}
             <div className="flex items-center gap-2">
-              <h2 className="text-[10px] font-bold text-stone-700 uppercase tracking-widest flex-1">Kaira Inventory</h2>
-              <span className="text-[9px] text-stone-400">{filtered.length} fabrics</span>
+              <h2 className="text-[12px] font-bold text-stone-700 uppercase tracking-widest flex-1">Kaira Inventory</h2>
+              <span className="text-[11px] text-stone-400">{filtered.length} fabrics</span>
               {(activeFilterCount > 0 || isSearchMode) && (
-                <button onClick={clearFilters} className="text-[9px] uppercase tracking-widest text-primary hover:underline ml-2 font-semibold">
+                <button onClick={clearFilters} className="text-[11px] uppercase tracking-widest text-primary hover:underline ml-2 font-semibold">
                   Clear {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
                 </button>
               )}
@@ -377,10 +377,10 @@ const ThreeDVisualizerDesktop = () => {
             {/* Search mode: compact tag strip OR full filter row */}
             {isSearchMode ? (
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[9px] uppercase tracking-widest text-stone-400 shrink-0">Results for</span>
-                <span className="text-[9px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">"{search.trim()}"</span>
+                <span className="text-[11px] uppercase tracking-widest text-stone-400 shrink-0">Results for</span>
+                <span className="text-[11px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">"{search.trim()}"</span>
                 {activeFilterCount > 0 && (
-                  <span className="text-[9px] text-stone-400">+ {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
+                  <span className="text-[11px] text-stone-400">+ {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
                 )}
               </div>
             ) : (
@@ -390,7 +390,7 @@ const ThreeDVisualizerDesktop = () => {
                   <select
                     value={activeMaterialType}
                     onChange={(e) => setActiveMaterialType(e.target.value)}
-                    className="bg-white border border-stone-200 text-[10px] px-2 py-1 h-7 rounded-lg focus:outline-none focus:border-primary/60 text-stone-700 font-semibold uppercase tracking-wider cursor-pointer max-w-[90px]"
+                    className="bg-white border border-stone-200 text-[11px] px-2 py-1 h-7 rounded-lg focus:outline-none focus:border-primary/60 text-stone-700 font-semibold uppercase tracking-wider cursor-pointer max-w-[90px]"
                   >
                     <option value="All">Types</option>
                     {materialTypeOptions.filter(t => t !== 'All').map(t => (
@@ -403,7 +403,7 @@ const ThreeDVisualizerDesktop = () => {
                 <div className="relative shrink-0 w-[120px]" data-col-dropdown>
                   <button
                     onClick={() => setShowColDropdown(!showColDropdown)}
-                    className="w-full bg-white border border-stone-200 text-[10px] px-2.5 py-1 h-7 rounded-lg flex items-center justify-between hover:border-stone-300"
+                    className="w-full bg-white border border-stone-200 text-[11px] px-2.5 py-1 h-7 rounded-lg flex items-center justify-between hover:border-stone-300"
                   >
                     <span className="font-semibold text-stone-700 uppercase tracking-wider truncate">
                       {activeCollection === 'All' ? 'Collections' : activeCollection}
@@ -421,7 +421,7 @@ const ThreeDVisualizerDesktop = () => {
                           <div className={`w-full aspect-square rounded-lg border flex items-center justify-center transition-all ${activeCollection === 'All' ? 'border-primary shadow-sm bg-primary/5' : 'border-stone-200 bg-stone-50 group-hover:border-stone-300'}`}>
                             <span className="text-xs font-bold text-stone-500">ALL</span>
                           </div>
-                          <span className="text-[9px] font-semibold text-stone-700 uppercase tracking-wider text-center w-full truncate">All</span>
+                          <span className="text-[10px] font-semibold text-stone-700 uppercase tracking-wider text-center w-full truncate">All</span>
                         </div>
                         {collectionsWithThumbs.map(c => {
                           const isActive = activeCollection === c.name
@@ -434,7 +434,7 @@ const ThreeDVisualizerDesktop = () => {
                               <div className={`w-full aspect-square rounded-lg overflow-hidden border transition-all ${isActive ? 'border-primary ring-1 ring-primary shadow-sm' : 'border-stone-200 group-hover:border-stone-300'}`}>
                                 <img src={c.thumb} alt={c.name} className="w-full h-full object-cover" />
                               </div>
-                              <span className="text-[9px] font-semibold text-stone-700 uppercase tracking-wider text-center w-full truncate">{c.name}</span>
+                              <span className="text-[10px] font-semibold text-stone-700 uppercase tracking-wider text-center w-full truncate">{c.name}</span>
                             </div>
                           )
                         })}
@@ -488,7 +488,7 @@ const ThreeDVisualizerDesktop = () => {
             {activeFilterCount > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {activeMaterialType !== 'All' && (
-                  <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[11px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
                     <span className="text-stone-400 mr-0.5">Type:</span>{activeMaterialType}
                     <button onClick={() => setActiveMaterialType('All')} className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0">
                       <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -496,7 +496,7 @@ const ThreeDVisualizerDesktop = () => {
                   </span>
                 )}
                 {activeCollection !== 'All' && (
-                  <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[11px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
                     <span className="text-stone-400 mr-0.5">Col:</span>{activeCollection}
                     <button onClick={() => setActiveCollection('All')} className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0">
                       <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -504,7 +504,7 @@ const ThreeDVisualizerDesktop = () => {
                   </span>
                 )}
                 {activeColorGroup !== 'All' && (
-                  <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-wider pl-2 pr-1.5 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[11px] font-bold uppercase tracking-wider pl-2 pr-1.5 py-1 rounded-full">
                     <span className="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0" style={{ background: COLOR_MAP[activeColorGroup] ?? '#d0c8c0' }} />
                     {activeColorGroup}
                     <button onClick={() => setActiveColorGroup('All')} className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0">
@@ -513,7 +513,7 @@ const ThreeDVisualizerDesktop = () => {
                   </span>
                 )}
                 {activePattern !== 'All' && (
-                  <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[11px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
                     <span className="text-stone-400 mr-0.5">Pattern:</span>{activePattern}
                     <button onClick={() => setActivePattern('All')} className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0">
                       <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -582,21 +582,24 @@ const ThreeDVisualizerDesktop = () => {
                             <p className="text-[8px] text-white font-bold uppercase leading-tight truncate">
                               {highlight(m.collection_name ?? '', search.trim())}
                             </p>
-                            <p className="text-[7px] text-white/70 mt-0.5 truncate">
+                            <p className="text-[10px] text-white font-bold uppercase leading-tight truncate">
+                              {highlight(m.collection_name ?? '', search.trim())}
+                            </p>
+                            <p className="text-[9px] text-white/70 mt-0.5 truncate">
                               {highlight(m.material_name ?? '', search.trim())}
                             </p>
                             {(m.material_type?.toLowerCase().includes(search.toLowerCase()) ||
                               m.color_group?.toLowerCase().includes(search.toLowerCase()) ||
                               (m as any).pattern?.toLowerCase().includes(search.toLowerCase())) && (
-                              <p className="text-[7px] text-primary/80 mt-0.5 truncate">
+                              <p className="text-[9px] text-primary/80 mt-0.5 truncate">
                                 {highlight(m.material_type ?? '', search.trim())} · {highlight(m.color_group ?? '', search.trim())}
                               </p>
                             )}
                           </div>
                         ) : (
                           <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex flex-col items-center justify-center transition-opacity p-1 text-center">
-                            <span className="text-[8px] text-white font-bold uppercase leading-tight">{m.collection_name}</span>
-                            <span className="text-[7px] text-white/70 mt-0.5">{m.material_name}</span>
+                            <span className="text-[10px] text-white font-bold uppercase leading-tight">{m.collection_name}</span>
+                            <span className="text-[9px] text-white/70 mt-0.5">{m.material_name}</span>
                           </div>
                         )}
                         {isActive && (
@@ -611,7 +614,7 @@ const ThreeDVisualizerDesktop = () => {
                 {hasMore && (
                   <button
                     onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
-                    className="mt-3 w-full py-2 rounded-xl border border-stone-200 bg-white text-[10px] font-semibold uppercase tracking-widest text-stone-500 hover:border-primary/40 hover:text-primary transition-colors"
+                    className="mt-3 w-full py-2 rounded-xl border border-stone-200 bg-white text-[12px] font-semibold uppercase tracking-widest text-stone-500 hover:border-primary/40 hover:text-primary transition-all active:scale-[0.98]"
                   >
                     Load more ({filtered.length - visibleCount} remaining)
                   </button>
@@ -634,13 +637,13 @@ const ThreeDVisualizerDesktop = () => {
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
-              <span className="text-[10px] tracking-[0.1em] uppercase font-bold">Change Product</span>
+              <span className="text-[11px] tracking-[0.1em] uppercase font-bold">Change Product</span>
             </button>
 
             <div className="w-px h-5 bg-stone-200" />
-            <span className="text-[10px] text-stone-400 tracking-[0.2em] font-bold uppercase select-none">Viewport · Perspective</span>
+            <span className="text-[11px] text-stone-400 tracking-[0.2em] font-bold uppercase select-none">Viewport · Perspective</span>
             <div className="flex-1" />
-            <span className="text-[10px] text-stone-400 tracking-wider select-none font-medium">Drag to orbit · Scroll to zoom</span>
+            <span className="text-[11px] text-stone-400 tracking-wider select-none font-medium">Drag to orbit · Scroll to zoom</span>
           </div>
 
           {/* model-viewer fills remaining space */}
@@ -762,8 +765,8 @@ const ThreeDVisualizerDesktop = () => {
             {!modelLoaded && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-stone-50 z-10 pointer-events-none">
                 <div className="w-10 h-10 border-2 border-stone-200 border-t-stone-900 rounded-full animate-spin mb-6" />
-                <p className="text-stone-900 text-[11px] font-bold tracking-[0.3em] uppercase">Loading 3D Model</p>
-                <p className="text-stone-500 text-[10px] mt-2 font-medium tracking-widest">{currentProduct.product_name}</p>
+                <p className="text-stone-900 text-[12px] font-bold tracking-[0.3em] uppercase">Loading 3D Model</p>
+                <p className="text-stone-500 text-[11px] mt-2 font-medium tracking-widest">{currentProduct.product_name}</p>
               </div>
             )}
 
@@ -772,7 +775,7 @@ const ThreeDVisualizerDesktop = () => {
               <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-10 pointer-events-none">
                 <div className="bg-white border border-stone-200/50 px-8 py-4 flex items-center gap-4 shadow-xl rounded-sm">
                   <div className="w-5 h-5 border-2 border-stone-200 border-t-stone-900 rounded-full animate-spin" />
-                  <span className="text-stone-900 text-[10px] font-bold tracking-[0.2em] uppercase">Applying Texture…</span>
+                  <span className="text-stone-900 text-[11px] font-bold tracking-[0.2em] uppercase">Applying Texture…</span>
                 </div>
               </div>
             )}
@@ -787,7 +790,7 @@ const ThreeDVisualizerDesktop = () => {
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
                 />
                 <div>
-                  <span className="text-[11px] font-bold text-stone-900 tracking-[0.2em] uppercase block mb-0.5">{selected.fabricName}</span>
+                  <span className="text-[12px] font-bold text-stone-900 tracking-[0.2em] uppercase block mb-0.5">{selected.fabricName}</span>
                 </div>
               </div>
             )}
