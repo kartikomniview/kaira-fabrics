@@ -143,7 +143,7 @@ const AIVisualizerDesktop = () => {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => window.history.back()}
-              className="group flex items-center gap-2 px-4 py-2 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm"
+              className="group flex items-center gap-2 px-4 py-2 border border-stone-600 bg-transparent text-stone-300 hover:text-white hover:border-stone-400 transition-all rounded-sm"
             >
               <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

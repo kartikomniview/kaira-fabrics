@@ -73,9 +73,9 @@ const MaterialsPage = () => {
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
             <Link
               to="/"
-              className="group inline-flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm mb-4"
+              className="group inline-flex items-center gap-2 px-4 py-2 border border-stone-600 bg-transparent text-stone-300 hover:text-white hover:border-stone-400 transition-all rounded-sm mb-4"
             >
-              <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               <span className="text-[11px] uppercase font-bold tracking-widest">Back to Home</span>

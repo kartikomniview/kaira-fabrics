@@ -34,14 +34,14 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
               Kaira: The House of Sofa Fabrics
             </h3>
 
-            <div className={`space-y-4 md:space-y-6 text-stone-500 text-sm sm:text-base leading-relaxed font-light transition-all duration-700 delay-200 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className={`space-y-4 md:space-y-6 text-stone-500 text-base md:text-base leading-relaxed font-light transition-all duration-700 delay-200 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <p>
                 Kaira is an entity under the <strong>Kurikkal group</strong>, specializing in a wide range of premium sofa fabrics and leathers. We ensure remarkable quality and availability right to your doorstep.
               </p>
               <p>
                 With a strong physical presence, Kaira focuses on delivering the best fabric and leather solutions that perfectly balance affordability, design, and comfort.
               </p>
-              <p className="text-stone-400 italic text-sm">
+              <p className="hidden md:block text-stone-400 italic text-sm">
                 "Born from an understanding of the evolving furniture industry, we represent a perfect blend of form and function with an uncompromising emphasis on quality and style."
               </p>
             </div>
@@ -52,7 +52,7 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
                   to="/about"
                   className="group relative inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden shadow-md"
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-widest relative z-10">Know more</span>
+                  <span className="text-[13px] font-bold uppercase tracking-widest relative z-10">Know more</span>
                   <div className="absolute inset-0 bg-primary translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
                 </Link>
                 
@@ -73,7 +73,7 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
 
           {/* Right Column: Visual/Imagery */}
           <div className={`relative hidden lg:block transition-all duration-1000 delay-200 ${isAboutVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] bg-stone-100 overflow-hidden rounded-sm">
+            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] max-w-sm mx-auto bg-stone-100 overflow-hidden rounded-sm">
               <img 
                 src="https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/aboutus.webp" 
                 alt="Kaira Fabrics Heritage" 
@@ -82,20 +82,20 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
               <div className="absolute inset-0 bg-stone-900/10 pointer-events-none" />
               
               {/* Overlay Badge */}
-              <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-sm p-6 rounded-sm border border-white/20 shadow-xl">
-                <p className="text-xs text-stone-600 leading-relaxed font-light mb-3">
+              <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-5 rounded-sm border border-white/20 shadow-xl">
+                <p className="text-[11px] text-stone-600 leading-relaxed font-light mb-2.5">
                   "Excellence woven into every thread. Bringing world-class textiles to exceptional interiors."
                 </p>
                 <div className="flex items-center gap-3 w-full">
-                  <div className="w-8 h-px bg-primary" />
-                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900">The Kurikkal Group</p>
+                  <div className="w-6 h-px bg-primary" />
+                  <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-900">The Kurikkal Group</p>
                 </div>
               </div>
             </div>
             
             {/* Decorative element */}
-            <div className="absolute -top-6 -right-6 w-32 h-32 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] opacity-10 pointer-events-none" />
-            <div className="absolute -bottom-6 -left-6 w-32 h-32 border border-stone-200 pointer-events-none rounded-sm -z-10" />
+            <div className="absolute -top-4 -right-4 w-24 h-24 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] opacity-10 pointer-events-none" />
+            <div className="absolute -bottom-4 -left-4 w-24 h-24 border border-stone-200 pointer-events-none rounded-sm -z-10" />
           </div>
 
         </div>
