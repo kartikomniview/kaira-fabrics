@@ -34,9 +34,9 @@ const FabricCategoriesSection = () => {
             <Link
               key={name}
               to={`/collections?category=${name}`}
-              className="group flex-none flex flex-col items-center w-36"
+              className="group flex-none flex flex-col items-center w-48"
             >
-              <div className="w-36 h-48 overflow-hidden bg-stone-100 rounded-lg border border-stone-100 shadow-sm relative mb-2">
+              <div className="w-48 h-60 overflow-hidden bg-stone-100 rounded-lg border border-stone-100 shadow-sm relative mb-2">
                 <img
                   src={imgUrl}
                   alt={name}

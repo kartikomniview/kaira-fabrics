@@ -39,30 +39,30 @@ function CatalogPreviewModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-stone-900 flex-shrink-0">
+        <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-stone-900 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <svg className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
-            <span className="text-[10px] uppercase tracking-widest text-stone-400">
+            <span className="text-[8px] md:text-[10px] uppercase tracking-widest text-stone-400 truncate max-w-[120px] md:max-w-none">
               {collection.name} &mdash; Catalog Preview
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={() => setShowContactForm(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] uppercase tracking-widest bg-primary text-stone-900 hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-1.5 px-2 md:px-3 py-1 md:py-1.5 text-[8px] md:text-[10px] uppercase tracking-widest bg-primary text-stone-900 hover:bg-primary/90 transition-colors"
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-2.5 h-2.5 md:w-3 md:h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              Get this Catalog
+              Get Catalog
             </button>
             <button
               onClick={onClose}
-              className="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-white transition-colors"
+              className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center text-stone-500 hover:text-white transition-colors"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -70,12 +70,12 @@ function CatalogPreviewModal({
         </div>
 
         {/* Scrollable PDF area */}
-        <div className="overflow-y-auto flex-1 bg-stone-300 p-5">
+        <div className="overflow-y-auto flex-1 bg-stone-300 p-3 md:p-5">
           {/* Document */}
           <div className="bg-white w-full shadow-xl mx-auto">
 
             {/* ── Cover ───────────────────────────────── */}
-            <div className="relative overflow-hidden bg-stone-900 min-h-[180px]">
+            <div className="relative overflow-hidden bg-stone-900 min-h-[140px] md:min-h-[180px]">
               <img
                 src={collection.image}
                 alt={collection.name}
@@ -83,15 +83,15 @@ function CatalogPreviewModal({
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-between p-8">
+              <div className="absolute inset-0 flex flex-col justify-between p-4 md:p-8">
                 <div className="flex items-center justify-between">
-                  <span className="text-[9px] tracking-[0.35em] text-primary uppercase font-medium">KAIRA FABRICS</span>
-                  <span className="text-[8px] tracking-[0.2em] text-stone-500 uppercase">Product Catalog</span>
+                  <span className="text-[7px] md:text-[9px] tracking-[0.35em] text-primary uppercase font-medium">KAIRA FABRICS</span>
+                  <span className="text-[6px] md:text-[8px] tracking-[0.2em] text-stone-500 uppercase">Product Catalog</span>
                 </div>
                 <div>
-                  <p className="text-[9px] tracking-[0.3em] text-primary/80 uppercase mb-2">{collection.category}</p>
-                  <h1 className="font-serif text-[32px] text-white leading-tight mb-2">{collection.name}</h1>
-                  <p className="text-[11px] text-stone-400 leading-relaxed max-w-md" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <p className="text-[7px] md:text-[9px] tracking-[0.3em] text-primary/80 uppercase mb-1 md:mb-2">{collection.category}</p>
+                  <h1 className="font-serif text-[20px] md:text-[32px] text-white leading-tight mb-1 md:mb-2">{collection.name}</h1>
+                  <p className="text-[9px] md:text-[11px] text-stone-400 leading-relaxed max-w-md" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {collection.description}
                   </p>
                 </div>
@@ -100,37 +100,37 @@ function CatalogPreviewModal({
             </div>
 
             {/* ── Collection Info ──────────────────────── */}
-            <div className="px-8 py-5 border-b border-stone-100 flex items-start gap-8">
+            <div className="px-4 md:px-8 py-3 md:py-5 border-b border-stone-100 flex items-start gap-4 md:gap-8">
               <div className="flex-1 min-w-0">
-                <p className="text-[8px] tracking-[0.3em] uppercase text-stone-400 mb-2">About this Collection</p>
-                <p className="text-[11px] text-stone-600 leading-relaxed">{collection.description}</p>
+                <p className="text-[7px] md:text-[8px] tracking-[0.3em] uppercase text-stone-400 mb-1 md:mb-2">About this Collection</p>
+                <p className="text-[9px] md:text-[11px] text-stone-600 leading-relaxed">{collection.description}</p>
                 {collection.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-3">
+                  <div className="flex flex-wrap gap-1 mt-2 md:mt-3">
                     {collection.tags.map((tag) => (
-                      <span key={tag} className="text-[8px] px-2 py-0.5 border border-stone-200 text-stone-400 tracking-wide uppercase">
+                      <span key={tag} className="text-[6px] md:text-[8px] px-1.5 md:px-2 py-0.5 border border-stone-200 text-stone-400 tracking-wide uppercase">
                         {tag}
                       </span>
                     ))}
                   </div>
                 )}
               </div>
-              <div className="flex-shrink-0 text-right border-l border-stone-100 pl-6">
-                <p className="text-[8px] tracking-[0.2em] uppercase text-stone-400 mb-1">Variants</p>
-                <p className="font-serif text-4xl text-gold leading-none">{collection.itemCount}</p>
-                <p className="text-[8px] text-stone-400 mt-1 tracking-wide">SKUs Available</p>
+              <div className="flex-shrink-0 text-right border-l border-stone-100 pl-3 md:pl-6">
+                <p className="text-[7px] md:text-[8px] tracking-[0.2em] uppercase text-stone-400 mb-0.5 md:mb-1">Variants</p>
+                <p className="font-serif text-2xl md:text-4xl text-gold leading-none">{collection.itemCount}</p>
+                <p className="text-[7px] md:text-[8px] text-stone-400 mt-0.5 md:mt-1 tracking-wide">SKUs</p>
               </div>
             </div>
 
             {/* ── Materials Grid ───────────────────────── */}
-            <div className="px-8 py-6">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-[8px] tracking-[0.3em] uppercase text-stone-400">Materials &amp; Swatches</p>
-                <span className="text-[8px] text-stone-400">{materials.length} items</span>
+            <div className="px-4 md:px-8 py-4 md:py-6">
+              <div className="flex items-center justify-between mb-3 md:mb-4">
+                <p className="text-[7px] md:text-[8px] tracking-[0.3em] uppercase text-stone-400">Materials &amp; Swatches</p>
+                <span className="text-[7px] md:text-[8px] text-stone-400">{materials.length} items</span>
               </div>
               {materials.length === 0 ? (
-                <p className="text-[11px] text-stone-400 text-center py-10">No materials listed for this collection.</p>
+                <p className="text-[9px] md:text-[11px] text-stone-400 text-center py-8 md:py-10">No materials listed for this collection.</p>
               ) : (
-                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2.5">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 md:gap-2.5">
                   {materials.map((m) => (
                     <div key={m.id} className="border border-stone-200 overflow-hidden">
                       <div className="aspect-square overflow-hidden bg-stone-100">
@@ -141,12 +141,9 @@ function CatalogPreviewModal({
                           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
                         />
                       </div>
-                      <div className="px-1.5 py-1.5 bg-stone-50 border-t border-stone-100">
-                        <p className="text-[8px] font-bold text-charcoal uppercase truncate leading-tight tracking-tight">{m.material_name}</p>
-                        <p className="text-[7px] text-gold truncate mt-0.5 tracking-wide">{m.material_code}</p>
-                        {m.color_group && (
-                          <p className="text-[7px] text-stone-400 truncate">{m.color_group}</p>
-                        )}
+                      <div className="px-1 py-1 md:px-1.5 md:py-1.5 bg-stone-50 border-t border-stone-100">
+                        <p className="text-[7px] md:text-[8px] font-bold text-charcoal uppercase truncate leading-tight tracking-tight">{m.material_name}</p>
+                        <p className="text-[6px] md:text-[7px] text-gold truncate mt-0.5 tracking-wide">{m.material_code}</p>
                       </div>
                     </div>
                   ))}
@@ -155,10 +152,10 @@ function CatalogPreviewModal({
             </div>
 
             {/* ── Document Footer ──────────────────────── */}
-            <div className="flex items-center justify-between px-8 py-3 bg-stone-900 border-t border-stone-800">
-              <span className="text-[8px] tracking-[0.3em] font-bold text-primary uppercase">KAIRA FABRICS</span>
-              <span className="text-[7px] font-medium text-stone-500 tracking-wide uppercase">Confidential &mdash; For Trade Use Only</span>
-              <span className="text-[7px] font-medium text-stone-500 uppercase">kairafabrics.com</span>
+            <div className="flex items-center justify-between px-4 md:px-8 py-2 md:py-3 bg-stone-900 border-t border-stone-800">
+              <span className="text-[7px] md:text-[8px] tracking-[0.3em] font-bold text-primary uppercase">KAIRA FABRICS</span>
+              <span className="text-[6px] md:text-[7px] font-medium text-stone-500 tracking-wide uppercase">Trade Use Only</span>
+              <span className="text-[6px] md:text-[7px] font-medium text-stone-500 uppercase">kairafabrics.com</span>
             </div>
 
           </div>

@@ -117,43 +117,43 @@ const HomePage = () => {
       <AboutSection isAboutVisible={isAboutVisible} aboutRef={aboutRef} />
 
       {/* AI & 3D Visualizer Banner Strip */}
-      <section className="bg-stone-900 py-14 md:py-16 border-y border-stone-800 relative overflow-hidden">
+      <section className="bg-stone-900 py-20 md:py-16 border-y border-stone-800 relative overflow-hidden">
         {/* Subtle motion background */}
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-10">
           <div className="flex-1 text-center lg:text-left w-full">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-stone-800 border border-stone-700 mb-2 sm:mb-4">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-stone-800 border border-stone-700 mb-4 sm:mb-4">
               <span className="relative flex h-1.5 w-1.5 md:h-2 md:w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 md:h-2 md:w-2 bg-primary"></span>
               </span>
-              <span className="text-[8px] sm:text-[10px] uppercase tracking-[0.2em] text-stone-300 font-bold">Cutting-Edge Tech</span>
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-stone-300 font-bold">Cutting-Edge Tech</span>
             </div>
-            <h2 className="font-serif text-xl sm:text-3xl md:text-4xl text-white mb-2 sm:mb-4 leading-tight">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-white mb-4 sm:mb-4 leading-tight">
               Experience Fabrics in <span className="text-primary italic">Real-Time</span>
             </h2>
-            <p className="text-stone-400 text-[11px] sm:text-sm md:text-base max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed px-2 lg:px-0">
+            <p className="text-stone-400 text-xs sm:text-sm md:text-base max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed px-2 lg:px-0">
               Visualize our premium collection in your space using AI or explore every thread in 3D.
             </p>
           </div>
 
-          <div className="flex flex-row gap-2 sm:gap-4 w-full lg:w-auto shrink-0 mt-1 sm:mt-0">
+          <div className="flex flex-row gap-3 sm:gap-4 w-full lg:w-auto shrink-0 mt-2 sm:mt-0">
             <Link 
               to="/ai-visualizer" 
-              className="flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-3 sm:px-8 sm:py-6 bg-primary hover:bg-white transition-all duration-500 rounded-sm text-center"
+              className="flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-primary hover:bg-white transition-all duration-500 rounded-sm text-center"
             >
-              <span className="text-stone-900 text-[7px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-0.5 sm:mb-1">Room View</span>
-              <span className="text-stone-900 text-[11px] sm:text-lg font-serif leading-tight whitespace-nowrap">Try AI Visualizer</span>
+              <span className="text-stone-900 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1">Room View</span>
+              <span className="text-stone-900 text-[13px] sm:text-lg font-serif leading-tight whitespace-nowrap">Try AI Visualizer</span>
               <div className="absolute bottom-0 left-0 h-1 w-0 bg-stone-900 transition-all duration-500 group-hover:w-full" />
             </Link>
 
             <Link 
               to="/3d-visualizer" 
-              className="flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-3 sm:px-8 sm:py-6 bg-transparent border border-stone-700 hover:border-primary transition-all duration-500 rounded-sm text-center"
+              className="flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-transparent border border-stone-700 hover:border-primary transition-all duration-500 rounded-sm text-center"
             >
-              <span className="text-stone-500 text-[7px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-0.5 sm:mb-1 group-hover:text-primary">Macro View</span>
-              <span className="text-white text-[11px] sm:text-lg font-serif leading-tight whitespace-nowrap group-hover:text-primary">Explore in 3D</span>
+              <span className="text-stone-500 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1 group-hover:text-primary">Macro View</span>
+              <span className="text-white text-[13px] sm:text-lg font-serif leading-tight whitespace-nowrap group-hover:text-primary">Explore in 3D</span>
               <div className="absolute bottom-0 left-0 h-1 w-0 bg-primary transition-all duration-500 group-hover:w-full" />
             </Link>
           </div>
