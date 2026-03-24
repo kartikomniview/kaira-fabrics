@@ -455,8 +455,8 @@ function CollectionModal({
               {materialSearch ? `${materials.filter(m => m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) || m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) || m.color_group?.toLowerCase().includes(materialSearch.toLowerCase())).length} results` : `${materials.length} items`}
             </span>
           </div>
-          <div className="md:overflow-y-auto flex-1 p-5">
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="md:overflow-y-auto flex-1 p-3 sm:p-5">
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
               {materials.filter(m =>
                 !materialSearch ||
                 m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) ||

@@ -53,7 +53,7 @@ const HeroSection = () => {
 
         {/* Heading */}
         <h1
-          className={`font-serif text-3xl sm:text-5xl md:text-6xl lg:text-[4rem] text-white leading-[1.08] tracking-tight transition-all duration-900 delay-150 ease-out ${
+          className={`font-serif text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] text-white leading-[1.08] tracking-tight transition-all duration-900 delay-150 ease-out ${
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
           style={{ textShadow: '0 2px 24px rgba(0,0,0,0.7)' }}
@@ -75,7 +75,7 @@ const HeroSection = () => {
 
         {/* Description */}
         <p
-          className={`font-sans text-white/85 text-xs sm:text-sm md:text-base lg:text-lg font-light leading-relaxed tracking-wide text-center max-w-xl transition-all duration-700 delay-[350ms] ease-out ${
+          className={`font-sans text-white/85 text-sm sm:text-sm md:text-base lg:text-lg font-light leading-relaxed tracking-wide text-center max-w-xl transition-all duration-700 delay-[350ms] ease-out ${
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
           style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}
