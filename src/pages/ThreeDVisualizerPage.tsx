@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import ThreeDVisualizerPageMobile from './ThreeDVisualizerPageMobile'
 import { newMaterials } from '../data/newmaterials'
 import { collections } from '../data/collections'
@@ -114,7 +115,7 @@ const ThreeDVisualizerDesktop = () => {
   }, [])
 
   // Toggle flags for material maps
-  const [applyRoughnessMap] = useState(false)
+  const [applyRoughnessMap] = useState(true)
   const [applyNormalMap] = useState(false)
   const [applySheenMap] = useState(false)
 
@@ -260,40 +261,53 @@ const ThreeDVisualizerDesktop = () => {
   return (
     <div
       className="flex flex-col overflow-hidden bg-stone-50 font-sans"
-      style={{ height: 'calc(100vh - 64px)', marginTop: '64px' }}
+      style={{ height: 'calc(100vh - 78px)', marginTop: '78px' }}
     >
       {/* ── Studio Toolbar ── */}
-      <div className="h-12 shrink-0 bg-white border-b border-stone-200 flex items-center px-6 gap-4 shadow-sm">
+      <div className="h-12 shrink-0 bg-stone-900 border-b border-stone-800 flex items-center px-6 gap-4 shadow-sm">
+        {/* Home button */}
+        <Link
+          to="/"
+          className="flex items-center gap-1.5 h-7 px-3 bg-white border border-stone-200 hover:border-stone-900 text-stone-900 transition-all rounded-sm group shrink-0"
+        >
+          <svg className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span className="text-[9px] font-bold tracking-[0.15em] uppercase">Home</span>
+        </Link>
+
+        <div className="w-px h-5 bg-stone-700" />
+
         {/* Brand */}
         <div className="flex items-center gap-2 select-none">
           <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-          <span className="text-[10px] text-stone-400 font-bold tracking-[0.2em] uppercase">Kaira</span>
-          <span className="text-stone-300 text-xs">›</span>
-          <span className="text-[10px] text-stone-900 font-bold tracking-[0.2em] uppercase">3D Fabric Studio</span>
+          <span className="text-[10px] text-stone-500 font-bold tracking-[0.2em] uppercase">Kaira</span>
+          <span className="text-stone-600 text-xs">›</span>
+          <span className="text-[10px] text-stone-200 font-bold tracking-[0.2em] uppercase">3D Fabric Studio</span>
         </div>
 
-        <div className="w-px h-5 bg-stone-200 mx-2" />
+        <div className="w-px h-5 bg-stone-700 mx-2" />
 
         {/* Model badge */}
-        <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 px-3 py-1.5 rounded-sm">
+        <div className="flex items-center gap-2 bg-stone-800 border border-stone-700 px-3 py-1.5 rounded-sm">
           <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
-          <span className="text-[10px] text-stone-600 font-medium tracking-[0.1em] uppercase">{currentProduct.product_name}</span>
+          <span className="text-[10px] text-stone-300 font-medium tracking-[0.1em] uppercase">{currentProduct.product_name}</span>
         </div>
 
         <div className="flex-1" />
 
         {/* Active texture chip */}
         {selected && (
-          <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 px-3 py-1.5 rounded-sm">
+          <div className="flex items-center gap-2 bg-stone-800 border border-stone-700 px-3 py-1.5 rounded-sm">
             <img
               src={selected.textureUrl}
               alt=""
-              className="w-5 h-5 rounded-sm object-cover border border-stone-200 shrink-0"
+              className="w-5 h-5 rounded-sm object-cover border border-stone-700 shrink-0"
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
             />
-            <span className="text-[10px] text-stone-700 font-medium tracking-wide truncate max-w-[160px]">{selected.fabricName}</span>
+            <span className="text-[10px] text-stone-300 font-medium tracking-wide truncate max-w-[160px]">{selected.fabricName}</span>
             {isApplying && (
               <div className="w-3.5 h-3.5 border border-primary/40 border-t-primary rounded-full animate-spin shrink-0" />
             )}
@@ -303,7 +317,7 @@ const ThreeDVisualizerDesktop = () => {
         {/* Model status dot */}
         <div className="flex items-center gap-2 ml-2">
           <div className={`w-1.5 h-1.5 rounded-full transition-colors ${modelLoaded ? 'bg-emerald-500' : 'bg-stone-300 animate-pulse'}`} />
-          <span className="text-[10px] text-stone-400 font-bold tracking-[0.2em] uppercase">{modelLoaded ? 'Ready' : 'Loading'}</span>
+          <span className="text-[10px] text-stone-500 font-bold tracking-[0.2em] uppercase">{modelLoaded ? 'Ready' : 'Loading'}</span>
         </div>
       </div>
 
@@ -605,60 +619,6 @@ const ThreeDVisualizerDesktop = () => {
               </>
             )}
           </div>
-
-          {/* Selected material info */}
-          <div className="shrink-0 border-t border-stone-200 bg-white">
-            {selected ? (
-              <div className="p-4 flex items-start gap-4">
-                <div className="relative shrink-0">
-                  <img
-                    src={selected.textureUrl}
-                    alt={selected.fabricName}
-                    className="w-16 h-16 rounded-lg object-cover border border-stone-200 shadow-sm"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                  />
-                  {isApplying && (
-                    <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] flex items-center justify-center rounded-lg">
-                      <div className="w-5 h-5 border-2 border-stone-200 border-t-stone-900 rounded-full animate-spin" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0 py-0.5">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className={`w-1.5 h-1.5 rounded-full ${isApplying ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
-                    <p className="text-[9px] text-stone-500 uppercase tracking-[0.2em] font-bold">
-                      {isApplying ? 'Applying…' : 'Applied Fabric'}
-                    </p>
-                  </div>
-                  <p className="text-sm font-serif font-medium text-stone-900 truncate">{selected.collectionName}</p>
-                  <p className="text-[11px] text-stone-500 mt-0.5 truncate tracking-wide uppercase">{selected.fabricName.replace(selected.collectionName, '').trim()}</p>
-                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                    {selected.materialType && (
-                      <span className="text-[9px] bg-stone-50 border border-stone-200 text-stone-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">{selected.materialType}</span>
-                    )}
-                    {selected.colorGroup && (
-                      <span className="flex items-center gap-1 text-[9px] bg-stone-50 border border-stone-200 text-stone-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
-                        <span className="w-2 h-2 rounded-full shrink-0 border border-stone-200" style={{ backgroundColor: COLOR_MAP[selected.colorGroup] ?? '#aaa' }} />
-                        {selected.colorGroup}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="p-4 flex items-center gap-3">
-                <div className="w-16 h-16 bg-stone-50 border border-dashed border-stone-300 rounded-lg flex items-center justify-center shrink-0">
-                  <svg className="w-6 h-6 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-stone-700 uppercase tracking-widest">No fabric selected</p>
-                  <p className="text-[11px] text-stone-500 mt-1">Pick a material from the grid to apply it to the 3D model</p>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* ── RIGHT: 3D Viewport ── */}
@@ -828,7 +788,6 @@ const ThreeDVisualizerDesktop = () => {
                 />
                 <div>
                   <span className="text-[11px] font-bold text-stone-900 tracking-[0.2em] uppercase block mb-0.5">{selected.fabricName}</span>
-                  <span className="text-[9px] text-stone-500 font-medium tracking-widest">Roughness: {selected.roughness.toFixed(1)} · Metalness: {selected.metalness.toFixed(1)}</span>
                 </div>
               </div>
             )}

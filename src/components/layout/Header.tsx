@@ -31,6 +31,19 @@ const Header = () => {
     return () => { document.body.style.overflow = '' }
   }, [isMobileOpen])
 
+  // When navigating from another page to a hash section (e.g. /#collections),
+  // React Router won't auto-scroll — handle it here.
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '')
+      const timer = setTimeout(() => {
+        const el = document.getElementById(id)
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [location.pathname, location.hash])
+
   return (
     <>
       {/* Brand accent stripe */}

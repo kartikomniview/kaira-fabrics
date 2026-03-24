@@ -42,7 +42,7 @@ interface MaterialsInventoryProps {
 
 export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialId }: MaterialsInventoryProps) => {
   const [activeMaterialType, setActiveMaterialType] = useState('All')
-  const [activeCollection, setActiveCollection] = useState('All')
+  const [activeCollection, setActiveCollection] = useState(collections[0]?.name || 'All')
   const [activeColorGroup, setActiveColorGroup] = useState('All')
   const [activePattern, setActivePattern] = useState('All')
   const [search, setSearch] = useState('')
@@ -103,10 +103,15 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
 
   const activeFilterCount = [activeMaterialType, activeCollection, activeColorGroup, activePattern].filter((v) => v !== 'All').length
 
-  // Reset activeCollection when material type changes (collection may not belong to new type)
+  // Reset activeCollection when material type changes (select first available in that type)
   useEffect(() => {
-    setActiveCollection('All')
-  }, [activeMaterialType])
+    const firstInType = collectionsWithThumbs[0]
+    if (firstInType) {
+      setActiveCollection(firstInType.name)
+    } else {
+      setActiveCollection('All')
+    }
+  }, [activeMaterialType, collectionsWithThumbs])
 
   // Reset pagination whenever filters or search change
   useEffect(() => {
@@ -264,12 +269,12 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
               </button>
 
               <div className="flex-1 flex items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1">
-                {allColorGroups.map((c) => {
+                {allColorGroups.filter(c => c !== 'All').map((c) => {
                   const isActive = activeColorGroup === c
                   return (
                     <button
                       key={c}
-                      onClick={() => setActiveColorGroup(c)}
+                      onClick={() => setActiveColorGroup(isActive ? 'All' : c)}
                       title={c}
                       className={`relative shrink-0 flex items-center justify-center w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-full transition-all ${
                         isActive ? 'ring-2 ring-offset-1 ring-secondary scale-110' : 'hover:scale-110 hover:ring-1 hover:ring-stone-300 ring-offset-1 z-10'
@@ -277,7 +282,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                     >
                       <span
                         className="absolute inset-0 rounded-full border border-stone-200 shadow-sm"
-                        style={{ background: c === 'All' ? 'linear-gradient(135deg,#f5f0eb,#8b5a2b,#1c1c1c)' : (COLOR_SWATCH[c] ?? '#d0c8c0') }}
+                        style={{ background: COLOR_SWATCH[c] ?? '#d0c8c0' }}
                       />
                     </button>
                   )
@@ -313,14 +318,22 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
               </span>
             )}
             {activeCollection !== 'All' && (
-              <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
-                <span className="text-stone-400 mr-0.5">Col:</span>{activeCollection}
+              <span className="inline-flex items-center gap-2 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-wider pl-1.5 pr-2 py-1.5 rounded-full shadow-sm">
+                {(() => {
+                  const col = collections.find(c => c.name === activeCollection)
+                  return col ? (
+                    <img src={col.image} className="w-5 h-5 rounded-full object-cover border border-white/30" alt="" />
+                  ) : (
+                    <span className="text-stone-400 ml-1.5 mr-0.5">Col:</span>
+                  )
+                })()}
+                <span className={collections.find(c => c.name === activeCollection) ? "" : ""}>{activeCollection}</span>
                 <button
                   onClick={() => setActiveCollection('All')}
-                  className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
+                  className="ml-1 w-4 h-4 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
                   aria-label="Remove collection filter"
                 >
-                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                  <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
               </span>
             )}

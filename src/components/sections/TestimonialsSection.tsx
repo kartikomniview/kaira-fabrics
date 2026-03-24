@@ -112,7 +112,7 @@ const TestimonialsSection = () => {
             <span className="h-px w-5 sm:w-6 bg-primary" />
           </div>
           <h2 className="font-serif text-2xl md:text-4xl text-stone-900">
-            Voices of Trust
+            What our clients say
           </h2>
           <div className="flex items-center justify-center gap-2 mt-3 md:mt-4">
             <span className="h-px w-6 md:w-8 bg-stone-200" />

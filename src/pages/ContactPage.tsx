@@ -52,23 +52,19 @@ const ContactPage = () => {
     <div className="min-h-screen bg-white">
 
       {/* ── Page Header ──────────────────────────────────────────── */}
-      <div className="bg-stone-900 pt-28 pb-12">
+      <div className="bg-stone-900 pt-24 pb-6">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <button
             onClick={() => window.history.back()}
-            className="group flex items-center gap-2 px-4 py-2 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500 hover:bg-stone-800 transition-all rounded-sm mb-6"
+            className="group flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm mb-4"
           >
-            <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            <span className="text-[10px] uppercase font-bold tracking-widest">Back to Home</span>
+            <span className="text-[9px] uppercase font-bold tracking-widest">Back to Home</span>
           </button>
-
-          <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-primary mb-3">Get In Touch</p>
-          <h1 className="font-serif text-4xl md:text-5xl text-white">Contact Us</h1>
-          <p className="mt-3 text-stone-400 text-sm max-w-xl leading-relaxed">
-            Reach out to our experts to find the perfect fabrics for your high-end bespoke furniture and envision elegant living spaces.
-          </p>
+          <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">Get In Touch</p>
+          <h1 className="font-serif text-2xl md:text-3xl text-white">Contact Us</h1>
         </div>
       </div>
 

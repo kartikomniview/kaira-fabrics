@@ -137,24 +137,23 @@ const AIVisualizerDesktop = () => {
   return (
     <div className="relative flex flex-col w-full min-h-screen bg-white">
 
-      {/* ── Page Header ────────────────────────────────────────── */}
-      <div className="bg-stone-900 pt-28 pb-12">
+      {/* ── Minimal Page Header ──────────────────────────────────── */}
+      <div className="bg-stone-900 pt-24 pb-6">
         <div className="max-w-6xl mx-auto px-6 lg:px-10">
-          <button
-            onClick={() => window.history.back()}
-            className="group flex items-center gap-2 px-4 py-2 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500 hover:bg-stone-800 transition-all rounded-sm mb-6"
-          >
-            <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="text-[10px] uppercase font-bold tracking-widest">Back to Home</span>
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => window.history.back()}
+              className="group flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm"
+            >
+              <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="text-[9px] uppercase font-bold tracking-widest">Back to Home</span>
+            </button>
+          </div>
 
-          <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-primary mb-3">AI-Powered Tool</p>
-          <h1 className="font-serif text-4xl md:text-5xl text-white">AI Fabric Visualizer</h1>
-          <p className="mt-3 text-stone-400 text-sm max-w-xl leading-relaxed">
-            Select a fabric, choose a product, and watch AI generate a photorealistic preview &mdash; see exactly how it looks before you order.
-          </p>
+          <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">AI-Powered Tool</p>
+          <h1 className="font-serif text-2xl md:text-3xl text-white">AI Fabric Visualizer</h1>
         </div>
       </div>
 
@@ -162,7 +161,7 @@ const AIVisualizerDesktop = () => {
       <div className="relative z-10 flex flex-col w-full max-w-6xl mx-auto px-4 sm:px-8 pb-12 lg:pb-16">
 
         {/* Unified AI Studio Card */}
-        <div className="w-full bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col lg:flex-row min-h-[600px] mt-8 lg:mt-10 mb-8 lg:mb-0">
+        <div className="w-full bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col lg:flex-row min-h-[600px] mt-6 lg:mt-8 mb-8 lg:mb-0">
           
           {/* Left Side: Header & Info */}
           <div className="relative w-full lg:w-[45%] bg-stone-900 border-b lg:border-b-0 lg:border-r border-stone-800 px-8 py-10 sm:px-10 sm:py-16 hidden lg:flex flex-col justify-center">
@@ -177,10 +176,10 @@ const AIVisualizerDesktop = () => {
               </div>
 
               {/* Title */}
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white leading-[1.1] mb-5">
-                AI Fabric<br />
-                <em className="not-italic text-primary">Visualizer</em>
-              </h1>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white leading-[1.1] mb-5">
+                Bring Fabrics<br />
+                <em className="not-italic text-primary">To Life</em>
+              </h2>
 
               {/* Divider */}
               <div className="flex items-center justify-start gap-2 mb-6">

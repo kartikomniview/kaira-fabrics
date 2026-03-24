@@ -37,6 +37,20 @@ const HeroSection = () => {
       {/* ── Centered Content ── */}
       <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto flex flex-col items-center gap-4 sm:gap-6 mt-8 sm:mt-0">
 
+        {/* Brand name */}
+        <div
+          className={`flex items-center gap-3 transition-all duration-700 delay-[50ms] ease-out ${
+            isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`}
+        >
+          <span className="w-6 sm:w-8 h-px bg-amber-400/60" />
+          <span className="font-sans text-[10px] sm:text-xs uppercase tracking-[0.35em] text-amber-300/90 font-semibold"
+            style={{ textShadow: '0 1px 8px rgba(0,0,0,0.8)' }}>
+            Kaira Fabrics
+          </span>
+          <span className="w-6 sm:w-8 h-px bg-amber-400/60" />
+        </div>
+
         {/* Heading */}
         <h1
           className={`font-serif text-3xl sm:text-5xl md:text-6xl lg:text-[4rem] text-white leading-[1.08] tracking-tight transition-all duration-900 delay-150 ease-out ${

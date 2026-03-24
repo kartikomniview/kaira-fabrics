@@ -294,6 +294,7 @@ function CollectionModal({
 }) {
   const [showCatalog, setShowCatalog] = useState(false)
   const [zoomedIndex, setZoomedIndex] = useState<number | null>(null)
+  const [materialSearch, setMaterialSearch] = useState('')
   const materials = useMemo(
     () => newMaterials.filter((m) => m.collection_name === collection.name),
     [collection.name]
@@ -429,21 +430,43 @@ function CollectionModal({
 
         {/* ── Right: Materials List ──────────────────── */}
         <div className="flex-1 flex flex-col md:min-h-0 bg-stone-50">
-          <div className="pl-6 pr-14 py-4 border-b border-stone-200 bg-white flex items-center justify-between">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500">
+          <div className="pl-6 pr-14 py-3 border-b border-stone-200 bg-white flex items-center gap-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 shrink-0">
               Materials in this collection
             </p>
-            <span className="text-[9px] font-bold bg-stone-100 text-stone-500 px-2 py-0.5 tracking-[0.1em] uppercase">
-              {materials.length} items
+            <div className="flex items-center gap-2 border border-stone-200 rounded-sm bg-stone-50 px-2.5 py-1 flex-1 max-w-xs focus-within:border-stone-400 focus-within:bg-white transition-all">
+              <svg className="w-3 h-3 text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                value={materialSearch}
+                onChange={(e) => setMaterialSearch(e.target.value)}
+                placeholder="Search…"
+                className="flex-1 bg-transparent text-[12px] text-stone-700 placeholder-stone-400 focus:outline-none min-w-0"
+              />
+              {materialSearch && (
+                <button onClick={() => setMaterialSearch('')} className="text-stone-400 hover:text-stone-600 transition-colors">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
+                </button>
+              )}
+            </div>
+            <span className="ml-auto text-[9px] font-bold bg-stone-100 text-stone-500 px-2 py-0.5 tracking-[0.1em] uppercase shrink-0">
+              {materialSearch ? `${materials.filter(m => m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) || m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) || m.color_group?.toLowerCase().includes(materialSearch.toLowerCase())).length} results` : `${materials.length} items`}
             </span>
           </div>
           <div className="md:overflow-y-auto flex-1 p-5">
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
-              {materials.map((m, idx) => (
+              {materials.filter(m =>
+                !materialSearch ||
+                m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) ||
+                m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) ||
+                m.color_group?.toLowerCase().includes(materialSearch.toLowerCase())
+              ).map((m, idx) => (
                 <div
                   key={m.id}
                   className="group flex flex-col cursor-pointer"
-                  onClick={() => setZoomedIndex(idx)}
+                  onClick={() => setZoomedIndex(materials.indexOf(m))}
                 >
                   <div className="aspect-square overflow-hidden bg-white border border-stone-200 rounded-sm shadow-sm hover:shadow-md transition-all group-hover:border-primary/40 relative">
                     <img
@@ -631,10 +654,168 @@ function CollectionModal({
   )
 }
 
+/* ── Quote Modal ─────────────────────────────────────────────────── */
+function QuoteModal({ onClose }: { onClose: () => void }) {
+  const [formData, setFormData] = useState({ name: '', mobile: '', email: '', message: '' })
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          mobile: formData.mobile,
+          email: formData.email || 'not provided',
+          message: formData.message || 'not provided',
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to send message. Please try again.')
+      setSubmitted(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white w-full max-w-md shadow-2xl overflow-hidden rounded-sm border border-stone-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="px-6 py-5 bg-stone-900 flex items-center justify-between">
+          <div>
+            <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-primary mb-1">Enquiry</p>
+            <h3 className="font-serif text-xl text-white leading-tight">Get a Quote</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center text-stone-500 hover:text-white transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {submitted ? (
+          <div className="px-6 py-12 text-center bg-stone-50">
+            <div className="w-12 h-12 mx-auto mb-5 rounded-full flex items-center justify-center bg-primary/10 border border-primary/20 text-primary">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <h4 className="font-serif text-2xl text-stone-900 mb-2">Request Sent</h4>
+            <p className="text-xs text-stone-500 leading-relaxed max-w-xs mx-auto">
+              Thank you! Our team will get back to you with a quote shortly.
+            </p>
+            <button
+              onClick={onClose}
+              className="mt-8 px-8 py-3 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-colors w-full sm:w-auto rounded-sm"
+            >
+              Close
+            </button>
+          </div>
+        ) : (
+          <form className="px-6 py-6 flex flex-col gap-5 bg-white" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Name <span className="text-primary">*</span></label>
+                <input
+                  required
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData((d) => ({ ...d, name: e.target.value }))}
+                  placeholder="Your name"
+                  className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all rounded-sm shadow-sm"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Mobile <span className="text-primary">*</span></label>
+                <input
+                  required
+                  type="tel"
+                  pattern="^[0-9\-\+\s]{10,15}$"
+                  title="Please enter a valid mobile number (10-15 digits)"
+                  value={formData.mobile}
+                  onChange={(e) => setFormData((d) => ({ ...d, mobile: e.target.value }))}
+                  placeholder="+91 XXXXX XXXXX"
+                  className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all rounded-sm shadow-sm"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Email <span className="text-stone-400 font-normal normal-case tracking-normal ml-1">(Optional)</span></label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData((d) => ({ ...d, email: e.target.value }))}
+                placeholder="you@company.com"
+                className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all rounded-sm shadow-sm"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Message <span className="text-stone-400 font-normal normal-case tracking-normal ml-1">(Optional)</span></label>
+              <textarea
+                rows={3}
+                value={formData.message}
+                onChange={(e) => setFormData((d) => ({ ...d, message: e.target.value }))}
+                placeholder="Any specific requirements..."
+                className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all resize-none rounded-sm shadow-sm"
+              />
+            </div>
+
+            {error && (
+              <p className="text-red-600 text-[11px] font-medium border border-red-200 bg-red-50 px-3 py-2 rounded-sm shadow-sm">{error}</p>
+            )}
+
+            <div className="flex items-center justify-between pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 hover:text-stone-900 transition-colors"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-3 bg-stone-900 text-white text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-stone-800 transition-all rounded-sm shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
+              >
+                {loading ? 'Sending...' : 'Send Request'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  )
+}
+
 /* ── Page ─────────────────────────────────────────────────────────── */
 const CollectionsPage = () => {
   const location = useLocation()
   
+  const [collectionSearch, setCollectionSearch] = useState('')
   const [activeMaterialType, setActiveMaterialType] = useState(() => {
     const params = new URLSearchParams(location.search)
     const categoryQuery = params.get('category')
@@ -676,39 +857,63 @@ const CollectionsPage = () => {
     return () => clearTimeout(t)
   }, [])
 
-  const filtered = useMemo(
-    () =>
-      activeMaterialType === 'All'
-        ? collections
-        : collections.filter((c) => c.category === activeMaterialType),
-    [activeMaterialType]
-  )
+  const filtered = useMemo(() => {
+    let result = activeMaterialType === 'All' ? collections : collections.filter((c) => c.category === activeMaterialType)
+    if (collectionSearch.trim()) {
+      const q = collectionSearch.toLowerCase()
+      result = result.filter((c) => c.name.toLowerCase().includes(q) || c.category?.toLowerCase().includes(q))
+    }
+    return result
+  }, [activeMaterialType, collectionSearch])
 
   const navigate = useNavigate()
   const openModal = useCallback((col: Collection) => setSelectedCollection(col), [])
   const closeModal = useCallback(() => setSelectedCollection(null), [])
+  const [showQuoteModal, setShowQuoteModal] = useState(false)
 
   return (
     <div className="min-h-screen bg-cream">
 
       {/* ── Minimal Page Header ──────────────────────────────────── */}
-      <div className="bg-stone-900 pt-28 pb-12">
+      <div className="bg-stone-900 pt-24 pb-6">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <button 
-            onClick={() => window.history.back()}
-            className="group flex items-center gap-2 px-4 py-2 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500 hover:bg-stone-800 transition-all rounded-sm mb-6"
-          >
-            <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="text-[10px] uppercase font-bold tracking-widest">Back to Home</span>
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => window.history.back()}
+              className="group flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm"
+            >
+              <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="text-[9px] uppercase font-bold tracking-widest">Back to Home</span>
+            </button>
 
-          <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-primary mb-3">Curated Textile Collections</p>
-          <h1 className="font-serif text-4xl md:text-5xl text-white">Fabric Collections</h1>
-          <p className="mt-3 text-stone-400 text-sm max-w-xl leading-relaxed">
-            Explore our curated range of textile collections &mdash; click any collection to preview its swatches.
-          </p>
+            {/* CTA Buttons */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowQuoteModal(true)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-white border border-primary text-stone-900 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-stone-50 transition-all rounded-sm shadow-md"
+              >
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Get a Quote
+              </button>
+              <a
+                href="https://wa.me/917593840075"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-2.5 bg-[#25D366] text-white text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-[#1ebe5d] transition-all rounded-sm shadow-md"
+              >
+                <svg className="w-4.5 h-4.5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+                WhatsApp
+              </a>
+            </div>
+          </div>
+          <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">Curated Textile Collections</p>
+          <h1 className="font-serif text-2xl md:text-3xl text-white">Fabric Collections</h1>
         </div>
       </div>
 
@@ -717,16 +922,12 @@ const CollectionsPage = () => {
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
           {/* Filter bar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-            <div className="flex items-center gap-2 w-full sm:w-auto relative group">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400 mr-2 hidden sm:block shrink-0">Filter:</span>
-              
-              <div className="relative flex-1 flex items-center min-w-0">
-                {/* Horizontal Scroll with manual controls for mobile */}
-                <div 
-                  id="filter-scroll-container"
-                  className="flex overflow-x-auto gap-2 pb-1 sm:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth"
-                >
+          <div className="mb-8">
+            {/* Row: chips left, search right */}
+            <div className="flex items-center gap-4">
+              {/* Left: type chips — horizontally scrollable */}
+              <div className="flex-1 min-w-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex gap-2 pb-0.5">
                   {materialTypeOptions.map((type) => {
                     const isActive = activeMaterialType === type
                     const count = type === 'All'
@@ -736,39 +937,46 @@ const CollectionsPage = () => {
                       <button
                         key={type}
                         onClick={() => setActiveMaterialType(type)}
-                        className={`group flex items-center gap-1.5 px-4 py-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200 rounded-sm shadow-sm whitespace-nowrap ${
+                        className={`flex items-center gap-1.5 px-4 py-2.5 text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200 rounded-sm shadow-sm whitespace-nowrap ${
                           isActive
                             ? 'bg-stone-900 text-white'
                             : 'bg-white border border-stone-200 text-stone-600 hover:border-primary/40 hover:text-stone-900'
                         }`}
                       >
                         {type}
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded-sm ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-500 group-hover:bg-stone-200'}`}>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded-sm ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-500'}`}>
                           {count}
                         </span>
                       </button>
                     )
                   })}
                 </div>
+              </div>
 
-                {/* Mobile Scroll Arrows */}
-                <button 
-                  onClick={() => document.getElementById('filter-scroll-container')?.scrollBy({ left: -120, behavior: 'smooth' })}
-                  className="sm:hidden absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-white/90 border border-stone-200 rounded-full shadow-sm text-stone-400 z-10"
-                >
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-                </button>
-                <button 
-                  onClick={() => document.getElementById('filter-scroll-container')?.scrollBy({ left: 120, behavior: 'smooth' })}
-                  className="sm:hidden absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-white/90 border border-stone-200 rounded-full shadow-sm text-stone-400 z-10"
-                >
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                </button>
+              {/* Right: search input — pinned, bigger */}
+              <div className="shrink-0 flex items-center gap-2 border border-stone-200 rounded-sm bg-white px-3 py-2.5 focus-within:border-stone-500 focus-within:shadow-sm transition-all shadow-sm">
+                <svg className="w-4 h-4 text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={collectionSearch}
+                  onChange={(e) => setCollectionSearch(e.target.value)}
+                  placeholder="Search collections…"
+                  className="bg-transparent text-sm text-stone-700 placeholder-stone-400 focus:outline-none w-52"
+                />
+                {collectionSearch && (
+                  <button onClick={() => setCollectionSearch('')} className="text-stone-400 hover:text-stone-600 transition-colors">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
+                  </button>
+                )}
               </div>
             </div>
-            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400 bg-white px-3 py-1.5 border border-stone-200 rounded-sm shadow-sm whitespace-nowrap hidden sm:block">
-              {filtered.length} collection{filtered.length !== 1 ? 's' : ''}
-            </span>
+
+            {/* Bottom: count text */}
+            <p className="mt-3 text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400">
+              {filtered.length} collection{filtered.length !== 1 ? 's' : ''}{collectionSearch ? ` matching "${collectionSearch}"` : ''}
+            </p>
           </div>
 
           {/* Grid */}
@@ -894,6 +1102,11 @@ const CollectionsPage = () => {
       {/* ── Collection Detail Modal ──────────────────────────────── */}
       {selectedCollection && (
         <CollectionModal collection={selectedCollection} onClose={closeModal} />
+      )}
+
+      {/* ── Quote Modal ──────────────────────────────────────────── */}
+      {showQuoteModal && (
+        <QuoteModal onClose={() => setShowQuoteModal(false)} />
       )}
     </div>
   )
