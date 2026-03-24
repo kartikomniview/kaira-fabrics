@@ -34,13 +34,6 @@ const values = [
   }
 ]
 
-const stats = [
-  { value: "20+", label: "Years Heritage" },
-  { value: "10k+", label: "Fabric Variants" },
-  { value: "500+", label: "Happy Clients" },
-  { value: "Pan-India", label: "Delivery" },
-]
-
 const AboutPage = () => {
   const [whoVisible, setWhoVisible] = useState(false)
   const [missionVisible, setMissionVisible] = useState(false)
