@@ -2,6 +2,7 @@ import { lazy, Suspense, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import PageLoader from './components/ui/PageLoader'
+import { WhatsAppIcon } from './components/ui/WhatsAppIcon'
 
 // Route-level code splitting — each page loads its own JS chunk on first visit
 const HomePage             = lazy(() => import('./pages/HomePage'))
@@ -66,6 +67,9 @@ function App() {
 
       {/* Full-screen branded loader — overlays everything on initial page load */}
       {showLoader && <PageLoader exiting={appReady} />}
+      
+      {/* WhatsApp icon for mobile view */}
+      <WhatsAppIcon />
     </>
   )
 }

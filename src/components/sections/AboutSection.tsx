@@ -22,7 +22,7 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           
           {/* Left Column: Text Content */}
-          <div className="max-w-xl">
+          <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
             <div className="inline-flex items-center gap-3 mb-6">
               <span className="h-px w-6 bg-primary" />
               <h2 className={`text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500 transition-all duration-700 ${isAboutVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
@@ -47,7 +47,7 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
             </div>
 
             <div className={`mt-10 pt-8 border-t border-stone-100 transition-all duration-700 delay-300 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <div className="flex flex-col sm:flex-row items-center lg:items-center gap-6 justify-center lg:justify-start">
                 <Link
                   to="/about"
                   className="group relative inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden shadow-md"
@@ -56,7 +56,7 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
                   <div className="absolute inset-0 bg-primary translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
                 </Link>
                 
-                <div className="flex items-center gap-4">
+                <div className="hidden sm:flex items-center gap-4">
                   <div className="flex flex-col">
                     <span className="text-xl font-serif text-stone-900">20+</span>
                     <span className="text-[9px] uppercase tracking-widest text-stone-400 font-bold">Years Heritage</span>
@@ -72,7 +72,7 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
           </div>
 
           {/* Right Column: Visual/Imagery */}
-          <div className={`relative transition-all duration-1000 delay-200 ${isAboutVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className={`relative hidden lg:block transition-all duration-1000 delay-200 ${isAboutVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
             <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] bg-stone-100 overflow-hidden rounded-sm">
               <img 
                 src="https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/aboutus.webp" 

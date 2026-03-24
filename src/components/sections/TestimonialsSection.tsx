@@ -168,7 +168,7 @@ const TestimonialsSection = () => {
 
                 <StarRating count={t.rating} />
 
-                <blockquote className="mt-4 font-serif text-base md:text-md text-stone-800 leading-relaxed relative z-10 flex-1">
+                <blockquote className="mt-4 font-serif text-[13px] md:text-md text-stone-800 leading-relaxed relative z-10 flex-1">
                   "{t.quote}"
                 </blockquote>
 

@@ -94,7 +94,7 @@ const AboutPage = () => {
       </div>
 
       {/* ── Stats Strip ────────────────────────────────────────── */}
-      <div className="bg-stone-900 border-t border-stone-800 border-b border-stone-800">
+      <div className="hidden md:block bg-stone-900 border-t border-stone-800 border-b border-stone-800">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-stone-800">
             {stats.map((s) => (
@@ -108,9 +108,9 @@ const AboutPage = () => {
       </div>
 
       {/* ── Who We Are ─────────────────────────────────────────── */}
-      <section ref={whoRef} className="bg-white border-b border-stone-200 py-20 md:py-28 relative overflow-hidden">
+      <section ref={whoRef} className="bg-white border-b border-stone-200 py-12 md:py-28 relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-6 lg:px-10 text-center">
-          <div className="inline-flex items-center justify-center gap-3 mb-6">
+          <div className="inline-flex items-center justify-center gap-3 mb-4 md:mb-6">
             <span className="h-px w-6 bg-primary" />
             <span className={`text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500 transition-all duration-700 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Our Story
@@ -118,11 +118,11 @@ const AboutPage = () => {
             <span className="h-px w-6 bg-primary" />
           </div>
           
-          <h2 className={`font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] mb-8 transition-all duration-700 delay-100 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <h2 className={`font-serif text-2xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] mb-8 transition-all duration-700 delay-100 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             Who We Are
           </h2>
           
-          <div className={`space-y-6 text-stone-600 text-lg leading-relaxed font-light transition-all duration-700 delay-200 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <div className={`space-y-6 text-stone-600 text-base md:text-lg leading-relaxed font-light transition-all duration-700 delay-200 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <p>
               Kaira is an entity under the <strong className="text-stone-800 font-medium">Kurikkal Group</strong>, specializing in a wide range of premium sofa fabrics and leathers. Kaira ensures enhanced remarkable quality and availability right to your doorsteps.
             </p>
@@ -134,35 +134,35 @@ const AboutPage = () => {
       </section>
 
       {/* ── Mission & Vision ───────────────────────────────────── */}
-      <section ref={missionRef} className="py-20 md:py-28 bg-stone-50 border-b border-stone-200 relative overflow-hidden">
+      <section ref={missionRef} className="py-12 md:py-28 bg-stone-50 border-b border-stone-200 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.025] bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')]" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8 md:mb-14">
             <div className="inline-flex items-center justify-center gap-3 mb-3">
               <span className="h-px w-6 bg-primary" />
               <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500">Purpose & Direction</span>
               <span className="h-px w-6 bg-primary" />
             </div>
-            <h2 className={`font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] transition-all duration-700 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <h2 className={`font-serif text-2xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] transition-all duration-700 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Mission & Vision
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="flex overflow-x-auto snap-x snap-mandatory md:grid md:grid-cols-2 gap-4 md:gap-8 pb-6 -mx-6 px-6 md:mx-auto md:px-0 [&::-webkit-scrollbar]:hidden max-w-5xl">
             {/* Mission */}
-            <div className={`bg-stone-50 border border-stone-200 p-10 md:p-12 text-center rounded-sm transition-all duration-700 delay-100 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-primary font-bold block mb-4">Our Mission</span>
-              <h3 className="font-serif text-2xl md:text-3xl text-stone-900 mb-6">Market Leadership Through Quality</h3>
-              <p className="text-stone-500 leading-relaxed font-light text-sm md:text-base">
+            <div className={`shrink-0 snap-center w-[85%] md:w-auto bg-stone-50 border border-stone-200 p-8 md:p-12 text-center rounded-sm transition-all duration-700 delay-100 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold block mb-4">Our Mission</span>
+              <h3 className="font-serif text-xl md:text-3xl text-stone-900 mb-4 md:mb-6">Market Leadership Through Quality</h3>
+              <p className="text-stone-500 leading-relaxed font-light text-xs md:text-base">
                 To be the market leader by providing enhanced quality materials with an affordable price — making premium fabrics accessible to every home and interior.
               </p>
             </div>
 
             {/* Vision */}
-            <div className={`bg-stone-50 border border-stone-200 p-10 md:p-12 text-center rounded-sm transition-all duration-700 delay-200 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-primary font-bold block mb-4">Our Vision</span>
-              <h3 className="font-serif text-2xl md:text-3xl text-stone-900 mb-6">A Brand Valued by People</h3>
-              <p className="text-stone-500 leading-relaxed font-light text-sm md:text-base">
+            <div className={`shrink-0 snap-center w-[85%] md:w-auto bg-stone-50 border border-stone-200 p-8 md:p-12 text-center rounded-sm transition-all duration-700 delay-200 ${missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-primary font-bold block mb-4">Our Vision</span>
+              <h3 className="font-serif text-xl md:text-3xl text-stone-900 mb-4 md:mb-6">A Brand Valued by People</h3>
+              <p className="text-stone-500 leading-relaxed font-light text-xs md:text-base">
                 To be the most valued brand among people & creating an opportunity to grow together — fostering partnerships, inspiring interiors, and enriching lives through design.
               </p>
             </div>
@@ -171,34 +171,34 @@ const AboutPage = () => {
       </section>
 
       {/* ── Our Values ─────────────────────────────────────────── */}
-      <section ref={valuesRef} className="bg-white border-b border-stone-200 py-20 md:py-28">
+      <section ref={valuesRef} className="bg-white border-b border-stone-200 py-12 md:py-28">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8 md:mb-14">
             <div className="inline-flex items-center justify-center gap-3 mb-3">
               <span className="h-px w-6 bg-primary" />
               <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500">What We Stand For</span>
               <span className="h-px w-6 bg-primary" />
             </div>
-            <h2 className={`font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] transition-all duration-700 ${valuesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <h2 className={`font-serif text-2xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] transition-all duration-700 ${valuesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Our Values
             </h2>
-            <p className="mt-4 text-stone-500 text-sm font-light max-w-md mx-auto leading-relaxed">
+            <p className="mt-4 text-stone-500 text-xs md:text-sm font-light max-w-md mx-auto leading-relaxed">
               The principles that guide every thread we weave and every relationship we build.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex overflow-x-auto snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pb-6 -mx-6 px-6 md:mx-auto md:px-0 [&::-webkit-scrollbar]:hidden">
             {values.map((value, index) => (
               <div
                 key={index}
-                className={`group bg-stone-50 border border-stone-200 p-8 rounded-sm hover:bg-stone-900 hover:border-stone-900 transition-all duration-500 relative overflow-hidden ${valuesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+                className={`shrink-0 snap-center w-[80%] sm:w-[60%] md:w-auto group bg-stone-50 border border-stone-200 p-6 md:p-8 rounded-sm hover:bg-stone-900 hover:border-stone-900 transition-all duration-500 relative overflow-hidden ${valuesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
                 style={{ transitionDelay: valuesVisible ? `${index * 80}ms` : '0ms' }}
               >
                 <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                <div className="text-2xl mb-4">{value.icon}</div>
-                <h3 className="font-serif text-lg text-stone-900 group-hover:text-white mb-3 transition-colors duration-300">{value.title}</h3>
-                <div className="w-8 h-px bg-primary mb-4" />
-                <p className="text-stone-500 group-hover:text-stone-400 leading-relaxed text-sm font-light transition-colors duration-300">
+                <div className="text-xl md:text-2xl mb-3 md:mb-4">{value.icon}</div>
+                <h3 className="font-serif text-base md:text-lg text-stone-900 group-hover:text-white mb-2 md:mb-3 transition-colors duration-300">{value.title}</h3>
+                <div className="w-6 md:w-8 h-px bg-primary mb-3 md:mb-4" />
+                <p className="text-stone-500 group-hover:text-stone-400 leading-relaxed text-xs md:text-sm font-light transition-colors duration-300">
                   {value.description}
                 </p>
               </div>

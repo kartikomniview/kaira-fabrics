@@ -892,23 +892,23 @@ const CollectionsPage = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowQuoteModal(true)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-white border border-primary text-stone-900 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-stone-50 transition-all rounded-sm shadow-md"
+                className="flex items-center gap-2 px-3 sm:px-6 py-2.5 bg-white border border-primary text-stone-900 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-stone-50 transition-all rounded-sm shadow-md"
               >
                 <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Get a Quote
+                <span className="hidden sm:inline">Get a Quote</span>
               </button>
               <a
                 href="https://wa.me/917593840075"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-6 py-2.5 bg-[#25D366] text-white text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-[#1ebe5d] transition-all rounded-sm shadow-md"
+                className="flex items-center gap-2 px-3 sm:px-6 py-2.5 bg-[#25D366] text-white text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-[#1ebe5d] transition-all rounded-sm shadow-md"
               >
                 <svg className="w-4.5 h-4.5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
-                WhatsApp
+                <span className="hidden sm:inline">WhatsApp</span>
               </a>
             </div>
           </div>
@@ -924,7 +924,7 @@ const CollectionsPage = () => {
           {/* Filter bar */}
           <div className="mb-8">
             {/* Row: chips left, search right */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
               {/* Left: type chips — horizontally scrollable */}
               <div className="flex-1 min-w-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <div className="flex gap-2 pb-0.5">
@@ -954,7 +954,7 @@ const CollectionsPage = () => {
               </div>
 
               {/* Right: search input — pinned, bigger */}
-              <div className="shrink-0 flex items-center gap-2 border border-stone-200 rounded-sm bg-white px-3 py-2.5 focus-within:border-stone-500 focus-within:shadow-sm transition-all shadow-sm">
+              <div className="shrink-0 flex items-center gap-2 border border-stone-200 rounded-sm bg-white px-3 py-2.5 focus-within:border-stone-500 focus-within:shadow-sm transition-all shadow-sm w-full lg:w-auto">
                 <svg className="w-4 h-4 text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -963,7 +963,7 @@ const CollectionsPage = () => {
                   value={collectionSearch}
                   onChange={(e) => setCollectionSearch(e.target.value)}
                   placeholder="Search collections…"
-                  className="bg-transparent text-sm text-stone-700 placeholder-stone-400 focus:outline-none w-52"
+                  className="bg-transparent text-sm text-stone-700 placeholder-stone-400 focus:outline-none flex-1 lg:w-52"
                 />
                 {collectionSearch && (
                   <button onClick={() => setCollectionSearch('')} className="text-stone-400 hover:text-stone-600 transition-colors">
