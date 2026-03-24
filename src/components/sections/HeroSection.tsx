@@ -44,7 +44,7 @@ const HeroSection = () => {
           }`}
         >
           <span className="w-6 sm:w-8 h-px bg-amber-400/60" />
-          <span className="font-sans text-[10px] sm:text-xs uppercase tracking-[0.35em] text-amber-300/90 font-semibold"
+          <span className="font-sans text-[13px] sm:text-lg uppercase tracking-[0.35em] text-amber-300/90 font-semibold"
             style={{ textShadow: '0 1px 8px rgba(0,0,0,0.8)' }}>
             Kaira Fabrics
           </span>

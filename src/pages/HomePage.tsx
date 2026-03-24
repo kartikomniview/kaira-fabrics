@@ -131,7 +131,7 @@ const HomePage = () => {
               <span className="text-[10px] sm:text-[10px] uppercase tracking-[0.2em] text-stone-300 font-bold">Cutting-Edge Tech</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-3xl md:text-4xl text-white mb-4 sm:mb-4 leading-tight">
-              Experience Fabrics in <span className="text-primary italic">Real-Time</span>
+              Experience our Fabrics in <span className="text-primary italic">Real-Time</span>
             </h2>
             <p className="text-stone-400 text-sm sm:text-sm md:text-base max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed px-2 lg:px-0">
               Visualize our premium collection in your space using AI or explore every thread in 3D.
