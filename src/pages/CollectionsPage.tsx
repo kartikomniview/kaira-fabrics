@@ -464,7 +464,7 @@ function CollectionModal({
                 m.color_group?.toLowerCase().includes(materialSearch.toLowerCase())
               ).map((m, idx) => (
                 <div
-                  key={m.id}
+                  key={idx}
                   className="group flex flex-col cursor-pointer"
                   onClick={() => setZoomedIndex(materials.indexOf(m))}
                 >
