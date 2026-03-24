@@ -47,11 +47,11 @@ const Header = () => {
   return (
     <>
       {/* Brand accent stripe */}
-      <div className="absolute lg:fixed top-0 left-0 right-0 z-[51] h-[2px] bg-primary" />
+      <div className="fixed top-0 left-0 right-0 z-[51] h-[2px] bg-primary" />
 
       <div className="flex justify-center w-full">
         <header
-          className={`absolute lg:fixed z-50 transition-all duration-300 ease-in-out ${
+          className={`fixed z-50 transition-all duration-300 ease-in-out ${
             isHeroPage && isScrolled
               ? 'top-0 lg:top-5 w-full lg:w-[calc(100%-2rem)] max-w-[1400px] lg:rounded-full bg-white/95 backdrop-blur-md border-b lg:border border-stone-200 shadow-[0_4px_20px_rgb(0,0,0,0.05)] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)]'
               : `top-[2px] w-full ${
