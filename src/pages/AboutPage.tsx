@@ -93,20 +93,6 @@ const AboutPage = () => {
         </div>
       </div>
 
-      {/* ── Stats Strip ────────────────────────────────────────── */}
-      <div className="hidden md:block bg-stone-900 border-t border-stone-800 border-b border-stone-800">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-stone-800">
-            {stats.map((s) => (
-              <div key={s.label} className="py-6 px-6 text-center">
-                <p className="font-serif text-2xl md:text-3xl text-white">{s.value}</p>
-                <p className="text-[9px] uppercase tracking-[0.2em] text-stone-500 font-bold mt-1">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* ── Who We Are ─────────────────────────────────────────── */}
       <section ref={whoRef} className="bg-white border-b border-stone-200 py-12 md:py-28 relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-6 lg:px-10 text-center">
