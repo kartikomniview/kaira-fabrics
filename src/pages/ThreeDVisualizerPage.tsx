@@ -67,7 +67,8 @@ function getUvValue(collectionName: string): number {
   return 16
 }
 
-function getRoughnessValue(collectionName: string, baseRoughness: number): number {
+function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
+  if (materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8 // Velvets and Fabrics are generally very rough
   if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
   return baseRoughness
 }
@@ -116,8 +117,8 @@ const ThreeDVisualizerDesktop = () => {
 
   // Toggle flags for material maps
   const [applyRoughnessMap] = useState(true)
-  const [applyNormalMap] = useState(false)
-  const [applySheenMap] = useState(false)
+  const [applyNormalMap] = useState(true)
+  const [applySheenMap] = useState(true)
 
   const modelUrl = getProductGlbUrl(currentProduct)
 
@@ -203,7 +204,7 @@ const ThreeDVisualizerDesktop = () => {
       applySheenMap ? (() => { const u = getSheenMapUrl(mat.materialType); return u ? fetchBlobUrl(u) : Promise.resolve(null) })() : Promise.resolve(null),
     ])
     const uvScale = getUvValue(mat.collectionName)
-    const roughness = getRoughnessValue(mat.collectionName, mat.roughness)
+    const roughness = getRoughnessValue(mat.materialType, mat.collectionName, mat.roughness)
     await applyTextureToModel(mv, {
       baseBlobUrl,
       roughness,
