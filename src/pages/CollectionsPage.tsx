@@ -39,30 +39,30 @@ function CatalogPreviewModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-stone-900 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <svg className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-stone-900 flex-shrink-0 border-b border-white/5">
+          <div className="flex items-center gap-2.5 md:gap-3.5">
+            <svg className="w-4 h-4 md:w-5 md:h-5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
-            <span className="text-[9px] md:text-[10px] uppercase tracking-widest text-stone-400 truncate max-w-[120px] md:max-w-none">
+            <span className="text-[10px] md:text-[13px] uppercase tracking-[0.2em] font-bold text-white/90 truncate max-w-[120px] md:max-w-none">
               {collection.name} &mdash; Catalog Preview
             </span>
           </div>
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-3 md:gap-5">
             <button
               onClick={() => setShowContactForm(true)}
-              className="flex items-center gap-1.5 px-2 md:px-3 py-1 md:py-1.5 text-[9px] md:text-[10px] uppercase tracking-widest bg-primary text-stone-900 hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[10px] md:text-xs uppercase font-bold tracking-[0.2em] bg-primary text-stone-900 hover:bg-white transition-all shadow-lg hover:scale-[1.02] active:scale-95"
             >
-              <svg className="w-2.5 h-2.5 md:w-3 md:h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              Get Catalog
+              Get Full Catalog
             </button>
             <button
               onClick={onClose}
-              className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center text-stone-500 hover:text-white transition-colors"
+              className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-stone-500 hover:text-white hover:bg-white/10 rounded-full transition-all"
             >
-              <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -100,40 +100,40 @@ function CatalogPreviewModal({
             </div>
 
             {/* ── Collection Info ──────────────────────── */}
-            <div className="px-4 md:px-8 py-3 md:py-5 border-b border-stone-100 flex items-start gap-4 md:gap-8">
+            <div className="px-4 md:px-8 py-5 md:py-8 border-b border-stone-100 flex items-start gap-4 md:gap-12">
               <div className="flex-1 min-w-0">
-                <p className="text-[9px] md:text-[8px] tracking-[0.3em] uppercase text-stone-400 mb-1 md:mb-2">About this Collection</p>
-                <p className="text-[11px] md:text-[11px] text-stone-600 leading-relaxed">{collection.description}</p>
+                <p className="text-[10px] md:text-[11px] tracking-[0.3em] uppercase font-bold text-primary mb-2 md:mb-3">About this Collection</p>
+                <p className="text-[13px] md:text-[15px] text-stone-600 leading-relaxed font-medium">{collection.description}</p>
                 {collection.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2 md:mt-3">
+                  <div className="flex flex-wrap gap-1.5 mt-3 md:mt-5">
                     {collection.tags.map((tag) => (
-                      <span key={tag} className="text-[8px] md:text-[8px] px-1.5 md:px-2 py-0.5 border border-stone-200 text-stone-400 tracking-wide uppercase">
+                      <span key={tag} className="text-[9px] md:text-[10px] px-2.5 md:px-3 py-1 border border-stone-200 text-stone-500 tracking-wider uppercase font-bold">
                         {tag}
                       </span>
                     ))}
                   </div>
                 )}
               </div>
-              <div className="flex-shrink-0 text-right border-l border-stone-100 pl-3 md:pl-6">
-                <p className="text-[9px] md:text-[8px] tracking-[0.2em] uppercase text-stone-400 mb-0.5 md:mb-1">Variants</p>
-                <p className="font-serif text-3xl md:text-4xl text-gold leading-none">{collection.itemCount}</p>
-                <p className="text-[9px] md:text-[8px] text-stone-400 mt-0.5 md:mt-1 tracking-wide">SKUs</p>
+              <div className="flex-shrink-0 text-right border-l border-stone-100 pl-4 md:pl-8">
+                <p className="text-[10px] md:text-[11px] tracking-[0.2em] uppercase font-bold text-stone-400 mb-1 md:mb-2 text-right">Variants</p>
+                <p className="font-serif text-4xl md:text-5xl text-gold leading-none">{collection.itemCount}</p>
+                <p className="text-[10px] md:text-[11px] text-stone-400 mt-1 md:mt-2 tracking-widest font-bold text-right">SKUs</p>
               </div>
             </div>
 
             {/* ── Materials Grid ───────────────────────── */}
-            <div className="px-4 md:px-8 py-4 md:py-6">
-              <div className="flex items-center justify-between mb-3 md:mb-4">
-                <p className="text-[7px] md:text-[8px] tracking-[0.3em] uppercase text-stone-400">Materials &amp; Swatches</p>
-                <span className="text-[7px] md:text-[8px] text-stone-400">{materials.length} items</span>
+            <div className="px-4 md:px-8 py-6 md:py-10">
+              <div className="flex items-center justify-between mb-5 md:mb-8 border-b border-stone-50 pb-3">
+                <p className="text-[10px] md:text-[12px] tracking-[0.3em] uppercase font-bold text-stone-900/40">Materials &amp; Swatches</p>
+                <span className="text-[10px] md:text-[12px] text-stone-400 font-bold tracking-widest">{materials.length} items</span>
               </div>
               {materials.length === 0 ? (
-                <p className="text-[9px] md:text-[11px] text-stone-400 text-center py-8 md:py-10">No materials listed for this collection.</p>
+                <p className="text-xs md:text-sm text-stone-400 text-center py-12 md:py-16">No materials listed for this collection.</p>
               ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 md:gap-2.5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
                   {materials.map((m) => (
-                    <div key={m.id} className="border border-stone-200 overflow-hidden">
-                      <div className="aspect-square overflow-hidden bg-stone-100">
+                    <div key={m.id} className="border border-stone-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                      <div className="aspect-square overflow-hidden bg-stone-50">
                         <img
                           src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
                           alt={m.material_name}
@@ -141,9 +141,9 @@ function CatalogPreviewModal({
                           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
                         />
                       </div>
-                      <div className="px-1 py-1 md:px-1.5 md:py-1.5 bg-stone-50 border-t border-stone-100">
-                        <p className="text-[7px] md:text-[8px] font-bold text-charcoal uppercase truncate leading-tight tracking-tight">{m.material_name}</p>
-                        <p className="text-[6px] md:text-[7px] text-gold truncate mt-0.5 tracking-wide">{m.material_code}</p>
+                      <div className="px-2 py-2 md:px-3 md:py-2.5 bg-white border-t border-stone-50">
+                        <p className="text-[9px] md:text-[11px] font-bold text-charcoal uppercase truncate leading-tight tracking-wide">{m.material_name}</p>
+                        <p className="text-[8px] md:text-[9px] text-gold font-bold truncate mt-1 tracking-widest">{m.material_code}</p>
                       </div>
                     </div>
                   ))}
@@ -414,7 +414,7 @@ function CollectionModal({
             </div>
             <button
               onClick={() => setShowCatalog(true)}
-              className="mt-3 w-full py-2.5 bg-primary text-stone-900 text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-white hover:text-stone-900 transition-all flex items-center justify-center gap-2 rounded-sm shadow-sm"
+              className="mt-4 w-full py-3.5 bg-primary text-stone-900 text-xs uppercase font-bold tracking-[0.2em] hover:bg-white hover:text-stone-900 transition-all flex items-center justify-center gap-2.5 rounded-sm shadow-md"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -1004,7 +1004,7 @@ const CollectionsPage = () => {
 
           {/* Grid */}
           {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-5">
               {Array.from({ length: 12 }, (_, i) => (
                 <div key={i} className="bg-white border border-stone-200 overflow-hidden shadow-sm rounded-sm" aria-hidden="true">
                   <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
@@ -1016,7 +1016,7 @@ const CollectionsPage = () => {
                       }}
                     />
                   </div>
-                  <div className="p-3 md:p-4 border-t border-stone-100 space-y-2">
+                  <div className="p-2 md:p-4 border-t border-stone-100 space-y-2">
                     <div className="relative h-2.5 w-3/4 rounded-sm bg-stone-200 overflow-hidden">
                       <div className="absolute inset-0 -translate-x-full" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%)', animation: `kaira-shimmer 1.6s ease-in-out ${i * 0.06}s infinite` }} />
                     </div>
@@ -1028,7 +1028,7 @@ const CollectionsPage = () => {
               ))}
             </div>
           ) : filtered.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-5">
               {filtered.map((col) => (
                 <div
                   key={col.name}
@@ -1060,11 +1060,11 @@ const CollectionsPage = () => {
                   </div>
 
                   {/* Info */}
-                  <div className="p-2.5 md:p-3 border-t border-stone-200 bg-white">
-                    <p className="text-[13px] md:text-[11px] font-bold text-stone-900 group-hover:text-secondary transition-colors uppercase tracking-tight leading-tight truncate">{col.name}</p>
+                  <div className="p-2 md:p-3 border-t border-stone-200 bg-white flex-1 flex flex-col justify-center">
+                    <p className="text-[12px] md:text-[11px] font-bold text-stone-900 group-hover:text-secondary transition-colors uppercase tracking-tight leading-tight truncate">{col.name}</p>
                     <div className="flex items-center justify-between mt-1 md:mt-1.5">
-                      <span className="text-[11px] md:text-[10px] text-stone-500 truncate max-w-[60%] font-semibold tracking-wider uppercase">{col.category}</span>
-                      <span className="text-[11px] md:text-[10px] text-secondary font-bold tracking-widest">{col.itemCount} var.</span>
+                      <span className="text-[10px] md:text-[10px] text-stone-500 truncate max-w-[60%] font-semibold tracking-wider uppercase">{col.category}</span>
+                      <span className="text-[10px] md:text-[10px] text-secondary font-bold tracking-widest">{col.itemCount} var.</span>
                     </div>
                   </div>
                 </div>

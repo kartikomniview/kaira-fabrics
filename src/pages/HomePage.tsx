@@ -21,16 +21,24 @@ const galleryImages = [
 
 const HomePage = () => {
   const [isAboutVisible, setIsAboutVisible] = useState(false)
+  const [isAIBannerVisible, setIsAIBannerVisible] = useState(false)
   const aboutRef = useRef<HTMLDivElement>(null)
+  const aiBannerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setIsAboutVisible(true)
-      }
+      entries.forEach(entry => {
+        if (entry.target === aboutRef.current && entry.isIntersecting) {
+          setIsAboutVisible(true)
+        }
+        if (entry.target === aiBannerRef.current && entry.isIntersecting) {
+          setIsAIBannerVisible(true)
+        }
+      })
     }, { threshold: 0.2 })
 
     if (aboutRef.current) observer.observe(aboutRef.current)
+    if (aiBannerRef.current) observer.observe(aiBannerRef.current)
     return () => observer.disconnect()
   }, [])
 
@@ -117,13 +125,16 @@ const HomePage = () => {
       <AboutSection isAboutVisible={isAboutVisible} aboutRef={aboutRef} />
 
       {/* AI & 3D Visualizer Banner Strip */}
-      <section className="bg-stone-900 py-20 md:py-16 border-y border-stone-800 relative overflow-hidden">
+      <section 
+        ref={aiBannerRef}
+        className="bg-stone-900 py-20 md:py-16 border-y border-stone-800 relative overflow-hidden"
+      >
         {/* Subtle motion background */}
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-10">
+        <div className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-10 transition-all duration-1000 transform ${isAIBannerVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
           <div className="flex-1 text-center lg:text-left w-full">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-stone-800 border border-stone-700 mb-4 sm:mb-4">
+            <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-stone-800 border border-stone-700 mb-4 sm:mb-4 transition-all duration-700 delay-300 ${isAIBannerVisible ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
               <span className="relative flex h-1.5 w-1.5 md:h-2 md:w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 md:h-2 md:w-2 bg-primary"></span>
@@ -141,19 +152,19 @@ const HomePage = () => {
           <div className="flex flex-row gap-3 sm:gap-4 w-full lg:w-auto shrink-0 mt-2 sm:mt-0">
             <Link 
               to="/ai-visualizer" 
-              className="flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-primary hover:bg-white transition-all duration-500 rounded-sm text-center"
+              className={`flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-primary hover:bg-white transition-all duration-500 rounded-sm text-center shadow-lg ${isAIBannerVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} delay-500`}
             >
               <span className="text-stone-900 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1">Room View</span>
-              <span className="text-stone-900 text-[15px] sm:text-lg font-serif leading-tight whitespace-nowrap">Try AI Visualizer</span>
+              <span className="text-stone-900 text-[15px] sm:text-lg font-serif leading-tight whitespace-nowrap text-nowrap">Try AI Visualizer</span>
               <div className="absolute bottom-0 left-0 h-1 w-0 bg-stone-900 transition-all duration-500 group-hover:w-full" />
             </Link>
 
             <Link 
               to="/3d-visualizer" 
-              className="flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-transparent border border-stone-700 hover:border-primary transition-all duration-500 rounded-sm text-center"
+              className={`flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-transparent border border-stone-700 hover:border-primary transition-all duration-500 rounded-sm text-center ${isAIBannerVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} delay-700`}
             >
               <span className="text-stone-500 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1 group-hover:text-primary">Macro View</span>
-              <span className="text-white text-[15px] sm:text-lg font-serif leading-tight whitespace-nowrap group-hover:text-primary">Explore in 3D</span>
+              <span className="text-white text-[15px] sm:text-lg font-serif leading-tight whitespace-nowrap group-hover:text-primary text-nowrap">Explore in 3D</span>
               <div className="absolute bottom-0 left-0 h-1 w-0 bg-primary transition-all duration-500 group-hover:w-full" />
             </Link>
           </div>
