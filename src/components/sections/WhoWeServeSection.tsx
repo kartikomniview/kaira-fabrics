@@ -101,7 +101,7 @@ export default function WhoWeServeSection() {
         <TiltCard className="col-span-2 md:col-span-1 md:row-span-2 bg-stone-900 rounded-2xl p-6 md:p-7 flex flex-col justify-between border border-stone-800 min-h-[280px]">
           <div>
             <div className="flex items-start justify-between mb-4">
-              <h3 className="font-serif text-xl md:text-2xl text-white italic leading-tight min-w-0 break-words">Manufacturers</h3>
+              <h3 className="font-serif text-xl md:text-2xl text-white italic leading-tight min-w-0 break-words">Dealers &amp; Manufacturers</h3>
               <div className="w-9 h-9 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0 ml-2">
                 <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />

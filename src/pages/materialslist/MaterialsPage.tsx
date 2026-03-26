@@ -325,7 +325,7 @@ const MaterialsPage = () => {
         </div>
       </div>
 
-      {/* ── 3D Visualizer Promo Strip ───────────────────────── */}
+      {/* ── Smart Catalog Promo Strip ─────────────────────────────── */}
       <div className="bg-stone-900 border-t border-stone-800 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -334,29 +334,29 @@ const MaterialsPage = () => {
           <div className="flex items-center gap-5">
             <div className="w-14 h-14 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
               <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
               </svg>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">3D Powered</span>
+                <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">Smart Discovery</span>
               </div>
-              <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-white leading-tight">
-                Drape any fabric on a 3D model — <span className="text-primary">in real time</span>
+              <p className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
+                Browse <span className="text-primary">500+ premium fabrics</span> across 100+ collections
               </p>
             </div>
           </div>
 
           {/* Right */}
           <Link
-            to="/3d-visualizer"
+            to="/materials"
             className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-stone-900 text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            Try 3D Fabric Studio
+            Open Smart Catalog
           </Link>
 
         </div>

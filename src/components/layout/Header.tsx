@@ -6,6 +6,7 @@ const navLinks = [
   { to: '/#collections', label: 'Collections & Fabrics' },
   { to: '/#why-kaira', label: 'Why Kaira' },
   { to: '/#portfolio', label: 'Our Portfolio' },
+  { to: '/ai-visualizer', label: 'Visualizer' },
 ]
 
 const Header = () => {

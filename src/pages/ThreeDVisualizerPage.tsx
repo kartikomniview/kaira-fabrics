@@ -93,6 +93,7 @@ const ThreeDVisualizerDesktop = () => {
   const mvRef = useRef<HTMLElement>(null)
   const colorScrollRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const fabricMeshesRef = useRef<any[]>([])
   const [selected, setSelected] = useState<SelectedMaterial | null>(null)
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
@@ -215,8 +216,7 @@ const ThreeDVisualizerDesktop = () => {
       skipParts: NO_FABRIC_PARTS,
       roughnessBlobUrl,
       normalBlobUrl,
-      sheenBlobUrl,
-    })
+      sheenBlobUrl,      meshes: fabricMeshesRef.current,    })
     // Revoke blob URLs now that all texture objects have been created
     if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
     if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
@@ -246,44 +246,38 @@ const ThreeDVisualizerDesktop = () => {
     const mv = mvRef.current as any
     if (!mv) return
     const onLoad = () => {
-      setModelLoaded(true)
+      fabricMeshesRef.current = []
 
       const sceneSymbol:any = Object.getOwnPropertySymbols(mv).find(s => s.description === 'scene');
       const scene = mv[sceneSymbol];
 
       scene.traverse((child:any) => {
-      if (child.isMesh && child.material) {
-        const oldMaterial = child.material;
-        // const newMaterial = new THREE.MeshPhysicalMaterial();
+        if (child.isMesh && child.material) {
+          const oldMaterial = child.material;
 
-        return
+          const newMaterial = new THREE.MeshPhysicalMaterial({
+            map: oldMaterial.map,
+            color: oldMaterial.color,
+            normalMap: oldMaterial.normalMap,
+            roughnessMap: oldMaterial.roughnessMap,
+            metalnessMap: oldMaterial.metalnessMap,
+            aoMap: oldMaterial.aoMap,
+            aoMapIntensity: oldMaterial.aoMapIntensity ?? 1,
+            roughness: oldMaterial.roughness ?? 0.5,
+            metalness: oldMaterial.metalness ?? 0.5,
+            transparent: oldMaterial.transparent,
+            opacity: oldMaterial.opacity,
+            side: oldMaterial.side
+          });
 
-        const newMaterial = new THREE.MeshPhysicalMaterial({
-          map: oldMaterial.map,
-          color: oldMaterial.color,
-          normalMap: oldMaterial.normalMap,
-          roughnessMap: oldMaterial.roughnessMap,
-          metalnessMap: oldMaterial.metalnessMap,
-          roughness: oldMaterial.roughness ?? 0.5,
-          metalness: oldMaterial.metalness ?? 0.5,
-          transparent: oldMaterial.transparent,
-          opacity: oldMaterial.opacity,
-          side: oldMaterial.side
-        });
+          child.material = newMaterial;
+          // Do NOT dispose oldMaterial — model-viewer manages its lifecycle;
+          // disposing it here also destroys shared textures that newMaterial.map still references.
+          fabricMeshesRef.current.push(child)
+        }
+      });
 
-        // newMaterial.copy(oldMaterial);
-
-        newMaterial.clearcoat = 1.0;
-        newMaterial.clearcoatRoughness = 0.1;
-        newMaterial.transmission = 0.8;
-        newMaterial.ior = 1.5;
-        newMaterial.thickness = 0.5;
-
-        child.material = newMaterial;
-        oldMaterial.dispose();
-      }
-    });
-
+      setModelLoaded(true)
     }
     mv.addEventListener('load', onLoad)
     return () => mv.removeEventListener('load', onLoad)
@@ -298,6 +292,7 @@ const ThreeDVisualizerDesktop = () => {
   // Reset model loaded state when product changes so loading overlay re-shows
   useEffect(() => {
     setModelLoaded(false)
+    fabricMeshesRef.current = []
   }, [currentProduct])
 
   return (
