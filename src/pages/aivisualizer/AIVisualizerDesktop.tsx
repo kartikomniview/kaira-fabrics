@@ -4,22 +4,12 @@ import { newMaterials } from '../../data/newmaterials'
 import { dummyProducts, getProductImageUrl } from '../../data/products'
 import type { Product } from '../../data/products'
 import { MaterialsInventory, S3_THUMB } from './MaterialsInventory'
-
-// -- Types ---------------------------------------------------------------------
-interface SelectedMaterial {
-  id: string | number
-  fabricName: string
-  textureUrl: string
-  collectionName: string
-  isCustom?: boolean
-}
-
-interface SelectedProduct {
-  id: string | number
-  productName: string
-  imageUrl: string
-  isCustom?: boolean
-}
+import OTPVerification from './OTPVerification'
+import {
+  BYPASS_OTP,
+  generateRender,
+} from './generateRender'
+import type { SelectedMaterial, SelectedProduct } from './generateRender'
 
 // -- Component -----------------------------------------------------------------
 const AIVisualizerDesktop = () => {
@@ -42,6 +32,9 @@ const AIVisualizerDesktop = () => {
   const [otpStep, setOtpStep] = useState(1) // 1 = Mobile, 2 = Verify
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
+  const [generateError, setGenerateError] = useState<string | null>(null)
+  const [showImageModal, setShowImageModal] = useState(false)
+  const [imgZoom, setImgZoom] = useState(1)
 
   // -- Handlers ---------------------------------------------------------------
   const handleFabricUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,8 +91,30 @@ const AIVisualizerDesktop = () => {
     })
   }
 
+  // -- Core generation --------------------------------------------------------
+  const handleGenerate = () => {
+    if (!selectedMaterial || !selectedProduct) return
+    setGenerateError(null)
+    generateRender({
+      selectedMaterial,
+      selectedProduct,
+      onGeneratingChange: setIsGenerating,
+      onShowOTPChange: setShowOTP,
+      onResult: (imageUrl) => {
+        setGeneratedImage(imageUrl)
+        setCurrentStep(3)
+        setShowImageModal(true)
+      },
+      onError: setGenerateError,
+    })
+  }
+
   const handleGenerateClick = () => {
     if (!selectedProduct) return
+    if (BYPASS_OTP) {
+      handleGenerate()
+      return
+    }
     setOtpStep(1)
     setMobileNumber('')
     setOtpCode('')
@@ -113,18 +128,28 @@ const AIVisualizerDesktop = () => {
   }
 
   const handleVerifyAndGenerate = () => {
-    setShowOTP(false)
-    setIsGenerating(true)
-    setTimeout(() => {
-      setGeneratedImage(
-        `https://placehold.co/1200x800/F5F0E8/C5A552?text=AI+Preview+•+${encodeURIComponent(selectedProduct?.productName || 'Custom')}`
-      )
-      setIsGenerating(false)
-      setCurrentStep(3) // 3 represents the "Result" step visually
-    }, 2500)
+    handleGenerate()
   }
 
   // -- Render Helpers ----------------------------------------------------------
+
+  const handleDownload = async () => {
+    if (!generatedImage) return
+    try {
+      const res = await fetch(generatedImage)
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'kaira-render.jpg'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      window.open(generatedImage, '_blank')
+    }
+  }
 
   const startOver = () => {
     setCurrentStep(1)
@@ -132,10 +157,12 @@ const AIVisualizerDesktop = () => {
     setSelectedProduct(null)
     setGeneratedImage(null)
     setShowOTP(false)
+    setShowImageModal(false)
   }
 
   return (
-    <div className="relative flex flex-col w-full min-h-screen bg-white">
+    <div className="relative flex flex-col w-full min-h-screen" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
+      <div className="absolute inset-0 pointer-events-none opacity-[0.18]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
       {/* ── Minimal Page Header ──────────────────────────────────── */}
       <div className="bg-stone-900 pt-24 pb-6">
@@ -244,38 +271,38 @@ const AIVisualizerDesktop = () => {
           {/* Step 1: Material Selection */}
           {currentStep === 1 && (
             <div className="flex flex-col h-full items-center justify-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4">
-              <h2 className="text-[13px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest mb-1 sm:mb-2">Step 1: Choose Fabric</h2>
+              <h2 className="text-sm sm:text-base font-semibold text-stone-700 uppercase tracking-widest mb-1 sm:mb-2 text-center">Step 1: Choose Fabric</h2>
               
               <button
                 onClick={() => fabricUploadRef.current?.click()}
-                className="w-full h-24 sm:h-32 flex flex-col items-center justify-center gap-2 sm:gap-3 border-2 border-dashed border-stone-300 rounded-xl hover:border-primary hover:bg-primary/5 transition-all group"
+                className="w-full h-28 sm:h-36 flex flex-col items-center justify-center gap-3 sm:gap-4 border-2 border-dashed border-stone-300 rounded-xl hover:border-primary hover:bg-primary/5 transition-all group"
               >
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-stone-100 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-stone-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-stone-100 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-stone-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
-                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-stone-600 group-hover:text-primary transition-colors">Upload Your Fabric</span>
+                <span className="text-[12px] sm:text-sm font-bold uppercase tracking-widest text-stone-600 group-hover:text-primary transition-colors">Upload Your Fabric</span>
               </button>
               <input ref={fabricUploadRef} type="file" accept="image/*" onChange={handleFabricUpload} className="sr-only" />
 
               <div className="flex items-center gap-4 w-full">
                 <div className="flex-1 h-px bg-stone-200"></div>
-                <span className="text-[11px] text-stone-400 font-medium uppercase tracking-widest">OR</span>
+                <span className="text-xs text-stone-400 font-bold uppercase tracking-widest">OR</span>
                 <div className="flex-1 h-px bg-stone-200"></div>
               </div>
 
               <button
                 onClick={() => setIsInventoryModalOpen(true)}
-                className="w-full h-24 sm:h-32 flex flex-col items-center justify-center gap-2 sm:gap-3 border border-stone-200 rounded-xl shadow-sm hover:border-stone-400 hover:shadow-md transition-all group overflow-hidden relative"
+                className="w-full h-28 sm:h-36 flex flex-col items-center justify-center gap-3 sm:gap-4 border border-stone-200 rounded-xl shadow-sm hover:border-stone-400 hover:shadow-md transition-all group overflow-hidden relative"
               >
                 <div className="absolute inset-0 bg-stone-800/5 group-hover:bg-stone-800/10 transition-colors" />
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-stone-200 flex items-center justify-center group-hover:bg-stone-300 transition-colors relative z-10">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-stone-200 flex items-center justify-center group-hover:bg-stone-300 transition-colors relative z-10">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>
-                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-stone-700 relative z-10">Select from Kaira Inventory</span>
+                <span className="text-[12px] sm:text-sm font-bold uppercase tracking-widest text-stone-700 relative z-10">Select from Kaira Inventory</span>
               </button>
             </div>
           )}
@@ -332,10 +359,17 @@ const AIVisualizerDesktop = () => {
                  <h2 className="text-[13px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest flex-1">Step 2: Choose Product</h2>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6 overflow-y-auto max-h-[340px] sm:max-h-[400px] p-0.5 sm:p-1">
-                <button onClick={() => productUploadRef.current?.click()} className="aspect-square border-2 border-dashed border-stone-300 rounded-xl flex items-center justify-center flex-col gap-1.5 sm:gap-2 hover:border-primary hover:bg-primary/5 transition-all text-stone-500">
-                   <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-                   <span className="text-[10px] sm:text-[10px] uppercase font-bold tracking-widest">Upload Own</span>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6 overflow-y-auto max-h-[400px] sm:max-h-[480px] p-0.5 sm:p-1">
+                <button
+                  onClick={() => productUploadRef.current?.click()}
+                  className="aspect-[4/5] border-2 border-dashed border-stone-300 rounded-xl flex items-center justify-center flex-col gap-2 sm:gap-3 hover:border-primary hover:bg-primary/5 transition-all text-stone-500 group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  <span className="text-[11px] sm:text-xs uppercase font-bold tracking-widest text-center px-2">Upload Own Product</span>
                 </button>
                 <input ref={productUploadRef} type="file" accept="image/*" onChange={(e) => { handleProductUpload(e); setCurrentStep(2.5); }} className="sr-only" />
                 
@@ -345,10 +379,12 @@ const AIVisualizerDesktop = () => {
                        <button
                          key={p.product_id}
                          onClick={() => { handleSelectProduct(p); setCurrentStep(2.5); }}
-                         className={`aspect-square border-2 rounded-xl flex flex-col items-center justify-center p-2 sm:p-4 gap-1.5 sm:gap-2 transition-all ${isActive ? 'border-primary bg-primary/5' : 'border-stone-200 bg-white hover:border-stone-400'}`}
+                         className={`aspect-[4/5] border-2 rounded-xl flex flex-col items-center justify-center p-3 sm:p-5 gap-2 sm:gap-3 transition-all ${isActive ? 'border-primary bg-primary/5' : 'border-stone-200 bg-white hover:border-stone-400'}`}
                        >
-                         <img src={getProductImageUrl(p)} alt="" className="h-20 sm:h-28 object-contain" />
-                         <span className="text-[10px] sm:text-[10px] font-bold uppercase text-stone-700 text-center leading-tight">{p.product_name}</span>
+                         <div className="flex-1 w-full flex items-center justify-center overflow-hidden">
+                           <img src={getProductImageUrl(p)} alt="" className="max-h-full max-w-full object-contain transform group-hover:scale-105 transition-transform duration-500" />
+                         </div>
+                         <span className="text-[11px] sm:text-xs font-bold uppercase text-stone-700 text-center leading-tight tracking-wider">{p.product_name}</span>
                        </button>
                     )
                 })}
@@ -395,19 +431,28 @@ const AIVisualizerDesktop = () => {
           {currentStep === 3 && (
             <div className="flex flex-col h-full items-center justify-center gap-4 sm:gap-6 animate-in fade-in">
                <h2 className="text-[11px] sm:text-sm font-semibold text-primary uppercase tracking-widest mb-1 sm:mb-2">Ready!</h2>
-               <div className="w-full aspect-square bg-stone-100 rounded-2xl border border-stone-200 shadow-inner overflow-hidden relative">
-                  <img src={generatedImage || ''} alt="" className="w-full h-full object-cover" />
+               <button
+                 onClick={() => setShowImageModal(true)}
+                 className="w-full aspect-square bg-stone-100 rounded-2xl border border-stone-200 shadow-inner overflow-hidden relative group cursor-pointer"
+               >
+                  <img src={generatedImage || ''} alt="Generated render" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                      <svg className="w-5 h-5 text-stone-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5" /></svg>
+                    </div>
+                  </div>
                   <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/90 backdrop-blur rounded-lg p-1.5 sm:p-2 shadow-sm border border-stone-200/50 flex gap-2">
                     <img src={selectedMaterial?.textureUrl} className="w-6 h-6 sm:w-8 sm:h-8 rounded object-cover" alt="" />
                   </div>
-               </div>
+               </button>
                
                <div className="flex gap-3 sm:gap-4 w-full mt-2 sm:mt-4">
                   <button onClick={startOver} className="flex-1 h-10 sm:h-12 border-2 border-stone-200 text-stone-600 rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] hover:border-stone-400 transition-colors">
                     Start Over
                   </button>
-                  <button className="flex-1 h-10 sm:h-12 bg-primary text-white rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] shadow-lg hover:bg-[#b8943f] transition-colors">
-                    Download
+                  <button onClick={() => setShowImageModal(true)} className="flex-1 h-10 sm:h-12 bg-primary text-white rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] shadow-lg hover:bg-[#b8943f] transition-colors flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5" /></svg>
+                    View Full
                   </button>
                </div>
             </div>
@@ -427,17 +472,17 @@ const AIVisualizerDesktop = () => {
 
           {/* Left */}
           <div className="flex items-center gap-5">
-            <div className="w-11 h-11 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
-              <svg className="w-5.5 h-5.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <div className="w-14 h-14 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+              <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
               </svg>
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">Smart Discovery</span>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">Smart Discovery</span>
               </div>
-              <p className="text-base md:text-lg font-semibold text-white leading-tight">
+              <p className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
                 Browse <span className="text-primary">500+ premium fabrics</span> across 100+ collections
               </p>
             </div>
@@ -446,9 +491,9 @@ const AIVisualizerDesktop = () => {
           {/* Right */}
           <Link
             to="/materials"
-            className="shrink-0 flex items-center gap-3 px-8 py-4 bg-primary text-stone-900 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
+            className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-stone-900 text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
             Open Smart Catalog
@@ -487,6 +532,22 @@ const AIVisualizerDesktop = () => {
                  <h3 className="text-xs sm:text-sm font-bold text-stone-800 tracking-wide uppercase mb-2">Generating...</h3>
                  <p className="text-[11px] sm:text-xs text-stone-500 text-center">Using AI to apply your fabric to the product.</p>
                </div>
+             ) : generateError ? (
+               <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12 gap-4">
+                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-50 border border-red-200 flex items-center justify-center">
+                   <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                 </div>
+                 <div className="text-center">
+                   <h3 className="text-xs sm:text-sm font-bold text-stone-800 tracking-wide uppercase mb-1">Generation Failed</h3>
+                   <p className="text-[11px] sm:text-xs text-red-500">{generateError}</p>
+                 </div>
+                 <button
+                   onClick={() => { setGenerateError(null); setShowOTP(false) }}
+                   className="px-6 py-2 bg-stone-900 text-white text-[11px] uppercase font-bold tracking-widest rounded-lg hover:bg-black transition-colors"
+                 >
+                   Try Again
+                 </button>
+               </div>
              ) : (
                <>
                  <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50">
@@ -496,35 +557,98 @@ const AIVisualizerDesktop = () => {
                    </button>
                  </div>
                  <div className="p-6">
-                   {otpStep === 1 ? (
-                     <div className="flex flex-col gap-4">
-                       <p className="text-xs text-stone-500 mb-2">Provide your mobile number to get the result generated by AI.</p>
-                       <div>
-                         <label className="block text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-2">Mobile Number</label>
-                         <input type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} placeholder="10-digit number" className="w-full h-10 px-3 border border-stone-300 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-xs" />
-                       </div>
-                       <button onClick={handleSendOTP} disabled={mobileNumber.length < 10} className="h-10 w-full bg-stone-800 hover:bg-stone-900 text-white rounded-lg text-[11px] font-bold uppercase tracking-widest disabled:bg-stone-300 transition-colors mt-2">
-                         Send OTP
-                       </button>
-                     </div>
-                   ) : (
-                     <div className="flex flex-col gap-4">
-                       <p className="text-xs text-stone-500">
-                           To view the final render, please enter the OTP sent to <br/>
-                           <span className="font-semibold text-stone-800 text-sm mt-1 inline-block">{mobileNumber}</span>
-                       </p>
-                       <div>
-                         <label className="block text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-2">Enter OTP</label>
-                         <input type="text" value={otpCode} onChange={(e) => setOtpCode(e.target.value)} placeholder="1234" maxLength={4} className="w-full h-10 px-3 border border-stone-300 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-center tracking-[0.5em] font-mono text-sm" />
-                       </div>
-                       <button onClick={handleVerifyAndGenerate} disabled={otpCode.length < 4} className="h-10 w-full bg-primary hover:bg-[#b8943f] text-white rounded-lg text-[11px] font-bold uppercase tracking-widest disabled:bg-stone-200 transition-colors mt-2">
-                         Verify & Generate
-                       </button>
-                     </div>
-                   )}
+                   <OTPVerification
+                     otpStep={otpStep}
+                     mobileNumber={mobileNumber}
+                     setMobileNumber={setMobileNumber}
+                     otpCode={otpCode}
+                     setOtpCode={setOtpCode}
+                     onSendOTP={handleSendOTP}
+                     onVerify={handleVerifyAndGenerate}
+                     onCancel={() => setOtpStep(1)}
+                   />
                  </div>
                </>
              )}
+          </div>
+        </div>
+      )}
+      {showImageModal && generatedImage && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-8">
+          <div className="absolute inset-0 bg-stone-950/90 backdrop-blur-md" onClick={() => { setShowImageModal(false); setImgZoom(1) }} />
+          <div className="relative w-full max-w-4xl flex flex-col">
+            {/* Close button */}
+            <button
+              onClick={() => { setShowImageModal(false); setImgZoom(1) }}
+              className="absolute -top-3 -right-3 z-10 w-9 h-9 rounded-full bg-white shadow-xl flex items-center justify-center hover:bg-stone-100 transition-colors"
+            >
+              <svg className="w-5 h-5 text-stone-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            {/* Full image with zoom */}
+            <div
+              className="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-stone-900 flex items-center justify-center"
+              style={{ maxHeight: '75vh' }}
+              onWheel={(e) => {
+                e.preventDefault()
+                setImgZoom(z => Math.min(4, Math.max(1, z - e.deltaY * 0.001)))
+              }}
+            >
+              <img
+                src={generatedImage}
+                alt="Generated render"
+                className="object-contain transition-transform duration-150"
+                style={{
+                  maxHeight: '75vh',
+                  width: '100%',
+                  transform: `scale(${imgZoom})`,
+                  transformOrigin: 'center center',
+                  cursor: imgZoom > 1 ? 'zoom-out' : 'zoom-in',
+                }}
+                onClick={() => setImgZoom(z => z > 1 ? 1 : 2)}
+              />
+            </div>
+            {/* Zoom controls */}
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-stone-900/80 backdrop-blur rounded-lg p-1 border border-white/10">
+              <button
+                onClick={() => setImgZoom(z => Math.max(1, +(z - 0.5).toFixed(1)))}
+                disabled={imgZoom <= 1}
+                className="w-7 h-7 flex items-center justify-center text-white hover:bg-white/10 rounded disabled:opacity-30 transition-colors text-lg leading-none"
+                title="Zoom out"
+              >−</button>
+              <span className="text-[11px] text-stone-300 font-mono w-10 text-center select-none">{Math.round(imgZoom * 100)}%</span>
+              <button
+                onClick={() => setImgZoom(z => Math.min(4, +(z + 0.5).toFixed(1)))}
+                disabled={imgZoom >= 4}
+                className="w-7 h-7 flex items-center justify-center text-white hover:bg-white/10 rounded disabled:opacity-30 transition-colors text-lg leading-none"
+                title="Zoom in"
+              >+</button>
+              {imgZoom > 1 && (
+                <button
+                  onClick={() => setImgZoom(1)}
+                  className="w-7 h-7 flex items-center justify-center text-stone-400 hover:text-white hover:bg-white/10 rounded transition-colors ml-0.5"
+                  title="Reset zoom"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4l16 16M4 20L20 4" /></svg>
+                </button>
+              )}
+            </div>
+            {/* Footer bar */}
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <img src={selectedMaterial?.textureUrl} className="w-9 h-9 rounded-lg object-cover border border-white/20 shadow-sm" alt="" />
+                <div>
+                  <p className="text-[10px] text-stone-400 uppercase tracking-widest">Fabric Applied</p>
+                  <p className="text-xs font-bold text-white truncate max-w-[180px]">{selectedMaterial?.fabricName}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleDownload}
+                className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-primary text-stone-900 text-[11px] uppercase font-bold tracking-widest rounded-lg hover:bg-white transition-colors shadow-lg"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Download
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -32,13 +32,13 @@ const CTASection = () => {
         </p>
         
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 md:gap-6">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 md:gap-8">
           <Link
             to="/contact"
-            className="group relative inline-flex items-center justify-center gap-2.5 md:gap-3 px-8 py-3.5 md:px-10 md:py-5 bg-white text-stone-900 rounded-sm overflow-hidden w-full sm:w-auto transition-all duration-300 shadow-xl"
+            className="group relative inline-flex items-center justify-center gap-3 md:gap-4 px-10 py-4.5 md:px-14 md:py-6 bg-white text-stone-900 rounded-sm overflow-hidden w-full sm:w-auto transition-all duration-300 shadow-xl"
           >
-            <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest relative z-10">Contact Us</span>
-            <svg className="w-4 h-4 md:w-5 md:h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <span className="text-xs md:text-sm lg:text-base font-bold uppercase tracking-widest relative z-10">Contact Us</span>
+            <svg className="w-5 h-5 md:w-6 md:h-6 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
             <div className="absolute inset-0 bg-primary translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
@@ -46,9 +46,9 @@ const CTASection = () => {
           
           <Link
             to="/materials"
-            className="group inline-flex items-center justify-center px-8 py-3.5 md:px-10 md:py-5 bg-transparent border border-stone-700 hover:border-white text-stone-300 hover:text-white rounded-sm w-full sm:w-auto transition-all duration-500"
+            className="group inline-flex items-center justify-center px-10 py-4.5 md:px-14 md:py-6 bg-transparent border border-stone-700 hover:border-white text-stone-300 hover:text-white rounded-sm w-full sm:w-auto transition-all duration-500"
           >
-            <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">Browse Catalog</span>
+            <span className="text-xs md:text-sm lg:text-base font-bold uppercase tracking-widest">Browse Catalog</span>
           </Link>
         </div>
       </div>

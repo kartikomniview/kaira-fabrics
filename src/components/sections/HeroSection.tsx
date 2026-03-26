@@ -44,7 +44,7 @@ const HeroSection = () => {
           }`}
         >
           <span className="w-6 sm:w-8 h-px bg-amber-400/60" />
-          <span className="font-sans text-[13px] sm:text-lg uppercase tracking-[0.35em] text-amber-300/90 font-semibold"
+          <span className="font-sans text-[15px] sm:text-xl uppercase tracking-[0.35em] text-amber-300/90 font-semibold"
             style={{ textShadow: '0 1px 8px rgba(0,0,0,0.8)' }}>
             Kaira Fabrics
           </span>
@@ -96,7 +96,7 @@ const HeroSection = () => {
               if (section) section.scrollIntoView({ behavior: 'smooth' })
             }}
             variant="outline"
-            className="w-full sm:w-auto text-sm sm:text-sm md:text-base font-bold !px-10 sm:!px-12 md:!px-14 !py-4.5 sm:!py-4 md:!py-5 rounded-full shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 tracking-widest uppercase !border-white/50 !text-white hover:!bg-white/10 hover:!text-white"
+            className="w-full sm:w-auto text-base sm:text-lg md:text-xl font-bold !px-10 sm:!px-12 md:!px-14 !py-4.5 sm:!py-4 md:!py-5 rounded-full shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 tracking-widest uppercase !border-white/50 !text-white hover:!bg-white/10 hover:!text-white"
           >
             <span className="flex items-center justify-center gap-3">
               <svg className="w-5 h-5 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -108,7 +108,7 @@ const HeroSection = () => {
           <Button
             to="/ai-visualizer"
             variant="primary"
-            className="w-full sm:w-auto text-sm sm:text-sm md:text-base font-bold !px-10 sm:!px-12 md:!px-14 !py-4.5 sm:!py-4 md:!py-5 rounded-full shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 tracking-widest uppercase"
+            className="w-full sm:w-auto text-base sm:text-lg md:text-xl font-bold !px-10 sm:!px-12 md:!px-14 !py-4.5 sm:!py-4 md:!py-5 rounded-full shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 tracking-widest uppercase"
           >
             <span className="flex items-center justify-center gap-3">
               <svg className="w-5 h-5 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

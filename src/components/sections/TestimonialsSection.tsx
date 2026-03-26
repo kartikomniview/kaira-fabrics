@@ -100,9 +100,17 @@ const TestimonialsSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="bg-white py-10 md:py-24 border-b border-stone-200"
+      className="py-10 md:py-24 border-b border-stone-200 relative overflow-hidden"
+      style={{ backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background2.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+      {/* Overlay for readability */}
+      <div className="absolute inset-0 bg-stone-50/80 backdrop-blur-[2px]" />
+
+      {/* Decorative blurred orbs */}
+      <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-stone-200/50 blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-white/80 blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/3" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
 
         {/* Section Header */}
         <div className="text-center mb-8 md:mb-14">

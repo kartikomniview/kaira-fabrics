@@ -66,7 +66,8 @@ const MaterialsPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen relative" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
+        <div className="absolute inset-0 pointer-events-none opacity-[0.18]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
         {/* ── Page Header ──────────────────────────────────────────── */}
         <div className="bg-stone-900 pt-24 pb-6">
@@ -86,7 +87,7 @@ const MaterialsPage = () => {
         </div>
 
         {/* ── Main two-column layout ───────────────────────────────── */}
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6 md:py-8 flex flex-col md:flex-row gap-4 md:gap-7 items-start">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-6 md:py-8 flex flex-col md:flex-row gap-4 md:gap-7 items-start">
 
           {/* ── LEFT: Collections Sidebar ──────────────────────────── */}
           <aside className="hidden md:flex flex-col w-60 shrink-0 sticky top-[88px] bg-white border border-stone-200 shadow-sm self-start max-h-[calc(100vh-110px)]">
@@ -331,17 +332,17 @@ const MaterialsPage = () => {
 
           {/* Left */}
           <div className="flex items-center gap-5">
-            <div className="w-11 h-11 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
-              <svg className="w-5.5 h-5.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <div className="w-14 h-14 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+              <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">3D Powered</span>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">3D Powered</span>
               </div>
-              <p className="text-base md:text-lg font-semibold text-white leading-tight">
+              <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-white leading-tight">
                 Drape any fabric on a 3D model — <span className="text-primary">in real time</span>
               </p>
             </div>
@@ -350,9 +351,9 @@ const MaterialsPage = () => {
           {/* Right */}
           <Link
             to="/3d-visualizer"
-            className="shrink-0 flex items-center gap-3 px-8 py-4 bg-primary text-stone-900 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
+            className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-stone-900 text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
             Try 3D Fabric Studio

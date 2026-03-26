@@ -69,8 +69,11 @@ const ContactPage = () => {
       </div>
 
       {/* ── Main content area ────────────────────────────────────── */}
-      <section className="bg-white border-b border-stone-200 py-12 md:py-16 relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+      <section className="border-b border-stone-200 py-12 md:py-16 relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
+        <div className="absolute inset-0 pointer-events-none opacity-[0.2]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-white/70 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-stone-200/50 blur-3xl pointer-events-none" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
 
           <div className="grid lg:grid-cols-[1fr_420px] gap-14 xl:gap-20 items-start">
 
@@ -233,28 +236,28 @@ const ContactPage = () => {
 
                 <div className="relative">
                   {/* brand mark */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 border border-primary flex items-center justify-center rounded-sm">
-                      <span className="text-primary text-xs font-serif font-bold">K</span>
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="w-10 h-10 border border-primary flex items-center justify-center rounded-sm">
+                      <span className="text-primary text-sm font-serif font-bold">K</span>
                     </div>
                     <div>
-                      <p className="text-white text-[10px] font-bold tracking-[0.2em] uppercase leading-none">Kaira Fabrics</p>
-                      <p className="text-primary text-[10px] tracking-[0.2em] uppercase font-bold mt-1 opacity-90">Calicut Showroom</p>
+                      <p className="text-white text-xs font-bold tracking-[0.2em] uppercase leading-none">Kaira Fabrics</p>
+                      <p className="text-primary text-xs tracking-[0.2em] uppercase font-bold mt-1.5 opacity-90">Calicut Showroom</p>
                     </div>
                   </div>
 
-                  <div className="space-y-5">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-9 h-9 bg-primary/10 border border-primary/30 flex items-center justify-center mt-0.5 rounded-sm">
-                        <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="space-y-6">
+                    <div className="flex gap-5">
+                      <div className="flex-shrink-0 w-10 h-10 bg-primary/10 border border-primary/30 flex items-center justify-center mt-0.5 rounded-sm">
+                        <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                             d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                       </div>
                       <div>
-                        <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase leading-none mb-1.5">Address</p>
-                        <p className="text-stone-300 text-[13px] leading-relaxed">
+                        <p className="text-primary text-xs font-bold tracking-[0.2em] uppercase leading-none mb-2">Address</p>
+                        <p className="text-stone-300 text-sm md:text-base leading-relaxed">
                           Hira Arcade, Opp. Crescent King Spear,<br />
                           Mini Bypass Road, Govindhapuram,<br />
                           Mankavu, Calicut
@@ -262,52 +265,52 @@ const ContactPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-9 h-9 bg-primary/10 border border-primary/30 flex items-center justify-center mt-0.5 rounded-sm">
-                        <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="flex gap-5">
+                      <div className="flex-shrink-0 w-10 h-10 bg-primary/10 border border-primary/30 flex items-center justify-center mt-0.5 rounded-sm">
+                        <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498A1 1 0 0121 15.72V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                         </svg>
                       </div>
                       <div>
-                        <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase leading-none mb-1.5">Phone</p>
-                        <a href="tel:+918589925111" className="block text-stone-300 text-[13px] hover:text-primary transition-colors">+91 8589925111</a>
-                        <a href="tel:+918589925222" className="block text-stone-300 text-[13px] hover:text-primary transition-colors mt-0.5">+91 8589925222</a>
+                        <p className="text-primary text-xs font-bold tracking-[0.2em] uppercase leading-none mb-2">Phone</p>
+                        <a href="tel:+918589925111" className="block text-stone-300 text-sm md:text-base hover:text-primary transition-colors">+91 8589925111</a>
+                        <a href="tel:+918589925222" className="block text-stone-300 text-sm md:text-base hover:text-primary transition-colors mt-1">+91 8589925222</a>
                       </div>
                     </div>
 
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-9 h-9 bg-primary/10 border border-primary/30 flex items-center justify-center mt-0.5 rounded-sm">
-                        <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="flex gap-5">
+                      <div className="flex-shrink-0 w-10 h-10 bg-primary/10 border border-primary/30 flex items-center justify-center mt-0.5 rounded-sm">
+                        <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
                       </div>
                       <div>
-                        <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase leading-none mb-1.5">Email</p>
-                        <a href="mailto:info@kairafabrics.in" className="text-stone-300 text-[13px] hover:text-primary transition-colors">info@kairafabrics.in</a>
+                        <p className="text-primary text-xs font-bold tracking-[0.2em] uppercase leading-none mb-2">Email</p>
+                        <a href="mailto:info@kairafabrics.in" className="text-stone-300 text-sm md:text-base hover:text-primary transition-colors">info@kairafabrics.in</a>
                       </div>
                     </div>
 
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-9 h-9 bg-primary/10 border border-primary/30 flex items-center justify-center mt-0.5 rounded-sm">
-                        <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="flex gap-5">
+                      <div className="flex-shrink-0 w-10 h-10 bg-primary/10 border border-primary/30 flex items-center justify-center mt-0.5 rounded-sm">
+                        <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                       </div>
                       <div>
-                        <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase leading-none mb-1.5">Showroom Hours</p>
-                        <p className="text-stone-300 text-[13px]">Mon – Sat: 10:00 AM – 7:30 PM</p>
-                        <p className="text-stone-400 text-[13px] mt-0.5">Sunday: By appointment only</p>
+                        <p className="text-primary text-xs font-bold tracking-[0.2em] uppercase leading-none mb-2">Showroom Hours</p>
+                        <p className="text-stone-300 text-sm md:text-base">Mon – Sat: 10:00 AM – 7:30 PM</p>
+                        <p className="text-stone-400 text-xs md:text-sm mt-1">Sunday: By appointment only</p>
                       </div>
                     </div>
                   </div>
 
                   {/* fabric colour palette row */}
-                  <div className="mt-7 pt-6 border-t border-white/10">
-                    <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase mb-3">Our Fabric Range</p>
-                    <div className="flex gap-1.5 flex-wrap">
+                  <div className="mt-8 pt-6 border-t border-white/10">
+                    <p className="text-primary text-xs font-bold tracking-[0.2em] uppercase mb-4">Our Fabric Range</p>
+                    <div className="flex gap-2.5 flex-wrap">
                       {[
                         { name: 'Silk', color: '#c9a96e' },
                         { name: 'Cotton', color: '#e8dcc8' },
@@ -316,9 +319,9 @@ const ContactPage = () => {
                         { name: 'Brocade', color: '#c0392b' },
                         { name: 'Chiffon', color: '#d4e8f0' },
                       ].map(({ name, color }) => (
-                        <div key={name} className="flex items-center gap-1.5">
-                          <span className="w-3 h-3 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: color }} />
-                          <span className="text-stone-400 text-xs">{name}</span>
+                        <div key={name} className="flex items-center gap-2">
+                          <span className="w-3.5 h-3.5 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: color }} />
+                          <span className="text-stone-400 text-sm">{name}</span>
                         </div>
                       ))}
                     </div>

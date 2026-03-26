@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+
 const features = [
   {
     id: "01",
@@ -26,24 +28,55 @@ const features = [
 ];
 
 const WhyKairaSection = () => {
-  return (
-    <section id="why-kaira" className="bg-stone-50 py-10 md:py-24 border-b border-stone-200 relative overflow-hidden">
-      {/* Subtle background architectural element */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-white/40 skew-x-12 translate-x-32 hidden lg:block border-l border-stone-200/50 pointer-events-none" />
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10">
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section 
+      ref={sectionRef}
+      id="why-kaira" 
+      className="py-10 md:py-24 border-b border-stone-200 relative overflow-hidden" 
+      style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f4 40%, #e7e5e4 100%)' }}
+    >
+      {/* Decorative gradient orbs */}
+      <div className={`absolute top-0 left-0 w-72 h-72 rounded-full bg-stone-100/80 blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2 transition-all duration-[2000ms] ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full'}`} />
+      <div className={`absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/90 blur-3xl pointer-events-none translate-x-1/3 translate-y-1/3 transition-all duration-[2000ms] ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'}`} />
+      <div className="absolute top-1/2 left-1/2 w-80 h-80 rounded-full bg-stone-200/40 blur-2xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
+
+
+      {/* Right architectural skew accent */}
+      <div className={`absolute top-0 right-0 w-1/2 h-full bg-white/30 skew-x-12 translate-x-32 hidden lg:block border-l border-stone-300/40 pointer-events-none transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-x-32' : 'opacity-0 translate-x-full'}`} />
+
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         
         {/* Centered Header - More Compact */}
-        <div className="text-center max-w-2xl mx-auto mb-6 md:mb-16">
+        <div className={`text-center max-w-2xl mx-auto mb-6 md:mb-16 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="inline-flex items-center gap-2 sm:gap-3 mb-2 sm:mb-4 justify-center">
             <span className="w-1 h-1 bg-primary rounded-full" />
-            <span className="text-[10px] sm:text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold">The Kaira Advantage</span>
+            <span className="text-[14px] sm:text-[12px] uppercase tracking-[0.2em] text-stone-400 font-bold">The Kaira Advantage</span>
             <span className="w-1 h-1 bg-primary rounded-full" />
           </div>
           <h2 className="font-serif text-3xl sm:text-3xl md:text-4xl text-stone-900 font-medium leading-tight mb-2 sm:mb-4">
             Why <span className="italic text-stone-400">Kaira</span>
           </h2>
-          <p className="text-sm sm:text-sm md:text-base text-stone-500 leading-relaxed font-sans px-4 sm:px-0">
+          <p className="text-base sm:text-base md:text-base text-stone-500 leading-relaxed font-sans px-4 sm:px-0">
             We merge uncompromising quality with unparalleled variety, serving as the trusted fabric partner for bespoke luxury environments.
           </p>
         </div>
@@ -51,7 +84,15 @@ const WhyKairaSection = () => {
         {/* Features Slider/Grid - Horizontally scrollable on mobile */}
         <div className="flex overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 lg:gap-6 pb-6 md:pb-0 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-4 md:px-0 scroll-pl-4">
           {features.map((feature, idx) => (
-            <div key={idx} className="w-[58vw] h-auto min-h-[180px] md:min-h-[220px] max-w-[240px] md:w-auto md:h-auto md:max-w-none md:max-h-none flex-shrink-0 snap-center group relative p-4 md:p-8 bg-white border border-stone-100 hover:border-primary/30 transition-all duration-500 rounded-sm overflow-hidden flex flex-col items-start justify-center md:block text-left shadow-sm hover:shadow-md">
+            <div 
+              key={idx} 
+              className={`w-[58vw] h-auto min-h-[180px] md:min-h-[220px] max-w-[240px] md:w-auto md:h-auto md:max-w-none md:max-h-none flex-shrink-0 snap-center group relative p-4 md:p-8 bg-white border border-stone-100 hover:border-primary/30 rounded-sm overflow-hidden flex flex-col items-start justify-center md:block text-left shadow-sm hover:shadow-md transition-all duration-700`}
+              style={{ 
+                transitionDelay: `${400 + (idx * 150)}ms`,
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(20px)'
+              }}
+            >
               {/* Minimalist Background Number */}
               <div className="absolute top-3 right-4 md:top-4 md:right-6 text-[11px] md:text-sm font-serif text-stone-100 group-hover:text-primary/10 transition-colors duration-500 font-bold">
                 {feature.id}

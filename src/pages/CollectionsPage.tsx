@@ -507,17 +507,6 @@ function CollectionModal({
             style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)' }}
             onClick={(e) => { e.stopPropagation(); setZoomedIndex(null) }}
           >
-            {/* Close button */}
-            <button
-              onClick={(e) => { e.stopPropagation(); setZoomedIndex(null) }}
-              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-stone-800 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-700 transition-colors shadow-lg"
-              aria-label="Close"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
             <div
               className="relative flex flex-col items-stretch w-full max-w-lg overflow-hidden rounded-sm shadow-2xl"
               onClick={(e) => e.stopPropagation()}
@@ -642,6 +631,15 @@ function CollectionModal({
                     </div>
                   )}
                 </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setZoomedIndex(null) }}
+                  className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-stone-900 border border-stone-900 text-white hover:bg-black hover:border-black transition-all text-[11px] font-bold uppercase tracking-widest rounded-sm"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Go Back
+                </button>
               </div>
             </div>
           </div>
@@ -873,7 +871,7 @@ const CollectionsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
 
       {/* ── Minimal Page Header ──────────────────────────────────── */}
       <div className="bg-stone-900 pt-24 pb-6">
@@ -919,8 +917,10 @@ const CollectionsPage = () => {
       </div>
 
       {/* ── Filter & Grid ────────────────────────────────────────── */}
-      <div className="py-6 md:py-10 lg:py-14 bg-stone-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-10">
+      <div className="py-6 md:py-10 lg:py-14 relative" style={{ background: 'linear-gradient(160deg, #f5f5f4 0%, #ffffff 50%, #e7e5e4 100%)' }}>
+        <div className="absolute inset-0 pointer-events-none opacity-[0.2]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-stone-100/60 blur-3xl pointer-events-none" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-10">
 
           {/* Filter bar */}
           <div className="mb-6 md:mb-8">
@@ -1092,17 +1092,17 @@ const CollectionsPage = () => {
 
           {/* Left */}
           <div className="flex items-center gap-5">
-            <div className="w-11 h-11 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
-              <svg className="w-5.5 h-5.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <div className="w-14 h-14 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+              <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
               </svg>
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">AI Powered</span>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">AI Powered</span>
               </div>
-              <p className="text-base md:text-lg font-semibold text-white leading-tight">
+              <p className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
                 Visualize any fabric on real products — <span className="text-primary">instantly</span>
               </p>
             </div>
@@ -1111,9 +1111,9 @@ const CollectionsPage = () => {
           {/* Right */}
           <button
             onClick={() => navigate('/ai-visualizer')}
-            className="shrink-0 flex items-center gap-3 px-8 py-4 bg-primary text-stone-900 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
+            className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-stone-900 text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             Try AI Visualizer

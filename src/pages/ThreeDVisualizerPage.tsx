@@ -6,7 +6,8 @@ import { collections } from '../data/collections'
 import { dummyProducts, getProductGlbUrl, getProductImageUrl } from '../data/products'
 import type { Product } from '../data/products'
 import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../utils/textureUtils'
-
+import * as THREE from 'three';
+import '@google/model-viewer'
 const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
 
 const materialTypeOptions = [
@@ -50,7 +51,7 @@ function getNormalMapURL(collectionName: string) {
 }
 
 function getSheenMapUrl(materialType: string) {
-  if (materialType.includes('Fabric') || materialType.includes('Velvet') || materialType.includes('Suede')) {
+  if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
     return `${S3_BASE}/public/textures/Common/SheenColorMap.webp`
   }
   return ''
@@ -70,6 +71,7 @@ function getUvValue(collectionName: string): number {
 function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
   if (materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8 // Velvets and Fabrics are generally very rough
   if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
+  if (materialType.toLowerCase().includes('leather')) return 0.5 // Leathers are smoother
   return baseRoughness
 }
 
@@ -243,7 +245,55 @@ const ThreeDVisualizerDesktop = () => {
   useEffect(() => {
     const mv = mvRef.current as any
     if (!mv) return
-    const onLoad = () => setModelLoaded(true)
+    const onLoad = () => {
+      // Initialize sheen on the first material so the extension is active
+      try {
+        
+        const m = mv.model?.materials?.[0]
+
+        const sceneSymbol:any = Object.getOwnPropertySymbols(mv).find(s => s.description === 'scene');
+        const scene = mv[sceneSymbol];
+
+
+    
+
+
+        scene.traverse((child:any) => {
+
+           if (child.isMesh && child.material) {
+
+            const oldMaterial = child.material;
+
+    console.log("Old material:", oldMaterial);
+
+            // 1. Create the new Physical Material
+            const newMaterial = new THREE.MeshPhysicalMaterial({
+        map: oldMaterial.map,
+        color: oldMaterial.color?.clone(),
+        normalMap: oldMaterial.normalMap,
+        roughness: oldMaterial.roughness ?? 0.5,
+        metalness: oldMaterial.metalness ?? 0,
+        transparent: oldMaterial.transparent,
+        opacity: oldMaterial.opacity,
+    });
+            // newMaterial.copy(oldMaterial);
+
+          newMaterial.clearcoat = 1.0;
+          newMaterial.clearcoatRoughness = 0.1;
+          newMaterial.transmission = 0.8;
+          newMaterial.ior = 1.5;
+          newMaterial.thickness = 0.5;
+
+          child.material = newMaterial;
+          oldMaterial.dispose();
+          }
+        });
+      } catch(error) {
+        // KHR_materials_sheen not present on this model — skip
+        console.log(error)
+      }
+      setModelLoaded(true)
+    }
     mv.addEventListener('load', onLoad)
     return () => mv.removeEventListener('load', onLoad)
   }, [])

@@ -87,8 +87,13 @@ const AboutPage = () => {
       </div>
 
       {/* ── Who We Are ─────────────────────────────────────────── */}
-      <section ref={whoRef} className="bg-white border-b border-stone-200 py-12 md:py-28 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-6 lg:px-10 text-center">
+      <section ref={whoRef} className="border-b border-stone-200 py-12 md:py-28 relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
+        {/* Dot grid */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.25]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        {/* Blurred orbs */}
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-stone-100/70 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-white/80 blur-3xl pointer-events-none" />
+        <div className="relative z-10 max-w-4xl mx-auto px-6 lg:px-10 text-center">
           <div className="inline-flex items-center justify-center gap-3 mb-4 md:mb-6">
             <span className="h-px w-6 bg-primary" />
             <span className={`text-[12px] font-bold uppercase tracking-[0.3em] text-stone-500 transition-all duration-700 ${whoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
@@ -113,9 +118,13 @@ const AboutPage = () => {
       </section>
 
       {/* ── Mission & Vision ───────────────────────────────────── */}
-      <section ref={missionRef} className="py-12 md:py-28 bg-stone-50 border-b border-stone-200 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.025] bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')]" />
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
+      <section ref={missionRef} className="py-12 md:py-28 border-b border-stone-200 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #f5f5f4 0%, #ffffff 50%, #e7e5e4 100%)' }}>
+        {/* Dot grid */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.25]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        {/* Blurred orbs */}
+        <div className="absolute top-0 left-0 w-96 h-96 rounded-full bg-white/70 blur-3xl pointer-events-none -translate-x-1/3 -translate-y-1/3" />
+        <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full bg-stone-200/50 blur-3xl pointer-events-none translate-x-1/4 translate-y-1/4" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-8 md:mb-14">
             <div className="inline-flex items-center justify-center gap-3 mb-3">
               <span className="h-px w-6 bg-primary" />
@@ -150,8 +159,13 @@ const AboutPage = () => {
       </section>
 
       {/* ── Our Values ─────────────────────────────────────────── */}
-      <section ref={valuesRef} className="bg-white border-b border-stone-200 py-12 md:py-28">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+      <section ref={valuesRef} className="border-b border-stone-200 py-12 md:py-28 relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #e7e5e4 0%, #f5f5f4 40%, #ffffff 100%)' }}>
+        {/* Dot grid */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.25]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        {/* Blurred orbs */}
+        <div className="absolute top-1/2 right-0 w-96 h-96 rounded-full bg-white/60 blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-1/4 w-72 h-72 rounded-full bg-stone-100/80 blur-3xl pointer-events-none" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-8 md:mb-14">
             <div className="inline-flex items-center justify-center gap-3 mb-3">
               <span className="h-px w-6 bg-primary" />
@@ -161,7 +175,7 @@ const AboutPage = () => {
             <h2 className={`font-serif text-2xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] transition-all duration-700 ${valuesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Our Values
             </h2>
-            <p className="mt-4 text-stone-500 text-xs md:text-sm font-light max-w-md mx-auto leading-relaxed">
+            <p className="mt-4 text-stone-500 text-base md:text-base font-light max-w-md mx-auto leading-relaxed">
               The principles that guide every thread we weave and every relationship we build.
             </p>
           </div>
@@ -198,22 +212,22 @@ const AboutPage = () => {
               </span>
               <span className="text-[10px] uppercase tracking-[0.2em] text-stone-300 font-bold">Explore Kaira</span>
             </div>
-            <h2 className="font-serif text-2xl md:text-3xl text-white mb-2">Ready to Find Your Perfect Fabric?</h2>
-            <p className="text-stone-400 text-sm font-light max-w-lg">Browse our curated collections or visit our showroom to experience premium quality firsthand.</p>
+            <h2 className="font-serif text-3xl md:text-3xl text-white mb-2">Ready to Find Your Perfect Fabric?</h2>
+            <p className="text-stone-400 text-base font-light max-w-lg">Browse our curated collections or visit our showroom to experience premium quality firsthand.</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 shrink-0 w-full md:w-auto">
             <Link
               to="/collections"
-              className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary text-stone-900 hover:bg-white transition-all duration-500 rounded-sm overflow-hidden shadow-lg font-bold text-[11px] uppercase tracking-widest"
+              className="group relative inline-flex items-center justify-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-stone-900 hover:bg-white transition-all duration-500 rounded-sm overflow-hidden shadow-lg font-bold text-xs md:text-sm uppercase tracking-widest w-full sm:w-auto"
             >
               Browse Collections
-              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </Link>
             <Link
               to="/contact"
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 border border-stone-700 text-stone-300 hover:border-primary hover:text-white transition-all duration-300 rounded-sm font-bold text-[11px] uppercase tracking-widest"
+              className="inline-flex items-center justify-center gap-3 px-10 py-4.5 md:px-12 md:py-5 border border-stone-700 text-stone-300 hover:border-primary hover:text-white transition-all duration-300 rounded-sm font-bold text-xs md:text-sm uppercase tracking-widest w-full sm:w-auto"
             >
               Contact Us
             </Link>

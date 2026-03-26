@@ -92,6 +92,7 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
   const roughnessTexture = roughnessBlobUrl ? await mv.createTexture(roughnessBlobUrl) : null
   const normalTexture = normalBlobUrl ? await mv.createTexture(normalBlobUrl) : null
   const sheenTexture = sheenBlobUrl ? await mv.createTexture(sheenBlobUrl) : null
+console.log(sheenTexture);
 
   for (const m of model.materials) {
     const partName = (m.name ?? '').toLowerCase()
@@ -113,11 +114,24 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
         await m.normalTexture.setTexture(normalTexture)
         if (uvScale !== 1) applyTiling(m.normalTexture, uvScale)
       }
-      if (sheenTexture && m.sheen) {
-        await m.sheen.sheenColorTexture?.setTexture(sheenTexture)
+
+      if (sheenTexture && false) {
+        try {
+          if (m.sheenColorTexture) {
+            await m.sheenColorTexture.setTexture(sheenTexture)
+            if (typeof m.setSheenColorFactor === 'function') {
+              m.setSheenColorFactor([1, 1, 1])
+            }
+            if (typeof m.setSheenRoughnessFactor === 'function') {
+              m.setSheenRoughnessFactor(0.5)
+            }
+          }
+        } catch(error) {
+          console.log(error)
+        }
       }
-    } catch {
-      // skip this material and continue with the rest
+    } catch(error) {
+          console.log(error)
     }
   }
 }

@@ -132,14 +132,14 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
   return (
     <div className="flex flex-col h-full animate-in fade-in">
       {/* Sticky top bar */}
-      <div className="shrink-0 bg-stone-50 border-b border-stone-100 px-3 sm:px-4 pt-3 sm:pt-4 pb-3 sm:pb-4 space-y-2.5 sm:space-y-3">
+      <div className="shrink-0 bg-stone-50 border-b border-stone-100 px-4 sm:px-6 pt-4 sm:pt-5 pb-4 sm:pb-5 space-y-3.5 sm:space-y-4">
 
         {/* Title row */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <h2 className="text-[12px] sm:text-[11px] font-bold text-stone-700 uppercase tracking-widest flex-1 px-1">Kaira Inventory</h2>
-          <span className="text-[11px] sm:text-[10px] text-stone-400">{filteredMaterials.length} fabrics</span>
+          <h2 className="text-sm sm:text-base font-bold text-stone-700 uppercase tracking-widest flex-1 px-1">Kaira Inventory</h2>
+          <span className="text-xs sm:text-[11px] text-stone-400">{filteredMaterials.length} fabrics</span>
           {(activeFilterCount > 0 || isSearchMode) && (
-            <button onClick={clearInventoryFilters} className="text-[11px] uppercase tracking-widest text-secondary hover:underline ml-2">
+            <button onClick={clearInventoryFilters} className="text-xs uppercase tracking-widest text-secondary hover:underline ml-2">
               Clear {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
             </button>
           )}
@@ -156,7 +156,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
 
         {/* Prominent Search Bar */}
         <div
-          className={`flex items-center gap-2 rounded-xl border transition-all duration-200 px-3 py-2 ${
+          className={`flex items-center gap-2.5 rounded-xl border transition-all duration-200 px-4 py-3 ${
             isSearchFocused
               ? 'border-secondary/60 bg-white shadow-md shadow-secondary/10 ring-1 ring-secondary/20'
               : isSearchMode
@@ -164,7 +164,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
               : 'border-stone-200 bg-white hover:border-stone-300'
           }`}
         >
-          <svg className={`w-3.5 h-3.5 shrink-0 transition-colors ${isSearchFocused || isSearchMode ? 'text-secondary' : 'text-stone-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className={`w-4 h-4 shrink-0 transition-colors ${isSearchFocused || isSearchMode ? 'text-secondary' : 'text-stone-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -175,7 +175,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}
             placeholder="Search by name, code, type, pattern, color..."
-            className="flex-1 bg-transparent text-[11px] sm:text-[11px] focus:outline-none placeholder-stone-400 text-stone-700 min-w-0"
+            className="flex-1 bg-transparent text-sm sm:text-sm focus:outline-none placeholder-stone-400 text-stone-700 min-w-0"
           />
           {isSearchMode && (
             <button
@@ -189,21 +189,21 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
 
         {/* Search mode: show compact tag strip instead of full filters */}
         {isSearchMode ? (
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] uppercase tracking-widest text-stone-400 shrink-0">Results for</span>
-            <span className="text-[11px] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full font-semibold">"{search.trim()}"</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs uppercase tracking-widest text-stone-400 shrink-0">Results for</span>
+            <span className="text-sm bg-secondary/10 text-secondary px-3 py-1 rounded-full font-bold">"{search.trim()}"</span>
             {activeFilterCount > 0 && (
-              <span className="text-[11px] text-stone-400">+ {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
+              <span className="text-xs text-stone-400 font-medium">+ {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
             )}
           </div>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {/* Type Dropdown — first */}
             <div className="flex shrink-0">
               <select
                 value={activeMaterialType}
                 onChange={(e) => setActiveMaterialType(e.target.value)}
-                className="bg-white border border-stone-200 text-[11px] sm:text-[11px] px-2 py-1 h-7 sm:h-8 rounded-lg focus:outline-none focus:border-secondary/60 text-stone-700 font-semibold uppercase tracking-wider cursor-pointer max-w-[90px] sm:max-w-none"
+                className="bg-white border border-stone-200 text-xs sm:text-xs px-2.5 py-1.5 h-8 sm:h-9 rounded-lg focus:outline-none focus:border-secondary/60 text-stone-700 font-bold uppercase tracking-wider cursor-pointer max-w-[100px] sm:max-w-none"
               >
                 <option value="All">Types</option>
                 {materialTypeOptions.filter(t => t !== 'All').map(t => (
@@ -213,15 +213,15 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
             </div>
 
             {/* Collection Dropdown — filtered by selected type */}
-            <div className="relative shrink-0 w-[110px] sm:w-[130px]" data-col-dropdown>
+            <div className="relative shrink-0 w-[120px] sm:w-[145px]" data-col-dropdown>
               <button
                 onClick={() => setShowColDropdown(!showColDropdown)}
-                className="w-full bg-white border border-stone-200 text-[11px] sm:text-[11px] px-2.5 py-1.5 h-7 sm:h-8 rounded-lg flex items-center justify-between hover:border-stone-300"
+                className="w-full bg-white border border-stone-200 text-xs sm:text-xs px-3 py-1.5 h-8 sm:h-9 rounded-lg flex items-center justify-between hover:border-stone-300"
               >
-                <span className="font-semibold text-stone-700 uppercase tracking-wider truncate">
+                <span className="font-bold text-stone-700 uppercase tracking-wider truncate">
                   {activeCollection === 'All' ? 'Collections' : activeCollection}
                 </span>
-                <svg className={`w-3 h-3 text-stone-500 shrink-0 transition-transform ${showColDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-3.5 h-3.5 text-stone-500 shrink-0 transition-transform ${showColDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
               </button>
 
               {showColDropdown && (
@@ -304,33 +304,33 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
 
         {/* Active filter chips */}
         {activeFilterCount > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {activeMaterialType !== 'All' && (
-              <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-stone-900 text-white text-xs font-bold uppercase tracking-wider pl-3 pr-2 py-1.5 rounded-full shadow-sm">
                 <span className="text-stone-400 mr-0.5">Type:</span>{activeMaterialType}
                 <button
                   onClick={() => setActiveMaterialType('All')}
-                  className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
+                  className="ml-0.5 w-4 h-4 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
                   aria-label="Remove type filter"
                 >
-                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                  <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
               </span>
             )}
             {activeCollection !== 'All' && (
-              <span className="inline-flex items-center gap-2 bg-stone-900 text-white text-[11px] font-bold uppercase tracking-wider pl-1.5 pr-2 py-1.5 rounded-full shadow-sm">
+              <span className="inline-flex items-center gap-2.5 bg-stone-900 text-white text-xs font-bold uppercase tracking-wider pl-2 pr-2.5 py-2 rounded-full shadow-sm">
                 {(() => {
                   const col = collections.find(c => c.name === activeCollection)
                   return col ? (
-                    <img src={col.image} className="w-5 h-5 rounded-full object-cover border border-white/30" alt="" />
+                    <img src={col.image} className="w-5.5 h-5.5 rounded-full object-cover border border-white/30" alt="" />
                   ) : (
                     <span className="text-stone-400 ml-1.5 mr-0.5">Col:</span>
                   )
                 })()}
-                <span className={collections.find(c => c.name === activeCollection) ? "" : ""}>{activeCollection}</span>
+                <span>{activeCollection}</span>
                 <button
                   onClick={() => setActiveCollection('All')}
-                  className="ml-1 w-4 h-4 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
+                  className="ml-1 w-4.5 h-4.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
                   aria-label="Remove collection filter"
                 >
                   <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -338,30 +338,30 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
               </span>
             )}
             {activeColorGroup !== 'All' && (
-              <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-wider pl-2 pr-1.5 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-stone-900 text-white text-xs font-bold uppercase tracking-wider pl-2.5 pr-2 py-1.5 rounded-full shadow-sm">
                 <span
-                  className="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0"
+                  className="w-3 h-3 rounded-full border border-white/20 shrink-0"
                   style={{ background: COLOR_SWATCH[activeColorGroup] ?? '#d0c8c0' }}
                 />
                 {activeColorGroup}
                 <button
                   onClick={() => setActiveColorGroup('All')}
-                  className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
+                  className="ml-0.5 w-4 h-4 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
                   aria-label="Remove color filter"
                 >
-                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                  <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
               </span>
             )}
             {activePattern !== 'All' && (
-              <span className="inline-flex items-center gap-1 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-stone-900 text-white text-xs font-bold uppercase tracking-wider pl-3 pr-2 py-1.5 rounded-full shadow-sm">
                 <span className="text-stone-400 mr-0.5">Pattern:</span>{activePattern}
                 <button
                   onClick={() => setActivePattern('All')}
-                  className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
+                  className="ml-0.5 w-4 h-4 flex items-center justify-center rounded-full bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"
                   aria-label="Remove pattern filter"
                 >
-                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                  <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
               </span>
             )}
@@ -412,25 +412,25 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                   />
                   {/* In search mode, always show label at bottom */}
                   {isSearchMode ? (
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pt-4 pb-1.5 px-1.5">
-                      <p className="text-[10px] text-white font-bold uppercase leading-tight truncate">
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pt-5 pb-2.5 px-2">
+                      <p className="text-[11px] text-white font-bold uppercase leading-tight truncate">
                         {highlight(m.collection_name ?? '', search.trim())}
                       </p>
-                      <p className="text-[9px] text-white/70 mt-0.5 truncate">
+                      <p className="text-[10px] text-white/70 mt-1 truncate">
                         {highlight(m.material_name ?? '', search.trim())}
                       </p>
                       {(m.material_type?.toLowerCase().includes(search.toLowerCase()) ||
                         m.color_group?.toLowerCase().includes(search.toLowerCase()) ||
                         m.pattern?.toLowerCase().includes(search.toLowerCase())) && (
-                        <p className="text-[9px] text-secondary/80 mt-0.5 truncate">
+                        <p className="text-[10px] text-secondary/80 mt-1 truncate">
                           {highlight(m.material_type ?? '', search.trim())} · {highlight(m.color_group ?? '', search.trim())}
                         </p>
                       )}
                     </div>
                   ) : (
-                    <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex flex-col items-center justify-center transition-opacity p-1 text-center">
-                      <span className="text-[10px] text-white font-bold uppercase leading-tight">{m.collection_name}</span>
-                      <span className="text-[9px] text-white/70 mt-0.5">{m.material_name}</span>
+                    <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex flex-col items-center justify-center transition-opacity p-2 text-center">
+                      <span className="text-[11px] text-white font-bold uppercase leading-tight">{m.collection_name}</span>
+                      <span className="text-[10px] text-white/70 mt-1">{m.material_name}</span>
                     </div>
                   )}
                   {isActive && (

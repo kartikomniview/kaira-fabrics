@@ -10,22 +10,26 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
     <section 
       ref={aboutRef} 
       id="about" 
-      className={`bg-white border-b border-stone-200 py-20 md:py-32 relative overflow-hidden transition-all duration-1000 ${
+      className={`border-b border-stone-200 py-20 md:py-32 relative overflow-hidden transition-all duration-1000 ${
         isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
+      style={{ backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background2.webp')", backgroundSize: 'cover', backgroundPosition: 'left', backgroundRepeat: 'no-repeat' }}
     >
+      {/* Overlay to keep text readable */}
+      <div className="absolute inset-0 bg-white/85" />
+
       {/* Decorative vertical lines */}
       <div className="absolute top-0 bottom-0 left-[10%] w-px bg-stone-100 hidden md:block" />
       <div className="absolute top-0 bottom-0 right-[10%] w-px bg-stone-100 hidden md:block" />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-24 items-center">
           
           {/* Left Column: Text Content */}
           <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
             <div className="inline-flex items-center gap-3 mb-4 md:mb-6">
               <span className="h-px w-6 bg-primary" />
-              <h2 className={`text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500 transition-all duration-700 ${isAboutVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+              <h2 className={`text-[14px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-stone-500 transition-all duration-700 ${isAboutVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
                 About Us
               </h2>
             </div>
@@ -52,19 +56,19 @@ const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
                   to="/about"
                   className="group relative inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden shadow-md"
                 >
-                  <span className="text-[13px] font-bold uppercase tracking-widest relative z-10">Know more</span>
+                  <span className="text-[15px] font-bold uppercase tracking-widest relative z-10">Know more</span>
                   <div className="absolute inset-0 bg-primary translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
                 </Link>
                 
-                <div className="hidden sm:flex items-center gap-4">
+                <div className="hidden sm:flex items-center gap-6">
                   <div className="flex flex-col">
-                    <span className="text-xl font-serif text-stone-900">20+</span>
-                    <span className="text-[9px] uppercase tracking-widest text-stone-400 font-bold">Years Heritage</span>
+                    <span className="text-2xl font-serif text-stone-900">20+</span>
+                    <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Years Heritage</span>
                   </div>
                   <div className="w-px h-8 bg-stone-200" />
                   <div className="flex flex-col">
-                    <span className="text-xl font-serif text-stone-900">10k+</span>
-                    <span className="text-[9px] uppercase tracking-widest text-stone-400 font-bold">Fabrics</span>
+                    <span className="text-2xl font-serif text-stone-900">10k+</span>
+                    <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Fabrics</span>
                   </div>
                 </div>
               </div>
