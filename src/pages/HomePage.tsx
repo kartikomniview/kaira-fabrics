@@ -5,6 +5,7 @@ import CTASection from '../components/sections/CTASection'
 import FabricCategoriesSection from '../components/sections/FabricCategoriesSection'
 import HeroSection from '../components/sections/HeroSection'
 import TestimonialsSection from '../components/sections/TestimonialsSection'
+import SmartCatalogSection from '../components/sections/SmartCatalogSection'
 import WhoWeServeSection from '../components/sections/WhoWeServeSection'
 import WhyKairaSection from '../components/sections/WhyKairaSection'
 
@@ -189,7 +190,7 @@ const HomePage = () => {
               to="/collections"
               className="group relative inline-flex items-center justify-center gap-3 px-10 sm:px-14 py-4 sm:py-5 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden shadow-lg"
             >
-              <span className="text-base sm:text-base font-bold uppercase tracking-widest relative z-10">Explore All Collections</span>
+              <span className="text-sm md:text-base font-bold uppercase tracking-widest relative z-10">Explore All Collections</span>
               <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
@@ -250,6 +251,8 @@ const HomePage = () => {
       </section>
 
       <WhoWeServeSection />
+
+      <SmartCatalogSection />
 
       {/* Unified Advantage & Specialties Section */}
       <WhyKairaSection />

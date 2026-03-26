@@ -95,10 +95,10 @@ export default function WhoWeServeSection() {
         </div>
 
         {/* Right: Cards grid */}
-        <div className={`grid grid-cols-2 gap-4 md:gap-5 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
 
         {/* Manufacturers — full width on mobile, spans 2 rows on desktop */}
-        <TiltCard className="col-span-2 md:col-span-1 md:row-span-2 bg-stone-900 rounded-2xl p-6 md:p-7 flex flex-col justify-between border border-stone-800 min-h-[280px]">
+        <TiltCard className="md:col-span-1 md:row-span-2 bg-stone-900 rounded-2xl p-6 md:p-7 flex flex-col justify-between border border-stone-800 min-h-[280px]">
           <div>
             <div className="flex items-start justify-between mb-4">
               <h3 className="font-serif text-xl md:text-2xl text-white italic leading-tight min-w-0 break-words">Dealers &amp; Manufacturers</h3>

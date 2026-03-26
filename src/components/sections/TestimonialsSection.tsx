@@ -100,7 +100,7 @@ const TestimonialsSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-10 md:py-24 border-b border-stone-200 relative overflow-hidden"
+      className="py-16 md:py-24 border-b border-stone-200 relative overflow-hidden"
       style={{ backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background2.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
     >
       {/* Overlay for readability */}
@@ -113,7 +113,7 @@ const TestimonialsSection = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
 
         {/* Section Header */}
-        <div className="text-center mb-8 md:mb-14">
+        <div className="text-center mb-10 md:mb-14">
           <div className="inline-flex items-center justify-center gap-3 mb-3">
             <span className="h-px w-5 sm:w-6 bg-primary" />
             <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-stone-500 font-bold">Client Stories</p>

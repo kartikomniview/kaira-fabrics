@@ -3,6 +3,7 @@ import { newMaterials } from '../data/newmaterials'
 import { dummyProducts, getProductGlbUrl, getProductImageUrl } from '../data/products'
 import type { Product } from '../data/products'
 import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../utils/textureUtils'
+import * as THREE from 'three'
 
 const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
 const S3_BASE = 'https://supoassets.s3.ap-south-1.amazonaws.com'
@@ -31,7 +32,7 @@ function getNormalMapURL(collectionName: string) {
   return `${S3_BASE}/public/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
 }
 function getSheenMapUrl(materialType: string) {
-  if (materialType.includes('Fabric') || materialType.includes('Velvet') || materialType.includes('Suede')) {
+  if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
     return `${S3_BASE}/public/textures/Common/SheenColorMap.webp`
   }
   return ''
@@ -46,8 +47,10 @@ function getUvValue(collectionName: string): number {
   if (collectionName === 'Impression') return 14
   return 16
 }
-function getRoughnessValue(collectionName: string, baseRoughness: number): number {
+function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
+  if (materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8
   if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
+  if (materialType.toLowerCase().includes('leather')) return 0.5
   return baseRoughness
 }
 
@@ -65,6 +68,7 @@ interface SelectedMaterial {
 
 const ThreeDVisualizerPageMobile = () => {
   const mvRef = useRef<HTMLElement>(null)
+  const fabricMeshesRef = useRef<any[]>([])
   const [selected, setSelected] = useState<SelectedMaterial | null>(null)
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
@@ -86,9 +90,10 @@ const ThreeDVisualizerPageMobile = () => {
     return () => clearTimeout(t)
   }, [])
 
-  const [applyRoughnessMap] = useState(false)
-  const [applyNormalMap] = useState(false)
-  const [applySheenMap] = useState(false)
+  // Toggle flags for material maps
+  const [applyRoughnessMap] = useState(true)
+  const [applyNormalMap] = useState(true)
+  const [applySheenMap] = useState(true)
 
   const modelUrl = getProductGlbUrl(currentProduct)
 
@@ -124,7 +129,7 @@ const ThreeDVisualizerPageMobile = () => {
       applySheenMap ? (() => { const u = getSheenMapUrl(mat.materialType); return u ? fetchBlobUrl(u) : Promise.resolve(null) })() : Promise.resolve(null),
     ])
     const uvScale = getUvValue(mat.collectionName)
-    const roughness = getRoughnessValue(mat.collectionName, mat.roughness)
+    const roughness = getRoughnessValue(mat.materialType, mat.collectionName, mat.roughness)
     await applyTextureToModel(mv, {
       baseBlobUrl,
       roughness,
@@ -134,7 +139,9 @@ const ThreeDVisualizerPageMobile = () => {
       roughnessBlobUrl,
       normalBlobUrl,
       sheenBlobUrl,
+      meshes: fabricMeshesRef.current,
     })
+    // Revoke blob URLs now that all texture objects have been created
     if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
     if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
     if (normalBlobUrl) URL.revokeObjectURL(normalBlobUrl)
@@ -160,21 +167,58 @@ const ThreeDVisualizerPageMobile = () => {
     setBrowseMode(false)
   }
 
+  // Listen for model load
   useEffect(() => {
     const mv = mvRef.current as any
     if (!mv) return
-    const onLoad = () => setModelLoaded(true)
+    const onLoad = () => {
+      fabricMeshesRef.current = []
+
+      const sceneSymbol:any = Object.getOwnPropertySymbols(mv).find(s => s.description === 'scene');
+      const scene = mv[sceneSymbol];
+
+      scene.traverse((child:any) => {
+        if (child.isMesh && child.material) {
+          const oldMaterial = child.material;
+
+          const newMaterial = new THREE.MeshPhysicalMaterial({
+            map: oldMaterial.map,
+            color: oldMaterial.color,
+            normalMap: oldMaterial.normalMap,
+            roughnessMap: oldMaterial.roughnessMap,
+            metalnessMap: oldMaterial.metalnessMap,
+            aoMap: oldMaterial.aoMap,
+            aoMapIntensity: oldMaterial.aoMapIntensity ?? 1,
+            roughness: oldMaterial.roughness ?? 0.5,
+            metalness: oldMaterial.metalness ?? 0.5,
+            transparent: oldMaterial.transparent,
+            opacity: oldMaterial.opacity,
+            side: oldMaterial.side
+          });
+
+          child.material = newMaterial;
+          // Do NOT dispose oldMaterial — model-viewer manages its lifecycle;
+          // disposing it here also destroys shared textures that newMaterial.map still references.
+          fabricMeshesRef.current.push(child)
+        }
+      });
+
+      setModelLoaded(true)
+    }
     mv.addEventListener('load', onLoad)
     return () => mv.removeEventListener('load', onLoad)
   }, [])
 
+  // If model loads after a material was already selected, apply it
   useEffect(() => {
     if (modelLoaded && selected) applyTexture(selected)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelLoaded])
 
+  // Reset model loaded state when product changes so loading overlay re-shows
   useEffect(() => {
     setModelLoaded(false)
+    fabricMeshesRef.current = []
   }, [currentProduct])
 
   // Viewport / panel flex ratios based on mode

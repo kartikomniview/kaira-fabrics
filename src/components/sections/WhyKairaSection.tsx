@@ -52,7 +52,7 @@ const WhyKairaSection = () => {
     <section 
       ref={sectionRef}
       id="why-kaira" 
-      className="py-10 md:py-24 border-b border-stone-200 relative overflow-hidden" 
+      className="py-16 md:py-24 border-b border-stone-200 relative overflow-hidden" 
       style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f4 40%, #e7e5e4 100%)' }}
     >
       {/* Decorative gradient orbs */}
@@ -67,7 +67,7 @@ const WhyKairaSection = () => {
       <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         
         {/* Centered Header - More Compact */}
-        <div className={`text-center max-w-2xl mx-auto mb-6 md:mb-16 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <div className={`text-center max-w-2xl mx-auto mb-10 md:mb-16 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="inline-flex items-center gap-2 sm:gap-3 mb-2 sm:mb-4 justify-center">
             <span className="w-1 h-1 bg-primary rounded-full" />
             <span className="text-[14px] sm:text-[12px] uppercase tracking-[0.2em] text-stone-400 font-bold">The Kaira Advantage</span>
