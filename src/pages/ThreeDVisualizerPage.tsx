@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from 'react'
+﻿import { useEffect, useRef, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import ThreeDVisualizerPageMobile from './ThreeDVisualizerPageMobile'
 import { newMaterials } from '../data/newmaterials'
@@ -247,6 +247,43 @@ const ThreeDVisualizerDesktop = () => {
     if (!mv) return
     const onLoad = () => {
       setModelLoaded(true)
+
+      const sceneSymbol:any = Object.getOwnPropertySymbols(mv).find(s => s.description === 'scene');
+      const scene = mv[sceneSymbol];
+
+      scene.traverse((child:any) => {
+      if (child.isMesh && child.material) {
+        const oldMaterial = child.material;
+        // const newMaterial = new THREE.MeshPhysicalMaterial();
+
+        return
+
+        const newMaterial = new THREE.MeshPhysicalMaterial({
+          map: oldMaterial.map,
+          color: oldMaterial.color,
+          normalMap: oldMaterial.normalMap,
+          roughnessMap: oldMaterial.roughnessMap,
+          metalnessMap: oldMaterial.metalnessMap,
+          roughness: oldMaterial.roughness ?? 0.5,
+          metalness: oldMaterial.metalness ?? 0.5,
+          transparent: oldMaterial.transparent,
+          opacity: oldMaterial.opacity,
+          side: oldMaterial.side
+        });
+
+        // newMaterial.copy(oldMaterial);
+
+        newMaterial.clearcoat = 1.0;
+        newMaterial.clearcoatRoughness = 0.1;
+        newMaterial.transmission = 0.8;
+        newMaterial.ior = 1.5;
+        newMaterial.thickness = 0.5;
+
+        child.material = newMaterial;
+        oldMaterial.dispose();
+      }
+    });
+
     }
     mv.addEventListener('load', onLoad)
     return () => mv.removeEventListener('load', onLoad)
