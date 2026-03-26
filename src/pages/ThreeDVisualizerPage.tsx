@@ -246,52 +246,6 @@ const ThreeDVisualizerDesktop = () => {
     const mv = mvRef.current as any
     if (!mv) return
     const onLoad = () => {
-      // Initialize sheen on the first material so the extension is active
-      try {
-        
-        const m = mv.model?.materials?.[0]
-
-        const sceneSymbol:any = Object.getOwnPropertySymbols(mv).find(s => s.description === 'scene');
-        const scene = mv[sceneSymbol];
-
-
-    
-
-
-        scene.traverse((child:any) => {
-
-           if (child.isMesh && child.material) {
-
-            const oldMaterial = child.material;
-
-    console.log("Old material:", oldMaterial);
-
-            // 1. Create the new Physical Material
-            const newMaterial = new THREE.MeshPhysicalMaterial({
-        map: oldMaterial.map,
-        color: oldMaterial.color?.clone(),
-        normalMap: oldMaterial.normalMap,
-        roughness: oldMaterial.roughness ?? 0.5,
-        metalness: oldMaterial.metalness ?? 0,
-        transparent: oldMaterial.transparent,
-        opacity: oldMaterial.opacity,
-    });
-            // newMaterial.copy(oldMaterial);
-
-          newMaterial.clearcoat = 1.0;
-          newMaterial.clearcoatRoughness = 0.1;
-          newMaterial.transmission = 0.8;
-          newMaterial.ior = 1.5;
-          newMaterial.thickness = 0.5;
-
-          child.material = newMaterial;
-          oldMaterial.dispose();
-          }
-        });
-      } catch(error) {
-        // KHR_materials_sheen not present on this model — skip
-        console.log(error)
-      }
       setModelLoaded(true)
     }
     mv.addEventListener('load', onLoad)
