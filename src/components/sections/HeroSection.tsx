@@ -35,7 +35,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-t from-stone-900/80 via-stone-900/20 to-stone-900/40" />
 
       {/* ── Centered Content ── */}
-      <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto flex flex-col items-center gap-4 sm:gap-6 mt-8 sm:mt-0">
+      <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto flex flex-col items-center gap-6 sm:gap-6 mt-12 sm:mt-0">
 
         {/* Brand name */}
         <div
@@ -86,7 +86,7 @@ const HeroSection = () => {
 
         {/* CTA Buttons */}
         <div
-          className={`flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-6 sm:mt-6 transition-all duration-700 delay-[500ms] ease-out ${
+          className={`flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-6 mt-8 sm:mt-6 transition-all duration-700 delay-[500ms] ease-out ${
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
