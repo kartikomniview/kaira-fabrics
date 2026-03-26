@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import HeroSection from '../components/sections/HeroSection'
-import CTASection from '../components/sections/CTASection'
-import WhyKairaSection from '../components/sections/WhyKairaSection'
 import AboutSection from '../components/sections/AboutSection'
+import CTASection from '../components/sections/CTASection'
 import FabricCategoriesSection from '../components/sections/FabricCategoriesSection'
-import SmartCatalogSection from '../components/sections/SmartCatalogSection'
+import HeroSection from '../components/sections/HeroSection'
 import TestimonialsSection from '../components/sections/TestimonialsSection'
 import WhoWeServeSection from '../components/sections/WhoWeServeSection'
+import WhyKairaSection from '../components/sections/WhyKairaSection'
 
 // Gallery images — 7 items with explicit grid placement for gap-free 4-col mosaic
 const galleryImages = [
