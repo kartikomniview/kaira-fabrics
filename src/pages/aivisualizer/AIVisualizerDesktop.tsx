@@ -7,6 +7,7 @@ import { MaterialsInventory, S3_THUMB } from './MaterialsInventory'
 import OTPVerification from './OTPVerification'
 import {
   BYPASS_OTP,
+  generateRender,
 } from './generateRender'
 import type { SelectedMaterial, SelectedProduct } from './generateRender'
 
@@ -29,14 +30,13 @@ const AIVisualizerDesktop = () => {
   const [mobileNumber, setMobileNumber] = useState('')
   const [otpCode, setOtpCode] = useState('')
   const [otpStep, setOtpStep] = useState(1) // 1 = Mobile, 2 = Verify
-  const [isGenerating] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [generateError, setGenerateError] = useState<string | null>(null)
   const [showImageModal, setShowImageModal] = useState(false)
   const [imgZoom, setImgZoom] = useState(1)
   const [showFabricModal, setShowFabricModal] = useState(false)
   const [compareMode, setCompareMode] = useState(false)
-  const [showComingSoon, setShowComingSoon] = useState(false)
 
   // -- Handlers ---------------------------------------------------------------
   const handleFabricUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,28 +93,29 @@ const AIVisualizerDesktop = () => {
     })
   }
 
-  // -- Core generation (this will be used later dont remove it) --------------------------------------------------------
-  // const handleGenerate = () => {
-  //   if (!selectedMaterial || !selectedProduct) return
-  //   setGenerateError(null)
-  //   generateRender({
-  //     selectedMaterial,
-  //     selectedProduct,
-  //     onGeneratingChange: setIsGenerating,
-  //     onShowOTPChange: setShowOTP,
-  //     onResult: (imageUrl) => {
-  //       setGeneratedImage(imageUrl)
-  //       setCurrentStep(3)
-  //       setShowImageModal(true)
-  //     },
-  //     onError: setGenerateError,
-  //   })
-  // }
+
+  const handleGenerate = (mobile: string) => {
+    if (!selectedMaterial || !selectedProduct) return
+    setGenerateError(null)
+    generateRender({
+      selectedMaterial,
+      selectedProduct,
+      mobileNumber: mobile,
+      onGeneratingChange: setIsGenerating,
+      onShowOTPChange: setShowOTP,
+      onResult: (imageUrl) => {
+        setGeneratedImage(imageUrl)
+        setCurrentStep(3)
+        setShowImageModal(true)
+      },
+      onError: setGenerateError,
+    })
+  }
 
   const handleGenerateClick = () => {
     if (!selectedProduct) return
     if (BYPASS_OTP) {
-      setShowComingSoon(true)
+      handleGenerate('')
       return
     }
     setOtpStep(1)
@@ -130,8 +131,7 @@ const AIVisualizerDesktop = () => {
   }
 
   const handleVerifyAndGenerate = () => {
-    setShowOTP(false)
-    setShowComingSoon(true)
+    handleGenerate(mobileNumber)
   }
 
   // -- Render Helpers ----------------------------------------------------------
@@ -744,42 +744,6 @@ const AIVisualizerDesktop = () => {
                 Download
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Coming Soon modal */}
-      {showComingSoon && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-stone-950/90 backdrop-blur-md" onClick={() => setShowComingSoon(false)} />
-          <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col items-center text-center px-8 py-10">
-            {/* Close */}
-            <button
-              onClick={() => setShowComingSoon(false)}
-              className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-700"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-
-            {/* Icon */}
-            <div className="w-16 h-16 rounded-full bg-stone-900 flex items-center justify-center mb-5 shadow-lg">
-              <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-              </svg>
-            </div>
-
-            <p className="text-[10px] tracking-[0.35em] uppercase font-bold text-primary mb-2">AI Feature</p>
-            <h3 className="font-serif text-2xl text-stone-900 mb-3">Coming Soon</h3>
-            <p className="text-sm text-stone-500 leading-relaxed mb-7">
-              Our AI render engine is being fine-tuned to deliver photorealistic fabric previews. Stay tuned — it'll be ready very soon!
-            </p>
-
-            <button
-              onClick={() => setShowComingSoon(false)}
-              className="w-full py-3 bg-stone-900 text-white text-[11px] font-bold uppercase tracking-widest rounded-xl hover:bg-black transition-colors"
-            >
-              Got it
-            </button>
           </div>
         </div>
       )}

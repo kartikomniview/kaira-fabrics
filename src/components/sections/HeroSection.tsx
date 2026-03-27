@@ -1,33 +1,100 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Button from '../ui/Button'
 
-const SLIDES = [
-  {
-    url: 'https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/hero/Banner3.webp',
-    label: 'Woven Excellence',
-  },
-  {
-    url: 'https://supoassets.s3.ap-south-1.amazonaws.com/public/websites/KairaFabrics/Banner/2.jpg',
-    label: 'Premium Textiles',
-  }
+const HERO_IMAGE = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/hero/Banner3.webp'
+const VIDEOS = [
+  'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/HeroV1.mp4',
+  'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/HeroV2.mp4',
 ]
 
 const HeroSection = () => {
   const [isLoaded, setIsLoaded] = useState(false)
+  const [videoReady, setVideoReady] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const videoIndexRef = useRef(0)
+  const prefetchedRef = useRef(false)
 
   useEffect(() => {
     const loadTimer = setTimeout(() => setIsLoaded(true), 100)
     return () => clearTimeout(loadTimer)
   }, [])
 
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>
+
+    const startVideo = () => {
+      const video = videoRef.current
+      if (!video) return
+      video.src = VIDEOS[0]
+      video.load()
+      video.play().catch(() => { /* autoplay blocked — image stays */ })
+    }
+
+    const setup = () => { timer = setTimeout(startVideo, 1500) }
+
+    if (document.readyState === 'complete') {
+      setup()
+    } else {
+      window.addEventListener('load', setup, { once: true })
+    }
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('load', setup)
+    }
+  }, [])
+
+  const handleCanPlay = () => {
+    // Fade image → video on first playable frame
+    setVideoReady(true)
+
+    // Prefetch V2 while V1 plays so it's ready instantly
+    if (!prefetchedRef.current && videoIndexRef.current === 0) {
+      prefetchedRef.current = true
+      const link = document.createElement('link')
+      link.rel = 'prefetch'
+      link.href = VIDEOS[1]
+      link.as = 'video'
+      document.head.appendChild(link)
+    }
+  }
+
+  const handleEnded = () => {
+    const nextIndex = videoIndexRef.current + 1
+    if (nextIndex < VIDEOS.length) {
+      videoIndexRef.current = nextIndex
+      const video = videoRef.current
+      if (video) {
+        video.src = VIDEOS[nextIndex]
+        video.load()
+        video.play().catch(() => {})
+      }
+    }
+    // After V2 ends it holds on the last frame —  image still sits beneath as fallback
+  }
+
   return (
     <section className="relative w-full h-[85dvh] sm:h-[100dvh] min-h-[500px] sm:min-h-[560px] flex items-center justify-center overflow-hidden bg-stone-900">
 
-      {/* ── Background Image ── */}
+      {/* ── Background Image — visible until video is ready ── */}
       <img
-        src={SLIDES[0].url}
-        alt={SLIDES[0].label}
-        className="absolute inset-0 w-full h-full object-cover"
+        src={HERO_IMAGE}
+        alt="Kaira Fabrics"
+        className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-1000 ${
+          videoReady ? 'opacity-0' : 'opacity-100'
+        }`}
+      />
+
+      {/* ── Background Video — no src on mount, loaded lazily after page load ── */}
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-1000 ${
+          videoReady ? 'opacity-100' : 'opacity-0'
+        }`}
+        onCanPlay={handleCanPlay}
+        onEnded={handleEnded}
       />
 
       {/* ── Professional Elegant Overlays ── */}

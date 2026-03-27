@@ -5,20 +5,12 @@ import CTASection from '../components/sections/CTASection'
 import FabricCategoriesSection from '../components/sections/FabricCategoriesSection'
 import HeroSection from '../components/sections/HeroSection'
 import TestimonialsSection from '../components/sections/TestimonialsSection'
+import GallerySection from '../components/sections/GallerySection'
 import SmartCatalogSection from '../components/sections/SmartCatalogSection'
 import WhoWeServeSection from '../components/sections/WhoWeServeSection'
 import WhyKairaSection from '../components/sections/WhyKairaSection'
 
-// Gallery images — 7 items with explicit grid placement for gap-free 4-col mosaic
-const galleryImages = [
-  { id: 1, src: 'https://placehold.co/600x800/D5D2CC/74623C?text=Gallery+1', alt: 'Living Room — Royal Velvet',        cls: 'md:col-start-1 md:col-end-3 md:row-start-1 md:row-end-3' },
-  { id: 2, src: 'https://placehold.co/300x400/DADADD/74623C?text=Gallery+2', alt: 'Bedroom Suite — Cashmere Touch',    cls: 'md:col-start-3 md:row-start-1' },
-  { id: 3, src: 'https://placehold.co/300x400/D8D5D0/74623C?text=Gallery+3', alt: 'Dining Room — Italian Leather',     cls: 'md:col-start-4 md:row-start-1' },
-  { id: 4, src: 'https://placehold.co/600x400/DCDBD8/74623C?text=Gallery+4', alt: 'Study Library — Contemporary Weave', cls: 'md:col-start-3 md:col-end-5 md:row-start-2' },
-  { id: 5, src: 'https://placehold.co/300x400/D3D0CB/74623C?text=Gallery+5', alt: 'Lounge Area — Silk Heritage',       cls: 'md:col-start-1 md:row-start-3' },
-  { id: 6, src: 'https://placehold.co/300x400/D8D8D5/74623C?text=Gallery+6', alt: 'Master Suite — Linen Masters',      cls: 'md:col-start-2 md:row-start-3' },
-  { id: 7, src: 'https://placehold.co/600x400/D5D2CC/74623C?text=Gallery+7', alt: 'Modern Office — Urban Slate',       cls: 'md:col-start-3 md:col-end-5 md:row-start-3' },
-]
+
 
 const HomePage = () => {
   const [isAboutVisible, setIsAboutVisible] = useState(false)
@@ -260,49 +252,8 @@ const HomePage = () => {
       {/* Testimonials */}
       <TestimonialsSection />
 
-      {/* 6. Portfolio */}
-      <section id="portfolio" className="py-10 md:py-24 border-t border-stone-200 relative" style={{ backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background3.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-        {/* Overlay to keep text readable */}
-        <div className="absolute inset-0 bg-white/80" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-10">
-          <div className="text-center mb-8 md:mb-12">
-            <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-stone-500 font-bold mb-2">Showcase</p>
-            <h2 className="font-serif text-2xl md:text-4xl text-stone-900">
-              Our Portfolio
-            </h2>
-            <div className="flex items-center justify-center gap-2 mt-3 md:mt-4">
-              <span className="h-px w-6 md:w-8 bg-stone-200" />
-              <span className="w-1 h-1 bg-stone-300 rounded-full" />
-              <span className="h-px w-6 md:w-8 bg-stone-200" />
-            </div>
-            <p className="mt-4 md:mt-6 text-stone-600 text-xs md:text-sm max-w-lg mx-auto font-normal tracking-wide leading-relaxed">
-              Showcasing the world's most exquisite interiors powered by KAIRA
-            </p>
-          </div>
-
-          {/* Mosaic Grid — explicit placement, zero gaps */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 md:[grid-template-rows:repeat(3,200px)]">
-            {galleryImages.map((img) => (
-              <div
-                key={img.id}
-                className={`h-28 sm:h-36 md:h-auto group relative overflow-hidden rounded-xl border border-stone-200/50 shadow-sm transition-all duration-500 hover:shadow-xl ${img.cls}`}
-              >
-                <img
-                  src={img.src}
-                  alt={img.alt}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3 md:p-5">
-                  <div className="translate-y-2 md:translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-white text-[10px] md:text-xs font-bold uppercase tracking-widest mb-0.5 md:mb-1">{img.alt.split(' — ')[0]}</p>
-                    <p className="text-stone-300 text-[8px] md:text-[10px] italic">{img.alt.split(' — ')[1]}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 6. Gallery */}
+      <GallerySection />
 
       {/* 7. CTA */}
       <CTASection />

@@ -1,64 +1,40 @@
 import { useEffect, useRef, useState } from 'react'
 
-const testimonials = [
-  {
-    id: 1,
-    name: 'Rohan Kapoor',
-    title: 'Interior Designer, Mumbai',
-    quote: 'KAIRA has completely transformed how I source fabrics for my clients across Mumbai and Pune. The quality is unmatched — every thread feels intentional and luxurious.',
-    rating: 5,
-    initials: 'RK',
-  },
-  {
-    id: 2,
-    name: 'Priya Nair',
-    title: 'Principal Architect, Kochi',
-    quote: 'From the moment I explored their collection, I knew this was different. The AI visualizer alone saved us hours on our last hospitality project in Bengaluru.',
-    rating: 5,
-    initials: 'PN',
-  },
-  {
-    id: 3,
-    name: 'Vikram Singhania',
-    title: 'Furniture Manufacturer, Jodhpur',
-    quote: "Sourcing premium upholstery fabric used to be a pain point for our Jodhpur workshop. With KAIRA's smart catalog and seamless delivery, it's the easiest part of our process now.",
-    rating: 5,
-    initials: 'VS',
-  },
-  {
-    id: 4,
-    name: 'Ananya Sharma',
-    title: 'Creative Director, New Delhi',
-    quote: 'The breadth of textures and the consistency of quality across every order is remarkable. My clients in Delhi and NCR always notice the difference.',
-    rating: 5,
-    initials: 'AS',
-  },
-  {
-    id: 5,
-    name: 'Suresh Iyer',
-    title: 'Design Consultant, Chennai',
-    quote: 'Coming from Tamil Nadu where craftsmanship is deeply valued, I can say KAIRA perfectly balances Indian textile heritage with modern innovation. Truly exceptional.',
-    rating: 5,
-    initials: 'HT',
-  },
-]
+const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 
-const StarRating = ({ count }: { count: number }) => (
-  <div className="flex items-center gap-0.5">
-    {Array.from({ length: count }).map((_, i) => (
-      <svg key={i} className="w-3 h-3 text-primary" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-      </svg>
-    ))}
-  </div>
-)
+interface GalleryItem {
+  id: string
+  asset_url: string
+  asset_type: 'Gallery' | 'Image'
+  type: 'testimonial' | 'other'
+  isfeatured: boolean
+  title?: string
+  description?: string
+}
 
 const TestimonialsSection = () => {
   const [isVisible, setIsVisible] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
+  const [items, setItems] = useState<GalleryItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [fetchFailed, setFetchFailed] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const autoScrollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    console.log(`${API}/gallery/homepage?type=testimonial`)
+    fetch(`${API}/gallery/homepage?type=testimonial`)
+      .then(r => {
+        console.log('Fetch testimonials response:', r)
+        if (!r.ok) throw new Error(`${r.status}`)
+        return r.json()
+      })
+      .then(data => setItems(Array.isArray(data) ? data : (data.items ?? [])))
+      .catch(() => setFetchFailed(true))
+      .finally(() => setLoading(false))
+  }, [])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -96,6 +72,8 @@ const TestimonialsSection = () => {
     setIsPaused(true)
     setTimeout(() => setIsPaused(false), 8000)
   }
+
+  if (!loading && !fetchFailed && items.length === 0) return null
 
   return (
     <section
@@ -164,33 +142,64 @@ const TestimonialsSection = () => {
             }`}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {testimonials.map((t) => (
-              <div
-                key={t.id}
-                className="snap-start shrink-0 w-[85vw] sm:w-[420px] lg:w-[400px] relative bg-stone-50 border border-stone-200 rounded-xl p-7 shadow-sm flex flex-col"
-              >
-                {/* Large quotation mark */}
-                <span className="absolute top-4 right-6 font-serif text-8xl text-stone-100 leading-none select-none pointer-events-none">
-                  "
-                </span>
-
-                <StarRating count={t.rating} />
-
-                <blockquote className="mt-4 font-serif text-[13px] md:text-md text-stone-800 leading-relaxed relative z-10 flex-1">
-                  "{t.quote}"
-                </blockquote>
-
-                <div className="mt-6 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center text-[11px] font-bold text-primary tracking-wider shrink-0">
-                    {t.initials}
+            {loading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="snap-start shrink-0 w-[85vw] sm:w-[320px] lg:w-[300px] rounded-xl bg-stone-200 animate-pulse aspect-[3/4]"
+                  />
+                ))
+              : fetchFailed
+              ? (
+                  <div className="w-full py-10 text-center text-sm text-stone-400">
+                    Could not load testimonials.
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-stone-900">{t.name}</p>
-                    <p className="text-[11px] text-stone-500 mt-0.5">{t.title}</p>
+                )
+              : items.map(item => (
+                  <div
+                    key={item.id}
+                    onClick={() => setPreviewUrl(item.asset_url)}
+                    className="snap-start shrink-0 w-[85vw] sm:w-[320px] lg:w-[300px] relative bg-stone-900 border border-stone-200 rounded-xl overflow-hidden shadow-sm group flex flex-col h-[420px] cursor-pointer"
+                  >
+                    {/* Video */}
+                    <div className="relative flex-1 overflow-hidden bg-black">
+                      <video
+                        src={item.asset_url}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
+                        onMouseLeave={e => {
+                          const v = e.currentTarget as HTMLVideoElement
+                          v.pause()
+                          v.currentTime = 0
+                        }}
+                      />
+                      {/* Play icon (idle) */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+                        <div className="w-12 h-12 rounded-full bg-stone-900/60 flex items-center justify-center backdrop-blur-sm">
+                          <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      {/* Info Overlay */}
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-900/90 via-stone-900/40 to-transparent pt-12 pb-5 px-5">
+                        {item.title && (
+                          <p className="text-sm font-bold text-white mb-1">{item.title}</p>
+                        )}
+                        {item.description && (
+                          <p className="text-xs text-white/80 line-clamp-2 leading-relaxed">
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                ))
+            }
           </div>
         </div>
 
@@ -199,6 +208,36 @@ const TestimonialsSection = () => {
       <style>{`
         div::-webkit-scrollbar { display: none; }
       `}</style>
+
+      {/* Video Preview Modal */}
+      {previewUrl && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+          onClick={() => setPreviewUrl(null)}
+        >
+          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-sm" />
+          <div className="relative z-10 w-full max-w-2xl flex flex-col" style={{ maxHeight: 'calc(100vh - 2rem)' }} onClick={e => e.stopPropagation()}>
+            <div className="flex justify-end mb-2 shrink-0">
+              <button
+                onClick={() => setPreviewUrl(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <video
+              src={previewUrl}
+              autoPlay
+              controls
+              playsInline
+              className="w-full rounded-2xl shadow-2xl bg-black min-h-0"
+              style={{ maxHeight: 'calc(100vh - 6rem)' }}
+            />
+          </div>
+        </div>
+      )}
     </section>
   )
 }

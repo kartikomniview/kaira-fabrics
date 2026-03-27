@@ -1,3 +1,5 @@
+import * as UAParser from 'ua-parser-js'
+
 // ── Dev toggle: set to true to skip OTP and go directly to result ─────────────
 export const BYPASS_OTP = false
 
@@ -26,6 +28,7 @@ export interface SelectedProduct {
 export interface GenerateRenderParams {
   selectedMaterial: SelectedMaterial
   selectedProduct: SelectedProduct
+  mobileNumber: string
   onGeneratingChange: (value: boolean) => void
   onShowOTPChange: (value: boolean) => void
   onResult: (imageUrl: string) => void
@@ -35,6 +38,7 @@ export interface GenerateRenderParams {
 export async function generateRender({
   selectedMaterial,
   selectedProduct,
+  mobileNumber,
   onGeneratingChange,
   onShowOTPChange,
   onResult,
@@ -67,12 +71,23 @@ export async function generateRender({
       `Output aspect ratio 1:1.`,
     ].join(' ')
 
+    const ua = new UAParser.UAParser().getResult()
+    const device_info = JSON.stringify({
+      browser: { name: ua.browser.name, version: ua.browser.version },
+      os: { name: ua.os.name, version: ua.os.version },
+      device: { type: ua.device.type ?? 'desktop', vendor: ua.device.vendor, model: ua.device.model },
+      screen: { width: window.screen.width, height: window.screen.height },
+      language: navigator.language,
+    })
+
     const response = await fetch('https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage/ai-visualize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         inputImages: [fabricImage, productImage],
         prompt,
+        mobile_number: mobileNumber,
+        device_info,
       }),
     })
 
