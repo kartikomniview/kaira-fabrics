@@ -899,7 +899,7 @@ const CollectionsPage = () => {
                 <span className="hidden sm:inline">Get a Quote</span>
               </button>
               <a
-                href="https://wa.me/917593840075"
+                href="https://wa.me/918589925111"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 sm:px-6 py-2.5 bg-[#25D366] text-white text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-[#1ebe5d] transition-all rounded-sm shadow-md"

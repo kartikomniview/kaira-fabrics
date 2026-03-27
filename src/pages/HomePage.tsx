@@ -55,7 +55,7 @@ const HomePage = () => {
       <div className="hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-50 flex-col items-start">
         {/* Call */}
         <a
-          href="tel:+917593840075"
+          href="tel:+918589925111"
           title="Call us"
           className="group flex items-center bg-stone-900 border-b border-stone-700 hover:bg-primary transition-colors duration-200"
         >
@@ -83,7 +83,7 @@ const HomePage = () => {
 
         {/* WhatsApp */}
         <a
-          href="https://wa.me/917593840075"
+          href="https://wa.me/918589925111"
           target="_blank"
           rel="noopener noreferrer"
           title="WhatsApp"
