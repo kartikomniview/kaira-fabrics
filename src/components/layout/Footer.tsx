@@ -21,6 +21,7 @@ const footerColumns = [
     links: [
       { label: 'About Us', to: '/about' },
       { label: 'Contact Us', to: '/contact' },
+      { label: 'Admin', to: '/admin' },
     ],
   },
   {
