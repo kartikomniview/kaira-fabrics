@@ -331,7 +331,7 @@ const ContactPage = () => {
 
               {/* WhatsApp CTA */}
               <a
-                href="https://wa.me/918589925111"
+                href="https://wa.me/917593840075"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 w-full bg-[#25D366] hover:bg-[#1ebe5d] text-white px-6 py-4 transition-colors group rounded-sm shadow-sm"

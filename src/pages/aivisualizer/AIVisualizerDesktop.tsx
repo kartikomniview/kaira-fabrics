@@ -202,7 +202,7 @@ const AIVisualizerDesktop = () => {
               {/* AI Powered Badge */}
               <div className="inline-flex items-center gap-2 bg-stone-800 backdrop-blur-sm border border-stone-700 rounded-full px-3 py-1 mb-6 shadow-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-[10px] sm:text-[11px] text-stone-300 font-medium uppercase tracking-widest">AI Powered</span>
+                <span className="text-[10px] sm:text-[11px] text-stone-300 uppercase tracking-widest">AI Powered</span>
               </div>
 
               {/* Title */}
@@ -231,7 +231,7 @@ const AIVisualizerDesktop = () => {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-xs sm:text-sm font-medium">Choose any fabric</span>
+                  <span className="text-xs sm:text-sm">Choose any fabric</span>
                 </div>
                 <div className="flex items-center gap-3 text-stone-300">
                   <div className="w-7 h-7 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
@@ -239,7 +239,7 @@ const AIVisualizerDesktop = () => {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-xs sm:text-sm font-medium">Pick any product</span>
+                  <span className="text-xs sm:text-sm">Pick any product</span>
                 </div>
                 <div className="flex items-center gap-3 text-stone-300">
                   <div className="w-7 h-7 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
@@ -247,7 +247,7 @@ const AIVisualizerDesktop = () => {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-xs sm:text-sm font-medium">See an instant lifelike preview</span>
+                  <span className="text-xs sm:text-sm">See an instant lifelike preview</span>
                 </div>
               </div>
             </div>
@@ -411,8 +411,8 @@ const AIVisualizerDesktop = () => {
                      <div className="flex items-center gap-4 sm:gap-5">
                         <img src={selectedMaterial?.textureUrl} className="w-16 h-16 sm:w-24 sm:h-24 rounded-xl object-cover shadow-md border border-stone-200" alt="" />
                         <div className="flex-1 min-w-0 text-left">
-                           <p className="text-[10px] text-stone-500 uppercase tracking-widest font-medium mb-1">{selectedMaterial?.isCustom ? 'Custom Upload' : selectedMaterial?.collectionName}</p>
-                           <p className="text-sm sm:text-xl font-black text-stone-900 leading-tight">{selectedMaterial?.fabricName}</p>
+                           <p className="text-[10px] text-stone-500 uppercase tracking-widest mb-1">{selectedMaterial?.isCustom ? 'Custom Upload' : selectedMaterial?.collectionName}</p>
+                           <p className="text-sm sm:text-sm font-black text-stone-900 leading-tight">{selectedMaterial?.fabricName}</p>
                         </div>
                      </div>
                   </div>
@@ -424,8 +424,8 @@ const AIVisualizerDesktop = () => {
                           <img src={selectedProduct?.imageUrl} className="max-w-full max-h-full object-contain" alt="" />
                         </div>
                         <div className="flex-1 min-w-0 text-left">
-                           <p className="text-[10px] text-stone-500 uppercase tracking-widest font-medium mb-1">Preview Item</p>
-                           <p className="text-sm sm:text-xl font-black text-stone-900 leading-tight">{selectedProduct?.productName}</p>
+                           <p className="text-[10px] text-stone-500 uppercase tracking-widest mb-1">Preview Item</p>
+                           <p className="text-sm sm:text-sm font-black text-stone-900 leading-tight">{selectedProduct?.productName}</p>
                         </div>
                      </div>
                   </div>

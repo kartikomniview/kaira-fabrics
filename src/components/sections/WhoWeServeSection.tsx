@@ -113,7 +113,7 @@ export default function WhoWeServeSection() {
             </p>
           </div>
           <a
-            href="https://wa.me/919999999999?text=Hi%2C%20I%27m%20a%20manufacturer%20interested%20in%20Kaira%20fabrics."
+            href="https://wa.me/917593840075?text=Hi%2C%20I%27m%20a%20manufacturer%20interested%20in%20Kaira%20fabrics."
             target="_blank"
             rel="noopener noreferrer"
             className="mt-6 inline-flex items-center gap-2 bg-white hover:bg-primary transition-colors rounded-full px-4 py-2.5 text-stone-900 text-[12px] font-bold uppercase tracking-widest w-fit shadow-sm"
@@ -141,7 +141,7 @@ export default function WhoWeServeSection() {
               </p>
             </div>
             <a
-              href="https://wa.me/919999999999?text=Hi%2C%20I%27m%20a%20designer%20interested%20in%20Kaira%20fabrics."
+              href="https://wa.me/917593840075?text=Hi%2C%20I%27m%20a%20designer%20interested%20in%20Kaira%20fabrics."
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 inline-flex items-center gap-2 bg-white hover:bg-primary transition-colors rounded-full px-4 py-2 text-stone-900 text-[11px] font-bold uppercase tracking-widest w-fit shadow-sm"

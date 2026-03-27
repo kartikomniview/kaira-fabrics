@@ -55,7 +55,7 @@ const HomePage = () => {
       <div className="hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-50 flex-col items-start">
         {/* Call */}
         <a
-          href="tel:+919999999999"
+          href="tel:+917593840075"
           title="Call us"
           className="group flex items-center bg-stone-900 border-b border-stone-700 hover:bg-primary transition-colors duration-200"
         >
@@ -69,7 +69,7 @@ const HomePage = () => {
 
         {/* Email */}
         <a
-          href="mailto:hello@kairafabrics.com"
+          href="mailto:info@kairafabrics.in"
           title="Email us"
           className="group flex items-center bg-stone-900 border-b border-stone-700 hover:bg-primary transition-colors duration-200"
         >
@@ -83,7 +83,7 @@ const HomePage = () => {
 
         {/* WhatsApp */}
         <a
-          href="https://wa.me/919999999999"
+          href="https://wa.me/917593840075"
           target="_blank"
           rel="noopener noreferrer"
           title="WhatsApp"
