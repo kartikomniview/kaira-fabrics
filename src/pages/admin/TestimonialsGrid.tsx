@@ -320,12 +320,12 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
             </div>
             <div className="px-6 py-5 flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-medium text-stone-600 mb-1.5">Title</label>
+                <label className="block text-xs font-medium text-stone-600 mb-1.5">Customer Name</label>
                 <input
                   type="text"
                   value={editTitle}
                   onChange={e => setEditTitle(e.target.value)}
-                  placeholder="Enter title"
+                  placeholder="Enter customer name"
                   className="w-full px-3.5 py-2.5 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 transition-colors"
                 />
               </div>

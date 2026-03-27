@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import AdminLoginPage from './AdminLoginPage'
 import LeadsPanel from './LeadsPanel'
 import VisualizerLogsPanel from './VisualizerLogsPanel'
@@ -49,11 +50,11 @@ const AdminPage = () => {
     <div className="min-h-screen bg-stone-100 font-sans flex flex-col">
       {/* Top bar */}
       <header className="bg-stone-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <span className="font-serif text-xl tracking-wide text-amber-400">KAIRA</span>
+        <Link to="/" className="flex items-center gap-3 group">
+          <span className="font-serif text-xl tracking-wide text-amber-400 group-hover:text-amber-300 transition-colors">KAIRA</span>
           <span className="text-stone-600 text-sm">|</span>
           <span className="text-stone-300 text-sm uppercase tracking-widest">Admin</span>
-        </div>
+        </Link>
         <button
           onClick={() => { localStorage.removeItem('adminToken'); setIsAuthenticated(false) }}
           className="flex items-center gap-2 px-4 py-2 bg-red-900/50 hover:bg-red-800 text-xs uppercase tracking-widest text-red-300 transition-colors rounded"
