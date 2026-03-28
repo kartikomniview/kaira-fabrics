@@ -20,7 +20,7 @@ interface Props {
 }
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
-const LIMIT = 5
+const LIMIT = 6
 
 const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
   const [featuredMap, setFeaturedMap] = useState<Partial<Record<string, boolean>>>(() =>
@@ -56,10 +56,17 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
       await new Promise(resolve => setTimeout(resolve, 800))
       
       const token = localStorage.getItem('adminToken') ?? ''
+      const item = items.find(i => i.id === id)
       const res = await fetch(`${API}/gallery/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token },
-        body: JSON.stringify({ action: 'update', id, isfeatured: newVal }),
+        body: JSON.stringify({ 
+          action: 'update', 
+          id, 
+          isfeatured: newVal,
+          title: item?.title,
+          description: item?.description
+        }),
       })
       if (!res.ok) throw new Error('Update failed')
       
@@ -172,8 +179,8 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
       )}
 
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+          {Array.from({ length: 12 }).map((_, i) => (
             <div key={i} className="aspect-[3/4.2] rounded-xl bg-stone-100 animate-pulse" />
           ))}
         </div>
@@ -186,7 +193,7 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
           <p className="text-xs text-stone-400 mt-1">Upload a video to get started</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
           {sortedItems.map(item => (
             <div key={item.id} className="relative group rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-[3/4.2]">
               <video

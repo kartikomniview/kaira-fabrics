@@ -56,7 +56,7 @@ const TestimonialsSection = () => {
       if (el.scrollLeft >= maxScroll - 4) {
         el.scrollTo({ left: 0, behavior: 'smooth' })
       } else {
-        const cardWidth = el.querySelector('div')?.offsetWidth ?? 340
+        const cardWidth = el.querySelector('div')?.offsetWidth ?? 280
         el.scrollBy({ left: cardWidth + 24, behavior: 'smooth' })
       }
     }, 3500)
@@ -67,7 +67,7 @@ const TestimonialsSection = () => {
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return
-    const cardWidth = scrollRef.current.querySelector('div')?.offsetWidth ?? 340
+    const cardWidth = scrollRef.current.querySelector('div')?.offsetWidth ?? 280
     scrollRef.current.scrollBy({ left: direction === 'right' ? cardWidth + 24 : -(cardWidth + 24), behavior: 'smooth' })
     setIsPaused(true)
     setTimeout(() => setIsPaused(false), 8000)
@@ -108,11 +108,11 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Horizontal Scroll Strip with overlaid controls */}
-        <div className="relative">
+        <div className="relative max-w-[70vw] sm:max-w-[1112px] lg:max-w-[1032px] mx-auto">
           {/* Left Button */}
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 bg-white/80 backdrop-blur-sm text-stone-500 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm"
+            className="absolute -left-5 sm:-left-12 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 bg-white/90 backdrop-blur-sm text-stone-500 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm"
             aria-label="Scroll left"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,7 +123,7 @@ const TestimonialsSection = () => {
           {/* Right Button */}
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 bg-white/80 backdrop-blur-sm text-stone-500 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm"
+            className="absolute -right-5 sm:-right-12 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 bg-white/90 backdrop-blur-sm text-stone-500 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm"
             aria-label="Scroll right"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -146,7 +146,7 @@ const TestimonialsSection = () => {
               ? Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="snap-start shrink-0 w-[85vw] sm:w-[320px] lg:w-[300px] rounded-xl bg-stone-200 animate-pulse aspect-[3/4]"
+                    className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] rounded-xl bg-stone-200 animate-pulse aspect-[3/4.5]"
                   />
                 ))
               : fetchFailed
@@ -159,7 +159,7 @@ const TestimonialsSection = () => {
                   <div
                     key={item.id}
                     onClick={() => setPreviewUrl(item.asset_url)}
-                    className="snap-start shrink-0 w-[85vw] sm:w-[320px] lg:w-[300px] relative bg-stone-900 border border-stone-200 rounded-xl overflow-hidden shadow-sm group flex flex-col h-[420px] cursor-pointer"
+                    className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] relative bg-stone-900 border border-stone-200 rounded-xl overflow-hidden shadow-sm group flex flex-col h-[340px] cursor-pointer"
                   >
                     {/* Video */}
                     <div className="relative flex-1 overflow-hidden bg-black">
@@ -186,14 +186,18 @@ const TestimonialsSection = () => {
                       </div>
 
                       {/* Info Overlay */}
-                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-900/90 via-stone-900/40 to-transparent pt-12 pb-5 px-5">
+                      <div className="absolute bottom-0 inset-x-0 bg-stone-900/90 backdrop-blur-md px-5 pt-4 pb-6 translate-y-[calc(100%-3.5rem)] group-hover:translate-y-0 transition-transform duration-500 ease-out border-t border-white/10">
                         {item.title && (
-                          <p className="text-sm font-bold text-white mb-1">{item.title}</p>
+                          <p className="text-base font-bold text-white mb-3 tracking-wide">{item.title}</p>
                         )}
                         {item.description && (
-                          <p className="text-xs text-white/80 line-clamp-2 leading-relaxed">
-                            {item.description}
-                          </p>
+                          <div className="relative">
+                            <span className="absolute -left-2 -top-2 text-2xl text-amber-500/40 font-serif">"</span>
+                            <p className="text-[13px] md:text-sm text-white/80 leading-relaxed italic pr-2">
+                              {item.description}
+                            </p>
+                            <span className="absolute -bottom-2 right-0 text-2xl text-amber-500/40 font-serif">"</span>
+                          </div>
                         )}
                       </div>
                     </div>
