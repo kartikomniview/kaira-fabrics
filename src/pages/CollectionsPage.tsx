@@ -1,11 +1,10 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { collections, type Collection } from '../data/collections'
-import { newMaterials } from '../data/newmaterials'
+import { type Collection } from '../data/collections'
+import type { NewMaterial } from '../data/newmaterials'
+import { useMaterials } from '../contexts/MaterialsContext'
 
-const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
-
-const materialTypeOptions = ['All', ...Array.from(new Set(collections.map((c) => c.category))).sort()]
+const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
 /* ── Catalog Preview Modal ───────────────────────────────────────── */
 function CatalogPreviewModal({
@@ -14,7 +13,7 @@ function CatalogPreviewModal({
   onClose,
 }: {
   collection: Collection
-  materials: typeof newMaterials
+  materials: NewMaterial[]
   onClose: () => void
 }) {
   const [showContactForm, setShowContactForm] = useState(false)
@@ -289,12 +288,13 @@ function CollectionModal({
   collection: Collection
   onClose: () => void
 }) {
+  const { newMaterials } = useMaterials()
   const [showCatalog, setShowCatalog] = useState(false)
   const [zoomedIndex, setZoomedIndex] = useState<number | null>(null)
   const [materialSearch, setMaterialSearch] = useState('')
   const materials = useMemo(
     () => newMaterials.filter((m) => m.collection_name === collection.name),
-    [collection.name]
+    [newMaterials, collection.name]
   )
 
   // ── Image zoom / pan state ──────────────────────────────────
@@ -809,19 +809,15 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
 /* ── Page ─────────────────────────────────────────────────────────── */
 const CollectionsPage = () => {
   const location = useLocation()
-  
+  const { collections } = useMaterials()
+
   const [collectionSearch, setCollectionSearch] = useState('')
-  const [activeMaterialType, setActiveMaterialType] = useState(() => {
-    const params = new URLSearchParams(location.search)
-    const categoryQuery = params.get('category')
-    if (categoryQuery) {
-      const match = materialTypeOptions.find(
-        (opt) => opt.toUpperCase().replace(/\s+/g, '') === categoryQuery || opt === categoryQuery
-      )
-      if (match) return match
-    }
-    return 'All'
-  })
+  const [activeMaterialType, setActiveMaterialType] = useState('All')
+
+  const materialTypeOptions = useMemo(
+    () => ['All', ...Array.from(new Set(collections.map((c) => c.category))).sort()],
+    [collections]
+  )
 
   // Close modal and set selection when URL search changes
   useEffect(() => {

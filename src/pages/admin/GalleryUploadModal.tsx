@@ -4,8 +4,11 @@ const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 
 export type GalleryTab = 'testimonial' | 'other'
 
-const MAX_VIDEO = 6 * 1024 * 1024
-const MAX_IMAGE = 5 * 1024 * 1024
+const MAX_VIDEO_MB = 20
+const MAX_IMAGE_MB = 5
+
+const MAX_VIDEO = MAX_VIDEO_MB * 1024 * 1024
+const MAX_IMAGE = MAX_IMAGE_MB * 1024 * 1024
 
 interface Props {
   activeTab: GalleryTab
@@ -40,11 +43,11 @@ const GalleryUploadModal = ({ activeTab, onClose, onUploadSuccess }: Props) => {
     const isImage = f.type.startsWith('image/')
     if (activeTab === 'testimonial') {
       if (!isVideo) return 'Only video files are allowed for testimonials.'
-      if (f.size > MAX_VIDEO) return `Video must not exceed ${MAX_VIDEO / 1024 / 1024} MB.`
+      if (f.size > MAX_VIDEO) return `Video must not exceed ${MAX_VIDEO_MB} MB.`
     } else {
       if (!isVideo && !isImage) return 'Only image or video files are allowed.'
-      if (isVideo && f.size > MAX_VIDEO) return `Video must not exceed ${MAX_VIDEO / 1024 / 1024} MB.`
-      if (isImage && f.size > MAX_IMAGE) return `Image must not exceed ${MAX_IMAGE / 1024 / 1024} MB.`
+      if (isVideo && f.size > MAX_VIDEO) return `Video must not exceed ${MAX_VIDEO_MB} MB.`
+      if (isImage && f.size > MAX_IMAGE) return `Image must not exceed ${MAX_IMAGE_MB} MB.`
     }
     return null
   }
@@ -65,13 +68,14 @@ const GalleryUploadModal = ({ activeTab, onClose, onUploadSuccess }: Props) => {
 
     try {
       const token = localStorage.getItem('adminToken') ?? ''
-      const asset_type = file.type.startsWith('video/') ? 'Gallery' : 'Image'
+      let asset_type = file.type.startsWith('video/') ? 'Gallery' : 'Image'
+      const asset_s3_key = `${asset_type}/${activeTab === 'testimonial' ? 'Testimonial' : 'Other'}`
 
       // 1. Get presigned upload URL
       const urlRes = await fetch(`${API}/getuploadurl`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token },
-        body: JSON.stringify({ file_name: file.name, mime_type: file.type, asset_type }),
+        body: JSON.stringify({ file_name: file.name, mime_type: file.type,  asset_type: asset_s3_key }),
       })
       if (!urlRes.ok) throw new Error(`Could not get upload URL — ${urlRes.status} ${urlRes.statusText}`)
       const { uploadUrl, fileUrl, id } = await urlRes.json()
@@ -121,8 +125,8 @@ const GalleryUploadModal = ({ activeTab, onClose, onUploadSuccess }: Props) => {
             </h2>
             <p className="text-xs text-stone-400 mt-0.5">
               {activeTab === 'testimonial'
-                ? 'Video files only · max 6 MB'
-                : 'Images (max 5 MB) · Videos (max 6 MB)'}
+                ? `Video files only · max ${MAX_VIDEO_MB} MB`
+                : `Images (max ${MAX_IMAGE_MB} MB) · Videos (max ${MAX_VIDEO_MB} MB)`}
             </p>
           </div>
           <button
@@ -169,7 +173,7 @@ const GalleryUploadModal = ({ activeTab, onClose, onUploadSuccess }: Props) => {
                 </svg>
                 <span className="text-sm text-stone-500 font-medium">Click to select a file</span>
                 <span className="text-xs text-stone-400">
-                  {activeTab === 'testimonial' ? 'MP4, MOV, WEBM · max 6 MB' : 'JPG, PNG, WEBP · max 5 MB · MP4, MOV · max 6 MB'}
+                  {activeTab === 'testimonial' ? `MP4, MOV, WEBM · max ${MAX_VIDEO_MB} MB` : `JPG, PNG, WEBP · max ${MAX_IMAGE_MB} MB · MP4, MOV · max ${MAX_VIDEO_MB} MB`}
                 </span>
               </>
             )}

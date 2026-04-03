@@ -1,4 +1,4 @@
-import { newMaterials } from './newmaterials'
+// newMaterials is now fetched via MaterialsContext — no static import needed here.
 
 export interface Material {
   id: number
@@ -23,7 +23,8 @@ export interface Material {
   storefront_id: number | null
 }
 
-export const materials: Material[] = newMaterials as Material[]
+// The materials array is provided by MaterialsContext (fetched from S3).
+// Components should use `useMaterials()` instead of importing from here.
 
 const safeComponent = (value: string) => encodeURIComponent(value.trim())
 
@@ -31,14 +32,10 @@ export const getMaterialImageUrl = (material: Material): string => {
   if (!material.company_name || !material.collection_name || !material.material_code) {
     return ''
   }
-  return `https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/${safeComponent(material.company_name)}/${safeComponent(material.collection_name)}/${safeComponent(material.material_code)}.webp`
+  return `https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/${safeComponent(material.company_name)}/${safeComponent(material.collection_name)}/${safeComponent(material.material_code)}.webp`
 }
 
 export const getCollectionImageUrl = (collection_name: string): string => {
-  return `https://supoassets.s3.ap-south-1.amazonaws.com/public/store/ThumbnailsCover/KairaFabrics/${encodeURIComponent(collection_name.trim())}.webp`
+  return `https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/${encodeURIComponent(collection_name.trim())}.webp`
 }
 
-export const materialCategories = [
-  'All',
-  ...Array.from(new Set(materials.map((m) => m.material_type).filter(Boolean))).sort(),
-]

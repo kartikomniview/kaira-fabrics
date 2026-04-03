@@ -1,18 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { collections } from '../../data/collections'
-import { newMaterials } from '../../data/newmaterials'
+import type { NewMaterial } from '../../data/newmaterials'
+import { useMaterials } from '../../contexts/MaterialsContext'
 
-export const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
-
-// -- Material filter constants -------------------------------------------------
-const materialTypeOptions = [
-  'All',
-  ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort(),
-]
-const allColorGroups = [
-  'All',
-  ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => !!v))).sort(),
-]
+export const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const COLOR_SWATCH: Record<string, string> = {
   Whites: '#f5f0eb', Creams: '#f2e9d0', Beiges: '#c9b49a', Browns: '#8b5a2b',
   Tans: '#d2b48c', Grays: '#8a8a8a', 'Light Grays': '#c4c4c4', 'Dark Grays': '#555555',
@@ -36,11 +26,12 @@ function highlight(text: string, query: string) {
 
 interface MaterialsInventoryProps {
   onBack: () => void;
-  onSelectMaterial: (m: typeof newMaterials[0]) => void;
+  onSelectMaterial: (m: NewMaterial) => void;
   selectedMaterialId?: string | number;
 }
 
 export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialId }: MaterialsInventoryProps) => {
+  const { newMaterials, collections } = useMaterials()
   const [activeMaterialType, setActiveMaterialType] = useState('All')
   const [activeCollection, setActiveCollection] = useState(collections[0]?.name || 'All')
   const [activeColorGroup, setActiveColorGroup] = useState('All')
@@ -76,7 +67,17 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
       .filter(c => activeMaterialType === 'All' || c.category === activeMaterialType)
       .map(c => ({ name: c.name, thumb: c.image }))
       .sort((a, b) => a.name.localeCompare(b.name))
-  }, [activeMaterialType])
+  }, [activeMaterialType, collections])
+
+  const materialTypeOptions = useMemo(() => [
+    'All',
+    ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort(),
+  ], [newMaterials])
+
+  const allColorGroups = useMemo(() => [
+    'All',
+    ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => !!v))).sort(),
+  ], [newMaterials])
 
   // Global search — ignores all filters, searches across every material
   const filteredMaterials = useMemo(() => {

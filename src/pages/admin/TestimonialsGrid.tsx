@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export interface GalleryItem {
   id: string
@@ -21,6 +21,138 @@ interface Props {
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 const LIMIT = 6
+const SHOW_FILE_NAME = true
+const PAGE_SIZE = 6
+
+interface TestimonialCardProps {
+  item: GalleryItem
+  featured: boolean
+  toggleState: string
+  onToggle: () => void
+  onEdit: () => void
+  onPreview: () => void
+}
+
+const TestimonialCard = ({ item, featured, toggleState, onToggle, onEdit, onPreview }: TestimonialCardProps) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [inView, setInView] = useState(false)
+  const [playing, setPlaying] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); io.disconnect() } },
+      { rootMargin: '150px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  const handleLoadedMetadata = () => {
+    const v = videoRef.current
+    if (v) v.currentTime = Math.min(1, v.duration * 0.1)
+  }
+
+  const handleMouseEnter = () => {
+    const v = videoRef.current
+    if (!v) return
+    setPlaying(true)
+    v.currentTime = 0
+    v.play()
+  }
+
+  const handleMouseLeave = () => {
+    const v = videoRef.current
+    if (!v) return
+    setPlaying(false)
+    v.pause()
+    v.currentTime = Math.min(1, v.duration * 0.1)
+  }
+
+  return (
+    <div
+      ref={ref}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="relative group rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-[3/4.2]"
+    >
+      {inView && (
+        <video
+          ref={videoRef}
+          src={item.asset_url + '#t=0.001'}
+          muted
+          playsInline
+          preload="metadata"
+          className="w-full h-full object-cover"
+          onLoadedMetadata={handleLoadedMetadata}
+        />
+      )}
+
+      {/* Play icon overlay (idle) */}
+      <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity ${playing ? 'opacity-0' : 'opacity-100'}`}>
+        <div className="w-9 h-9 rounded-full bg-stone-900/50 flex items-center justify-center">
+          <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Hover overlay */}
+      <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/40 transition-colors flex items-center justify-center">
+        <button
+          onClick={e => { e.stopPropagation(); onPreview() }}
+          className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-stone-900 text-xs font-medium px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5"
+        >
+          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Play
+        </button>
+      </div>
+
+      {/* Edit button */}
+      <button
+        onClick={e => { e.stopPropagation(); onEdit() }}
+        className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-white/90 text-stone-700 shadow z-10"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+      </button>
+
+      {/* Homepage toggle */}
+      <div className="absolute bottom-0 inset-x-0 pt-6 pb-2 px-2.5 bg-white/10 backdrop-blur-sm">
+        {item.title && (
+          <p className="text-[11px] text-white/80 font-medium truncate mb-1.5">{item.title}</p>
+        )}
+        {toggleState && (
+          <div className="flex items-center gap-2 mb-1">
+            <svg className="w-3 h-3 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            </svg>
+            <span className="text-[10px] text-white font-medium italic">{toggleState}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] text-white/90 font-medium">Show on homepage</span>
+          <button
+            onClick={e => { e.stopPropagation(); onToggle() }}
+            disabled={!!toggleState}
+            aria-pressed={featured}
+            className={`relative w-9 h-5 rounded-full transition-colors duration-200 disabled:cursor-wait ${
+              featured ? 'bg-amber-500' : 'bg-stone-500'
+            }`}
+          >
+            <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
+              featured ? 'translate-x-4' : 'translate-x-0'
+            }`} />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
   const [featuredMap, setFeaturedMap] = useState<Partial<Record<string, boolean>>>(() =>
@@ -35,6 +167,8 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [limitError, setLimitError] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   useEffect(() => {
     setFeaturedMap(Object.fromEntries(items.map(i => [i.id, i.isfeatured])))
@@ -193,86 +327,31 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
           <p className="text-xs text-stone-400 mt-1">Upload a video to get started</p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-          {sortedItems.map(item => (
-            <div key={item.id} className="relative group rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-[3/4.2]">
-              <video
-                src={item.asset_url}
-                muted
-                playsInline
-                preload="metadata"
-                className="w-full h-full object-cover"
-                onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
-                onMouseLeave={e => {
-                  const v = e.currentTarget as HTMLVideoElement
-                  v.pause()
-                  v.currentTime = 0
-                }}
+        <>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+            {sortedItems.slice(0, visibleCount).map(item => (
+              <TestimonialCard
+                key={item.id}
+                item={item}
+                featured={featuredMap[item.id] ?? item.isfeatured}
+                toggleState={toggling[item.id] ?? ''}
+                onToggle={() => handleToggle(item.id)}
+                onEdit={() => openEdit(item)}
+                onPreview={() => setPreviewUrl(item.asset_url)}
               />
-
-              {/* Play icon overlay (idle) */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-                <div className="w-9 h-9 rounded-full bg-stone-900/50 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/40 transition-colors flex items-center justify-center">
-                <button
-                  onClick={e => { e.stopPropagation(); setPreviewUrl(item.asset_url) }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-stone-900 text-xs font-medium px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5"
-                >
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                  Play
-                </button>
-              </div>
-
-              {/* Edit button */}
+            ))}
+          </div>
+          {sortedItems.length > visibleCount && (
+            <div className="flex justify-center mt-6">
               <button
-                onClick={e => { e.stopPropagation(); openEdit(item) }}
-                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-white/90 text-stone-700 shadow z-10"
+                onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                className="px-6 py-2.5 rounded-full text-sm font-medium border border-stone-200 text-stone-600 hover:border-stone-400 hover:text-stone-900 transition-colors"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
+                Load more · {sortedItems.length - visibleCount} remaining
               </button>
-
-              {/* Homepage toggle */}
-              <div className="absolute bottom-0 inset-x-0 pt-6 pb-2 px-2.5 bg-white/10 backdrop-blur-sm">
-                {item.title && (
-                  <p className="text-[11px] text-white/80 font-medium truncate mb-1.5">{item.title}</p>
-                )}
-                {toggling[item.id] && (
-                  <div className="flex items-center gap-2 mb-1">
-                    <svg className="w-3 h-3 text-white animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                    </svg>
-                    <span className="text-[10px] text-white font-medium italic">{toggling[item.id]}</span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-white/90 font-medium">Show on homepage</span>
-                  <button
-                    onClick={e => { e.stopPropagation(); handleToggle(item.id) }}
-                    disabled={!!toggling[item.id]}
-                    aria-pressed={featuredMap[item.id] ?? item.isfeatured}
-                    className={`relative w-9 h-5 rounded-full transition-colors duration-200 disabled:cursor-wait ${
-                      (featuredMap[item.id] ?? item.isfeatured) ? 'bg-amber-500' : 'bg-stone-500'
-                    }`}
-                  >
-                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
-                      (featuredMap[item.id] ?? item.isfeatured) ? 'translate-x-4' : 'translate-x-0'
-                    }`} />
-                  </button>
-                </div>
-              </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* Video Preview Modal */}
@@ -326,6 +405,37 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
               </button>
             </div>
             <div className="px-6 py-5 flex flex-col gap-4">
+              {SHOW_FILE_NAME && (() => {
+                const fileName = decodeURIComponent(editItem.asset_url.split('/').pop() ?? '')
+                return (
+                  <div className="flex items-center gap-2 bg-stone-50 border border-stone-100 rounded-xl px-3.5 py-2.5">
+                    <svg className="w-3.5 h-3.5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-xs text-stone-500 truncate flex-1" title={fileName}>{fileName}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(fileName)
+                        setCopied(true)
+                        setTimeout(() => setCopied(false), 2000)
+                      }}
+                      className="shrink-0 text-stone-400 hover:text-stone-700 transition-colors"
+                      title="Copy file name"
+                    >
+                      {copied ? (
+                        <svg className="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                )
+              })()}
               <div>
                 <label className="block text-xs font-medium text-stone-600 mb-1.5">Customer Name</label>
                 <input

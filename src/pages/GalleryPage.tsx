@@ -59,29 +59,63 @@ const GalleryPage = () => {
             ))}
           </div>
 
-          {/* Masonry-style grid */}
-          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
-            {filtered.map((item) => (
-              <div
-                key={item.id}
-                className="break-inside-avoid group relative overflow-hidden cursor-pointer border border-stone-200 hover:border-gold/50 transition-colors duration-300"
-                onClick={() => setLightbox(item)}
-              >
-                {/* gold accent bar on hover */}
-                <span className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gold z-10 transition-all duration-300" />
-                <img
-                  src={item.src}
-                  alt={item.alt}
-                  className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/65 transition-all duration-300 flex flex-col justify-end p-5 opacity-0 group-hover:opacity-100">
-                  <span className="text-gold text-xs tracking-widest uppercase font-medium">{item.category}</span>
-                  <p className="text-cream text-sm font-medium mt-1">{item.fabric}</p>
-                  <p className="text-stone-400 text-xs mt-0.5">Tap to view</p>
+          {/* Masonry grid */}
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+            {filtered.map((item) => {
+              const isVideo = /\.(mp4|webm|mov|ogg)(\?|$)/i.test(item.src)
+              return (
+                <div
+                  key={item.id}
+                  className="group relative overflow-hidden cursor-pointer border border-stone-200 hover:border-gold/50 transition-all duration-500 break-inside-avoid shadow-sm hover:shadow-xl hover:-translate-y-1 rounded-xl"
+                  onClick={() => setLightbox(item)}
+                >
+                  {/* gold accent bar on hover */}
+                  <span className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gold z-20 transition-all duration-300" />
+                  
+                  {isVideo ? (
+                    <video
+                      src={item.src + '#t=0.001'}
+                      muted
+                      playsInline
+                      preload="metadata"
+                      className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                      onLoadedMetadata={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.001 }}
+                      onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
+                      onMouseLeave={e => {
+                        const v = e.currentTarget as HTMLVideoElement
+                        v.pause()
+                        v.currentTime = 0.001
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={item.src}
+                      alt={item.alt}
+                      className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  )}
+
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/65 transition-all duration-300 flex flex-col justify-end p-5 opacity-0 group-hover:opacity-100 z-10">
+                    <span className="text-gold text-xs tracking-widest uppercase font-medium">{item.category}</span>
+                    <p className="text-cream text-sm font-medium mt-1">{item.fabric}</p>
+                    <p className="text-stone-400 text-xs mt-0.5">Tap to view</p>
+                  </div>
+
+                  {/* Video Badge (Visible when not hovered) */}
+                  {isVideo && (
+                    <div className="absolute top-3 right-3 opacity-100 group-hover:opacity-0 transition-opacity z-10">
+                      <div className="p-2 rounded-full bg-stone-900/50 backdrop-blur-sm border border-white/20">
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           {filtered.length === 0 && (
@@ -115,11 +149,21 @@ const GalleryPage = () => {
             className="max-w-4xl w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={lightbox.src}
-              alt={lightbox.alt}
-              className="w-full max-h-[78vh] object-contain"
-            />
+            {/\.(mp4|webm|mov|ogg)(\?|$)/i.test(lightbox.src) ? (
+              <video
+                src={lightbox.src}
+                autoPlay
+                controls
+                playsInline
+                className="w-full max-h-[78vh] object-contain rounded-t-xl bg-black"
+              />
+            ) : (
+              <img
+                src={lightbox.src}
+                alt={lightbox.alt}
+                className="w-full max-h-[78vh] object-contain rounded-t-xl"
+              />
+            )}
             <div
               className="relative p-5 flex justify-between items-center overflow-hidden"
               style={{ backgroundImage: weaveBg, backgroundColor: 'rgb(116,98,60)' }}

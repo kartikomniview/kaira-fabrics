@@ -1,7 +1,8 @@
 import { useSearchParams } from 'react-router-dom'
-import { collections } from '../../data/collections'
+import { useMaterials } from '../../contexts/MaterialsContext'
 
 const Collections = () => {
+  const { collections } = useMaterials()
   const [, setSearchParams] = useSearchParams()
 
   return (

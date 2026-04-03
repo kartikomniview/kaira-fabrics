@@ -28,7 +28,20 @@ const GallerySection = () => {
       })
       .then(data => {
         const all: GalleryItem[] = Array.isArray(data) ? data : (data.items ?? [])
-        setItems(all)
+        const reversed = all.reverse()
+        
+        // Interleave videos and images so they don't clump together
+        const videos = reversed.filter(item => isVideo(item.asset_url))
+        const images = reversed.filter(item => !isVideo(item.asset_url))
+        
+        const mixed: GalleryItem[] = []
+        while (videos.length > 0 || images.length > 0) {
+          if (images.length > 0) mixed.push(images.shift()!)
+          if (images.length > 0) mixed.push(images.shift()!) // Add 2 images for every 1 video
+          if (videos.length > 0) mixed.push(videos.shift()!)
+        }
+        
+        setItems(mixed)
       })
       .catch(() => setFetchFailed(true))
       .finally(() => setLoading(false))
@@ -64,55 +77,46 @@ const GallerySection = () => {
           </p>
         </div>
 
-        {/* Dynamic Mosaic Grid */}
+        {/* Portrait Gallery Layout */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[150px]">
-            {Array.from({ length: 12 }).map((_, i) => (
+          <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+            {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className={`rounded-2xl bg-stone-200 animate-pulse ${
-                  i % 7 === 0 ? 'md:col-span-2 md:row-span-2' : 
-                  i % 5 === 0 ? 'md:row-span-2' : ''
-                }`}
+                className={`rounded-2xl bg-stone-200 animate-pulse break-inside-avoid w-full ${i % 3 === 0 ? 'aspect-[9/16]' : 'aspect-[4/5]'}`}
               />
             ))}
           </div>
         ) : fetchFailed ? (
           <p className="text-center text-sm text-stone-400 py-10">Could not load gallery.</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[200px] md:auto-rows-[180px]">
-            {items.map((item, index) => {
+          <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+            {items.map((item, i) => {
               const video = isVideo(item.asset_url)
-              // Calculate spans based on index for a repeating "chaotic" pattern
-              const isLarge = index % 10 === 0
-              const isTall = index % 10 === 3 || index % 10 === 7
-              const isWide = index % 10 === 5
 
-              const spanClasses = `
-                ${isLarge ? 'md:col-span-2 md:row-span-2 col-span-2 row-span-2' : ''}
-                ${isTall ? 'md:row-span-2' : ''}
-                ${isWide ? 'md:col-span-2 col-span-2' : ''}
-              `.trim()
+              // Reduce video card heights specifically, while keeping masonry layout
+              const ratioClass = video ? 'aspect-[3/4]' : (i % 3 === 0 ? 'aspect-[4/5]' : 'aspect-[3/4]')
 
               return (
                 <div
                   key={item.id}
                   onClick={() => setPreview(item)}
-                  className={`group relative overflow-hidden rounded-2xl border border-stone-200/60 shadow-sm cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 ${spanClasses}`}
+                  className={`group relative overflow-hidden rounded-2xl border border-stone-200/60 shadow-sm cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 break-inside-avoid w-full ${ratioClass}`}
                 >
                   {video ? (
                     <div className="w-full h-full relative bg-stone-100">
                       <video
-                        src={item.asset_url}
+                        src={`${item.asset_url}#t=0.1`}
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="auto"
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        onLoadedData={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.1 }}
                         onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
                         onMouseLeave={e => {
                           const v = e.currentTarget as HTMLVideoElement
                           v.pause()
-                          v.currentTime = 0
+                          v.currentTime = 0.1
                         }}
                       />
                     </div>

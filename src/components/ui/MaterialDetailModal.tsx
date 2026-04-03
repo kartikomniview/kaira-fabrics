@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import InlineLoader from './InlineLoader'
 import type { Material } from '../../data/materials'
 import { getCollectionImageUrl } from '../../data/materials'
-import { collections } from '../../data/collections'
+import { useMaterials } from '../../contexts/MaterialsContext'
+import type { Collection } from '../../data/collections'
 import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../../utils/textureUtils'
 
 const MODEL_URL =
   'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
 const S3_THUMB =
-  'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
+  'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
 const COLOR_MAP: Record<string, string> = {
   Whites: '#f5f0eb',
@@ -34,7 +35,7 @@ const COLOR_MAP: Record<string, string> = {
   Coals: '#3c3c3c',
 }
 
-function getCollectionStats(collectionName: string) {
+function getCollectionStats(collectionName: string, collections: Collection[]) {
   const col = collections.find((c) => c.name === collectionName)
   const itemCount = col?.itemCount ?? 1
   const maxItems = Math.max(...collections.map((c) => c.itemCount), 1)
@@ -72,6 +73,7 @@ interface MaterialDetailModalProps {
 }
 
 const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) => {
+  const { collections } = useMaterials()
   const [show3D, setShow3D] = useState(false)
   const [isTextureLoading, setIsTextureLoading] = useState(false)
   const [zoomPos, setZoomPos] = useState<{ x: number; y: number } | null>(null)
@@ -88,7 +90,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
 
   const textureUrl = `${S3_THUMB}/${material.collection_name}/${material.material_code}.webp`
   const coverUrl = getCollectionImageUrl(material.collection_name)
-  const stats = getCollectionStats(material.collection_name)
+  const stats = getCollectionStats(material.collection_name, collections)
   const colorSwatch = COLOR_MAP[material.color_group ?? ''] ?? '#d0c8c0'
 
   // ESC to close

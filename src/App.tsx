@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import PageLoader from './components/ui/PageLoader'
 import { WhatsAppIcon } from './components/ui/WhatsAppIcon'
+import { MaterialsProvider } from './contexts/MaterialsContext'
 
 // Route-level code splitting — each page loads its own JS chunk on first visit
 const HomePage             = lazy(() => import('./pages/HomePage'))
@@ -46,8 +47,9 @@ function App() {
     <>
       {/* Lazy-route Suspense — Layout is direct-imported so Header/Footer stay
           visible; the Outlet area shows SectionLoader (wired inside Layout). */}
-      <BrowserRouter>
-        <Suspense fallback={null}>
+      <MaterialsProvider>
+        <BrowserRouter>
+          <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
@@ -63,7 +65,8 @@ function App() {
             <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </Suspense>
-      </BrowserRouter>
+        </BrowserRouter>
+      </MaterialsProvider>
 
       {/* Full-screen branded loader — overlays everything on initial page load */}
       {showLoader && <PageLoader exiting={appReady} />}

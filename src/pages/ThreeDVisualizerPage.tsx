@@ -1,23 +1,15 @@
 ﻿import { useEffect, useRef, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import ThreeDVisualizerPageMobile from './ThreeDVisualizerPageMobile'
-import { newMaterials } from '../data/newmaterials'
-import { collections } from '../data/collections'
+import type { NewMaterial } from '../data/newmaterials'
+import { useMaterials } from '../contexts/MaterialsContext'
 import { dummyProducts, getProductGlbUrl, getProductImageUrl } from '../data/products'
 import type { Product } from '../data/products'
 import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../utils/textureUtils'
 import * as THREE from 'three';
 import '@google/model-viewer'
-const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
+const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
-const materialTypeOptions = [
-  'All',
-  ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort(),
-]
-const allColorGroups = [
-  'All',
-  ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => !!v))).sort(),
-]
 const COLOR_MAP: Record<string, string> = {
   Whites: '#f5f0eb', Creams: '#f2e9d0', Beiges: '#c9b49a', Browns: '#8b5a2b',
   Tans: '#d2b48c', Grays: '#8a8a8a', 'Light Grays': '#c4c4c4', 'Dark Grays': '#555555',
@@ -39,20 +31,20 @@ function highlight(text: string, query: string) {
   )
 }
 
-const S3_BASE = 'https://supoassets.s3.ap-south-1.amazonaws.com'
+const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 const COMPANY = 'KairaFabrics'
 
 function getRoughnessMapURL(collectionName: string) {
-  return `${S3_BASE}/public/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
+  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
 }
 
 function getNormalMapURL(collectionName: string) {
-  return `${S3_BASE}/public/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
+  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
 }
 
 function getSheenMapUrl(materialType: string) {
   if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
-    return `${S3_BASE}/public/textures/Common/SheenColorMap.webp`
+    return `${S3_BASE}/textures/Common/SheenColorMap.webp`
   }
   return ''
 }
@@ -90,6 +82,7 @@ interface SelectedMaterial {
 }
 
 const ThreeDVisualizerDesktop = () => {
+  const { newMaterials, collections } = useMaterials()
   const mvRef = useRef<HTMLElement>(null)
   const colorScrollRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -161,7 +154,17 @@ const ThreeDVisualizerDesktop = () => {
       .filter(c => activeMaterialType === 'All' || c.category === activeMaterialType)
       .map(c => ({ name: c.name, thumb: c.image }))
       .sort((a, b) => a.name.localeCompare(b.name))
-  }, [activeMaterialType])
+  }, [activeMaterialType, collections])
+
+  const materialTypeOptions = useMemo(() => [
+    'All',
+    ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort(),
+  ], [newMaterials])
+
+  const allColorGroups = useMemo(() => [
+    'All',
+    ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => !!v))).sort(),
+  ], [newMaterials])
 
   const filtered = useMemo(() => {
     if (search.trim()) {
@@ -182,7 +185,7 @@ const ThreeDVisualizerDesktop = () => {
       if (activePattern !== 'All' && (m as any).pattern !== activePattern) return false
       return true
     })
-  }, [activeMaterialType, activeCollection, activeColorGroup, activePattern, search])
+  }, [newMaterials, activeMaterialType, activeCollection, activeColorGroup, activePattern, search])
 
   const visibleMaterials = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
@@ -225,7 +228,7 @@ const ThreeDVisualizerDesktop = () => {
     setIsApplying(false)
   }
 
-  const handleSelect = (m: typeof newMaterials[0]) => {
+  const handleSelect = (m: NewMaterial) => {
     const mat: SelectedMaterial = {
       id: m.id,
       fabricName: `${m.collection_name} ${m.material_name}`,

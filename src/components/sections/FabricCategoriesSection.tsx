@@ -1,31 +1,33 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { materials } from '../../data/materials'
-
-const categoryCounts = materials.reduce((acc, material) => {
-  const type = material.material_type?.toUpperCase().replace(/\s+/g, '') || 'OTHER'
-  if (!acc[type]) acc[type] = new Set<string>()
-  acc[type].add(material.collection_name)
-  return acc
-}, {} as Record<string, Set<string>>)
-
-const categoryCollectionCounts: Record<string, number> = Object.fromEntries(
-  Object.entries(categoryCounts).map(([k, v]) => [k, v.size])
-)
-
-const categories = Object.entries(categoryCollectionCounts).sort((a, b) => a[0].localeCompare(b[0]))
+import { useMaterials } from '../../contexts/MaterialsContext'
 
 const categoryImages: Record<string, string> = {
-  'CHENILLE':     'https://supoassets.s3.ap-south-1.amazonaws.com/public/store/ThumbnailsCover/KairaFabrics/Ripple.webp',
-  'DIGITALPRINT': 'https://supoassets.s3.ap-south-1.amazonaws.com/public/store/ThumbnailsCover/KairaFabrics/DigitalPrints2.webp',
-  'LEATHERITE':   'https://supoassets.s3.ap-south-1.amazonaws.com/public/store/ThumbnailsCover/KairaFabrics/Adelaide.webp',
-  'SUEDEFABRIC':  'https://supoassets.s3.ap-south-1.amazonaws.com/public/store/ThumbnailsCover/KairaFabrics/Krystal.webp',
-  'SUEDELEATHER': 'https://supoassets.s3.ap-south-1.amazonaws.com/public/store/ThumbnailsCover/KairaFabrics/Ivana.webp',
+  'CHENILLE':     'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Ripple.webp',
+  'DIGITALPRINT': 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/DigitalPrints2.webp',
+  'LEATHERITE':   'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Adelaide.webp',
+  'SUEDEFABRIC':  'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Krystal.webp',
+  'SUEDELEATHER': 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Ivana.webp',
   'DEFAULT':      'https://placehold.co/400x500/e7e5e4/a8a29e?text=Fabric',
 }
 
 
 
 const FabricCategoriesSection = () => {
+  const { materials } = useMaterials()
+
+  const categories = useMemo(() => {
+    const counts = materials.reduce((acc, m) => {
+      const type = m.material_type?.toUpperCase().replace(/\s+/g, '') || 'OTHER'
+      if (!acc[type]) acc[type] = new Set<string>()
+      acc[type].add(m.collection_name)
+      return acc
+    }, {} as Record<string, Set<string>>)
+    return Object.entries(
+      Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, v.size]))
+    ).sort((a, b) => a[0].localeCompare(b[0]))
+  }, [materials])
+
   return (
     <div id="fabric-collections" className="scroll-mt-24">
       {/* Mobile: horizontal scroll strip / Desktop: grid */}

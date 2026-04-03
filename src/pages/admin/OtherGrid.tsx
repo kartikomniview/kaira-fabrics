@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { GalleryItem } from './TestimonialsGrid'
 
 interface Props {
@@ -10,6 +10,134 @@ interface Props {
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 const LIMIT = 10
+const PAGE_SIZE = 8
+
+interface OtherCardProps {
+  item: GalleryItem
+  featured: boolean
+  toggling: boolean
+  onToggle: () => void
+  onEdit: () => void
+  onPreview: () => void
+}
+
+const OtherCard = ({ item, featured, toggling, onToggle, onEdit, onPreview }: OtherCardProps) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [inView, setInView] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); io.disconnect() } },
+      { rootMargin: '150px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  const handleLoadedMetadata = () => {
+    const v = videoRef.current
+    if (v) v.currentTime = Math.min(1, v.duration * 0.1)
+  }
+
+  const handleMouseEnter = () => {
+    if (item.asset_type !== 'Gallery') return
+    const v = videoRef.current
+    if (!v) return
+    v.currentTime = 0
+    v.play()
+  }
+
+  const handleMouseLeave = () => {
+    if (item.asset_type !== 'Gallery') return
+    const v = videoRef.current
+    if (!v) return
+    v.pause()
+    v.currentTime = Math.min(1, v.duration * 0.1)
+  }
+
+  return (
+    <div
+      ref={ref}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="relative group rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-square"
+    >
+      {inView && (
+        item.asset_type === 'Gallery' ? (
+          <video
+            ref={videoRef}
+            src={item.asset_url + '#t=0.001'}
+            muted
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover"
+            onLoadedMetadata={handleLoadedMetadata}
+          />
+        ) : (
+          <img
+            src={item.asset_url}
+            alt="Gallery asset"
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        )
+      )}
+
+      {/* Type badge */}
+      <div className="absolute top-2 left-2">
+        <span className="text-[10px] font-medium bg-stone-900/60 text-white px-2 py-0.5 rounded-full leading-none">
+          {item.asset_type === 'Gallery' ? 'Video' : 'Image'}
+        </span>
+      </div>
+
+      {/* Hover overlay */}
+      <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/40 transition-colors flex items-center justify-center">
+        <button
+          onClick={e => { e.stopPropagation(); onPreview() }}
+          className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-stone-900 text-xs font-medium px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5"
+        >
+          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Play
+        </button>
+      </div>
+
+      {/* Edit button */}
+      <button
+        onClick={e => { e.stopPropagation(); onEdit() }}
+        className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-white/90 text-stone-700 shadow z-10"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+      </button>
+
+      {/* Homepage toggle */}
+      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-900/90 to-transparent pt-6 pb-2 px-2.5">
+        {item.title && (
+          <p className="text-[11px] text-white/80 font-medium truncate mb-1.5">{item.title}</p>
+        )}
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] text-white/90 font-medium">Show on homepage</span>
+          <button
+            onClick={e => { e.stopPropagation(); onToggle() }}
+            disabled={toggling}
+            aria-pressed={featured}
+            className={`relative w-9 h-5 rounded-full transition-colors duration-200 disabled:cursor-wait ${
+              featured ? 'bg-amber-500' : 'bg-stone-500'
+            }`}
+          >
+            <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
+              featured ? 'translate-x-4' : 'translate-x-0'
+            }`} />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
   const [featuredMap, setFeaturedMap] = useState<Partial<Record<string, boolean>>>(() =>
@@ -23,6 +151,7 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
   const [deleting, setDeleting]     = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   useEffect(() => {
     setFeaturedMap(Object.fromEntries(items.map(i => [i.id, i.isfeatured])))
@@ -150,84 +279,31 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
           <p className="text-xs text-stone-400 mt-1">Upload an image or video to get started</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {sortedItems.map(item => (
-            <div key={item.id} className="relative group rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-square">
-              {item.asset_type === 'Gallery' ? (
-                <video
-                  src={item.asset_url}
-                  muted
-                  playsInline
-                  preload="metadata"
-                  className="w-full h-full object-cover"
-                  onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
-                  onMouseLeave={e => {
-                    const v = e.currentTarget as HTMLVideoElement
-                    v.pause()
-                    v.currentTime = 0
-                  }}
-                />
-              ) : (
-                <img
-                  src={item.asset_url}
-                  alt="Gallery asset"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              )}
-
-              {/* Type badge */}
-              <div className="absolute top-2 left-2">
-                <span className="text-[10px] font-medium bg-stone-900/60 text-white px-2 py-0.5 rounded-full leading-none">
-                  {item.asset_type === 'Gallery' ? 'Video' : 'Image'}
-                </span>
-              </div>
-
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/40 transition-colors flex items-center justify-center">
-                <button
-                  onClick={e => { e.stopPropagation(); setPreviewUrl(item.asset_url) }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-stone-900 text-xs font-medium px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5"
-                >
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                  Play
-                </button>
-              </div>
-
-              {/* Edit button */}
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {sortedItems.slice(0, visibleCount).map(item => (
+              <OtherCard
+                key={item.id}
+                item={item}
+                featured={featuredMap[item.id] ?? item.isfeatured}
+                toggling={!!toggling[item.id]}
+                onToggle={() => handleToggle(item.id)}
+                onEdit={() => openEdit(item)}
+                onPreview={() => setPreviewUrl(item.asset_url)}
+              />
+            ))}
+          </div>
+          {sortedItems.length > visibleCount && (
+            <div className="flex justify-center mt-6">
               <button
-                onClick={e => { e.stopPropagation(); openEdit(item) }}
-                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-white/90 text-stone-700 shadow z-10"
+                onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                className="px-6 py-2.5 rounded-full text-sm font-medium border border-stone-200 text-stone-600 hover:border-stone-400 hover:text-stone-900 transition-colors"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
+                Load more · {sortedItems.length - visibleCount} remaining
               </button>
-
-              {/* Homepage toggle */}
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-900/90 to-transparent pt-6 pb-2 px-2.5">
-                {item.title && (
-                  <p className="text-[11px] text-white/80 font-medium truncate mb-1.5">{item.title}</p>
-                )}
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-white/90 font-medium">Show on homepage</span>
-                  <button
-                    onClick={e => { e.stopPropagation(); handleToggle(item.id) }}
-                    disabled={!!toggling[item.id]}
-                    aria-pressed={featuredMap[item.id] ?? item.isfeatured}
-                    className={`relative w-9 h-5 rounded-full transition-colors duration-200 disabled:cursor-wait ${
-                      (featuredMap[item.id] ?? item.isfeatured) ? 'bg-amber-500' : 'bg-stone-500'
-                    }`}
-                  >
-                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
-                      (featuredMap[item.id] ?? item.isfeatured) ? 'translate-x-4' : 'translate-x-0'
-                    }`} />
-                  </button>
-                </div>
-              </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* Video Preview Modal */}

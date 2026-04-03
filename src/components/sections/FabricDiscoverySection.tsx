@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { newMaterials } from '../../data/newmaterials'
 import type { Material } from '../../data/materials'
+import { useMaterials } from '../../contexts/MaterialsContext'
 import MaterialDetailModal from '../ui/MaterialDetailModal'
 
-const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
+const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
 const COLOR_SWATCH: Record<string, string> = {
   Whites: '#f5f0eb', Creams: '#f2e9d0', Beiges: '#c9b49a', Browns: '#8b5a2b',
@@ -14,17 +14,18 @@ const COLOR_SWATCH: Record<string, string> = {
   Pinks: '#d4607a', Purples: '#7b3fa0', Mauves: '#9e7b9b', Coals: '#3c3c3c',
 }
 
-const allColorGroups  = ['All', ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => v !== null))).sort()]
-const allPatterns     = ['All', ...Array.from(new Set(newMaterials.map((m) => m.pattern).filter((v): v is string => v !== null))).sort()]
-const allMaterialTypes = ['All', ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort()]
-
 const DISPLAY_LIMIT = 12
 
 const FabricDiscoverySection = () => {
+  const { newMaterials } = useMaterials()
   const [activeColor,    setActiveColor]    = useState('All')
   const [activePattern,  setActivePattern]  = useState('All')
   const [activeMaterial, setActiveMaterial] = useState('All')
   const [selected, setSelected] = useState<Material | null>(null)
+
+  const allColorGroups   = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => v !== null))).sort()], [newMaterials])
+  const allPatterns      = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.pattern).filter((v): v is string => v !== null))).sort()], [newMaterials])
+  const allMaterialTypes = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort()], [newMaterials])
 
   const filtered = useMemo(() => newMaterials.filter((m) => {
     if (activeColor    !== 'All' && m.color_group   !== activeColor)    return false

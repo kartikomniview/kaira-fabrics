@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { newMaterials } from '../../data/newmaterials'
+import type { NewMaterial } from '../../data/newmaterials'
 import { dummyProducts, getProductImageUrl } from '../../data/products'
 import type { Product } from '../../data/products'
 import { MaterialsInventory, S3_THUMB } from './MaterialsInventory'
@@ -57,7 +57,7 @@ const AIVisualizerDesktop = () => {
     e.target.value = ''
   }
 
-  const handleSelectMaterial = (m: typeof newMaterials[0]) => {
+  const handleSelectMaterial = (m: NewMaterial) => {
     setSelectedMaterial({
       id: m.id,
       fabricName: `${m.collection_name} ${m.material_name}`,

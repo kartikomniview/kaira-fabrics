@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 const S3_BG = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/roomBackgrounds/thumbnails/realisticBackgrounds'
-const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
+const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
 const features = [
   {

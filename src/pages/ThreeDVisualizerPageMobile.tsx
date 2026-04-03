@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
-import { newMaterials } from '../data/newmaterials'
+import type { NewMaterial } from '../data/newmaterials'
+import { useMaterials } from '../contexts/MaterialsContext'
 import { dummyProducts, getProductGlbUrl, getProductImageUrl } from '../data/products'
 import type { Product } from '../data/products'
 import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../utils/textureUtils'
 import * as THREE from 'three'
 
-const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
-const S3_BASE = 'https://supoassets.s3.ap-south-1.amazonaws.com'
+const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
+const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 const COMPANY = 'KairaFabrics'
-
-const materialTypeOptions = ['All', ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort()]
-const collectionList = Array.from(new Set(newMaterials.map((m) => m.collection_name).filter(Boolean))).sort()
 
 const COLOR_GROUPS = ['Blues', 'Browns', 'Grays', 'Greens', 'Purples', 'Reds', 'Yellow', 'Whites', 'Blacks']
 const COLOR_MAP: Record<string, string> = {
@@ -26,14 +24,14 @@ const COLOR_MAP: Record<string, string> = {
 }
 
 function getRoughnessMapURL(collectionName: string) {
-  return `${S3_BASE}/public/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
+  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
 }
 function getNormalMapURL(collectionName: string) {
-  return `${S3_BASE}/public/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
+  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
 }
 function getSheenMapUrl(materialType: string) {
   if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
-    return `${S3_BASE}/public/textures/Common/SheenColorMap.webp`
+    return `${S3_BASE}/textures/Common/SheenColorMap.webp`
   }
   return ''
 }
@@ -67,6 +65,7 @@ interface SelectedMaterial {
 }
 
 const ThreeDVisualizerPageMobile = () => {
+  const { newMaterials } = useMaterials()
   const mvRef = useRef<HTMLElement>(null)
   const fabricMeshesRef = useRef<any[]>([])
   const [selected, setSelected] = useState<SelectedMaterial | null>(null)
@@ -97,6 +96,9 @@ const ThreeDVisualizerPageMobile = () => {
 
   const modelUrl = getProductGlbUrl(currentProduct)
 
+  const materialTypeOptions = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort()], [newMaterials])
+  const collectionList = useMemo(() => Array.from(new Set(newMaterials.map((m) => m.collection_name).filter(Boolean))).sort(), [newMaterials])
+
   const activeFilterCount = [
     search ? 1 : 0,
     activeMaterialType !== 'All' ? 1 : 0,
@@ -116,7 +118,7 @@ const ThreeDVisualizerPageMobile = () => {
       if (!matchName && !matchColl && !matchColor) return false
     }
     return true
-  }), [activeMaterialType, activeCollection, activeColorGroup, search])
+  }), [newMaterials, activeMaterialType, activeCollection, activeColorGroup, search])
 
   const applyTexture = async (mat: SelectedMaterial) => {
     const mv = mvRef.current as any
@@ -149,7 +151,7 @@ const ThreeDVisualizerPageMobile = () => {
     setIsApplying(false)
   }
 
-  const handleSelect = (m: typeof newMaterials[0]) => {
+  const handleSelect = (m: NewMaterial) => {
     const mat: SelectedMaterial = {
       id: m.id,
       fabricName: `${m.collection_name} ${m.material_name}`,

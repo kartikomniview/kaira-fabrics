@@ -1,25 +1,24 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { newMaterials } from '../../data/newmaterials'
-import { collections } from '../../data/collections'
 import type { Material } from '../../data/materials'
 import MaterialDetailModal from '../../components/ui/MaterialDetailModal'
+import { useMaterials } from '../../contexts/MaterialsContext'
 
-const S3_THUMB = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/textures/KairaFabrics'
-
-// Unique sorted filter options derived from data
-const allPatterns = ['All', ...Array.from(new Set(newMaterials.map((m) => m.pattern).filter((v): v is string => v !== null))).sort()]
+const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
 const MaterialsPage = () => {
+  const { newMaterials, collections } = useMaterials()
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedCollection = searchParams.get('collection') || collections[0]?.name || ''
 
   const [activePattern,    setActivePattern]    = useState('All')
   const [selectedMaterial, setSelectedMaterial]  = useState<Material | null>(null)
 
+  const allPatterns = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.pattern).filter((v): v is string => v !== null))).sort()], [newMaterials])
+
   const collectionMaterials = useMemo(
     () => newMaterials.filter((m) => m.collection_name === selectedCollection),
-    [selectedCollection],
+    [newMaterials, selectedCollection],
   )
 
   // Collections filtered by the active pattern
@@ -31,7 +30,7 @@ const MaterialsPage = () => {
         .map((m) => m.collection_name)
     )
     return collections.filter((c) => collectionsWithPattern.has(c.name))
-  }, [activePattern])
+  }, [activePattern, newMaterials, collections])
 
   // Materials grid shows all materials in the selected collection (pattern drives collection list)
   const filtered = collectionMaterials
