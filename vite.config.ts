@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 const S3_ORIGIN = 'https://supoassets.s3.ap-south-1.amazonaws.com'
+const S3_KAIRA_ORIGIN = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -12,6 +13,11 @@ export default defineConfig({
         target: S3_ORIGIN,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/s3proxy/, ''),
+      },
+      '/s3kaira': {
+        target: S3_KAIRA_ORIGIN,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/s3kaira/, ''),
       },
     },
   },

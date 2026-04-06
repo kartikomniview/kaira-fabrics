@@ -3,6 +3,10 @@
     {
       "source": "/s3proxy/:path*",
       "destination": "https://supoassets.s3.ap-south-1.amazonaws.com/:path*"
+    },
+    {
+      "source": "/s3kaira/:path*",
+      "destination": "https://kairafabrics.s3.ap-south-1.amazonaws.com/:path*"
     }
   ]
 }

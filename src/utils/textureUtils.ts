@@ -5,14 +5,20 @@
 import * as THREE from 'three'
 
 const S3_ORIGIN = 'https://supoassets.s3.ap-south-1.amazonaws.com'
+const S3_KAIRA_ORIGIN = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 
 /**
- * Fetches a remote S3 asset through the /s3proxy rewrite and returns a blob URL.
+ * Fetches a remote S3 asset through the /s3proxy or /s3kaira rewrite and returns a blob URL.
  * The caller is responsible for calling URL.revokeObjectURL() when done.
  */
 export async function fetchBlobUrl(url: string): Promise<string | null> {
   try {
-    const proxyUrl = url.replace(S3_ORIGIN, '/s3proxy')
+    let proxyUrl = url
+    if (url.startsWith(S3_KAIRA_ORIGIN)) {
+      proxyUrl = url.replace(S3_KAIRA_ORIGIN, '/s3kaira')
+    } else if (url.startsWith(S3_ORIGIN)) {
+      proxyUrl = url.replace(S3_ORIGIN, '/s3proxy')
+    }
     const res = await fetch(proxyUrl)
     if (!res.ok) return null
     const blob = await res.blob()
