@@ -857,6 +857,11 @@ const CollectionsPage = () => {
     return result
   }, [activeMaterialType, collectionSearch])
 
+  const [visibleCount, setVisibleCount] = useState(12)
+
+  // Reset visible count whenever filters change
+  useEffect(() => { setVisibleCount(12) }, [activeMaterialType, collectionSearch])
+
   const navigate = useNavigate()
   const openModal = useCallback((col: Collection) => setSelectedCollection(col), [])
   const closeModal = useCallback(() => setSelectedCollection(null), [])
@@ -1024,8 +1029,9 @@ const CollectionsPage = () => {
               ))}
             </div>
           ) : filtered.length > 0 ? (
+            <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-5">
-              {filtered.map((col) => (
+              {filtered.slice(0, visibleCount).map((col) => (
                 <div
                   key={col.name}
                   onClick={() => openModal(col)}
@@ -1066,6 +1072,23 @@ const CollectionsPage = () => {
                 </div>
               ))}
             </div>
+            {visibleCount < filtered.length && (
+              <div className="flex flex-col items-center gap-2 mt-8 md:mt-10">
+                <button
+                  onClick={() => setVisibleCount((v) => v + 12)}
+                  className="group flex items-center gap-3 px-10 py-3.5 bg-stone-900 text-white text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-primary hover:text-stone-900 transition-all duration-300 rounded-sm shadow-md"
+                >
+                  Load More
+                  <svg className="w-4 h-4 group-hover:translate-y-0.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold">
+                  Showing {Math.min(visibleCount, filtered.length)} of {filtered.length}
+                </p>
+              </div>
+            )}
+            </>
           ) : (
             <div className="text-center py-20 border border-dashed border-stone-200 bg-stone-50 rounded-sm">
               <p className="font-serif text-2xl text-stone-900 mb-3">No collections found</p>

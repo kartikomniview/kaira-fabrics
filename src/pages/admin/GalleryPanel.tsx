@@ -11,6 +11,7 @@ const GalleryPanel = () => {
   const [items, setItems]             = useState<GalleryItem[]>([])
   const [listLoading, setListLoading] = useState(false)
   const [listError, setListError]     = useState<string | null>(null)
+  const isShowAddButton             = false
 
   const fetchGallery = useCallback(async () => {
     setListLoading(true)
@@ -43,15 +44,17 @@ const GalleryPanel = () => {
           <h1 className="font-serif text-2xl text-stone-900">Gallery</h1>
           <p className="text-stone-400 text-sm mt-0.5">Upload and manage your gallery assets.</p>
         </div>
-        <button
-          onClick={() => setShowUpload(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-stone-900 text-white hover:bg-stone-700 hover:shadow-md shadow-sm transition-all duration-200"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add Gallery Item
-        </button>
+        {isShowAddButton && (
+          <button
+            onClick={() => setShowUpload(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-stone-900 text-white hover:bg-stone-700 hover:shadow-md shadow-sm transition-all duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Gallery Item
+          </button>
+        )}
       </div>
 
       {/* Tab Chips */}
