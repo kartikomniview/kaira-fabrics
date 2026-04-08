@@ -1,6 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, animate } from 'framer-motion'
+import type { PanInfo } from 'framer-motion'
 import { useMaterials } from '../../contexts/MaterialsContext'
 
 const categoryImages: Record<string, string> = {
@@ -20,32 +21,28 @@ const categoryMeta: Record<string, { label: string; desc: string; features: stri
   'SUEDELEATHER': { label: 'Suede Leather',      desc: 'Buttery smooth leather that ages beautifully',          features: ['100% genuine leather', 'Develops patina', 'Luxurious grip'],    usedFor: 'Luxury upholstery' },
 }
 
-const CARD_VARIANTS = {
-  hidden: { opacity: 0, y: 28 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { duration: 0.55, delay: i * 0.09, ease: [0.25, 0.46, 0.45, 0.94] } }),
-}
+const GAP = 24 // px (gap-6 equivalent)
 
-// Desktop hover-reveal variants
-const revealPanel = {
-  rest: { y: '100%' },
-  hover: {
-    y: 0,
-    transition: {
-      duration: 0.48,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-      staggerChildren: 0.07,
-      delayChildren: 0.12,
-    },
-  },
-}
-
-const revealItem = {
-  rest: { opacity: 0, y: 10 },
-  hover: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
+function getVisibleCount() {
+  if (typeof window === 'undefined') return 4
+  if (window.innerWidth < 640) return 1
+  if (window.innerWidth < 1024) return 2
+  if (window.innerWidth < 1280) return 3
+  return 4
 }
 
 const FabricCategoriesSection = () => {
   const { materials } = useMaterials()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [cardWidth, setCardWidth] = useState(0)
+  const [visibleCount, setVisibleCount] = useState(4)
+  const x = useMotionValue(0)
+  const isDragging = useRef(false)
+  // Stable refs to avoid stale closures in event listeners
+  const activeIndexRef = useRef(0)
+  const cardWidthRef = useRef(0)
+  const visibleCountRef = useRef(4)
 
   const categories = useMemo(() => {
     const counts = materials.reduce((acc, m) => {
@@ -59,170 +56,210 @@ const FabricCategoriesSection = () => {
     ).sort((a, b) => a[0].localeCompare(b[0]))
   }, [materials])
 
-  return (
-    <div id="fabric-collections" className="scroll-mt-24">
+  const maxSteps = Math.max(0, categories.length - visibleCount)
 
-      {/* ── Mobile: 2-column grid ── */}
-      <div className="md:hidden grid grid-cols-2 gap-3">
-        {categories.map(([name, count], i) => {
-          const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
-          const { label, desc } = categoryMeta[name] ?? { label: name, desc: '' }
-          return (
-            <motion.div key={name} custom={i} initial="hidden" animate="visible" variants={CARD_VARIANTS}>
-              <Link
-                to={`/collections?category=${name}`}
-                className="group block relative overflow-hidden rounded-sm shadow-md hover:shadow-xl transition-shadow duration-400"
+  // Sync refs whenever state changes
+  useEffect(() => { activeIndexRef.current = activeIndex }, [activeIndex])
+  useEffect(() => { cardWidthRef.current = cardWidth }, [cardWidth])
+  useEffect(() => { visibleCountRef.current = visibleCount }, [visibleCount])
+
+  // Compute card width via ResizeObserver
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (!containerRef.current) return
+      const vc = getVisibleCount()
+      setVisibleCount(vc)
+      const cw = containerRef.current.offsetWidth
+      setCardWidth((cw - (vc - 1) * GAP) / vc)
+    }
+    updateDimensions()
+    const ro = new ResizeObserver(updateDimensions)
+    if (containerRef.current) ro.observe(containerRef.current)
+    return () => ro.disconnect()
+  }, [])
+
+  const snapTo = (index: number) => {
+    const maxS = Math.max(0, categories.length - visibleCountRef.current)
+    const clamped = Math.max(0, Math.min(index, maxS))
+    setActiveIndex(clamped)
+    activeIndexRef.current = clamped
+    animate(x, -(clamped * (cardWidthRef.current + GAP)), {
+      type: 'spring',
+      damping: 32,
+      stiffness: 260,
+    })
+  }
+
+  // Wheel scroll: moving over the carousel scrolls cards horizontally
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    let accumulated = 0
+    let rafId = 0
+
+    const onWheel = (e: WheelEvent) => {
+      const maxS = Math.max(0, categories.length - visibleCountRef.current)
+      const scrollingForward = e.deltaY > 0
+      const atStart = activeIndexRef.current === 0 && !scrollingForward
+      const atEnd   = activeIndexRef.current === maxS && scrollingForward
+
+      // At boundaries let the event reach Lenis so the page scrolls normally
+      if (atStart || atEnd) return
+
+      e.preventDefault()
+      e.stopPropagation()
+      accumulated += e.deltaY
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        if (Math.abs(accumulated) >= 40) {
+          const direction = accumulated > 0 ? 1 : -1
+          const next = Math.max(0, Math.min(activeIndexRef.current + direction, maxS))
+          setActiveIndex(next)
+          activeIndexRef.current = next
+          animate(x, -(next * (cardWidthRef.current + GAP)), {
+            type: 'spring',
+            damping: 32,
+            stiffness: 260,
+          })
+          accumulated = 0
+        }
+      })
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      cancelAnimationFrame(rafId)
+    }
+  }, [categories.length, x])
+
+  const onDragStart = () => { isDragging.current = true }
+
+  const onDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const threshold = cardWidthRef.current / 4
+    if (info.offset.x < -threshold) snapTo(activeIndexRef.current + 1)
+    else if (info.offset.x > threshold) snapTo(activeIndexRef.current - 1)
+    else snapTo(activeIndexRef.current)
+    setTimeout(() => { isDragging.current = false }, 0)
+  }
+
+  const dragMax = maxSteps * (cardWidth + GAP)
+
+  return (
+    <div id="fabric-collections" className="scroll-mt-24 select-none">
+
+      {/* Carousel track */}
+      <div ref={containerRef} className="overflow-hidden">
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: -dragMax, right: 0 }}
+          dragElastic={0.08}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          className="flex cursor-grab active:cursor-grabbing will-change-transform"
+          style={{ x, columnGap: GAP }}
+        >
+          {categories.map(([name, count]) => {
+            const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
+            const { label, desc, features, usedFor } = categoryMeta[name] ?? { label: name, desc: '', features: [], usedFor: '' }
+            return (
+              <div
+                key={name}
+                className="flex-shrink-0"
+                style={{ width: cardWidth > 0 ? cardWidth : undefined }}
               >
-                <div className="aspect-[3/4] relative">
-                  <img src={imgUrl} alt={label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  {/* Collection badge */}
-                  <div className="absolute top-2.5 left-2.5">
-                    <span className="inline-block bg-black/40 backdrop-blur-sm text-white/80 text-[8px] uppercase tracking-[0.22em] px-2 py-0.5 rounded-sm border border-white/15">
-                      {count} {count === 1 ? 'Collection' : 'Collections'}
-                    </span>
+                <Link
+                  to={`/collections?category=${name}`}
+                  className="group flex flex-col h-full w-full"
+                  draggable={false}
+                  onClick={(e) => { if (isDragging.current) e.preventDefault() }}
+                >
+                  <div className="aspect-[3/4] relative overflow-hidden rounded-md shadow-md mb-4 bg-stone-100">
+                    <img
+                      src={imgUrl}
+                      alt={label}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      draggable={false}
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className="inline-block bg-white/90 backdrop-blur-sm text-stone-900 text-xs uppercase tracking-widest px-3 py-1.5 rounded shadow-sm font-medium">
+                        {count} {count === 1 ? 'Collection' : 'Collections'}
+                      </span>
+                    </div>
                   </div>
-                  {/* Bottom text */}
-                  <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <h3 className="font-serif text-[15px] text-white leading-tight">{label}</h3>
-                    <p className="text-[10px] text-stone-300 font-light mt-0.5 leading-snug">{desc}</p>
-                    <div className="mt-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-1 group-hover:translate-y-0">
-                      <span className="text-[9px] text-amber-300 uppercase tracking-[0.2em] font-semibold">Explore</span>
-                      <svg className="w-3 h-3 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+
+                  <div className="flex flex-col flex-grow">
+                    <h3 className="font-serif text-xl text-stone-900 group-hover:text-primary transition-colors">{label}</h3>
+                    <p className="text-xs text-stone-600 font-light mt-2 leading-relaxed flex-grow">{desc}</p>
+
+                    <div className="mt-3 space-y-1.5">
+                      {features.map((f) => (
+                        <div key={f} className="flex items-center gap-2 text-xs text-stone-500">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0" />
+                          {f}
+                        </div>
+                      ))}
+                    </div>
+
+                    <p className="mt-3 text-xs text-stone-400 uppercase tracking-widest font-medium">
+                      Ideal for: <span className="text-stone-700 normal-case font-medium">{usedFor}</span>
+                    </p>
+
+                    <div className="mt-4 flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs text-stone-900 uppercase tracking-[0.2em] font-bold border-b border-stone-900/30 pb-px">
+                        Browse Collection
+                      </span>
+                      <svg className="w-4 h-4 text-stone-900 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
                     </div>
                   </div>
-                  {/* Left accent bar */}
-                  <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-500" />
-                </div>
-              </Link>
-            </motion.div>
-          )
-        })}
+                </Link>
+              </div>
+            )
+          })}
+        </motion.div>
       </div>
 
-      {/* ── Desktop: 5-column grid with Framer Motion hover-reveal ── */}
-      <div className="hidden md:grid grid-cols-3 lg:grid-cols-5 gap-5">
-        {categories.map(([name, count], i) => {
-          const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
-          const { label, desc, features, usedFor } = categoryMeta[name] ?? { label: name, desc: '', features: [], usedFor: '' }
-          return (
-            <motion.div key={name} custom={i} initial="hidden" animate="visible" variants={CARD_VARIANTS}>
-              <Link to={`/collections?category=${name}`} className="block">
-                {/* This motion.div owns the hover state — all motion children inherit "rest"/"hover" */}
-                <motion.div
-                  className="aspect-[4/5] relative overflow-hidden rounded-sm shadow-lg"
-                  initial="rest"
-                  whileHover="hover"
-                  animate="rest"
-                >
-                  {/* Image — scales in on hover via variant propagation */}
-                  <motion.img
-                    src={imgUrl}
-                    alt={label}
-                    className="w-full h-full object-cover"
-                    variants={{
-                      rest:  { scale: 1 },
-                      hover: { scale: 1.08, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] } },
-                    }}
-                  />
+      {/* Progress dots + arrows */}
+      {maxSteps > 0 && (
+        <div className="flex items-center justify-center mt-10 gap-4">
+          <button
+            onClick={() => snapTo(activeIndex - 1)}
+            disabled={activeIndex === 0}
+            aria-label="Previous"
+            className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-300 text-stone-500 hover:border-stone-900 hover:text-stone-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
 
-                  {/* Permanent base gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+          <div className="flex items-center gap-2">
+            {Array.from({ length: maxSteps + 1 }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => snapTo(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === activeIndex ? 'w-7 bg-stone-900' : 'w-1.5 bg-stone-300 hover:bg-stone-500'
+                }`}
+              />
+            ))}
+          </div>
 
-                  {/* Idle state — category name always visible, fades out on hover */}
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 p-4"
-                    variants={{
-                      rest:  { opacity: 1, y: 0 },
-                      hover: { opacity: 0, y: 8, transition: { duration: 0.2 } },
-                    }}
-                  >
-                    <span className="text-[9px] text-white/55 uppercase tracking-[0.25em] font-medium">
-                      {count} {count === 1 ? 'Collection' : 'Collections'}
-                    </span>
-                    <h3 className="font-serif text-xl text-white leading-tight mt-0.5">{label}</h3>
-                    <p className="text-[11px] text-stone-300/70 font-light mt-1">{desc}</p>
-                  </motion.div>
-
-                  {/* ── Hover reveal panel — slides up from bottom ── */}
-                  <motion.div
-                    className="absolute inset-0 flex flex-col justify-end p-5 bg-gradient-to-t from-black/95 via-black/80 to-black/40"
-                    variants={revealPanel}
-                  >
-                    {/* Collection count */}
-                    <motion.span
-                      variants={revealItem}
-                      className="text-[9px] text-amber-300/90 uppercase tracking-[0.3em] font-bold"
-                    >
-                      {count} {count === 1 ? 'Collection' : 'Collections'}
-                    </motion.span>
-
-                    {/* Title */}
-                    <motion.h3
-                      variants={revealItem}
-                      className="font-serif text-[22px] text-white leading-tight mt-2"
-                    >
-                      {label}
-                    </motion.h3>
-
-                    {/* Description */}
-                    <motion.p
-                      variants={revealItem}
-                      className="text-[11px] text-stone-300/80 font-light mt-2 leading-relaxed"
-                    >
-                      {desc}
-                    </motion.p>
-
-                    {/* Divider */}
-                    <motion.div variants={revealItem} className="my-3 h-px bg-white/15" />
-
-                    {/* Feature bullets */}
-                    <motion.ul variants={revealItem} className="space-y-1.5">
-                      {features.map((f) => (
-                        <li key={f} className="flex items-center gap-2 text-[10px] text-stone-300/75">
-                          <span className="w-1 h-1 rounded-full bg-primary flex-shrink-0" />
-                          {f}
-                        </li>
-                      ))}
-                    </motion.ul>
-
-                    {/* Ideal for */}
-                    <motion.p
-                      variants={revealItem}
-                      className="mt-2.5 text-[9px] text-stone-400/60 uppercase tracking-[0.18em]"
-                    >
-                      Ideal for:{' '}
-                      <span className="text-amber-300/70 normal-case">{usedFor}</span>
-                    </motion.p>
-
-                    {/* CTA */}
-                    <motion.div variants={revealItem} className="mt-4 flex items-center gap-2">
-                      <span className="text-[10px] text-white uppercase tracking-[0.28em] font-bold border-b border-white/30 pb-px">
-                        Browse Collection
-                      </span>
-                      <svg className="w-3.5 h-3.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                    </motion.div>
-                  </motion.div>
-
-                  {/* Left accent bar — framer-motion controlled */}
-                  <motion.div
-                    className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary origin-bottom"
-                    variants={{
-                      rest:  { scaleY: 0 },
-                      hover: { scaleY: 1, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } },
-                    }}
-                  />
-                </motion.div>
-              </Link>
-            </motion.div>
-          )
-        })}
-      </div>
+          <button
+            onClick={() => snapTo(activeIndex + 1)}
+            disabled={activeIndex === maxSteps}
+            aria-label="Next"
+            className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-300 text-stone-500 hover:border-stone-900 hover:text-stone-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      )}
 
     </div>
   )
