@@ -90,49 +90,6 @@ const FabricCategoriesSection = () => {
     })
   }
 
-  // Wheel scroll: moving over the carousel scrolls cards horizontally
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    let accumulated = 0
-    let rafId = 0
-
-    const onWheel = (e: WheelEvent) => {
-      const maxS = Math.max(0, categories.length - visibleCountRef.current)
-      const scrollingForward = e.deltaY > 0
-      const atStart = activeIndexRef.current === 0 && !scrollingForward
-      const atEnd   = activeIndexRef.current === maxS && scrollingForward
-
-      // At boundaries let the event reach Lenis so the page scrolls normally
-      if (atStart || atEnd) return
-
-      e.preventDefault()
-      e.stopPropagation()
-      accumulated += e.deltaY
-      cancelAnimationFrame(rafId)
-      rafId = requestAnimationFrame(() => {
-        if (Math.abs(accumulated) >= 40) {
-          const direction = accumulated > 0 ? 1 : -1
-          const next = Math.max(0, Math.min(activeIndexRef.current + direction, maxS))
-          setActiveIndex(next)
-          activeIndexRef.current = next
-          animate(x, -(next * (cardWidthRef.current + GAP)), {
-            type: 'spring',
-            damping: 32,
-            stiffness: 260,
-          })
-          accumulated = 0
-        }
-      })
-    }
-
-    el.addEventListener('wheel', onWheel, { passive: false })
-    return () => {
-      el.removeEventListener('wheel', onWheel)
-      cancelAnimationFrame(rafId)
-    }
-  }, [categories.length, x])
-
   const onDragStart = () => { isDragging.current = true }
 
   const onDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -148,8 +105,33 @@ const FabricCategoriesSection = () => {
   return (
     <div id="fabric-collections" className="scroll-mt-24 select-none">
 
-      {/* Carousel track */}
-      <div ref={containerRef} className="overflow-hidden">
+      {/* Carousel track with side arrows */}
+      <div className="relative">
+        {/* Left arrow */}
+        <button
+          onClick={() => snapTo(activeIndex - 1)}
+          disabled={activeIndex === 0}
+          aria-label="Previous"
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-stone-200 shadow-md text-stone-600 hover:border-stone-900 hover:text-stone-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        {/* Right arrow */}
+        <button
+          onClick={() => snapTo(activeIndex + 1)}
+          disabled={activeIndex === maxSteps}
+          aria-label="Next"
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-stone-200 shadow-md text-stone-600 hover:border-stone-900 hover:text-stone-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <div ref={containerRef} className="overflow-hidden">
         <motion.div
           drag="x"
           dragConstraints={{ left: -dragMax, right: 0 }}
@@ -163,103 +145,83 @@ const FabricCategoriesSection = () => {
             const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
             const { label, desc, features, usedFor } = categoryMeta[name] ?? { label: name, desc: '', features: [], usedFor: '' }
             return (
-              <div
+              <motion.div
                 key={name}
-                className="flex-shrink-0"
+                className="flex-shrink-0 group"
                 style={{ width: cardWidth > 0 ? cardWidth : undefined }}
+                initial="rest"
+                whileHover="hover"
+                animate="rest"
               >
                 <Link
                   to={`/collections?category=${name}`}
-                  className="group flex flex-col h-full w-full"
+                  className="flex flex-col h-full w-full"
                   draggable={false}
                   onClick={(e) => { if (isDragging.current) e.preventDefault() }}
                 >
+                  {/* Image */}
                   <div className="aspect-[3/4] relative overflow-hidden rounded-md shadow-md mb-4 bg-stone-100">
-                    <img
+                    <motion.img
                       src={imgUrl}
                       alt={label}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="w-full h-full object-cover"
                       draggable={false}
+                      variants={{ rest: { scale: 1 }, hover: { scale: 1.06 } }}
+                      transition={{ duration: 0.7, type: 'tween' }}
                     />
                     <div className="absolute top-4 left-4">
                       <span className="inline-block bg-white/90 backdrop-blur-sm text-stone-900 text-xs uppercase tracking-widest px-3 py-1.5 rounded shadow-sm font-medium">
                         {count} {count === 1 ? 'Collection' : 'Collections'}
                       </span>
                     </div>
+
+                    {/* Hover overlay: features + ideal for */}
+                    <motion.div
+                      variants={{ rest: { y: '100%', opacity: 0 }, hover: { y: 0, opacity: 1 } }}
+                      transition={{ duration: 0.38, type: 'tween' }}
+                      className="absolute inset-x-0 bottom-0 bg-stone-900/80 backdrop-blur-sm p-4 pointer-events-none"
+                    >
+                      <div className="space-y-1.5 mb-2">
+                        {features.map((f) => (
+                          <div key={f} className="flex items-center gap-2 text-xs text-white/85">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                            {f}
+                          </div>
+                        ))}
+                      </div>
+                      {usedFor && (
+                        <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">
+                          Ideal for: <span className="text-white/80 normal-case font-medium">{usedFor}</span>
+                        </p>
+                      )}
+                    </motion.div>
                   </div>
 
-                  <div className="flex flex-col flex-grow">
-                    <h3 className="font-serif text-xl text-stone-900 group-hover:text-primary transition-colors">{label}</h3>
-                    <p className="text-xs text-stone-600 font-light mt-2 leading-relaxed flex-grow">{desc}</p>
+                  {/* Always visible: label + desc */}
+                  <h3 className="font-serif text-xl text-stone-900 group-hover:text-primary transition-colors duration-200">{label}</h3>
+                  <p className="text-xs text-stone-500 font-light mt-1.5 leading-relaxed">{desc}</p>
 
-                    <div className="mt-3 space-y-1.5">
-                      {features.map((f) => (
-                        <div key={f} className="flex items-center gap-2 text-xs text-stone-500">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0" />
-                          {f}
-                        </div>
-                      ))}
-                    </div>
-
-                    <p className="mt-3 text-xs text-stone-400 uppercase tracking-widest font-medium">
-                      Ideal for: <span className="text-stone-700 normal-case font-medium">{usedFor}</span>
-                    </p>
-
-                    <div className="mt-4 flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                      <span className="text-xs text-stone-900 uppercase tracking-[0.2em] font-bold border-b border-stone-900/30 pb-px">
-                        Browse Collection
-                      </span>
-                      <svg className="w-4 h-4 text-stone-900 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                    </div>
+                  {/* Always visible: CTA */}
+                  <div className="mt-4 flex items-center gap-2">
+                    <span className="text-xs text-stone-900 uppercase tracking-[0.2em] font-bold border-b border-stone-900/30 pb-px">
+                      Browse Collection
+                    </span>
+                    <motion.svg
+                      variants={{ rest: { x: 0, opacity: 0.6 }, hover: { x: 5, opacity: 1 } }}
+                      transition={{ duration: 0.3, type: 'tween' }}
+                      className="w-4 h-4 text-stone-900"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </motion.svg>
                   </div>
                 </Link>
-              </div>
+              </motion.div>
             )
           })}
         </motion.div>
-      </div>
-
-      {/* Progress dots + arrows */}
-      {maxSteps > 0 && (
-        <div className="flex items-center justify-center mt-10 gap-4">
-          <button
-            onClick={() => snapTo(activeIndex - 1)}
-            disabled={activeIndex === 0}
-            aria-label="Previous"
-            className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-300 text-stone-500 hover:border-stone-900 hover:text-stone-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <div className="flex items-center gap-2">
-            {Array.from({ length: maxSteps + 1 }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => snapTo(i)}
-                aria-label={`Go to slide ${i + 1}`}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === activeIndex ? 'w-7 bg-stone-900' : 'w-1.5 bg-stone-300 hover:bg-stone-500'
-                }`}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={() => snapTo(activeIndex + 1)}
-            disabled={activeIndex === maxSteps}
-            aria-label="Next"
-            className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-300 text-stone-500 hover:border-stone-900 hover:text-stone-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
         </div>
-      )}
+      </div>
 
     </div>
   )

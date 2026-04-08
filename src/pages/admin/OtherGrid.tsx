@@ -150,6 +150,7 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
   const [saving, setSaving]         = useState(false)
   const [deleting, setDeleting]     = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [copied, setCopied]         = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
@@ -182,6 +183,7 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
     setEditTitle(item.title ?? '')
     setEditDesc(item.description ?? '')
     setConfirmDelete(false)
+    setCopied(false)
   }
 
   const handleDelete = async () => {
@@ -376,6 +378,45 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
                   rows={3}
                   className="w-full px-3.5 py-2.5 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 transition-colors resize-none"
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-600 mb-1.5">Asset URL</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={editItem.asset_url}
+                    className="flex-1 px-3.5 py-2.5 text-xs text-stone-500 border border-stone-200 rounded-xl bg-stone-50 truncate focus:outline-none cursor-default select-all"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(editItem.asset_url)
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    }}
+                    className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium border transition-colors ${
+                      copied
+                        ? 'border-green-300 bg-green-50 text-green-700'
+                        : 'border-stone-200 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-900'
+                    }`}
+                  >
+                    {copied ? (
+                      <>
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Copy
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
             {confirmDelete ? (

@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 
+const KURIKKAL_LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/KirikalLogo.webp'
+
 const CTASection = () => {
   return (
     <section className="bg-stone-900 py-12 md:py-32 relative overflow-hidden border-t border-stone-800">
@@ -13,17 +15,29 @@ const CTASection = () => {
 
       <div className="relative max-w-4xl mx-auto px-6 lg:px-10 text-center z-10">
         
+        {/* Kurikkal Logo Badge */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white p-4 md:p-5 rounded-2xl inline-flex shadow-2xl border border-stone-800/50 relative">
+            <img 
+              src={KURIKKAL_LOGO} 
+              alt="Kurikkal Group" 
+              className="h-10 md:h-14 w-auto object-contain"
+              loading="lazy"
+            />
+          </div>
+        </div>
+
         {/* Centered Eyebrow */}
-        <div className="inline-flex items-center justify-center gap-3 md:gap-4 mb-4 md:mb-8">
+        <div className="inline-flex items-center justify-center gap-3 md:gap-4 mb-4 md:mb-6">
           <span className="h-px w-6 md:w-8 bg-stone-700" />
-          <span className="text-[9px] md:text-[10px] sm:text-xs uppercase tracking-[0.3em] text-primary font-bold">Start Your Journey</span>
+          <span className="text-[9px] md:text-[10px] sm:text-xs uppercase tracking-[0.3em] text-primary font-bold">Kurikkal Group</span>
           <span className="h-px w-6 md:w-8 bg-stone-700" />
         </div>
         
         {/* Main Heading */}
-        <h2 className="font-serif text-2xl md:text-4xl lg:text-5xl text-white font-medium mb-3 md:mb-6 leading-[1.1]">
-          Ready to Elevate <br className="hidden sm:block" />
-          <span className="italic text-stone-400">Your Space?</span>
+        <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-white font-medium mb-3 md:mb-6 leading-[1.1]">
+          Keeping your trust <br className="hidden sm:block" />
+          <span className="italic text-stone-400">since 1991.</span>
         </h2>
         
         {/* Description */}

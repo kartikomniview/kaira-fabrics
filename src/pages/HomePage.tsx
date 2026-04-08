@@ -110,22 +110,30 @@ const HomePage = () => {
       {/* Latest Collections Section */}
       <LatestCollectionsSection />
 
+       {/* Gallery */}
+      <GallerySection />
+
+      {/* Who We Serve */}
+      <WhoWeServeSection />
+
+
+  
+
+      {/* About Us Section */}
+      <AboutSection isAboutVisible={isAboutVisible} aboutRef={aboutRef} />
+
       {/* Testimonials */}
       <TestimonialsSection />
 
-      {/* Gallery */}
-      <GallerySection />
-
+     
       {/* Clients Scrollbar | About | Who We Serve | Smart Catalog — toggle SHOW_EXTRA_SECTIONS to enable */}
       {SHOW_EXTRA_SECTIONS && (
         <>
           <ClientsScrollbar />
 
-          {/* About Us Section */}
-          <AboutSection isAboutVisible={isAboutVisible} aboutRef={aboutRef} />
+       
 
-          {/* Who We Serve */}
-          <WhoWeServeSection />
+          
 
           {/* Smart Catalog */}
           <SmartCatalogSection />

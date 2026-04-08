@@ -11,7 +11,7 @@ const GalleryPanel = () => {
   const [items, setItems]             = useState<GalleryItem[]>([])
   const [listLoading, setListLoading] = useState(false)
   const [listError, setListError]     = useState<string | null>(null)
-  const isShowAddButton             = false
+  const isShowAddButton             = true
 
   const fetchGallery = useCallback(async () => {
     setListLoading(true)
