@@ -4,7 +4,7 @@
  */
 import * as THREE from 'three'
 
-const S3_ORIGIN = 'https://supoassets.s3.ap-south-1.amazonaws.com'
+const S3_ORIGIN = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 
 /**
  * Fetches a remote S3 asset through the /s3proxy rewrite and returns a blob URL.

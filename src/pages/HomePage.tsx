@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
 import AboutSection from '../components/sections/AboutSection'
+import CaptionStrip from '../components/sections/CaptionStrip'
 import CTASection from '../components/sections/CTASection'
 import HeroSection from '../components/sections/HeroSection'
 import TestimonialsSection from '../components/sections/TestimonialsSection'
@@ -17,21 +17,7 @@ const HomePage = () => {
   // Toggle to show/hide extra sections
   const SHOW_EXTRA_SECTIONS = false
 
-  const [isAboutVisible, setIsAboutVisible] = useState(false)
-  const aboutRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.target === aboutRef.current && entry.isIntersecting) {
-          setIsAboutVisible(true)
-        }
-      })
-    }, { threshold: 0.2 })
-
-    if (aboutRef.current) observer.observe(aboutRef.current)
-    return () => observer.disconnect()
-  }, [])
 
   return (
     <>
@@ -104,14 +90,31 @@ const HomePage = () => {
       {/* Why Kaira Section */}
       <WhyKairaSection />
 
+      {/* Caption 1 */}
+      <CaptionStrip
+        eyebrow="Our Approach"
+        before="We don't just sell fabric —"
+        highlight="we help customers visualize"
+        after="and choose the right material."
+      />
+
       {/* AI & 3D Visualizer Banner Strip */}
       <AIVisualizerBanner />
 
       {/* Latest Collections Section */}
       <LatestCollectionsSection />
 
+      {/* Caption 2 */}
+      <CaptionStrip
+        eyebrow="Craftsmanship"
+        before="Every thread tells a story."
+        highlight="Every collection,"
+        after="a new chapter."
+      />
+
        {/* Gallery */}
       <GallerySection />
+
 
       {/* Who We Serve */}
       <WhoWeServeSection />
@@ -120,7 +123,15 @@ const HomePage = () => {
   
 
       {/* About Us Section */}
-      <AboutSection isAboutVisible={isAboutVisible} aboutRef={aboutRef} />
+      <AboutSection />
+
+      {/* Caption 4 */}
+      <CaptionStrip
+        eyebrow="Our Legacy"
+        before="Decades of craft."
+        highlight="One unwavering commitment"
+        after="to quality."
+      />
 
       {/* Testimonials */}
       <TestimonialsSection />
