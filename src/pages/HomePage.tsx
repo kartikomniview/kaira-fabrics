@@ -92,6 +92,7 @@ const HomePage = () => {
 
       {/* Caption 1 */}
       <CaptionStrip
+        variant={1}
         eyebrow="Our Approach"
         before="We don't just sell fabric —"
         highlight="we help customers visualize"
@@ -106,6 +107,7 @@ const HomePage = () => {
 
       {/* Caption 2 */}
       <CaptionStrip
+        variant={2}
         eyebrow="Craftsmanship"
         before="Every thread tells a story."
         highlight="Every collection,"
@@ -127,6 +129,7 @@ const HomePage = () => {
 
       {/* Caption 4 */}
       <CaptionStrip
+        variant={1}
         eyebrow="Our Legacy"
         before="Decades of craft."
         highlight="One unwavering commitment"

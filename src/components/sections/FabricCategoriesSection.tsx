@@ -34,6 +34,7 @@ function getVisibleCount() {
 const FabricCategoriesSection = () => {
   const { materials } = useMaterials()
   const containerRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const [cardWidth, setCardWidth] = useState(0)
   const [visibleCount, setVisibleCount] = useState(4)
@@ -43,6 +44,10 @@ const FabricCategoriesSection = () => {
   const activeIndexRef = useRef(0)
   const cardWidthRef = useRef(0)
   const visibleCountRef = useRef(4)
+  const [sectionInView, setSectionInView] = useState(false)
+
+  // Only reveal images for visible cards + 1 preload buffer; once revealed, stays revealed
+  const [revealedIndices, setRevealedIndices] = useState<Set<number>>(() => new Set())
 
   const categories = useMemo(() => {
     const counts = materials.reduce((acc, m) => {
@@ -62,6 +67,28 @@ const FabricCategoriesSection = () => {
   useEffect(() => { activeIndexRef.current = activeIndex }, [activeIndex])
   useEffect(() => { cardWidthRef.current = cardWidth }, [cardWidth])
   useEffect(() => { visibleCountRef.current = visibleCount }, [visibleCount])
+
+  // Reveal images for the current window + 1 ahead as user navigates, but only once section is visible
+  useEffect(() => {
+    if (!sectionInView) return
+    setRevealedIndices(prev => {
+      const next = new Set(prev)
+      for (let i = activeIndex; i <= activeIndex + visibleCount + 1; i++) next.add(i)
+      return next
+    })
+  }, [activeIndex, visibleCount, sectionInView])
+
+  // Observe section visibility — reveal initial images only when scrolled into view
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setSectionInView(true); obs.disconnect() } },
+      { rootMargin: '150px' }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   // Compute card width via ResizeObserver
   useEffect(() => {
@@ -103,7 +130,7 @@ const FabricCategoriesSection = () => {
   const dragMax = maxSteps * (cardWidth + GAP)
 
   return (
-    <div id="fabric-collections" className="scroll-mt-24 select-none">
+    <div id="fabric-collections" ref={sectionRef} className="scroll-mt-24 select-none">
 
       {/* Carousel track with side arrows */}
       <div className="relative">
@@ -141,7 +168,7 @@ const FabricCategoriesSection = () => {
           className="flex cursor-grab active:cursor-grabbing will-change-transform"
           style={{ x, columnGap: GAP }}
         >
-          {categories.map(([name, count]) => {
+          {categories.map(([name, count], cardIndex) => {
             const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
             const { label, desc, features, usedFor } = categoryMeta[name] ?? { label: name, desc: '', features: [], usedFor: '' }
             return (
@@ -161,19 +188,19 @@ const FabricCategoriesSection = () => {
                 >
                   {/* Image */}
                   <div className="aspect-[3/4] relative overflow-hidden rounded-md shadow-md mb-4 bg-stone-100">
-                    <motion.img
-                      src={imgUrl}
-                      alt={label}
-                      className="w-full h-full object-cover"
-                      draggable={false}
-                      variants={{ rest: { scale: 1 }, hover: { scale: 1.06 } }}
-                      transition={{ duration: 0.7, type: 'tween' }}
-                    />
-                    <div className="absolute top-4 left-4">
-                      <span className="inline-block bg-white/90 backdrop-blur-sm text-stone-900 text-xs uppercase tracking-widest px-3 py-1.5 rounded shadow-sm font-medium">
-                        {count} {count === 1 ? 'Collection' : 'Collections'}
-                      </span>
-                    </div>
+                    {revealedIndices.has(cardIndex) ? (
+                      <motion.img
+                        src={imgUrl}
+                        alt={label}
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                        variants={{ rest: { scale: 1 }, hover: { scale: 1.06 } }}
+                        transition={{ duration: 0.7, type: 'tween' }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-stone-200 animate-pulse" />
+                    )}
 
                     {/* Hover overlay: features + ideal for */}
                     <motion.div

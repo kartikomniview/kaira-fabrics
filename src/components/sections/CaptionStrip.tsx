@@ -10,16 +10,40 @@ interface CaptionStripProps {
   after?: string
   /** Optional small label above the caption */
   eyebrow?: string
+  /** 1 = canvas/linen weave (warm), 2 = diagonal twill (cool) */
+  variant?: 1 | 2
 }
 
-const CaptionStrip = ({ before, highlight, after = '', eyebrow }: CaptionStripProps) => {
+/** Two fabric texture presets */
+const FABRIC_TEXTURES = {
+  1: {
+    // Canvas / linen — fine orthogonal weave, warm dark
+    backgroundColor: '#0e0b09',
+    backgroundImage: [
+      'repeating-linear-gradient(0deg,  rgba(255,255,255,0.038) 0px, rgba(255,255,255,0.038) 1px, transparent 1px, transparent 5px)',
+      'repeating-linear-gradient(90deg, rgba(255,255,255,0.038) 0px, rgba(255,255,255,0.038) 1px, transparent 1px, transparent 5px)',
+    ].join(', '),
+  },
+  2: {
+    // Diagonal twill — 45° chevron, cool dark with faint green cast
+    backgroundColor: '#08100a',
+    backgroundImage: [
+      'repeating-linear-gradient( 45deg, rgba(162,239,15,0.045) 0px, rgba(162,239,15,0.045) 1px, transparent 1px, transparent 9px)',
+      'repeating-linear-gradient(-45deg, rgba(162,239,15,0.025) 0px, rgba(162,239,15,0.025) 1px, transparent 1px, transparent 9px)',
+    ].join(', '),
+  },
+} as const
+
+const CaptionStrip = ({ before, highlight, after = '', eyebrow, variant = 1 }: CaptionStripProps) => {
+  const texture = FABRIC_TEXTURES[variant]
   const ref = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
     <section
       ref={ref}
-      className="relative bg-stone-950 overflow-hidden py-14 md:py-20 border-y border-stone-800/60"
+      className="relative overflow-hidden py-14 md:py-20 border-y border-stone-800/60"
+      style={{ backgroundColor: texture.backgroundColor, backgroundImage: texture.backgroundImage }}
     >
       {/* subtle radial glow */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

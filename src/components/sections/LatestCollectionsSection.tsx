@@ -14,7 +14,6 @@ const LatestCollectionsSection = () => {
   const subtitleRef = useRef<HTMLParagraphElement>(null)
   const desktopCtaRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
-  const mobileCtaRef = useRef<HTMLDivElement>(null)
   const blobTopRef = useRef<HTMLDivElement>(null)
   const blobBotRef = useRef<HTMLDivElement>(null)
 
@@ -80,14 +79,6 @@ const LatestCollectionsSection = () => {
         { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
         '<0.15',
       )
-      // Desktop CTA slides in from right
-      .fromTo(
-        desktopCtaRef.current,
-        { opacity: 0, x: 24 },
-        { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' },
-        '<0.1',
-      )
-
       /* ── Grid reveal (scrub fade+rise) ── */
       gsap.fromTo(
         gridRef.current,
@@ -105,25 +96,30 @@ const LatestCollectionsSection = () => {
         },
       )
 
-      /* ── Mobile CTA ── */
+      /* ── CTA fade+rise ── */
       gsap.fromTo(
-        mobileCtaRef.current,
-        { opacity: 0, y: 20 },
+        desktopCtaRef.current,
+        { opacity: 0, y: 24 },
         {
           opacity: 1,
           y: 0,
           duration: 0.6,
           ease: 'power2.out',
           scrollTrigger: {
-            trigger: mobileCtaRef.current,
-            start: 'top 92%',
+            trigger: desktopCtaRef.current,
+            start: 'top bottom',
             toggleActions: 'play none none none',
           },
         },
       )
+
+      // Refresh ScrollTrigger after dynamic content (FabricCategoriesSection) finishes loading
+
     }, sectionRef)
 
-    return () => ctx.revert()
+    const refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 600)
+
+    return () => { ctx.revert(); clearTimeout(refreshTimer) }
   }, [])
 
   return (
@@ -139,35 +135,21 @@ const LatestCollectionsSection = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
 
         {/* ── Section Header ── */}
-        <div className="mb-12 md:mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          {/* Left — headline */}
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <span ref={lineRef} style={{ width: 0 }} className="h-px bg-primary block" />
-              <span ref={eyebrowRef} style={{ opacity: 0 }} className="text-[11px] font-bold uppercase tracking-[0.32em] text-primary/80">
-                Shop by Category
-              </span>
-            </div>
-            <h2 ref={headlineRef} style={{ opacity: 0 }} className="font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.15]">
-              Our Collections
-            </h2>
-            <p ref={subtitleRef} style={{ opacity: 0 }} className="mt-3 text-stone-500 text-[15px] font-light max-w-sm leading-relaxed">
-              Premium fabrics and leathers, curated for the finest interiors and upholstery.
-            </p>
+        <div className="mb-12 md:mb-16 flex flex-col items-center text-center gap-6">
+          {/* Eyebrow */}
+          <div className="flex items-center gap-3">
+            <span ref={lineRef} style={{ width: 0 }} className="h-px bg-primary block" />
+            <span ref={eyebrowRef} style={{ opacity: 0 }} className="text-[11px] font-bold uppercase tracking-[0.32em] text-primary/80">
+              Shop by Category
+            </span>
+            <span className="h-px bg-primary block w-8" />
           </div>
-
-          {/* Right — inline CTA (desktop only) */}
-          <div ref={desktopCtaRef} style={{ opacity: 0 }} className="hidden md:block flex-shrink-0">
-            <Link
-              to="/collections"
-              className="group inline-flex items-center gap-3 px-8 py-3.5 border border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white transition-all duration-400 rounded-sm text-sm font-bold uppercase tracking-widest"
-            >
-              All Collections
-              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
-          </div>
+          <h2 ref={headlineRef} style={{ opacity: 0 }} className="font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.15]">
+            Our Collections
+          </h2>
+          <p ref={subtitleRef} style={{ opacity: 0 }} className="text-stone-500 text-[15px] font-light max-w-sm leading-relaxed">
+            Premium fabrics and leathers, curated for the finest interiors and upholstery.
+          </p>
         </div>
 
         {/* ── Category Cards Grid ── */}
@@ -175,11 +157,11 @@ const LatestCollectionsSection = () => {
           <FabricCategoriesSection />
         </div>
 
-        {/* ── Mobile CTA ── */}
-        <div ref={mobileCtaRef} style={{ opacity: 0 }} className="flex justify-center mt-10 md:hidden">
+        {/* ── CTA ── */}
+        <div ref={desktopCtaRef} style={{ opacity: 0 }} className="flex justify-center mt-12">
           <Link
             to="/collections"
-            className="group inline-flex items-center gap-3 px-8 py-4 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-400 rounded-sm text-sm font-bold uppercase tracking-widest shadow-md"
+            className="group inline-flex items-center gap-3 px-10 py-4 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-300 rounded-sm text-sm font-bold uppercase tracking-widest shadow-md"
           >
             Explore All Collections
             <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">

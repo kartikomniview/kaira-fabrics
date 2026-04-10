@@ -86,12 +86,12 @@ const GalleryRow = ({ label, title, items, onPreview }: GalleryRowProps) => {
               {video ? (
                 <div className="w-full h-full relative bg-stone-100">
                   <video
-                    src={`${item.asset_url}#t=0.1`}
+                    src={rowInView ? `${item.asset_url}` : undefined}
                     muted
                     playsInline
-                    preload="auto"
+                    preload="metadata"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onLoadedData={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.1 }}
+                    onLoadedMetadata={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.1 }}
                     onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
                     onMouseLeave={e => {
                       const v = e.currentTarget as HTMLVideoElement
