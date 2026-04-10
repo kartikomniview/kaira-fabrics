@@ -168,7 +168,7 @@ const FabricCategoriesSection = () => {
           className="flex cursor-grab active:cursor-grabbing will-change-transform"
           style={{ x, columnGap: GAP }}
         >
-          {categories.map(([name, count], cardIndex) => {
+          {categories.map(([name], cardIndex) => {
             const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
             const { label, desc, features, usedFor } = categoryMeta[name] ?? { label: name, desc: '', features: [], usedFor: '' }
             return (
