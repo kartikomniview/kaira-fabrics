@@ -51,7 +51,7 @@ const features = [
         <path d="M31 9l1.5 4 4 1.5-4 1.5L31 20l-1.5-4-4-1.5 4-1.5z" fill="currentColor" fillOpacity="0.9"/>
       </svg>
     ),
-    label: 'Any Fabric Source',
+    label: 'Works with Any Fabric',
     desc: "Not just our catalogue — bring samples from any brand and our AI handles them the same way.",
   },
   {
@@ -130,7 +130,10 @@ const AIVisualizerBanner = () => {
                 animate={inView ? { y: '0%', skewY: 0 } : {}}
                 transition={{ duration: 0.9, delay: 0.15, ease: EXPO_OUT }}
               >
-                See your space
+                <span className="relative inline-block px-2 py-0.5">
+                  <span className="absolute inset-0 bg-stone-200/70 rounded-md -skew-x-1" />
+                  <span className="relative">See your space</span>
+                </span>
               </motion.h2>
             </div>
             <div className="overflow-hidden mb-5">
@@ -140,7 +143,10 @@ const AIVisualizerBanner = () => {
                 animate={inView ? { y: '0%', skewY: 0 } : {}}
                 transition={{ duration: 0.9, delay: 0.26, ease: EXPO_OUT }}
               >
-                before you buy.
+                <span className="relative inline-block px-2 py-0.5">
+                  <span className="absolute inset-0 bg-secondary/10 rounded-md -skew-x-1" />
+                  <span className="relative">before you buy.</span>
+                </span>
               </motion.h2>
             </div>
 
@@ -151,7 +157,7 @@ const AIVisualizerBanner = () => {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.38, ease: SMOOTH_OUT }}
             >
-              Our AI Visualizer drapes any fabric directly onto your room photo in seconds — no guesswork, no samples, no surprises.
+              Our Visualizer drapes any fabric directly onto your room photo in seconds — no guesswork, no samples, no surprises.
             </motion.p>
 
             {/* Feature pills — stagger container */}

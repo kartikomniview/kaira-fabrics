@@ -109,7 +109,7 @@ const TiltCard = ({ children, isActive, isDimmed, onClick }: {
       style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
       animate={{ opacity: isDimmed ? 0.35 : 1, scale: isActive ? 1.06 : 1 }}
       transition={{ duration: 0.3, ease: SMOOTH_OUT }}
-      className={`group relative h-full rounded-xl overflow-hidden bg-white cursor-pointer border transition-shadow duration-300 ${
+      className={`group relative flex flex-col flex-1 rounded-xl overflow-hidden bg-white cursor-pointer border transition-shadow duration-300 ${
         isActive
           ? 'border-secondary shadow-xl ring-2 ring-secondary/20'
           : 'border-stone-200 shadow-sm hover:shadow-lg'
@@ -273,20 +273,21 @@ const WhyKairaSection = () => {
 
         {/* ══ ADVANTAGE CARDS ══ */}
         <div ref={cardsRef}>
-          {/* Cards */}
-          <div
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4"
-            style={{ perspective: '1200px' }}
-          >
-            {advantages.map((adv, i) => (
-              <motion.div
-                key={i}
-                custom={i}
-                variants={cardVariants}
-                initial="hidden"
-                animate={cardsInView ? 'visible' : 'hidden'}
-                className="h-full"
-              >
+          {/* Scroll wrapper — horizontal scroll on mobile, grid on sm+ */}
+          <div className="overflow-x-auto -mx-6 px-6 sm:overflow-visible sm:mx-0 sm:px-0 pb-3 sm:pb-0">
+            <div
+              className="flex gap-3 sm:grid sm:grid-cols-3 lg:grid-cols-5 sm:gap-4 w-max sm:w-auto"
+              style={{ perspective: '1200px' }}
+            >
+              {advantages.map((adv, i) => (
+                <motion.div
+                  key={i}
+                  custom={i}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate={cardsInView ? 'visible' : 'hidden'}
+                  className="flex flex-col w-44 flex-shrink-0 sm:w-auto sm:flex-shrink"
+                >
                 <TiltCard
                   isActive={activeIdx === i}
                   isDimmed={activeIdx !== null && activeIdx !== i}
@@ -342,6 +343,7 @@ const WhyKairaSection = () => {
                 </TiltCard>
               </motion.div>
             ))}
+            </div>
           </div>
         </div>
 
