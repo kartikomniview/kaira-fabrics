@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import Lenis from 'lenis'
 import Layout from './components/layout/Layout'
 import PageLoader from './components/ui/PageLoader'
 import { WhatsAppIcon } from './components/ui/WhatsAppIcon'
@@ -16,7 +17,34 @@ const AIVisualizerPage     = lazy(() => import('./pages/AIVisualizerPage'))
 const ContactPage          = lazy(() => import('./pages/ContactPage'))
 const AdminPage            = lazy(() => import('./pages/admin/AdminPage'))
 
+// Disable smooth scroll on routes that manage their own scroll (e.g. 3D Studio)
+const LENIS_DISABLED_PATHS = ['/3d-visualizer','/ai-visualizer','/collections','/materials']
+
+function LenisManager() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    if (LENIS_DISABLED_PATHS.includes(pathname) || LENIS_DISABLED_PATHS.some(path => pathname.includes(path))) return
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    })
+    let rafId: number
+    function raf(time: number) {
+      lenis.raf(time)
+      rafId = requestAnimationFrame(raf)
+    }
+    rafId = requestAnimationFrame(raf)
+    return () => {
+      cancelAnimationFrame(rafId)
+      lenis.destroy()
+    }
+  }, [pathname])
+  return null
+}
+
 function App() {
+
   // Show the branded PageLoader until all critical resources are ready.
   // `appReady` drives the fade-out; `showLoader` unmounts it after the transition.
   const [appReady, setAppReady]   = useState(false)
@@ -49,6 +77,7 @@ function App() {
           visible; the Outlet area shows SectionLoader (wired inside Layout). */}
       <MaterialsProvider>
         <BrowserRouter>
+          <LenisManager />
           <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<Layout />}>

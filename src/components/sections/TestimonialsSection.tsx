@@ -164,10 +164,11 @@ const TestimonialsSection = () => {
                     {/* Video */}
                     <div className="relative flex-1 overflow-hidden bg-black">
                       <video
-                        src={item.asset_url}
+                        src={isVisible ? item.asset_url : undefined}
                         muted
                         playsInline
                         preload="metadata"
+                        onLoadedMetadata={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.1 }}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
                         onMouseLeave={e => {

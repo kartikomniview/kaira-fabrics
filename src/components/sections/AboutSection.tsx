@@ -1,111 +1,239 @@
+import { useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  motion,
+  useInView,
+  useScroll,
+  useTransform,
+  useMotionValue,
+  animate,
+} from 'framer-motion'
 
-interface AboutSectionProps {
-  isAboutVisible: boolean;
-  aboutRef: React.RefObject<HTMLDivElement | null>;
+const EXPO_OUT   = [0.16, 1, 0.3, 1]   as const
+const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
+
+// ── Animated stat counter ─────────────────────────────────────
+const Counter = ({ to, suffix = '' }: { to: number; suffix?: string }) => {
+  const nodeRef = useRef<HTMLSpanElement>(null)
+  const count   = useMotionValue(0)
+  const inView  = useInView(nodeRef, { once: true })
+
+  useEffect(() => {
+    if (!inView) return
+    const ctrl = animate(count, to, {
+      duration: 1.8,
+      ease: 'easeOut',
+      onUpdate(v) {
+        if (nodeRef.current) nodeRef.current.textContent = Math.round(v) + suffix
+      },
+    })
+    return ctrl.stop
+  }, [inView, count, to, suffix])
+
+  return <span ref={nodeRef}>0{suffix}</span>
 }
 
-const AboutSection = ({ isAboutVisible, aboutRef }: AboutSectionProps) => {
+// ── Stat pill ─────────────────────────────────────────────────
+const Stat = ({
+  value, suffix, label, delay,
+}: { value: number; suffix: string; label: string; delay: number }) => {
+  const ref    = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '-60px' })
+
   return (
-    <section 
-      ref={aboutRef} 
-      id="about" 
-      className={`border-b border-stone-200 py-20 md:py-32 relative overflow-hidden transition-all duration-1000 ${
-        isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      }`}
-      style={{ backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background2.webp')", backgroundSize: 'cover', backgroundPosition: 'left', backgroundRepeat: 'no-repeat' }}
+    <motion.div
+      ref={ref}
+      className="flex flex-col items-center gap-1"
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.65, delay, ease: EXPO_OUT }}
     >
-      {/* Overlay to keep text readable */}
-      <div className="absolute inset-0 bg-white/85" />
+      <p className="font-serif text-3xl sm:text-4xl text-stone-900">
+        <Counter to={value} suffix={suffix} />
+      </p>
+      <p className="text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold">{label}</p>
+    </motion.div>
+  )
+}
 
-      {/* Decorative vertical lines */}
-      <div className="absolute top-0 bottom-0 left-[10%] w-px bg-stone-100 hidden md:block" />
-      <div className="absolute top-0 bottom-0 right-[10%] w-px bg-stone-100 hidden md:block" />
+// ── Component ─────────────────────────────────────────────────
+const AboutSection = () => {
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const headerRef  = useRef<HTMLDivElement>(null)
+  const bodyRef    = useRef<HTMLDivElement>(null)
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-24 items-center">
-          
-          {/* Left Column: Text Content */}
-          <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
-            <div className="inline-flex items-center gap-3 mb-4 md:mb-6">
-              <span className="h-px w-6 bg-primary" />
-              <h2 className={`text-[14px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-stone-500 transition-all duration-700 ${isAboutVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
-                About Us
-              </h2>
-            </div>
+  const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
+  const bodyInView   = useInView(bodyRef,   { once: true, margin: '-60px' })
 
-            <h3 className={`font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 leading-[1.2] mb-6 md:mb-8 transition-all duration-700 delay-100 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              Kaira: The House of Sofa Fabrics
-            </h3>
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
+  const bgY = useTransform(scrollYProgress, [0, 1], ['-6%', '6%'])
 
-            <div className={`space-y-4 md:space-y-6 text-stone-500 text-base md:text-base leading-relaxed font-light transition-all duration-700 delay-200 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <p>
-                Kaira is an entity under the <strong>Kurikkal group</strong>, specializing in a wide range of premium sofa fabrics and leathers. We ensure remarkable quality and availability right to your doorstep.
-              </p>
-              <p>
-                With a strong physical presence, Kaira focuses on delivering the best fabric and leather solutions that perfectly balance affordability, design, and comfort.
-              </p>
-              <p className="hidden md:block text-stone-400 italic text-sm">
-                "Born from an understanding of the evolving furniture industry, we represent a perfect blend of form and function with an uncompromising emphasis on quality and style."
-              </p>
-            </div>
+  return (
+    <section
+      ref={sectionRef}
+      id="about"
+      className="relative overflow-hidden border-b border-stone-200"
+      style={{
+        background: '#faf8f5',
+        backgroundImage: [
+          'repeating-linear-gradient(0deg,rgba(0,0,0,0.018) 0px,rgba(0,0,0,0.018) 1px,transparent 1px,transparent 8px)',
+          'repeating-linear-gradient(90deg,rgba(0,0,0,0.018) 0px,rgba(0,0,0,0.018) 1px,transparent 1px,transparent 8px)',
+        ].join(','),
+      }}
+    >
+      {/* ── Top accent bar ── */}
+      <motion.div
+        className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-transparent via-secondary to-transparent"
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={{ scaleX: 1, opacity: 1 }}
+        transition={{ duration: 1.2, ease: EXPO_OUT }}
+      />
 
-            <div className={`mt-6 md:mt-10 pt-6 md:pt-8 border-t border-stone-100 transition-all duration-700 delay-300 ${isAboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <div className="flex flex-col sm:flex-row items-center lg:items-center gap-6 justify-center lg:justify-start">
-                <Link
-                  to="/about"
-                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden shadow-md"
-                >
-                  <span className="text-[15px] font-bold uppercase tracking-widest relative z-10">Know more</span>
-                  <div className="absolute inset-0 bg-primary translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-                </Link>
-                
-                <div className="hidden sm:flex items-center gap-6">
-                  <div className="flex flex-col">
-                    <span className="text-2xl font-serif text-stone-900">20+</span>
-                    <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Years Heritage</span>
-                  </div>
-                  <div className="w-px h-8 bg-stone-200" />
-                  <div className="flex flex-col">
-                    <span className="text-2xl font-serif text-stone-900">10k+</span>
-                    <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Fabrics</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* ── Subtle warm halo ── */}
+      <div
+        className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[320px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse, var(--color-secondary) 0%, transparent 70%)', opacity: 0.04 }}
+      />
+
+      {/* ── Parallax background texture ── */}
+      <motion.div
+        className="absolute inset-[-6%] bg-cover bg-left bg-no-repeat"
+        style={{
+          backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background2.webp')",
+          y: bgY,
+          opacity: 0.35,
+        }}
+      />
+
+      <div className="relative z-10 max-w-4xl mx-auto px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
+
+        {/* ══ Header ══ */}
+        <div ref={headerRef} className="text-center mb-12">
+
+          {/* Label — lines grow outward */}
+          <motion.div
+            className="inline-flex items-center justify-center gap-3 mb-5"
+            initial={{ opacity: 0, y: -14 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, ease: EXPO_OUT }}
+          >
+            <motion.span
+              className="h-px bg-secondary"
+              initial={{ width: 0 }}
+              animate={headerInView ? { width: '2rem' } : {}}
+              transition={{ duration: 0.7, delay: 0.15, ease: SMOOTH_OUT }}
+            />
+            <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">About Us</span>
+            <motion.span
+              className="h-px bg-secondary"
+              initial={{ width: 0 }}
+              animate={headerInView ? { width: '2rem' } : {}}
+              transition={{ duration: 0.7, delay: 0.15, ease: SMOOTH_OUT }}
+            />
+          </motion.div>
+
+          {/* Heading — masked reveal */}
+          <div className="overflow-hidden mb-5">
+            <motion.h2
+              className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-stone-900 leading-tight"
+              initial={{ y: '115%', skewY: 2 }}
+              animate={headerInView ? { y: '0%', skewY: 0 } : {}}
+              transition={{ duration: 1.0, delay: 0.18, ease: EXPO_OUT }}
+            >
+              Kaira:{' '}
+              <span className="text-secondary italic">Design for Life</span>
+            </motion.h2>
           </div>
 
-          {/* Right Column: Visual/Imagery */}
-          <div className={`relative hidden lg:block transition-all duration-1000 delay-200 ${isAboutVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] max-w-sm mx-auto bg-stone-100 overflow-hidden rounded-sm">
-              <img 
-                src="https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/aboutus.webp" 
-                alt="Kaira Fabrics Heritage" 
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-              />
-              <div className="absolute inset-0 bg-stone-900/10 pointer-events-none" />
-              
-              {/* Overlay Badge */}
-              <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-5 rounded-sm border border-white/20 shadow-xl">
-                <p className="text-[11px] text-stone-600 leading-relaxed font-light mb-2.5">
-                  "Excellence woven into every thread. Bringing world-class textiles to exceptional interiors."
-                </p>
-                <div className="flex items-center gap-3 w-full">
-                  <div className="w-6 h-px bg-primary" />
-                  <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-900">The Kurikkal Group</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Decorative element */}
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] opacity-10 pointer-events-none" />
-            <div className="absolute -bottom-4 -left-4 w-24 h-24 border border-stone-200 pointer-events-none rounded-sm -z-10" />
-          </div>
-
+          {/* Decorative divider */}
+          <motion.div
+            className="flex items-center justify-center gap-3"
+            initial={{ opacity: 0 }}
+            animate={headerInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5, delay: 0.55 }}
+          >
+            <motion.span
+              className="h-px bg-stone-300"
+              initial={{ width: 0 }}
+              animate={headerInView ? { width: '3rem' } : {}}
+              transition={{ duration: 0.7, delay: 0.6, ease: SMOOTH_OUT }}
+            />
+            <span className="w-1.5 h-1.5 rotate-45 bg-secondary/50 inline-block" />
+            <motion.span
+              className="h-px bg-stone-300"
+              initial={{ width: 0 }}
+              animate={headerInView ? { width: '3rem' } : {}}
+              transition={{ duration: 0.7, delay: 0.6, ease: SMOOTH_OUT }}
+            />
+          </motion.div>
         </div>
+
+        {/* ══ Body copy ══ */}
+        <div ref={bodyRef} className="text-center">
+          <motion.p
+            className="text-stone-500 text-base sm:text-lg leading-relaxed font-light mb-4 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 22 }}
+            animate={bodyInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, ease: EXPO_OUT }}
+          >
+            Kaira is an entity under the{' '}
+            <strong className="font-semibold text-stone-700">Kurikkal Group</strong>, specializing
+            in premium sofa fabrics and leathers — delivering remarkable quality right to your doorstep.
+          </motion.p>
+
+          <motion.p
+            className="text-stone-400 text-sm sm:text-base leading-relaxed font-light italic max-w-xl mx-auto mb-10"
+            initial={{ opacity: 0, y: 18 }}
+            animate={bodyInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.1, ease: EXPO_OUT }}
+          >
+            "A perfect blend of form and function with an uncompromising emphasis on quality and style."
+          </motion.p>
+
+          {/* ── Stats row ── */}
+          <div className="flex items-center justify-center gap-8 sm:gap-14 mb-10">
+            <Stat value={20} suffix="+" label="Years Heritage" delay={0.15} />
+            <motion.div
+              className="w-px h-12 bg-stone-200"
+              initial={{ scaleY: 0 }}
+              animate={bodyInView ? { scaleY: 1 } : {}}
+              transition={{ duration: 0.5, delay: 0.25, ease: SMOOTH_OUT }}
+            />
+            <Stat value={10} suffix="k+" label="Fabrics" delay={0.25} />
+            <motion.div
+              className="w-px h-12 bg-stone-200"
+              initial={{ scaleY: 0 }}
+              animate={bodyInView ? { scaleY: 1 } : {}}
+              transition={{ duration: 0.5, delay: 0.3, ease: SMOOTH_OUT }}
+            />
+            <Stat value={33} suffix="+" label="Group Legacy" delay={0.35} />
+          </div>
+
+          {/* ── CTA ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={bodyInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.65, delay: 0.4, ease: EXPO_OUT }}
+          >
+            <Link
+              to="/about"
+              className="group relative inline-flex items-center justify-center px-10 py-3.5 bg-stone-900 text-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+            >
+              <div className="absolute inset-0 bg-secondary translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              <span className="relative z-10 flex items-center gap-2.5 text-[13px] font-bold uppercase tracking-widest group-hover:text-stone-900 transition-colors duration-300">
+                Know More
+                <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </Link>
+          </motion.div>
+        </div>
+
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default AboutSection;
+export default AboutSection
+

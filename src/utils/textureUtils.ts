@@ -4,7 +4,6 @@
  */
 import * as THREE from 'three'
 
-const S3_ORIGIN = 'https://supoassets.s3.ap-south-1.amazonaws.com'
 const S3_KAIRA_ORIGIN = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 
 /**
@@ -16,8 +15,6 @@ export async function fetchBlobUrl(url: string): Promise<string | null> {
     let proxyUrl = url
     if (url.startsWith(S3_KAIRA_ORIGIN)) {
       proxyUrl = url.replace(S3_KAIRA_ORIGIN, '/s3kaira')
-    } else if (url.startsWith(S3_ORIGIN)) {
-      proxyUrl = url.replace(S3_ORIGIN, '/s3proxy')
     }
     const res = await fetch(proxyUrl)
     if (!res.ok) return null

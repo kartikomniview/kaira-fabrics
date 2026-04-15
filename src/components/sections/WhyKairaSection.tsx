@@ -1,124 +1,353 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState, useCallback, type ReactNode, type MouseEvent } from 'react'
+import {
+  motion, useInView, useMotionValue, useTransform, useSpring, useMotionTemplate,
+} from 'framer-motion'
 
-const features = [
-  {
-    id: "01",
-    title: "Strategic Partnerships",
-    desc: "The partner of choice for visionary designers, architects, and luxury manufacturers seeking uncompromised elegance.",
-    icon: <svg className="w-8 h-8 md:w-10 md:h-10 text-stone-300 group-hover:text-primary transition-all duration-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-  },
-  {
-    id: "02",
-    title: "Superior Quality",
-    desc: "Rigorous testing protocols guarantee exceptional structural integrity and a luxurious tactile feel for every thread.",
-    icon: <svg className="w-8 h-8 md:w-10 md:h-10 text-stone-300 group-hover:text-primary transition-all duration-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-  },
-  {
-    id: "03",
-    title: "Innovation First",
-    desc: "Sophisticated AI tools and immersive 3D visualization allow you to experience fabrics before they are cut.",
-    icon: <svg className="w-8 h-8 md:w-10 md:h-10 text-stone-300 group-hover:text-primary transition-all duration-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-  },
-  {
-    id: "04",
-    title: "Sustainable Luxe",
-    desc: "Consciously selected materials that prioritize environmental responsibility without compromising on opulence.",
-    icon: <svg className="w-8 h-8 md:w-10 md:h-10 text-stone-300 group-hover:text-primary transition-all duration-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547" /></svg>
-  }
-];
+const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
+const EXPO_OUT   = [0.16, 1, 0.3, 1] as const
 
-const WhyKairaSection = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
+const KURIKKAL_LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/KirikalLogo.webp'
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
+// ── Inline SVG illustrations ───────────────────────────────────
+const FabricIcon = () => (
+  <svg viewBox="0 0 52 52" fill="none" className="w-10 h-10 text-secondary">
+    <rect x="5" y="11" width="30" height="22" rx="2" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeWidth="1.4"/>
+    <rect x="9" y="16" width="32" height="22" rx="2" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.4"/>
+    <rect x="13" y="21" width="34" height="22" rx="2" fill="currentColor" fillOpacity="0.16" stroke="currentColor" strokeWidth="1.4"/>
+    <line x1="13" y1="28" x2="47" y2="28" stroke="currentColor" strokeWidth="1" strokeDasharray="2.5 2" strokeOpacity="0.55"/>
+    <line x1="13" y1="33" x2="47" y2="33" stroke="currentColor" strokeWidth="1" strokeDasharray="2.5 2" strokeOpacity="0.55"/>
+    <line x1="13" y1="38" x2="47" y2="38" stroke="currentColor" strokeWidth="1" strokeDasharray="2.5 2" strokeOpacity="0.55"/>
+  </svg>
+)
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+const VisualizerIcon = () => (
+  <svg viewBox="0 0 52 52" fill="none" className="w-10 h-10 text-secondary">
+    <path d="M6 26C10 17 17 13 26 13C35 13 42 17 46 26C42 35 35 39 26 39C17 39 10 35 6 26z" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeWidth="1.4"/>
+    <circle cx="26" cy="26" r="5.5" fill="currentColor" fillOpacity="0.22" stroke="currentColor" strokeWidth="1.4"/>
+    <circle cx="26" cy="26" r="2" fill="currentColor" fillOpacity="0.6"/>
+    <path d="M39 10l1.2 3.8L44 15l-3.8 1.2L39 20l-1.2-3.8L34 15l3.8-1.2z" fill="currentColor" fillOpacity="0.8"/>
+  </svg>
+)
 
-    return () => observer.disconnect();
-  }, []);
+const TrustIcon = () => (
+  <svg viewBox="0 0 52 52" fill="none" className="w-10 h-10 text-secondary">
+    <path d="M26 5l17 6.5v15C43 37 35.5 45 26 48C16.5 45 9 37 9 26.5V11.5z" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+    <path d="M17 26l7 7 11-12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+
+const LegacyIcon = () => (
+  <svg viewBox="0 0 52 52" fill="none" className="w-10 h-10 text-secondary">
+    <path d="M26 8l4 10h10l-8 6 3 10-9-6-9 6 3-10-8-6h10z" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+    <line x1="26" y1="34" x2="26" y2="44" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    <line x1="18" y1="44" x2="34" y2="44" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+  </svg>
+)
+
+const TeamIcon = () => (
+  <svg viewBox="0 0 52 52" fill="none" className="w-10 h-10 text-secondary">
+    <circle cx="17" cy="17" r="5" fill="currentColor" fillOpacity="0.14" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M7 37c0-6 4.5-10 10-10s10 4.5 10 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+    <circle cx="35" cy="17" r="5" fill="currentColor" fillOpacity="0.10" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M27 37c0-4 3.6-7 8-7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+    <path d="M42 6l1.3 4 4 1.3-4 1.3L42 17l-1.3-4.7L36 11l4.7-1.3z" fill="currentColor" fillOpacity="0.8"/>
+  </svg>
+)
+
+const advantages = [
+  { title: 'Premium Fabrics & Leather',      desc: 'Curated wide range of textures, weaves & leathers for every design vision.',                  Icon: FabricIcon },
+  { title: 'Smart Visualization',             desc: 'See your space transformed with our AI-powered tool before you buy.',                         Icon: VisualizerIcon },
+  { title: 'Trusted by Dealers & Designers', desc: 'Preferred partner across South India for quality and reliability.',                            Icon: TrustIcon },
+  { title: 'Kurikkal Group Legacy',           desc: "Backed by 33+ years of excellence from one of South India's trusted conglomerates.",          Icon: LegacyIcon },
+  { title: 'Passionate & Driven Team',        desc: 'An ambitious team pushing the boundaries of fabric innovation every day.',                    Icon: TeamIcon },
+]
+
+// ── Card entrance variants ─────────────────────────────────────
+const cardVariants = {
+  hidden: { opacity: 0, y: 32, scale: 0.95 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0, scale: 1,
+    transition: { duration: 0.65, delay: 0.18 + i * 0.10, ease: EXPO_OUT },
+  }),
+}
+
+// ── 3-D tilt card with mouse-tracking spotlight ───────────────
+const TiltCard = ({ children, isActive, isDimmed, onClick }: {
+  children: ReactNode; isActive: boolean; isDimmed: boolean; onClick: () => void
+}) => {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const sx = useMotionValue(50)
+  const sy = useMotionValue(50)
+  const glowOp = useMotionValue(0)
+
+  const rotateX  = useSpring(useTransform(my, [-0.5, 0.5], [8, -8]), { stiffness: 280, damping: 26 })
+  const rotateY  = useSpring(useTransform(mx, [-0.5, 0.5], [-8, 8]), { stiffness: 280, damping: 26 })
+  const spotlight = useMotionTemplate`radial-gradient(circle at ${sx}% ${sy}%, rgba(116,98,60,0.15) 0%, transparent 62%)`
+
+  const onMove = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    const r = cardRef.current?.getBoundingClientRect()
+    if (!r) return
+    mx.set((e.clientX - r.left) / r.width  - 0.5)
+    my.set((e.clientY - r.top)  / r.height - 0.5)
+    sx.set(((e.clientX - r.left) / r.width)  * 100)
+    sy.set(((e.clientY - r.top)  / r.height) * 100)
+    glowOp.set(1)
+  }, [mx, my, sx, sy, glowOp])
+
+  const onLeave = useCallback(() => {
+    mx.set(0); my.set(0); glowOp.set(0)
+  }, [mx, my, glowOp])
 
   return (
-    <section 
-      ref={sectionRef}
-      id="why-kaira" 
-      className="py-16 md:py-24 border-b border-stone-200 relative overflow-hidden" 
-      style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f4 40%, #e7e5e4 100%)' }}
+    <motion.div
+      ref={cardRef}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      onClick={onClick}
+      style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+      animate={{ opacity: isDimmed ? 0.35 : 1, scale: isActive ? 1.06 : 1 }}
+      transition={{ duration: 0.3, ease: SMOOTH_OUT }}
+      className={`group relative h-full rounded-xl overflow-hidden bg-white cursor-pointer border transition-shadow duration-300 ${
+        isActive
+          ? 'border-secondary shadow-xl ring-2 ring-secondary/20'
+          : 'border-stone-200 shadow-sm hover:shadow-lg'
+      }`}
     >
-      {/* Decorative gradient orbs */}
-      <div className={`absolute top-0 left-0 w-72 h-72 rounded-full bg-stone-100/80 blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2 transition-all duration-[2000ms] ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full'}`} />
-      <div className={`absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/90 blur-3xl pointer-events-none translate-x-1/3 translate-y-1/3 transition-all duration-[2000ms] ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'}`} />
-      <div className="absolute top-1/2 left-1/2 w-80 h-80 rounded-full bg-stone-200/40 blur-2xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
+      {/* Mouse-tracking spotlight */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none z-10 rounded-xl"
+        style={{ background: spotlight, opacity: glowOp }}
+      />
+      {children}
+    </motion.div>
+  )
+}
 
+// ─────────────────────────────────────────────────────────────
+const WhyKairaSection = () => {
+  const headerRef = useRef<HTMLDivElement>(null)
+  const cardsRef  = useRef<HTMLDivElement>(null)
+  const [activeIdx, setActiveIdx] = useState<number | null>(null)
 
-      {/* Right architectural skew accent */}
-      <div className={`absolute top-0 right-0 w-1/2 h-full bg-white/30 skew-x-12 translate-x-32 hidden lg:block border-l border-stone-300/40 pointer-events-none transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-x-32' : 'opacity-0 translate-x-full'}`} />
+  const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
+  const cardsInView  = useInView(cardsRef,  { once: true, margin: '-80px' })
 
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-        
-        {/* Centered Header - More Compact */}
-        <div className={`text-center max-w-2xl mx-auto mb-10 md:mb-16 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="inline-flex items-center gap-2 sm:gap-3 mb-2 sm:mb-4 justify-center">
-            <span className="w-1 h-1 bg-primary rounded-full" />
-            <span className="text-[14px] sm:text-[12px] uppercase tracking-[0.2em] text-stone-400 font-bold">The Kaira Advantage</span>
-            <span className="w-1 h-1 bg-primary rounded-full" />
-          </div>
-          <h2 className="font-serif text-3xl sm:text-3xl md:text-4xl text-stone-900 font-medium leading-tight mb-2 sm:mb-4">
-            Why <span className="italic text-stone-400">Kaira</span>
-          </h2>
-          <p className="text-base sm:text-base md:text-base text-stone-500 leading-relaxed font-sans px-4 sm:px-0">
-            We merge uncompromising quality with unparalleled variety, serving as the trusted fabric partner for bespoke luxury environments.
-          </p>
-        </div>
+  return (
+    <section
+      id="why-kaira"
+      className="relative overflow-hidden border-b border-stone-200"
+      style={{
+        background: '#faf8f5',
+        backgroundImage: [
+          'repeating-linear-gradient(0deg,rgba(0,0,0,0.018) 0px,rgba(0,0,0,0.018) 1px,transparent 1px,transparent 8px)',
+          'repeating-linear-gradient(90deg,rgba(0,0,0,0.018) 0px,rgba(0,0,0,0.018) 1px,transparent 1px,transparent 8px)',
+        ].join(','),
+      }}
+    >
+      {/* ── Secondary top accent bar — draws in ── */}
+      <motion.div
+        className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-transparent via-secondary to-transparent"
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={{ scaleX: 1, opacity: 1 }}
+        transition={{ duration: 1.2, ease: EXPO_OUT }}
+      />
 
-        {/* Features Slider/Grid - Horizontally scrollable on mobile */}
-        <div className="flex overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 lg:gap-6 pb-6 md:pb-0 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-4 md:px-0 scroll-pl-4">
-          {features.map((feature, idx) => (
-            <div 
-              key={idx} 
-              className={`w-[58vw] h-auto min-h-[180px] md:min-h-[220px] max-w-[240px] md:w-auto md:h-auto md:max-w-none md:max-h-none flex-shrink-0 snap-center group relative p-4 md:p-8 bg-white border border-stone-100 hover:border-primary/30 rounded-sm overflow-hidden flex flex-col items-start justify-center md:block text-left shadow-sm hover:shadow-md transition-all duration-700`}
-              style={{ 
-                transitionDelay: `${400 + (idx * 150)}ms`,
-                opacity: isVisible ? 1 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(20px)'
-              }}
+      {/* ── Subtle secondary halo ── */}
+      <div
+        className="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, var(--color-secondary) 0%, transparent 70%)', opacity: 0.05 }}
+      />
+
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
+
+        {/* ══ CENTERED TOP HEADING ══ */}
+        <div ref={headerRef} className="text-center mb-12">
+          <motion.div
+            className="inline-flex items-center justify-center gap-2 mb-4"
+            initial={{ opacity: 0, y: -16 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease: EXPO_OUT }}
+          >
+            <motion.span
+              className="h-px bg-secondary"
+              initial={{ width: 0 }}
+              animate={headerInView ? { width: '2rem' } : {}}
+              transition={{ duration: 0.7, delay: 0.12, ease: SMOOTH_OUT }}
+            />
+            <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">The Kaira Advantage</span>
+            <motion.span
+              className="h-px bg-secondary"
+              initial={{ width: 0 }}
+              animate={headerInView ? { width: '2rem' } : {}}
+              transition={{ duration: 0.7, delay: 0.12, ease: SMOOTH_OUT }}
+            />
+          </motion.div>
+          <div className="overflow-hidden">
+            <motion.h2
+              className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-stone-900 leading-tight"
+              initial={{ y: '115%', skewY: 2 }}
+              animate={headerInView ? { y: '0%', skewY: 0 } : {}}
+              transition={{ duration: 1.0, delay: 0.18, ease: EXPO_OUT }}
             >
-              {/* Minimalist Background Number */}
-              <div className="absolute top-3 right-4 md:top-4 md:right-6 text-[11px] md:text-sm font-serif text-stone-100 group-hover:text-primary/10 transition-colors duration-500 font-bold">
-                {feature.id}
-              </div>
-              
-              {/* Icon Container */}
-              <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center mb-4 md:mb-6">
-                {feature.icon}
-              </div>
-              
-              {/* Content */}
-              <h3 className="font-serif text-base md:text-lg text-stone-900 mb-1 md:mb-2 group-hover:text-primary transition-colors duration-300">
-                {feature.title}
-              </h3>
-              <p className="text-[12px] md:text-[13px] lg:text-sm text-stone-500 font-sans font-normal leading-snug md:leading-relaxed line-clamp-4 md:line-clamp-3 group-hover:text-stone-600">
-                {feature.desc}
-              </p>
-
-              {/* Subtle Hover Reveal Line */}
-              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-500 group-hover:w-full" />
-            </div>
-          ))}
+              Why <span className="text-secondary italic">Kaira Fabrics?</span>
+            </motion.h2>
+          </div>
         </div>
+
+        {/* ══ COMPACT INFO ROW ══ */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 items-center gap-8 mb-14 pb-10 border-b border-stone-200">
+
+          {/* Left: Est badge + headline */}
+          <motion.div
+            className="flex flex-col items-center lg:items-end text-center lg:text-right"
+            initial={{ opacity: 0, x: -32 }}
+            animate={headerInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.3, ease: EXPO_OUT }}
+          >
+            <div className="inline-flex items-center gap-2 mb-3">
+              <motion.span
+                className="h-px bg-secondary"
+                initial={{ width: 0 }}
+                animate={headerInView ? { width: '2rem' } : {}}
+                transition={{ duration: 0.7, delay: 0.45, ease: SMOOTH_OUT }}
+              />
+              <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">Est. 1991</span>
+            </div>
+            <h3 className="font-serif text-2xl sm:text-3xl text-stone-900 leading-snug">
+              Keeping your{' '}
+              <span className="text-secondary italic">trust since 1991.</span>
+            </h3>
+          </motion.div>
+
+          {/* Center: Kurikkal logo */}
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.96 }}
+            animate={headerInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+            transition={{ duration: 0.9, delay: 0.4, ease: EXPO_OUT }}
+            className="flex justify-center"
+          >
+            <motion.div
+              className="inline-flex flex-col gap-3 p-5 sm:p-6 border border-stone-200 rounded-2xl bg-white shadow-md shadow-stone-100/80"
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+              whileHover={{ scale: 1.03, boxShadow: '0 12px 40px rgba(116,98,60,0.14)' }}
+            >
+              <img
+                src={KURIKKAL_LOGO}
+                alt="Kurikkal Group"
+                className="h-16 sm:h-20 w-auto object-contain"
+                loading="lazy"
+              />
+              <div className="flex items-center gap-2">
+                <span className="h-px flex-1 bg-stone-100" />
+                <span className="text-[10px] uppercase tracking-[0.28em] text-stone-400 font-semibold whitespace-nowrap">Legacy Brand Since 1991</span>
+                <span className="h-px flex-1 bg-stone-100" />
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Right: tagline + descriptor */}
+          <motion.div
+            className="flex flex-col items-center lg:items-start text-center lg:text-left"
+            initial={{ opacity: 0, x: 32 }}
+            animate={headerInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.3, ease: EXPO_OUT }}
+          >
+            <div className="inline-flex items-center gap-2 mb-3">
+              <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">Kurikkal Group</span>
+              <motion.span
+                className="h-px bg-secondary"
+                initial={{ width: 0 }}
+                animate={headerInView ? { width: '2rem' } : {}}
+                transition={{ duration: 0.7, delay: 0.45, ease: SMOOTH_OUT }}
+              />
+            </div>
+            <p className="text-stone-500 text-sm leading-relaxed font-sans">
+              Three decades of crafting spaces and building relationships — powered by a relentless commitment to quality.
+            </p>
+          </motion.div>
+
+        </div>
+
+        {/* ══ ADVANTAGE CARDS ══ */}
+        <div ref={cardsRef}>
+          {/* Cards */}
+          <div
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4"
+            style={{ perspective: '1200px' }}
+          >
+            {advantages.map((adv, i) => (
+              <motion.div
+                key={i}
+                custom={i}
+                variants={cardVariants}
+                initial="hidden"
+                animate={cardsInView ? 'visible' : 'hidden'}
+                className="h-full"
+              >
+                <TiltCard
+                  isActive={activeIdx === i}
+                  isDimmed={activeIdx !== null && activeIdx !== i}
+                  onClick={() => setActiveIdx(prev => prev === i ? null : i)}
+                >
+                  {/* Illustration area */}
+                  <div
+                    className="relative flex flex-col items-center justify-center py-7 px-3"
+                    style={{ background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-secondary) 10%, white), color-mix(in srgb, var(--color-secondary) 5%, #faf8f5))' }}
+                  >
+                    {/* Icon — springs in, wiggles when active */}
+                    <motion.div
+                      className="w-[52px] h-[52px] rounded-full bg-white border-2 border-secondary/30 flex items-center justify-center shadow-sm"
+                      initial={{ scale: 0, rotate: -15 }}
+                      animate={cardsInView
+                        ? { scale: 1, rotate: activeIdx === i ? [0, -10, 10, -6, 6, 0] : 0 }
+                        : {}}
+                      transition={activeIdx === i
+                        ? { duration: 0.55, ease: SMOOTH_OUT }
+                        : { type: 'spring', stiffness: 280, damping: 16, delay: 0.3 + i * 0.10 }}
+                    >
+                      <adv.Icon />
+                    </motion.div>
+
+                    {/* Pulse ring expands out when card is activated */}
+                    {activeIdx === i && (
+                      <motion.div
+                        className="absolute w-[52px] h-[52px] rounded-full border-2 border-secondary"
+                        initial={{ scale: 1, opacity: 0.7 }}
+                        animate={{ scale: 2.4, opacity: 0 }}
+                        transition={{ duration: 0.65, ease: 'easeOut' }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Text */}
+                  <div className="px-4 py-3 border-t border-stone-100">
+                    <p className={`font-sans font-semibold text-sm leading-snug mb-0.5 transition-colors duration-300 ${
+                      activeIdx === i ? 'text-secondary' : 'text-stone-800 group-hover:text-secondary'
+                    }`}>
+                      {adv.title}
+                    </p>
+                    <p className="text-stone-500 text-xs leading-relaxed">{adv.desc}</p>
+                  </div>
+
+                  {/* Bottom accent line — active = full, hover = grows */}
+                  <motion.div
+                    className="absolute bottom-0 left-0 h-[2.5px] bg-secondary rounded-b-xl"
+                    animate={{ width: activeIdx === i ? '100%' : '0%' }}
+                    whileHover={{ width: '100%' }}
+                    transition={{ duration: 0.35, ease: SMOOTH_OUT }}
+                  />
+                </TiltCard>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default WhyKairaSection;
+export default WhyKairaSection

@@ -71,7 +71,7 @@ const Header = () => {
                   src="https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/clientLogos/KairaFabrics.png"
                   alt="Kaira Fabrics & Leather"
                   className={`h-8 w-auto object-contain transition-all duration-500 group-hover:opacity-75 ${
-                    transparent && !isScrolled ? 'brightness-0 invert' : ''
+                    transparent && !isScrolled ? '' : ''
                   }`}
                 />
               </Link>

@@ -1,45 +1,23 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import AboutSection from '../components/sections/AboutSection'
+import CaptionStrip from '../components/sections/CaptionStrip'
 import CTASection from '../components/sections/CTASection'
-import FabricCategoriesSection from '../components/sections/FabricCategoriesSection'
 import HeroSection from '../components/sections/HeroSection'
 import TestimonialsSection from '../components/sections/TestimonialsSection'
 import GallerySection from '../components/sections/GallerySection'
 import SmartCatalogSection from '../components/sections/SmartCatalogSection'
 import WhoWeServeSection from '../components/sections/WhoWeServeSection'
 import WhyKairaSection from '../components/sections/WhyKairaSection'
+import ClientsScrollbar from '../components/sections/ClientsScrollbar'
+import AIVisualizerBanner from '../components/sections/AIVisualizerBanner'
+import LatestCollectionsSection from '../components/sections/LatestCollectionsSection'
 
 
 
 const HomePage = () => {
-  const [isAboutVisible, setIsAboutVisible] = useState(false)
-  const [isAIBannerVisible, setIsAIBannerVisible] = useState(false)
-  const [isCollectionsVisible, setIsCollectionsVisible] = useState(false)
-  const aboutRef = useRef<HTMLDivElement>(null)
-  const aiBannerRef = useRef<HTMLDivElement>(null)
-  const collectionsRef = useRef<HTMLElement>(null)
+  // Toggle to show/hide extra sections
+  const SHOW_EXTRA_SECTIONS = false
 
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.target === aboutRef.current && entry.isIntersecting) {
-          setIsAboutVisible(true)
-        }
-        if (entry.target === aiBannerRef.current && entry.isIntersecting) {
-          setIsAIBannerVisible(true)
-        }
-        if (entry.target === collectionsRef.current && entry.isIntersecting) {
-          setIsCollectionsVisible(true)
-        }
-      })
-    }, { threshold: 0.2 })
 
-    if (aboutRef.current) observer.observe(aboutRef.current)
-    if (aiBannerRef.current) observer.observe(aiBannerRef.current)
-    if (collectionsRef.current) observer.observe(collectionsRef.current)
-    return () => observer.disconnect()
-  }, [])
 
   return (
     <>
@@ -109,153 +87,74 @@ const HomePage = () => {
       {/* 1. Hero + Interactive 3D Banner */}
       <HeroSection />
 
-      {/* Clients Scrollbar */}
-      <section className="bg-stone-50 border-b border-stone-200 py-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 mb-6 text-center">
-          <p className="text-[14px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Trusted by Global Brands</p>
-        </div>
-        
-        {/* Infinite Scroll Container */}
-        <div className="relative w-full flex overflow-hidden group border-y border-stone-200/50 bg-white/50 py-5">
-          {/* Fading Edges */}
-          <div className="absolute top-0 left-0 w-16 md:w-32 h-full bg-gradient-to-r from-stone-50 to-transparent z-10 pointer-events-none" />
-          <div className="absolute top-0 right-0 w-16 md:w-32 h-full bg-gradient-to-l from-stone-50 to-transparent z-10 pointer-events-none" />
+      {/* Why Kaira Section */}
+      <WhyKairaSection />
 
-          <div className="flex w-max animate-[scroll_30s_linear_infinite] group-hover:[animation-play-state:paused]">
-            {/* First set of logos */}
-            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-              <div key={`logo-1-${num}`} className="w-32 sm:w-40 mx-6 sm:mx-10 flex flex-col items-center justify-center opacity-60 hover:opacity-100 transition-all duration-300 grayscale hover:grayscale-0">
-                <img src={`https://placehold.co/200x80/e7e5e4/a8a29e?text=BRAND+${num}`} alt={`Brand ${num}`} className="w-full h-auto object-contain" />
-              </div>
-            ))}
-            {/* Duplicated set for seamless loop */}
-            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-              <div key={`logo-2-${num}`} className="w-32 sm:w-40 mx-6 sm:mx-10 flex flex-col items-center justify-center opacity-60 hover:opacity-100 transition-all duration-300 grayscale hover:grayscale-0">
-                <img src={`https://placehold.co/200x80/e7e5e4/a8a29e?text=BRAND+${num}`} alt={`Brand ${num}`} className="w-full h-auto object-contain" />
-              </div>
-            ))}
-          </div>
-        </div>
-        <style>{`
-          @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-        `}</style>
-      </section>
-
-      {/* Latest Collections Section */}
-      <section 
-        id="collections" 
-        ref={collectionsRef}
-        className="border-b border-stone-200 pt-14 md:pt-24 pb-12 md:pb-20 relative" 
-        style={{ backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background1.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
-      >
-        {/* Overlay to keep text readable */}
-        <div className="absolute inset-0 bg-white/80" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-          
-          {/* Section Header */}
-          <div className={`max-w-3xl mx-auto text-center mb-12 md:mb-16 transition-all duration-1000 transform ${isCollectionsVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
-            <div className="inline-flex items-center justify-center gap-3 mb-3 sm:mb-4">
-              <span className={`h-px bg-primary transition-all duration-1000 delay-300 ${isCollectionsVisible ? 'w-5 sm:w-6' : 'w-0'}`} />
-              <h2 className={`text-[14px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-stone-500 transition-all duration-1000 delay-300 ${isCollectionsVisible ? 'opacity-100' : 'opacity-0'}`}>
-                Curated Selection
-              </h2>
-              <span className={`h-px bg-primary transition-all duration-1000 delay-300 ${isCollectionsVisible ? 'w-5 sm:w-6' : 'w-0'}`} />
-            </div>
-            <h3 className="font-serif text-2xl sm:text-2xl md:text-4xl lg:text-5xl text-stone-900 leading-[1.2]">
-              Latest Collections
-            </h3>
-            <p className="mt-3 sm:mt-4 text-stone-500 text-base sm:text-base font-light max-w-md mx-auto leading-relaxed">
-              Discover our newest arrivals — premium fabrics and leathers crafted for the finest interiors.
-            </p>
-          </div>
-
-          <div className={`transition-all duration-1000 delay-300 transform ${isCollectionsVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
-            <FabricCategoriesSection />
-          </div>
-
-          {/* Bottom CTA */}
-          <div className={`flex justify-center mt-12 md:mt-16 transition-all duration-1000 delay-500 transform ${isCollectionsVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-            <Link
-              to="/collections"
-              className="group relative inline-flex items-center justify-center gap-3 px-10 sm:px-14 py-4 sm:py-5 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden shadow-lg"
-            >
-              <span className="text-sm md:text-base font-bold uppercase tracking-widest relative z-10">Explore All Collections</span>
-              <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-              <div className="absolute inset-0 bg-primary translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* About Us Section */}
-      <AboutSection isAboutVisible={isAboutVisible} aboutRef={aboutRef} />
+      {/* Caption 1 */}
+      <CaptionStrip
+        variant={1}
+        eyebrow="Our Approach"
+        before="We don't just sell fabric —"
+        highlight="we help customers visualize"
+        after="and choose the right material."
+      />
 
       {/* AI & 3D Visualizer Banner Strip */}
-      <section 
-        ref={aiBannerRef}
-        className="bg-stone-900 py-20 md:py-16 border-y border-stone-800 relative overflow-hidden"
-      >
-        {/* Subtle motion background */}
-        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
-        
-        <div className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-10 transition-all duration-1000 transform ${isAIBannerVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
-          <div className="flex-1 text-center lg:text-left w-full">
-            <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-stone-800 border border-stone-700 mb-4 sm:mb-4 transition-all duration-700 delay-300 ${isAIBannerVisible ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
-              <span className="relative flex h-1.5 w-1.5 md:h-2 md:w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 md:h-2 md:w-2 bg-primary"></span>
-              </span>
-              <span className="text-[10px] sm:text-[10px] uppercase tracking-[0.2em] text-stone-300 font-bold">Cutting-Edge Tech</span>
-            </div>
-            <h2 className="font-serif text-3xl sm:text-3xl md:text-4xl text-white mb-4 sm:mb-4 leading-tight">
-              Experience our Fabrics in <span className="text-primary italic">Real-Time</span>
-            </h2>
-            <p className="text-stone-400 text-sm sm:text-sm md:text-base max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed px-2 lg:px-0">
-              Visualize our premium collection in your space using AI or explore every thread in 3D.
-            </p>
-          </div>
+      <AIVisualizerBanner />
 
-          <div className="flex flex-row gap-3 sm:gap-4 w-full lg:w-auto shrink-0 mt-2 sm:mt-0">
-            <Link 
-              to="/ai-visualizer" 
-              className={`flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-primary hover:bg-white transition-all duration-500 rounded-sm text-center shadow-lg ${isAIBannerVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} delay-500`}
-            >
-              <span className="text-stone-900 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1">Room View</span>
-              <span className="text-stone-900 text-[15px] sm:text-lg font-serif leading-tight whitespace-nowrap text-nowrap">Try AI Visualizer</span>
-              <div className="absolute bottom-0 left-0 h-1 w-0 bg-stone-900 transition-all duration-500 group-hover:w-full" />
-            </Link>
+      {/* Latest Collections Section */}
+      <LatestCollectionsSection />
 
-            <Link 
-              to="/3d-visualizer" 
-              className={`flex-1 sm:flex-none group relative flex flex-col items-center justify-center min-w-0 sm:min-w-[200px] px-2 py-4 sm:px-8 sm:py-6 bg-transparent border border-stone-700 hover:border-primary transition-all duration-500 rounded-sm text-center ${isAIBannerVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} delay-700`}
-            >
-              <span className="text-stone-500 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-1 group-hover:text-primary">Macro View</span>
-              <span className="text-white text-[15px] sm:text-lg font-serif leading-tight whitespace-nowrap group-hover:text-primary text-nowrap">Explore in 3D</span>
-              <div className="absolute bottom-0 left-0 h-1 w-0 bg-primary transition-all duration-500 group-hover:w-full" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Caption 2 */}
+      <CaptionStrip
+        variant={2}
+        eyebrow="Craftsmanship"
+        before="Every thread tells a story."
+        highlight="Every collection,"
+        after="a new chapter."
+      />
 
+       {/* Gallery */}
+      <GallerySection />
+
+
+      {/* Who We Serve */}
       <WhoWeServeSection />
 
-      <SmartCatalogSection />
 
-      {/* Unified Advantage & Specialties Section */}
-      <WhyKairaSection />
+  
+
+      {/* About Us Section */}
+      <AboutSection />
+
+      {/* Caption 4 */}
+      <CaptionStrip
+        variant={1}
+        eyebrow="Our Legacy"
+        before="Decades of craft."
+        highlight="One unwavering commitment"
+        after="to quality."
+      />
 
       {/* Testimonials */}
       <TestimonialsSection />
 
-      {/* 6. Gallery */}
-      <GallerySection />
+     
+      {/* Clients Scrollbar | About | Who We Serve | Smart Catalog — toggle SHOW_EXTRA_SECTIONS to enable */}
+      {SHOW_EXTRA_SECTIONS && (
+        <>
+          <ClientsScrollbar />
 
-      {/* 7. CTA */}
+       
+
+          
+
+          {/* Smart Catalog */}
+          <SmartCatalogSection />
+        </>
+      )}
+
+      {/* CTA */}
       <CTASection />
     </>
   )

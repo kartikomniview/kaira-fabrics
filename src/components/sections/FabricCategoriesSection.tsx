@@ -1,5 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, useMotionValue, animate } from 'framer-motion'
+import type { PanInfo } from 'framer-motion'
 import { useMaterials } from '../../contexts/MaterialsContext'
 
 const categoryImages: Record<string, string> = {
@@ -11,10 +13,41 @@ const categoryImages: Record<string, string> = {
   'DEFAULT':      'https://placehold.co/400x500/e7e5e4/a8a29e?text=Fabric',
 }
 
+const categoryMeta: Record<string, { label: string; desc: string; features: string[]; usedFor: string }> = {
+  'CHENILLE':     { label: 'Chenille',           desc: 'Soft, richly textured weaves for lasting comfort',      features: ['Velvety pile texture', 'Highly durable', 'Fade resistant'],    usedFor: 'Sofas & cushions' },
+  'DIGITALPRINT': { label: 'Digital Print',      desc: 'Vibrant, bespoke patterns with razor-sharp clarity',    features: ['Custom artwork prints', 'Colorfast & sharp', 'Light & airy'],   usedFor: 'Drapes & accent chairs' },
+  'LEATHERITE':   { label: 'Artificial Leather', desc: 'Premium vegan upholstery with a supple finish',         features: ['Easy to clean', 'Water resistant', 'Animal-free'],               usedFor: 'Office & dining chairs' },
+  'SUEDEFABRIC':  { label: 'Suede Fabric',       desc: 'Plush matte finish with an ultra-soft hand feel',       features: ['Buttery soft touch', 'Rich color depth', 'Breathable weave'],   usedFor: 'Lounge & bedroom' },
+  'SUEDELEATHER': { label: 'Suede Leather',      desc: 'Buttery smooth leather that ages beautifully',          features: ['100% genuine leather', 'Develops patina', 'Luxurious grip'],    usedFor: 'Luxury upholstery' },
+}
 
+const GAP = 24 // px (gap-6 equivalent)
+
+function getVisibleCount() {
+  if (typeof window === 'undefined') return 4
+  if (window.innerWidth < 640) return 1
+  if (window.innerWidth < 1024) return 2
+  if (window.innerWidth < 1280) return 3
+  return 4
+}
 
 const FabricCategoriesSection = () => {
   const { materials } = useMaterials()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [cardWidth, setCardWidth] = useState(0)
+  const [visibleCount, setVisibleCount] = useState(4)
+  const x = useMotionValue(0)
+  const isDragging = useRef(false)
+  // Stable refs to avoid stale closures in event listeners
+  const activeIndexRef = useRef(0)
+  const cardWidthRef = useRef(0)
+  const visibleCountRef = useRef(4)
+  const [sectionInView, setSectionInView] = useState(false)
+
+  // Only reveal images for visible cards + 1 preload buffer; once revealed, stays revealed
+  const [revealedIndices, setRevealedIndices] = useState<Set<number>>(() => new Set())
 
   const categories = useMemo(() => {
     const counts = materials.reduce((acc, m) => {
@@ -28,73 +61,195 @@ const FabricCategoriesSection = () => {
     ).sort((a, b) => a[0].localeCompare(b[0]))
   }, [materials])
 
+  const maxSteps = Math.max(0, categories.length - visibleCount)
+
+  // Sync refs whenever state changes
+  useEffect(() => { activeIndexRef.current = activeIndex }, [activeIndex])
+  useEffect(() => { cardWidthRef.current = cardWidth }, [cardWidth])
+  useEffect(() => { visibleCountRef.current = visibleCount }, [visibleCount])
+
+  // Reveal images for the current window + 1 ahead as user navigates, but only once section is visible
+  useEffect(() => {
+    if (!sectionInView) return
+    setRevealedIndices(prev => {
+      const next = new Set(prev)
+      for (let i = activeIndex; i <= activeIndex + visibleCount + 1; i++) next.add(i)
+      return next
+    })
+  }, [activeIndex, visibleCount, sectionInView])
+
+  // Observe section visibility — reveal initial images only when scrolled into view
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setSectionInView(true); obs.disconnect() } },
+      { rootMargin: '150px' }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  // Compute card width via ResizeObserver
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (!containerRef.current) return
+      const vc = getVisibleCount()
+      setVisibleCount(vc)
+      const cw = containerRef.current.offsetWidth
+      setCardWidth((cw - (vc - 1) * GAP) / vc)
+    }
+    updateDimensions()
+    const ro = new ResizeObserver(updateDimensions)
+    if (containerRef.current) ro.observe(containerRef.current)
+    return () => ro.disconnect()
+  }, [])
+
+  const snapTo = (index: number) => {
+    const maxS = Math.max(0, categories.length - visibleCountRef.current)
+    const clamped = Math.max(0, Math.min(index, maxS))
+    setActiveIndex(clamped)
+    activeIndexRef.current = clamped
+    animate(x, -(clamped * (cardWidthRef.current + GAP)), {
+      type: 'spring',
+      damping: 32,
+      stiffness: 260,
+    })
+  }
+
+  const onDragStart = () => { isDragging.current = true }
+
+  const onDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const threshold = cardWidthRef.current / 4
+    if (info.offset.x < -threshold) snapTo(activeIndexRef.current + 1)
+    else if (info.offset.x > threshold) snapTo(activeIndexRef.current - 1)
+    else snapTo(activeIndexRef.current)
+    setTimeout(() => { isDragging.current = false }, 0)
+  }
+
+  const dragMax = maxSteps * (cardWidth + GAP)
+
   return (
-    <div id="fabric-collections" className="scroll-mt-24">
-      {/* Mobile: horizontal scroll strip / Desktop: grid */}
-      <div className="md:hidden -mx-4 px-4 overflow-x-auto flex gap-4 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {categories.map(([name, count]) => {
-          const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
-          return (
-            <Link
-              key={name}
-              to={`/collections?category=${name}`}
-              className="group flex-none flex flex-col items-center w-48 transition-all duration-300"
-            >
-              <div className="w-48 h-60 mb-2 relative overflow-hidden rounded-sm shadow-md group-hover:shadow-xl transition-shadow duration-300">
-                <img
-                  src={imgUrl}
-                  alt={name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-end justify-center pb-4">
-                  <span className="text-white text-[10px] uppercase tracking-widest font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0 transform">Explore →</span>
-                </div>
-              </div>
-              <h3 className="text-sm font-serif text-stone-900 tracking-wide group-hover:text-secondary transition-colors text-center leading-tight mt-3">
-                {name}
-              </h3>
-              <p className="mt-0.5 text-[11px] text-stone-400 uppercase tracking-widest text-center">
-                {count} {count === 1 ? 'Collection' : 'Collections'}
-              </p>
-            </Link>
-          )
-        })}
+    <div id="fabric-collections" ref={sectionRef} className="scroll-mt-24 select-none">
+
+      {/* Carousel track with side arrows */}
+      <div className="relative">
+        {/* Left arrow */}
+        <button
+          onClick={() => snapTo(activeIndex - 1)}
+          disabled={activeIndex === 0}
+          aria-label="Previous"
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-stone-200 shadow-md text-stone-600 hover:border-stone-900 hover:text-stone-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        {/* Right arrow */}
+        <button
+          onClick={() => snapTo(activeIndex + 1)}
+          disabled={activeIndex === maxSteps}
+          aria-label="Next"
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-stone-200 shadow-md text-stone-600 hover:border-stone-900 hover:text-stone-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <div ref={containerRef} className="overflow-hidden">
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: -dragMax, right: 0 }}
+          dragElastic={0.08}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          className="flex cursor-grab active:cursor-grabbing will-change-transform"
+          style={{ x, columnGap: GAP }}
+        >
+          {categories.map(([name], cardIndex) => {
+            const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
+            const { label, desc, features, usedFor } = categoryMeta[name] ?? { label: name, desc: '', features: [], usedFor: '' }
+            return (
+              <motion.div
+                key={name}
+                className="flex-shrink-0 group"
+                style={{ width: cardWidth > 0 ? cardWidth : undefined }}
+                initial="rest"
+                whileHover="hover"
+                animate="rest"
+              >
+                <Link
+                  to={`/collections?category=${name}`}
+                  className="flex flex-col h-full w-full"
+                  draggable={false}
+                  onClick={(e) => { if (isDragging.current) e.preventDefault() }}
+                >
+                  {/* Image */}
+                  <div className="aspect-[3/4] relative overflow-hidden rounded-md shadow-md mb-4 bg-stone-100">
+                    {revealedIndices.has(cardIndex) ? (
+                      <motion.img
+                        src={imgUrl}
+                        alt={label}
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                        variants={{ rest: { scale: 1 }, hover: { scale: 1.06 } }}
+                        transition={{ duration: 0.7, type: 'tween' }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-stone-200 animate-pulse" />
+                    )}
+
+                    {/* Hover overlay: features + ideal for */}
+                    <motion.div
+                      variants={{ rest: { y: '100%', opacity: 0 }, hover: { y: 0, opacity: 1 } }}
+                      transition={{ duration: 0.38, type: 'tween' }}
+                      className="absolute inset-x-0 bottom-0 bg-stone-900/80 backdrop-blur-sm p-4 pointer-events-none"
+                    >
+                      <div className="space-y-1.5 mb-2">
+                        {features.map((f) => (
+                          <div key={f} className="flex items-center gap-2 text-xs text-white/85">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                            {f}
+                          </div>
+                        ))}
+                      </div>
+                      {usedFor && (
+                        <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">
+                          Ideal for: <span className="text-white/80 normal-case font-medium">{usedFor}</span>
+                        </p>
+                      )}
+                    </motion.div>
+                  </div>
+
+                  {/* Always visible: label + desc */}
+                  <h3 className="font-serif text-xl text-stone-900 group-hover:text-primary transition-colors duration-200">{label}</h3>
+                  <p className="text-xs text-stone-500 font-light mt-1.5 leading-relaxed">{desc}</p>
+
+                  {/* Always visible: CTA */}
+                  <div className="mt-4 flex items-center gap-2">
+                    <span className="text-xs text-stone-900 uppercase tracking-[0.2em] font-bold border-b border-stone-900/30 pb-px">
+                      Browse Collection
+                    </span>
+                    <motion.svg
+                      variants={{ rest: { x: 0, opacity: 0.6 }, hover: { x: 5, opacity: 1 } }}
+                      transition={{ duration: 0.3, type: 'tween' }}
+                      className="w-4 h-4 text-stone-900"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </motion.svg>
+                  </div>
+                </Link>
+              </motion.div>
+            )
+          })}
+        </motion.div>
+        </div>
       </div>
 
-      {/* Desktop grid */}
-      <div className="hidden md:grid grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-12">
-        {categories.map(([name, count]) => {
-          const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
-          return (
-            <Link
-              key={name}
-              to={`/collections?category=${name}`}
-              className="group flex flex-col items-center cursor-pointer transition-all duration-300"
-            >
-              <div className="w-full aspect-[4/5] mb-4 relative overflow-hidden rounded-sm shadow-md group-hover:shadow-xl transition-shadow duration-300">
-                <img
-                  src={imgUrl}
-                  alt={name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-end justify-center pb-5">
-                  <span className="text-white text-[10px] uppercase tracking-widest font-bold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 transform">Browse {count} collections →</span>
-                </div>
-              </div>
-              <div className="text-center w-full px-2">
-                <h3 className="font-serif text-lg text-stone-900 tracking-wide group-hover:text-secondary transition-colors">
-                  {name}
-                </h3>
-                <p className="mt-1 text-[11px] text-stone-500 uppercase tracking-widest">
-                  {count} {count === 1 ? 'Collection' : 'Collections'}
-                </p>
-              </div>
-            </Link>
-          )
-        })}
-      </div>
     </div>
   )
 }
