@@ -15,19 +15,6 @@ const featureItemVariants = {
   visible: { opacity: 1, x: 0, transition: { duration: 0.65, ease: EXPO_OUT } },
 }
 
-// CTA card — staggered internal reveal
-const ctaCardVariants = {
-  hidden:  { opacity: 0, y: 32, scale: 0.95 },
-  visible: {
-    opacity: 1, y: 0, scale: 1,
-    transition: { duration: 0.9, delay: 0.44, ease: EXPO_OUT, staggerChildren: 0.11, delayChildren: 0.62 },
-  },
-}
-const ctaItemVariants = {
-  hidden:  { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: SMOOTH_OUT } },
-}
-
 const features = [
   {
     icon: (
