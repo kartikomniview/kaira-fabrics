@@ -190,78 +190,41 @@ const AIVisualizerBanner = () => {
             </motion.div>
           </div>
 
-          {/* RIGHT: CTA card — stagger variant propagation */}
+          {/* RIGHT: Image and CTA */}
           <motion.div
-            className="shrink-0 flex justify-center lg:justify-end"
-            variants={ctaCardVariants}
-            initial="hidden"
-            animate={inView ? 'visible' : 'hidden'}
+            className="shrink-0 flex flex-col items-center lg:items-end lg:justify-center lg:w-1/2 gap-6"
+            initial={{ opacity: 0, scale: 0.95, x: 20 }}
+            animate={inView ? { opacity: 1, scale: 1, x: 0 } : {}}
+            transition={{ duration: 1, delay: 0.3, ease: EXPO_OUT }}
           >
-            <div className="relative w-full max-w-xs sm:max-w-sm bg-white border border-stone-200 rounded-2xl shadow-lg shadow-stone-100 p-7 sm:p-8 flex flex-col items-center text-center gap-5 overflow-hidden">
-
-              {/* Top accent — animates in as a scaleX sweep */}
-              <motion.div
-                className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-transparent via-secondary to-transparent rounded-t-2xl"
-                variants={{
-                  hidden:  { scaleX: 0 },
-                  visible: { scaleX: 1, transition: { duration: 0.9, ease: SMOOTH_OUT } },
-                }}
+            <div className="relative w-full max-w-lg lg:max-w-xl rounded-2xl overflow-hidden shadow-2xl shadow-stone-200/50">
+              <img 
+                src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/previewAI.webp" 
+                alt="AI Visualizer Preview" 
+                className="w-full h-auto object-cover"
+                loading="lazy"
               />
-
-              {/* Icon with float loop after appearing */}
-              <motion.div
-                className="w-14 h-14 rounded-xl bg-secondary/10 border border-secondary/25 flex items-center justify-center"
-                variants={ctaItemVariants}
-              >
-                <motion.svg
-                  viewBox="0 0 48 48" fill="none" className="w-7 h-7 text-secondary"
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 1.4 }}
-                >
-                  <path d="M6 24C11 14 17 10 24 10C31 10 37 14 42 24C37 34 31 38 24 38C17 38 11 34 6 24z" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeWidth="1.6"/>
-                  <circle cx="24" cy="24" r="5" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.5"/>
-                  <circle cx="24" cy="24" r="2" fill="currentColor" fillOpacity="0.7"/>
-                  <path d="M37 8l1.4 4.6 4.6 1.4-4.6 1.4L37 20l-1.4-5.6L31 13l5.6-1.4z" fill="currentColor" fillOpacity="0.85"/>
-                </motion.svg>
-              </motion.div>
-
-              {/* Text block */}
-              <motion.div variants={ctaItemVariants}>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-secondary font-bold mb-1.5">AI Visualizer</p>
-                <h3 className="font-serif text-2xl text-stone-900 leading-snug mb-2">
-                  Transform your room <span className="text-secondary italic">instantly.</span>
-                </h3>
-                <p className="text-stone-500 text-xs leading-relaxed">
-                  Upload a room photo, pick a fabric, and see the result in real-time — free, fast, and open to all.
-                </p>
-              </motion.div>
-
-              {/* CTA button */}
-              <motion.div
-                variants={ctaItemVariants}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 340, damping: 22 }}
-                className="w-full"
-              >
-                <Link
-                  to="/ai-visualizer"
-                  className="group relative w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-secondary text-white rounded-full font-semibold text-sm shadow-md shadow-secondary/20 hover:bg-secondary/90 transition-colors duration-300 overflow-hidden"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                  </svg>
-                  Try AI Visualizer
-                  {/* shine sweep */}
-                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                </Link>
-              </motion.div>
-
-              {/* Footer note */}
-              <motion.p variants={ctaItemVariants} className="text-stone-400 text-[10px]">
-                No sign-up required &nbsp;·&nbsp; Works with any fabric
-              </motion.p>
             </div>
+            
+            {/* Action button */}
+            <motion.div
+              className="w-full max-w-lg lg:max-w-xl"
+              initial={{ opacity: 0, y: 14 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.7, ease: SMOOTH_OUT }}
+            >
+              <Link
+                to="/ai-visualizer"
+                className="group relative flex items-center justify-center gap-3 px-8 py-5 bg-secondary text-white rounded-full font-bold text-lg shadow-xl shadow-secondary/30 hover:bg-secondary/90 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+                Try Visualizer Now
+                {/* shine sweep */}
+                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              </Link>
+            </motion.div>
           </motion.div>
 
         </div>

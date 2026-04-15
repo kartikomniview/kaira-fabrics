@@ -237,7 +237,7 @@ const WhyKairaSection = () => {
               <img
                 src={KURIKKAL_LOGO}
                 alt="Kurikkal Group"
-                className="h-16 sm:h-20 w-auto object-contain"
+                className="h-20 sm:h-28 w-auto object-contain"
                 loading="lazy"
               />
               <div className="flex items-center gap-2">
