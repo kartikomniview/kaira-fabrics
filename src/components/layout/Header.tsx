@@ -120,7 +120,7 @@ const Header = () => {
                         : 'bg-stone-900 border-stone-900 text-white hover:bg-stone-800 hover:shadow-lg'
                     }`}
                   >
-                    Book Consultation
+                    Contact Us
                   </Link>
 
                   {/* Hamburger */}
@@ -234,7 +234,7 @@ const Header = () => {
               onClick={() => setIsMobileOpen(false)}
               className="block w-full text-center bg-stone-900 rounded-full text-white py-4 text-[11px] tracking-[0.2em] uppercase font-bold hover:bg-stone-800 hover:shadow-lg transition-all duration-300"
             >
-              Book Consultation
+              Contact Us
             </Link>
           </div>
         </div>

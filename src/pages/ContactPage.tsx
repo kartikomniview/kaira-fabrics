@@ -306,26 +306,6 @@ const ContactPage = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* fabric colour palette row */}
-                  <div className="mt-8 pt-6 border-t border-white/10">
-                    <p className="text-primary text-xs font-bold tracking-[0.2em] uppercase mb-4">Our Fabric Range</p>
-                    <div className="flex gap-2.5 flex-wrap">
-                      {[
-                        { name: 'Silk', color: '#c9a96e' },
-                        { name: 'Cotton', color: '#e8dcc8' },
-                        { name: 'Linen', color: '#b5a68a' },
-                        { name: 'Velvet', color: '#6b3fa0' },
-                        { name: 'Brocade', color: '#c0392b' },
-                        { name: 'Chiffon', color: '#d4e8f0' },
-                      ].map(({ name, color }) => (
-                        <div key={name} className="flex items-center gap-2">
-                          <span className="w-3.5 h-3.5 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: color }} />
-                          <span className="text-stone-400 text-sm">{name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </div>
 
