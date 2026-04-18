@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 /* ── Fabric weave pattern as inline SVG data-URI ── */
-const weaveBg = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23A2EF0F' stroke-width='0.4' opacity='0.18'%3E%3Cpath d='M0 10h40M0 20h40M0 30h40M10 0v40M20 0v40M30 0v40'/%3E%3C/g%3E%3C/svg%3E")`
+const weaveBg = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2397c41e' stroke-width='0.4' opacity='0.18'%3E%3Cpath d='M0 10h40M0 20h40M0 30h40M10 0v40M20 0v40M30 0v40'/%3E%3C/g%3E%3C/svg%3E")`
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -56,7 +56,7 @@ const ContactPage = () => {
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <button
             onClick={() => window.history.back()}
-            className="group flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all rounded-sm mb-4"
+            className="group flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all mb-4"
           >
             <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -189,7 +189,7 @@ const ContactPage = () => {
 
                   <button 
                     type="submit" 
-                    className="group relative inline-flex w-full items-center justify-center gap-3 px-8 py-4 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 rounded-sm overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="group relative inline-flex w-full items-center justify-center gap-3 px-8 py-4 bg-stone-900 text-white hover:bg-primary hover:text-stone-900 transition-all duration-500 overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed"
                     disabled={loading}
                   >
                     <span className="text-xs font-bold uppercase tracking-widest relative z-10">{loading ? 'Sending…' : 'Send Enquiry'}</span>

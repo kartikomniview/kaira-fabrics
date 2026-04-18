@@ -14,7 +14,7 @@ interface InlineLoaderProps {
 }
 
 const colorMap = {
-  primary:   '#A2EF0F',
+  primary:   '#97c41e',
   secondary: '#74623C',
   white:     '#ffffff',
 }

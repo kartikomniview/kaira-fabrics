@@ -12,6 +12,58 @@ interface GalleryItem {
   description?: string
 }
 
+const TestimonialCard = ({ item, onPlay }: { item: GalleryItem; onPlay: (url: string) => void }) => {
+  const videoName = item.asset_url.split('/').pop()?.replace(/\.[^.]+$/, '') ?? ''
+  const thumbnail = `https://kairafabrics.s3.ap-south-1.amazonaws.com/thumbnails/Testimonial/${videoName}.webp`
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  return (
+    <div
+      ref={cardRef}
+      onClick={() => onPlay(item.asset_url)}
+      className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] relative bg-black border border-primary/20 rounded-2xl overflow-hidden shadow-lg hover:shadow-primary/20 hover:shadow-xl group flex flex-col h-[340px] cursor-pointer transition-shadow duration-300"
+    >
+      <div className="relative flex-1 overflow-hidden bg-stone-900">
+        {/* Thumbnail image or dark gradient placeholder */}
+        {thumbnail ? (
+          <img
+            src={thumbnail}
+            alt={item.title ?? 'Testimonial'}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-stone-800 to-stone-950" />
+        )}
+
+        {/* Play icon */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+          <div className="w-12 h-12 rounded-full bg-stone-900/60 flex items-center justify-center backdrop-blur-sm">
+            <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Info Overlay */}
+        <div className="absolute bottom-0 inset-x-0 bg-black/95 backdrop-blur-md px-5 pt-4 pb-6 translate-y-[calc(100%-3.5rem)] group-hover:translate-y-0 transition-transform duration-500 ease-out border-t border-primary/30">
+          {item.title && (
+            <p className="text-base font-bold text-primary mb-3 tracking-wide">{item.title}</p>
+          )}
+          {item.description && (
+            <div className="relative">
+              <span className="absolute -left-2 -top-2 text-2xl text-primary/50 font-serif">"</span>
+              <p className="text-[13px] md:text-sm text-white/80 leading-relaxed pr-2">
+                {item.description}
+              </p>
+              <span className="absolute -bottom-2 right-0 text-2xl text-primary/50 font-serif">"</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const TestimonialsSection = () => {
   const [isVisible, setIsVisible] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
@@ -82,29 +134,31 @@ const TestimonialsSection = () => {
       style={{ backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background2.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
     >
       {/* Overlay for readability */}
-      <div className="absolute inset-0 bg-stone-50/80 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-white/75 backdrop-blur-[1px]" />
 
       {/* Decorative blurred orbs */}
-      <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-stone-200/50 blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-white/80 blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/3" />
+      <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3" />
+      <div className="absolute bottom-0 left-0 w-[28rem] h-[28rem] rounded-full bg-primary/5 blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/3" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
 
         {/* Section Header */}
-        <div className="text-center mb-10 md:mb-14">
-          <div className="inline-flex items-center justify-center gap-3 mb-3">
-            <span className="h-px w-5 sm:w-6 bg-primary" />
-            <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-stone-500 font-bold">Client Stories</p>
-            <span className="h-px w-5 sm:w-6 bg-primary" />
+        <div className="text-center mb-12">
+          <div
+            className={`inline-flex items-center justify-center mb-4 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
+          >
+            <span className="text-[11px] uppercase tracking-[0.35em] text-primary font-bold">What They Say</span>
           </div>
-          <h2 className="font-serif text-2xl md:text-4xl text-stone-900">
-            What our clients say
-          </h2>
-          <div className="flex items-center justify-center gap-2 mt-3 md:mt-4">
-            <span className="h-px w-6 md:w-8 bg-stone-200" />
-            <span className="w-1 h-1 bg-stone-300 rounded-full" />
-            <span className="h-px w-6 md:w-8 bg-stone-200" />
+          <div className="overflow-hidden">
+            <h2
+              className={`font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-stone-900 leading-tight transition-all duration-700 delay-100 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-[115%]'}`}
+            >
+              Client <span className="text-primary">Stories</span>
+            </h2>
           </div>
+          <p className={`mt-4 text-sm md:text-base text-stone-500 font-light tracking-wide max-w-md mx-auto transition-all duration-700 delay-200 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            Homes and studios transformed by Kaira fabrics
+          </p>
         </div>
 
         {/* Horizontal Scroll Strip with overlaid controls */}
@@ -112,7 +166,7 @@ const TestimonialsSection = () => {
           {/* Left Button */}
           <button
             onClick={() => scroll('left')}
-            className="absolute -left-5 sm:-left-12 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 bg-white/90 backdrop-blur-sm text-stone-500 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm"
+            className="absolute -left-5 sm:-left-12 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full border border-primary/30 bg-white/90 backdrop-blur-sm text-stone-600 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-md"
             aria-label="Scroll left"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,7 +177,7 @@ const TestimonialsSection = () => {
           {/* Right Button */}
           <button
             onClick={() => scroll('right')}
-            className="absolute -right-5 sm:-right-12 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 bg-white/90 backdrop-blur-sm text-stone-500 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm"
+            className="absolute -right-5 sm:-right-12 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full border border-primary/30 bg-white/90 backdrop-blur-sm text-stone-600 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-md"
             aria-label="Scroll right"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -156,53 +210,7 @@ const TestimonialsSection = () => {
                   </div>
                 )
               : items.map(item => (
-                  <div
-                    key={item.id}
-                    onClick={() => setPreviewUrl(item.asset_url)}
-                    className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] relative bg-stone-900 border border-stone-200 rounded-xl overflow-hidden shadow-sm group flex flex-col h-[340px] cursor-pointer"
-                  >
-                    {/* Video */}
-                    <div className="relative flex-1 overflow-hidden bg-black">
-                      <video
-                        src={isVisible ? item.asset_url : undefined}
-                        muted
-                        playsInline
-                        preload="metadata"
-                        onLoadedMetadata={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.1 }}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
-                        onMouseLeave={e => {
-                          const v = e.currentTarget as HTMLVideoElement
-                          v.pause()
-                          v.currentTime = 0
-                        }}
-                      />
-                      {/* Play icon (idle) */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-                        <div className="w-12 h-12 rounded-full bg-stone-900/60 flex items-center justify-center backdrop-blur-sm">
-                          <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </div>
-                      </div>
-
-                      {/* Info Overlay */}
-                      <div className="absolute bottom-0 inset-x-0 bg-stone-900/90 backdrop-blur-md px-5 pt-4 pb-6 translate-y-[calc(100%-3.5rem)] group-hover:translate-y-0 transition-transform duration-500 ease-out border-t border-white/10">
-                        {item.title && (
-                          <p className="text-base font-bold text-white mb-3 tracking-wide">{item.title}</p>
-                        )}
-                        {item.description && (
-                          <div className="relative">
-                            <span className="absolute -left-2 -top-2 text-2xl text-amber-500/40 font-serif">"</span>
-                            <p className="text-[13px] md:text-sm text-white/80 leading-relaxed italic pr-2">
-                              {item.description}
-                            </p>
-                            <span className="absolute -bottom-2 right-0 text-2xl text-amber-500/40 font-serif">"</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <TestimonialCard key={item.id} item={item} onPlay={setPreviewUrl} />
                 ))
             }
           </div>

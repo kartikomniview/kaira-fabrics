@@ -44,8 +44,8 @@
    Reference these anywhere with var(--color-primary) etc.
    ─────────────────────────────────────────────────────────────────────────── */
 :root {
-  --color-primary:   #A2EF0F;
-  --color-secondary: #74623C;
+  --color-primary:   #97c41e;
+  --color-secondary: #74623c;
   --font-primary:    "LEMON MILK", sans-serif;
   --font-secondary:  "ITC Avant Garde Gothic BT", "Century Gothic", "Trebuchet MS", sans-serif;
 }
@@ -59,18 +59,18 @@
    while automatically reflecting the new brand colours.
    ─────────────────────────────────────────────────────────────────────────── */
 @theme {
-  /* Primary – lime green #A2EF0F */
-  --color-primary:       #A2EF0F;
+  /* Primary – lime green #97c41e */
+  --color-primary:       #97c41e;
   --color-primary-light: #bdf43e;
   --color-primary-dark:  #7ec00a;
 
   /* Secondary – warm brown #74623C */
-  --color-secondary:       #74623C;
+  --color-secondary:       #74623c;
   --color-secondary-light: #9a8460;
   --color-secondary-dark:  #574929;
 
   /* Legacy aliases so existing Tailwind classes resolve to new brand colours */
-  --color-gold:       #A2EF0F;
+  --color-gold:       #97c41e;
   --color-gold-light: #bdf43e;
   --color-gold-dark:  #7ec00a;
   --color-cream:      #FAF8F5;

@@ -26,6 +26,11 @@ const inaugurations: GalleryItem[] = [
   { id: 'in4', asset_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/Gallery/Other/ex3.mp4', type: 'video' },
 ]
 
+const getVideoThumbnail = (videoUrl: string): string => {
+  const fileName = videoUrl.split('/').pop()?.replace(/\.[^.]+$/, '') ?? ''
+  return `https://kairafabrics.s3.ap-south-1.amazonaws.com/thumbnails/Other/${fileName}.webp`
+}
+
 // Card entrance variants
 const cardVariants = {
   hidden: { opacity: 0, y: 28, scale: 0.96 },
@@ -56,11 +61,11 @@ const GalleryRow = ({ label, title, items, onPreview }: GalleryRowProps) => {
         transition={{ duration: 0.7, ease: EXPO_OUT }}
       >
         <div className="flex flex-col">
-          <span className="text-[10px] uppercase tracking-[0.35em] text-secondary font-bold mb-1">{label}</span>
-          <h3 className="font-serif text-2xl sm:text-3xl text-stone-900 leading-tight">{title}</h3>
+          <span className="text-[10px] uppercase tracking-[0.35em] text-primary font-bold mb-1">{label}</span>
+          <h3 className="font-serif text-2xl sm:text-3xl text-black leading-tight">{title}</h3>
         </div>
         <motion.div
-          className="flex-1 h-px bg-gradient-to-r from-secondary/40 to-transparent ml-2"
+          className="flex-1 h-px bg-gradient-to-r from-primary/40 to-transparent ml-2"
           initial={{ scaleX: 0, originX: 0 }}
           animate={rowInView ? { scaleX: 1 } : {}}
           transition={{ duration: 0.8, delay: 0.2, ease: SMOOTH_OUT }}
@@ -79,26 +84,28 @@ const GalleryRow = ({ label, title, items, onPreview }: GalleryRowProps) => {
               initial="hidden"
               animate={rowInView ? 'visible' : 'hidden'}
               onClick={() => onPreview(item)}
-              className="group relative overflow-hidden rounded-2xl border border-stone-200/60 shadow-sm cursor-pointer aspect-[3/4]"
+              className="group relative overflow-hidden rounded-3xl border border-stone-200/50 shadow-md cursor-pointer aspect-[3/4]"
               whileHover={{ y: -4, boxShadow: '0 20px 60px rgba(116,98,60,0.18)' }}
               transition={{ duration: 0.3, ease: SMOOTH_OUT }}
             >
               {video ? (
-                <div className="w-full h-full relative bg-stone-100">
-                  <video
-                    src={rowInView ? `${item.asset_url}` : undefined}
-                    muted
-                    playsInline
-                    preload="metadata"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onLoadedMetadata={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.1 }}
-                    onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
-                    onMouseLeave={e => {
-                      const v = e.currentTarget as HTMLVideoElement
-                      v.pause()
-                      v.currentTime = 0.1
-                    }}
+                <div className="w-full h-full relative overflow-hidden">
+                  <img
+                    src={getVideoThumbnail(item.asset_url)}
+                    alt={item.title ?? 'Video thumbnail'}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
                   />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center transition-colors duration-300 group-hover:bg-black/45">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-colors duration-300">
+                        <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                      <span className="text-[9px] uppercase tracking-[0.25em] text-white/60">Click to play</span>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="w-full h-full bg-stone-100">
@@ -165,19 +172,21 @@ const GallerySection = () => {
     <section
       id="gallery"
       className="relative overflow-hidden border-b border-stone-200"
-      style={{
-        background: '#faf8f5',
-        backgroundImage: [
-          'repeating-linear-gradient(0deg,rgba(0,0,0,0.018) 0px,rgba(0,0,0,0.018) 1px,transparent 1px,transparent 8px)',
-          'repeating-linear-gradient(90deg,rgba(0,0,0,0.018) 0px,rgba(0,0,0,0.018) 1px,transparent 1px,transparent 8px)',
-        ].join(','),
-      }}
+      style={{ background: 'linear-gradient(160deg, #fdf9f4 0%, #faf6ef 50%, #f7f3ec 100%)' }}
     >
 
-      {/* Subtle secondary halo */}
+      {/* Warm ambient blobs */}
       <div
-        className="absolute -top-24 -left-24 w-96 h-96 rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, var(--color-secondary) 0%, transparent 70%)', opacity: 0.04 }}
+        className="absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, var(--color-secondary) 0%, transparent 65%)', opacity: 0.07 }}
+      />
+      <div
+        className="absolute top-1/2 -right-40 w-[420px] h-[420px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, #c8a97e 0%, transparent 65%)', opacity: 0.06 }}
+      />
+      <div
+        className="absolute -bottom-24 left-1/3 w-80 h-80 rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, var(--color-secondary) 0%, transparent 70%)', opacity: 0.05 }}
       />
 
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
@@ -191,14 +200,14 @@ const GallerySection = () => {
             transition={{ duration: 0.8, ease: EXPO_OUT }}
           >
             <motion.span
-              className="h-px bg-secondary"
+              className="h-px bg-primary"
               initial={{ width: 0 }}
               animate={headerInView ? { width: '2rem' } : {}}
               transition={{ duration: 0.7, delay: 0.12, ease: SMOOTH_OUT }}
             />
-            <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">Proof of Work</span>
+            <span className="text-[11px] uppercase tracking-[0.35em] text-primary font-bold">Woven Stories</span>
             <motion.span
-              className="h-px bg-secondary"
+              className="h-px bg-primary"
               initial={{ width: 0 }}
               animate={headerInView ? { width: '2rem' } : {}}
               transition={{ duration: 0.7, delay: 0.12, ease: SMOOTH_OUT }}
@@ -207,12 +216,12 @@ const GallerySection = () => {
 
           <div className="overflow-hidden">
             <motion.h2
-              className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-stone-900 leading-tight"
+              className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-black leading-tight"
               initial={{ y: '115%', skewY: 2 }}
               animate={headerInView ? { y: '0%', skewY: 0 } : {}}
               transition={{ duration: 1.0, delay: 0.18, ease: EXPO_OUT }}
             >
-              Our <span className="text-secondary italic">Gallery</span>
+              Our <span className="text-primary">Gallery</span>
             </motion.h2>
           </div>
 
@@ -222,28 +231,32 @@ const GallerySection = () => {
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.35, ease: EXPO_OUT }}
           >
-            Real work. Real spaces. A living showcase of everything KAIRA has brought to life.
+            Every thread tells a story. A glimpse into the spaces, celebrations, and craftsmanship that define the KAIRA journey.
           </motion.p>
         </div>
 
-        {/* ROW 1 — Final Products */}
+        {/* ROW 1 — Crafted Pieces */}
         <GalleryRow
-          label="Category 01"
-          title="Final Products"
+          label="From Our Studio"
+          title="Crafted Pieces"
           items={finalProducts}
           onPreview={setPreview}
         />
 
         {/* Divider */}
-        <div className="flex items-center gap-4 my-10">
-          <div className="flex-1 h-px bg-stone-200" />
-          <div className="w-1.5 h-1.5 rounded-full bg-secondary/50" />
-          <div className="flex-1 h-px bg-stone-200" />
+        <div className="flex items-center gap-4 my-12">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent" />
+          <div className="flex gap-1.5 items-center">
+            <div className="w-1 h-1 rounded-full bg-secondary/40" />
+            <div className="w-2 h-2 rounded-full bg-secondary/60" />
+            <div className="w-1 h-1 rounded-full bg-secondary/40" />
+          </div>
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent" />
         </div>
 
-        {/* ROW 2 — Inaugurations & Exhibitions */}
+        {/* ROW 2 — Milestones & Celebrations */}
         <GalleryRow
-          label="Category 02"
+          label="Milestones & Moments"
           title="Inaugurations & Exhibitions"
           items={inaugurations}
           onPreview={setPreview}

@@ -33,8 +33,8 @@ const PageLoader = ({ exiting = false }: PageLoaderProps) => (
       style={{
         opacity: 0.055,
         backgroundImage:
-          'repeating-linear-gradient(0deg,#A2EF0F 0,#A2EF0F 1px,transparent 1px,transparent 54px),' +
-          'repeating-linear-gradient(90deg,#A2EF0F 0,#A2EF0F 1px,transparent 1px,transparent 54px)',
+          'repeating-linear-gradient(0deg,#97c41e 0,#97c41e 1px,transparent 1px,transparent 54px),' +
+          'repeating-linear-gradient(90deg,#97c41e 0,#97c41e 1px,transparent 1px,transparent 54px)',
       }}
     />
 
@@ -50,7 +50,7 @@ const PageLoader = ({ exiting = false }: PageLoaderProps) => (
             width: 1,
             height: `${38 + (i % 7) * 8}%`,
             background:
-              i % 3 === 0 ? '#A2EF0F'
+              i % 3 === 0 ? '#97c41e'
               : i % 3 === 1 ? '#74623C'
               : '#3d3020',
             animation: `kaira-weave-rise ${1.25 + (i % 5) * 0.18}s ease-in-out ${(i * 0.06).toFixed(2)}s infinite alternate`,
@@ -87,7 +87,7 @@ const PageLoader = ({ exiting = false }: PageLoaderProps) => (
           fontSize: 9,
           letterSpacing: '0.65em',
           textTransform: 'uppercase',
-          color: '#A2EF0F',
+          color: '#97c41e',
           opacity: 0.6,
           fontFamily: 'var(--font-secondary)',
         }}
@@ -103,7 +103,7 @@ const PageLoader = ({ exiting = false }: PageLoaderProps) => (
         <div
           className="absolute inset-y-0 w-2/5"
           style={{
-            background: 'linear-gradient(90deg, transparent, #A2EF0F, transparent)',
+            background: 'linear-gradient(90deg, transparent, #97c41e, transparent)',
             animation: 'kaira-progress-sweep 1.65s ease-in-out infinite',
           }}
         />

@@ -153,6 +153,14 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
   const [copied, setCopied]         = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const thumbnailInputRef = useRef<HTMLInputElement>(null)
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailUploading, setThumbnailUploading] = useState(false)
+  const [thumbnailError, setThumbnailError] = useState<string | null>(null)
+  const [thumbnailSuccess, setThumbnailSuccess] = useState(false)
+  const [existingThumbnailUrl, setExistingThumbnailUrl] = useState<string | null>(null)
+  const [thumbnailExists, setThumbnailExists] = useState<boolean | null>(null)
+  const [showThumbnailPicker, setShowThumbnailPicker] = useState(false)
 
   useEffect(() => {
     setFeaturedMap(Object.fromEntries(items.map(i => [i.id, i.isfeatured])))
@@ -184,6 +192,18 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
     setEditDesc(item.description ?? '')
     setConfirmDelete(false)
     setCopied(false)
+    setThumbnailFile(null)
+    setThumbnailError(null)
+    setThumbnailSuccess(false)
+    setShowThumbnailPicker(false)
+    setThumbnailExists(null)
+    if (item.asset_type === 'Gallery') {
+      const videoFileName = decodeURIComponent(item.asset_url.split('/').pop() ?? '')
+      const videoNameNoExt = videoFileName.replace(/\.[^/.]+$/, '')
+      setExistingThumbnailUrl(`https://kairafabrics.s3.ap-south-1.amazonaws.com/thumbnails/Other/${videoNameNoExt}.webp`)
+    } else {
+      setExistingThumbnailUrl(null)
+    }
   }
 
   const handleDelete = async () => {
@@ -203,6 +223,42 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
       // keep modal open on error
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const handleThumbnailUpload = async () => {
+    if (!thumbnailFile || !editItem) return
+    setThumbnailUploading(true)
+    setThumbnailError(null)
+    setThumbnailSuccess(false)
+    try {
+      const token = localStorage.getItem('adminToken') ?? ''
+      const videoFileName = decodeURIComponent(editItem.asset_url.split('/').pop() ?? '')
+      const thumbFileName = videoFileName.replace(/\.[^/.]+$/, '') + '.webp'
+      const asset_s3_key = 'thumbnails/Other'
+
+      const urlRes = await fetch(`${API}/getuploadurl`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'admin-token': token },
+        body: JSON.stringify({ file_name: thumbFileName, mime_type: thumbnailFile.type, asset_type: asset_s3_key }),
+      })
+      if (!urlRes.ok) throw new Error(`Could not get upload URL — ${urlRes.status} ${urlRes.statusText}`)
+      const { uploadUrl } = await urlRes.json()
+
+      const s3Res = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': thumbnailFile.type },
+        body: thumbnailFile,
+      })
+      if (!s3Res.ok) throw new Error(`S3 upload failed — ${s3Res.status} ${s3Res.statusText}`)
+
+      setThumbnailFile(null)
+      setThumbnailSuccess(true)
+      if (thumbnailInputRef.current) thumbnailInputRef.current.value = ''
+    } catch (err: unknown) {
+      setThumbnailError(err instanceof Error ? err.message : 'Upload failed. Please try again.')
+    } finally {
+      setThumbnailUploading(false)
     }
   }
 
@@ -379,6 +435,144 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
                   className="w-full px-3.5 py-2.5 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 transition-colors resize-none"
                 />
               </div>
+              {/* Thumbnail Upload — video items only */}
+              {editItem.asset_type === 'Gallery' && (
+                <div>
+                  <label className="block text-xs font-medium text-stone-600 mb-1">Thumbnail</label>
+                  <p className="text-[11px] text-stone-400 mb-2">WebP only · max 500 KB · filename is auto-matched to video</p>
+
+                  {existingThumbnailUrl && (
+                    <img
+                      key={existingThumbnailUrl}
+                      src={existingThumbnailUrl}
+                      alt=""
+                      className="hidden"
+                      onLoad={() => setThumbnailExists(true)}
+                      onError={() => setThumbnailExists(false)}
+                    />
+                  )}
+
+                  {thumbnailExists === true && !thumbnailSuccess && (
+                    <div className="mb-3">
+                      <div className="relative rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-video">
+                        <img
+                          src={existingThumbnailUrl!}
+                          alt="Current thumbnail"
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-2 left-2 text-[10px] font-medium bg-stone-900/60 text-white px-2 py-0.5 rounded-full">Current</span>
+                      </div>
+                      {!showThumbnailPicker && (
+                        <button
+                          type="button"
+                          onClick={() => setShowThumbnailPicker(true)}
+                          className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium border border-stone-200 text-stone-600 hover:border-stone-400 hover:text-stone-900 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                          </svg>
+                          Replace Thumbnail
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {(thumbnailExists === false || showThumbnailPicker) && (
+                    <>
+                      <label className={`flex items-center gap-2 w-full px-3.5 py-2.5 border rounded-xl cursor-pointer transition-colors bg-stone-50 ${
+                        thumbnailError ? 'border-red-300 hover:border-red-400' : 'border-stone-200 hover:border-stone-400'
+                      }`}>
+                        <svg className="w-3.5 h-3.5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-xs text-stone-500 flex-1 truncate">
+                          {thumbnailFile ? thumbnailFile.name : 'Choose .webp file'}
+                        </span>
+                        <input
+                          ref={thumbnailInputRef}
+                          type="file"
+                          accept="image/webp"
+                          className="hidden"
+                          onChange={e => {
+                            const f = e.target.files?.[0]
+                            setThumbnailSuccess(false)
+                            if (!f) return
+                            if (f.type !== 'image/webp') {
+                              setThumbnailError('Only WebP images are allowed.')
+                              setThumbnailFile(null)
+                              e.target.value = ''
+                              return
+                            }
+                            if (f.size > 500 * 1024) {
+                              setThumbnailError('Image must be under 500 KB.')
+                              setThumbnailFile(null)
+                              e.target.value = ''
+                              return
+                            }
+                            setThumbnailError(null)
+                            setThumbnailFile(f)
+                          }}
+                        />
+                      </label>
+                      {showThumbnailPicker && (
+                        <button
+                          type="button"
+                          onClick={() => { setShowThumbnailPicker(false); setThumbnailFile(null); setThumbnailError(null) }}
+                          className="mt-1.5 text-[11px] text-stone-400 hover:text-stone-600 transition-colors"
+                        >
+                          Cancel replace
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {thumbnailExists === null && existingThumbnailUrl && (
+                    <div className="flex items-center gap-2 text-[11px] text-stone-400">
+                      <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      </svg>
+                      Checking for existing thumbnail…
+                    </div>
+                  )}
+
+                  {thumbnailError && (
+                    <p className="text-[11px] text-red-500 mt-1.5 flex items-center gap-1">
+                      <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {thumbnailError}
+                    </p>
+                  )}
+                  {thumbnailSuccess && (
+                    <p className="text-[11px] text-green-600 mt-1.5 flex items-center gap-1">
+                      <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Thumbnail {thumbnailExists ? 'updated' : 'uploaded'} successfully
+                    </p>
+                  )}
+                  {thumbnailFile && (
+                    <button
+                      type="button"
+                      onClick={handleThumbnailUpload}
+                      disabled={thumbnailUploading}
+                      className="mt-2 w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium bg-stone-800 text-white hover:bg-stone-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {thumbnailUploading ? (
+                        <>
+                          <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                          </svg>
+                          Uploading…
+                        </>
+                      ) : thumbnailExists ? 'Update Thumbnail' : 'Upload Thumbnail'}
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-medium text-stone-600 mb-1.5">Asset URL</label>
                 <div className="flex items-center gap-2">

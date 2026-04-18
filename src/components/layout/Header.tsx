@@ -54,7 +54,7 @@ const Header = () => {
         <header
           className={`fixed z-50 transition-all duration-300 ease-in-out ${
             isHeroPage && isScrolled
-              ? 'top-0 lg:top-5 w-full lg:w-[calc(100%-2rem)] max-w-[1400px] lg:rounded-full bg-white/95 backdrop-blur-md border-b lg:border border-stone-200 shadow-[0_4px_20px_rgb(0,0,0,0.05)] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)]'
+              ? 'top-0 lg:top-5 w-full lg:w-[calc(100%-2rem)] max-w-[1400px] bg-white/95 backdrop-blur-md border-b lg:border border-stone-200 shadow-[0_4px_20px_rgb(0,0,0,0.05)] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)] lg:rounded-xl'
               : `top-[2px] w-full ${
                   transparent
                     ? 'bg-transparent border-b border-white/10'
@@ -114,7 +114,7 @@ const Header = () => {
                 <div className="flex items-center gap-4">
                   <Link
                     to="/contact"
-                    className={`hidden lg:inline-flex items-center justify-center px-7 py-3 text-[11px] tracking-[0.2em] uppercase font-bold transition-all duration-300 rounded-full border ${
+                    className={`hidden lg:inline-flex items-center justify-center px-7 py-3 text-[11px] tracking-[0.2em] uppercase font-bold transition-all duration-300 border ${
                       transparent && !isScrolled
                         ? 'bg-white/10 border-white/30 text-white hover:bg-white hover:border-white hover:text-stone-900 shadow-lg backdrop-blur-sm'
                         : 'bg-stone-900 border-stone-900 text-white hover:bg-stone-800 hover:shadow-lg'
@@ -232,7 +232,7 @@ const Header = () => {
             <Link
               to="/contact"
               onClick={() => setIsMobileOpen(false)}
-              className="block w-full text-center bg-stone-900 rounded-full text-white py-4 text-[11px] tracking-[0.2em] uppercase font-bold hover:bg-stone-800 hover:shadow-lg transition-all duration-300"
+              className="block w-full text-center bg-stone-900 text-white py-4 text-[11px] tracking-[0.2em] uppercase font-bold hover:bg-stone-800 hover:shadow-lg transition-all duration-300"
             >
               Contact Us
             </Link>

@@ -9,8 +9,7 @@ import {
   animate,
 } from 'framer-motion'
 
-const EXPO_OUT   = [0.16, 1, 0.3, 1]   as const
-const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
+const SOFT = [0.25, 0.46, 0.45, 0.94] as const
 
 // ── Animated stat counter ─────────────────────────────────────
 const Counter = ({ to, suffix = '' }: { to: number; suffix?: string }) => {
@@ -21,7 +20,7 @@ const Counter = ({ to, suffix = '' }: { to: number; suffix?: string }) => {
   useEffect(() => {
     if (!inView) return
     const ctrl = animate(count, to, {
-      duration: 1.8,
+      duration: 2.0,
       ease: 'easeOut',
       onUpdate(v) {
         if (nodeRef.current) nodeRef.current.textContent = Math.round(v) + suffix
@@ -33,25 +32,25 @@ const Counter = ({ to, suffix = '' }: { to: number; suffix?: string }) => {
   return <span ref={nodeRef}>0{suffix}</span>
 }
 
-// ── Stat pill ─────────────────────────────────────────────────
-const Stat = ({
+// ── Stat card ─────────────────────────────────────────────────
+const StatCard = ({
   value, suffix, label, delay,
 }: { value: number; suffix: string; label: string; delay: number }) => {
   const ref    = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
+  const inView = useInView(ref, { once: true, margin: '-40px' })
 
   return (
     <motion.div
       ref={ref}
-      className="flex flex-col items-center gap-1"
+      className="flex flex-col items-center gap-1.5 px-5 py-4 bg-white/70 rounded-2xl shadow-sm border border-stone-100/80"
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay, ease: EXPO_OUT }}
+      transition={{ duration: 0.7, delay, ease: SOFT }}
     >
-      <p className="font-serif text-3xl sm:text-4xl text-stone-900">
+      <p className="font-serif text-3xl sm:text-4xl text-stone-800">
         <Counter to={value} suffix={suffix} />
       </p>
-      <p className="text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.25em] text-stone-400 font-medium text-center">{label}</p>
     </motion.div>
   )
 }
@@ -59,11 +58,9 @@ const Stat = ({
 // ── Component ─────────────────────────────────────────────────
 const AboutSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const headerRef  = useRef<HTMLDivElement>(null)
-  const bodyRef    = useRef<HTMLDivElement>(null)
+  const rightRef   = useRef<HTMLDivElement>(null)
 
-  const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
-  const bodyInView   = useInView(bodyRef,   { once: true, margin: '-60px' })
+  const rightInView = useInView(rightRef, { once: true, margin: '-60px' })
 
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
   const bgY = useTransform(scrollYProgress, [0, 1], ['-6%', '6%'])
@@ -72,164 +69,115 @@ const AboutSection = () => {
     <section
       ref={sectionRef}
       id="about"
-      className="relative overflow-hidden border-b border-stone-200"
-      style={{
-        background: '#faf8f5',
-        backgroundImage: [
-          'repeating-linear-gradient(0deg,rgba(0,0,0,0.018) 0px,rgba(0,0,0,0.018) 1px,transparent 1px,transparent 8px)',
-          'repeating-linear-gradient(90deg,rgba(0,0,0,0.018) 0px,rgba(0,0,0,0.018) 1px,transparent 1px,transparent 8px)',
-        ].join(','),
-      }}
+      className="relative overflow-hidden"
+      style={{ background: 'linear-gradient(150deg, #fdf9f5 0%, #f7ede0 55%, #faf6f0 100%)' }}
     >
-      {/* ── Top accent bar ── */}
+      {/* ── Parallax background image ── */}
       <motion.div
-        className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-transparent via-secondary to-transparent"
-        initial={{ scaleX: 0, opacity: 0 }}
-        animate={{ scaleX: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: EXPO_OUT }}
-      />
-
-      {/* ── Subtle warm halo ── */}
-      <div
-        className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[320px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse, var(--color-secondary) 0%, transparent 70%)', opacity: 0.04 }}
-      />
-
-      {/* ── Parallax background texture ── */}
-      <motion.div
-        className="absolute inset-[-6%] bg-cover bg-left bg-no-repeat"
+        className="absolute inset-[-6%] bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background2.webp')",
           y: bgY,
-          opacity: 0.35,
+          opacity: 0.55,
         }}
       />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
+      {/* Warm overlay to soften the background */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'linear-gradient(150deg, rgba(253,249,245,0.45) 0%, rgba(247,237,224,0.38) 55%, rgba(250,246,240,0.45) 100%)' }}
+      />
 
-        {/* ══ Header ══ */}
-        <div ref={headerRef} className="text-center mb-12">
+      <div className="relative z-10 max-w-3xl mx-auto px-6 sm:px-10 lg:px-16 py-20 lg:py-28">
 
-          {/* Label — lines grow outward */}
-          <motion.div
-            className="inline-flex items-center justify-center gap-3 mb-5"
-            initial={{ opacity: 0, y: -14 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, ease: EXPO_OUT }}
-          >
-            <motion.span
-              className="h-px bg-secondary"
-              initial={{ width: 0 }}
-              animate={headerInView ? { width: '2rem' } : {}}
-              transition={{ duration: 0.7, delay: 0.15, ease: SMOOTH_OUT }}
-            />
-            <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">About Us</span>
-            <motion.span
-              className="h-px bg-secondary"
-              initial={{ width: 0 }}
-              animate={headerInView ? { width: '2rem' } : {}}
-              transition={{ duration: 0.7, delay: 0.15, ease: SMOOTH_OUT }}
-            />
-          </motion.div>
+          {/* ── Content ── */}
+          <div ref={rightRef} className="space-y-6 text-center flex flex-col items-center">
 
-          {/* Heading — masked reveal */}
-          <div className="overflow-hidden mb-5">
-            <motion.h2
-              className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-stone-900 leading-tight"
-              initial={{ y: '115%', skewY: 2 }}
-              animate={headerInView ? { y: '0%', skewY: 0 } : {}}
-              transition={{ duration: 1.0, delay: 0.18, ease: EXPO_OUT }}
+            {/* Eyebrow label */}
+            <motion.p
+              className="text-sm uppercase tracking-[0.3em] text-secondary font-semibold"
+              initial={{ opacity: 0, y: 10 }}
+              animate={rightInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.55, ease: SOFT }}
             >
-              Kaira:{' '}
-              <span className="text-secondary italic">Design for Life</span>
-            </motion.h2>
-          </div>
+              Our Story
+            </motion.p>
 
-          {/* Decorative divider */}
-          <motion.div
-            className="flex items-center justify-center gap-3"
-            initial={{ opacity: 0 }}
-            animate={headerInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.5, delay: 0.55 }}
-          >
-            <motion.span
-              className="h-px bg-stone-300"
-              initial={{ width: 0 }}
-              animate={headerInView ? { width: '3rem' } : {}}
-              transition={{ duration: 0.7, delay: 0.6, ease: SMOOTH_OUT }}
+            {/* Logo */}
+            <motion.img
+              src="https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/clientLogos/KairaFabrics.png"
+              alt="Kaira Fabrics"
+              className="h-16 sm:h-20 w-auto object-contain"
+              initial={{ opacity: 0, y: 18 }}
+              animate={rightInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.75, delay: 0.1, ease: SOFT }}
             />
-            <span className="w-1.5 h-1.5 rotate-45 bg-secondary/50 inline-block" />
-            <motion.span
-              className="h-px bg-stone-300"
-              initial={{ width: 0 }}
-              animate={headerInView ? { width: '3rem' } : {}}
-              transition={{ duration: 0.7, delay: 0.6, ease: SMOOTH_OUT }}
-            />
-          </motion.div>
-        </div>
 
-        {/* ══ Body copy ══ */}
-        <div ref={bodyRef} className="text-center">
-          <motion.p
-            className="text-stone-500 text-base sm:text-lg leading-relaxed font-light mb-4 max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 22 }}
-            animate={bodyInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, ease: EXPO_OUT }}
-          >
-            Kaira is an entity under the{' '}
-            <strong className="font-semibold text-stone-700">Kurikkal Group</strong>, specializing
-            in premium sofa fabrics and leathers — delivering remarkable quality right to your doorstep.
-          </motion.p>
-
-          <motion.p
-            className="text-stone-400 text-sm sm:text-base leading-relaxed font-light italic max-w-xl mx-auto mb-10"
-            initial={{ opacity: 0, y: 18 }}
-            animate={bodyInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.1, ease: EXPO_OUT }}
-          >
-            "A perfect blend of form and function with an uncompromising emphasis on quality and style."
-          </motion.p>
-
-          {/* ── Stats row ── */}
-          <div className="flex items-center justify-center gap-8 sm:gap-14 mb-10">
-            <Stat value={20} suffix="+" label="Years Heritage" delay={0.15} />
+            {/* Soft divider */}
             <motion.div
-              className="w-px h-12 bg-stone-200"
-              initial={{ scaleY: 0 }}
-              animate={bodyInView ? { scaleY: 1 } : {}}
-              transition={{ duration: 0.5, delay: 0.25, ease: SMOOTH_OUT }}
+              className="h-px w-24 bg-gradient-to-r from-secondary/20 via-secondary/50 to-secondary/20"
+              initial={{ scaleX: 0 }}
+              animate={rightInView ? { scaleX: 1 } : {}}
+              transition={{ duration: 0.8, delay: 0.2, ease: SOFT }}
             />
-            <Stat value={10} suffix="k+" label="Fabrics" delay={0.25} />
-            <motion.div
-              className="w-px h-12 bg-stone-200"
-              initial={{ scaleY: 0 }}
-              animate={bodyInView ? { scaleY: 1 } : {}}
-              transition={{ duration: 0.5, delay: 0.3, ease: SMOOTH_OUT }}
-            />
-            <Stat value={33} suffix="+" label="Group Legacy" delay={0.35} />
-          </div>
 
-          {/* ── CTA ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={bodyInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.65, delay: 0.4, ease: EXPO_OUT }}
-          >
-            <Link
-              to="/about"
-              className="group relative inline-flex items-center justify-center px-10 py-3.5 bg-stone-900 text-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+            {/* Body */}
+            <motion.p
+              className="text-stone-500 text-base sm:text-lg leading-relaxed font-light"
+              initial={{ opacity: 0, y: 14 }}
+              animate={rightInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, delay: 0.25, ease: SOFT }}
             >
-              <div className="absolute inset-0 bg-secondary translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-              <span className="relative z-10 flex items-center gap-2.5 text-[13px] font-bold uppercase tracking-widest group-hover:text-stone-900 transition-colors duration-300">
-                Know More
-                <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
-              </span>
-            </Link>
-          </motion.div>
-        </div>
+              Kaira is an entity under the{' '}
+              <strong className="font-semibold text-stone-700">Kurikkal Group</strong>, specializing
+              in premium sofa fabrics and leathers — delivering remarkable quality right to your doorstep.
+            </motion.p>
 
+            {/* Pull quote */}
+            <motion.blockquote
+              className="max-w-lg"
+              initial={{ opacity: 0, y: 10 }}
+              animate={rightInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.65, delay: 0.35, ease: SOFT }}
+            >
+              <p className="text-stone-400 text-sm sm:text-base leading-relaxed italic font-light">
+                "A perfect blend of form and function with an uncompromising emphasis on quality and style."
+              </p>
+            </motion.blockquote>
+
+            {/* Stats */}
+            <motion.div
+              className="grid grid-cols-2 gap-3 pt-1 w-full max-w-xs"
+              initial={{ opacity: 0, y: 18 }}
+              animate={rightInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, delay: 0.45, ease: SOFT }}
+            >
+              <StatCard value={20} suffix="+" label="Years of Heritage" delay={0.5} />
+              <StatCard value={10} suffix="k+" label="Fabric Varieties" delay={0.6} />
+            </motion.div>
+
+            {/* CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={rightInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.55, ease: SOFT }}
+            >
+              <Link
+                to="/about"
+                className="group inline-flex items-center gap-3 text-secondary font-semibold text-sm"
+              >
+                <span className="relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-secondary after:transition-all after:duration-300 group-hover:after:w-full transition-all duration-300">
+                  Discover Our Story
+                </span>
+                <span className="w-8 h-8 rounded-full border border-secondary/40 flex items-center justify-center transition-all duration-300 group-hover:bg-secondary group-hover:border-secondary">
+                  <svg className="w-3.5 h-3.5 transition-colors duration-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </Link>
+            </motion.div>
+
+          </div>
       </div>
     </section>
   )

@@ -92,6 +92,17 @@ const HeroSection = () => {
         onEnded={handleEnded}
       />
 
+      {/* ── Woven fabric texture overlay ── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: [
+            'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(212,169,106,0.025) 3px, rgba(212,169,106,0.025) 4px)',
+            'repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(212,169,106,0.025) 3px, rgba(212,169,106,0.025) 4px)',
+          ].join(', '),
+        }}
+      />
+
       {/* ── Overlays ── */}
       <div className="absolute inset-0 bg-stone-900/30" />
       <div className="absolute inset-0 bg-gradient-to-t from-stone-900/80 via-stone-900/20 to-stone-900/40" />
@@ -104,7 +115,7 @@ const HeroSection = () => {
 
         {/* ── Brand: KAIRA letter-by-letter drop ── */}
         <div className="flex flex-col items-center gap-2">
-          <div className="flex items-center gap-3 sm:gap-4" style={{ perspective: '600px' }}>
+          <div className="flex items-center gap-3 sm:gap-4">
 
             {/* Left decorative line — expands from 0 */}
             <motion.span
@@ -123,13 +134,12 @@ const HeroSection = () => {
                   style={{
                     letterSpacing: '0.48em',
                     textShadow: '0 2px 20px rgba(0,0,0,0.9)',
-                    transformOrigin: 'center top',
                   }}
-                  initial={{ opacity: 0, y: 48, rotateX: -75 }}
-                  animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                  initial={{ opacity: 0, y: 28 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    duration: 0.65,
-                    delay: 0.15 + i * 0.09,
+                    duration: 0.9,
+                    delay: 0.15 + i * 0.12,
                     ease: EXPO_OUT,
                   }}
                 >
@@ -168,7 +178,7 @@ const HeroSection = () => {
             animate={{ y: '0%' }}
             transition={{ duration: 1.0, delay: 0.85, ease: EXPO_OUT }}
           >
-            Elegance Woven <span className="text-amber-100 italic">in Every Stitch</span>
+            Elegance Woven <span className="text-amber-100">in Every Stitch</span>
           </motion.h1>
         </div>
 
@@ -223,7 +233,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 1.8, ease: SMOOTH_OUT }}
         >
-          Premium Fabrics &amp; Leather Solutions powered by smart visualization — helping you see your space before you buy.
+          Premium Fabrics &amp; Leather, curated with artisanal craftsmanship — where every texture, weave, and hue tells a story of timeless elegance.
         </motion.p>
 
         {/* ── CTA Buttons ── */}
@@ -244,11 +254,11 @@ const HeroSection = () => {
                 if (section) section.scrollIntoView({ behavior: 'smooth' })
               }}
               variant="outline"
-              className="w-full sm:w-auto text-sm sm:text-base font-bold !px-10 sm:!px-12 !py-4 rounded-full shadow-lg tracking-widest uppercase !border-white/50 !text-white hover:!bg-white/10 hover:!text-white"
+              className="w-full sm:w-auto text-sm sm:text-base font-bold !px-10 sm:!px-12 !py-4 rounded-none shadow-lg tracking-widest uppercase !border-white/50 !text-white hover:!bg-white/10 hover:!text-white"
             >
               <span className="flex items-center justify-center gap-2.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
                 Explore Collection
               </span>
@@ -261,13 +271,16 @@ const HeroSection = () => {
             transition={{ type: 'spring', stiffness: 340, damping: 22 }}
           >
             <Button
-              to="/ai-visualizer"
+              onClick={() => {
+                const section = document.getElementById('ai-visualizer-banner')
+                if (section) section.scrollIntoView({ behavior: 'smooth' })
+              }}
               variant="primary"
-              className="w-full sm:w-auto text-sm sm:text-base font-bold !px-10 sm:!px-12 !py-4 rounded-full shadow-lg hover:shadow-2xl tracking-widest uppercase"
+              className="w-full sm:w-auto text-sm sm:text-base font-bold !px-10 sm:!px-12 !py-4 rounded-none shadow-lg hover:shadow-2xl tracking-widest uppercase"
             >
               <span className="flex items-center justify-center gap-2.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
                 AI Visualizer
               </span>

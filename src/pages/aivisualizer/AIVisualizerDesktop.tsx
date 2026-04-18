@@ -4,9 +4,7 @@ import type { NewMaterial } from '../../data/newmaterials'
 import { dummyProducts, getProductImageUrl } from '../../data/products'
 import type { Product } from '../../data/products'
 import { MaterialsInventory, S3_THUMB } from './MaterialsInventory'
-import OTPVerification from './OTPVerification'
 import {
-  BYPASS_OTP,
   generateRender,
 } from './generateRender'
 import type { SelectedMaterial, SelectedProduct } from './generateRender'
@@ -25,11 +23,11 @@ const AIVisualizerDesktop = () => {
   const [selectedProduct, setSelectedProduct] = useState<SelectedProduct | null>(null)
   const productUploadRef = useRef<HTMLInputElement>(null)
 
-  // Generation & OTP state
-  const [showOTP, setShowOTP] = useState(false)
-  const [mobileNumber, setMobileNumber] = useState('')
-  const [otpCode, setOtpCode] = useState('')
-  const [otpStep, setOtpStep] = useState(1) // 1 = Mobile, 2 = Verify
+  // Lead form & generation state
+  const [showLeadForm, setShowLeadForm] = useState(false)
+  const [fullName, setFullName] = useState(() => localStorage.getItem('kaira_lead_name') ?? '')
+  const [mobileNumber, setMobileNumber] = useState(() => localStorage.getItem('kaira_lead_mobile') ?? '')
+  const [mobileError, setMobileError] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [generateError, setGenerateError] = useState<string | null>(null)
@@ -102,7 +100,7 @@ const AIVisualizerDesktop = () => {
       selectedProduct,
       mobileNumber: mobile,
       onGeneratingChange: setIsGenerating,
-      onShowOTPChange: setShowOTP,
+      onShowOTPChange: setShowLeadForm,
       onResult: (imageUrl) => {
         setGeneratedImage(imageUrl)
         setCurrentStep(3)
@@ -114,24 +112,21 @@ const AIVisualizerDesktop = () => {
 
   const handleGenerateClick = () => {
     if (!selectedProduct) return
-    if (BYPASS_OTP) {
-      handleGenerate('')
+    setGenerateError(null)
+    setShowLeadForm(true)
+  }
+
+  const handleLeadSubmit = () => {
+    if (!fullName.trim()) return
+    const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
+    if (cleaned.length !== 10) {
+      setMobileError('Please enter a valid 10-digit mobile number')
       return
     }
-    setOtpStep(1)
-    setMobileNumber('')
-    setOtpCode('')
-    setShowOTP(true)
-  }
-
-  const handleSendOTP = () => {
-    if (mobileNumber.length >= 10) {
-      setOtpStep(2)
-    }
-  }
-
-  const handleVerifyAndGenerate = () => {
-    handleGenerate(mobileNumber)
+    setMobileError('')
+    localStorage.setItem('kaira_lead_name', fullName.trim())
+    localStorage.setItem('kaira_lead_mobile', cleaned)
+    handleGenerate(cleaned)
   }
 
   // -- Render Helpers ----------------------------------------------------------
@@ -159,7 +154,7 @@ const AIVisualizerDesktop = () => {
     setSelectedMaterial(null)
     setSelectedProduct(null)
     setGeneratedImage(null)
-    setShowOTP(false)
+    setShowLeadForm(false)
     setShowImageModal(false)
   }
 
@@ -276,22 +271,21 @@ const AIVisualizerDesktop = () => {
             <div className="flex flex-col h-full items-center justify-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4">
               <h2 className="text-sm sm:text-base font-semibold text-stone-700 uppercase tracking-widest mb-1 sm:mb-2 text-center">Step 1: Choose Fabric</h2>
               
-              {/* Primary: Upload */}
+              {/* Primary: Inventory */}
               <button
-                onClick={() => fabricUploadRef.current?.click()}
+                onClick={() => setIsInventoryModalOpen(true)}
                 className="w-full flex flex-col items-center justify-center gap-3 sm:gap-4 bg-stone-900 border-2 border-stone-900 rounded-xl py-8 sm:py-10 hover:bg-stone-800 hover:border-stone-800 transition-all group shadow-lg"
               >
                 <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
                   <svg className="w-5 h-5 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>
                 <div className="text-center">
-                  <span className="block text-[13px] sm:text-sm font-bold uppercase tracking-widest text-white">Upload Your Fabric</span>
-                  <span className="block text-[10px] sm:text-[11px] text-stone-400 mt-1">JPG, PNG accepted</span>
+                  <span className="block text-[13px] sm:text-sm font-bold uppercase tracking-widest text-white">Browse Kaira Inventory</span>
+                  <span className="block text-[10px] sm:text-[11px] text-stone-400 mt-1">Explore our curated fabric collection</span>
                 </div>
               </button>
-              <input ref={fabricUploadRef} type="file" accept="image/*" onChange={handleFabricUpload} className="sr-only" />
 
               <div className="flex items-center gap-4 w-full">
                 <div className="flex-1 h-px bg-stone-200"></div>
@@ -299,16 +293,17 @@ const AIVisualizerDesktop = () => {
                 <div className="flex-1 h-px bg-stone-200"></div>
               </div>
 
-              {/* Secondary: Inventory */}
+              {/* Secondary: Upload */}
               <button
-                onClick={() => setIsInventoryModalOpen(true)}
+                onClick={() => fabricUploadRef.current?.click()}
                 className="w-full flex items-center justify-center gap-3 border border-stone-200 rounded-xl py-3.5 sm:py-4 hover:border-stone-400 hover:bg-stone-50 transition-all group"
               >
                 <svg className="w-4 h-4 text-stone-400 group-hover:text-stone-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
-                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-stone-500 group-hover:text-stone-700 transition-colors">Browse Kaira Inventory</span>
+                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-stone-500 group-hover:text-stone-700 transition-colors">Upload Your Own Fabric</span>
               </button>
+              <input ref={fabricUploadRef} type="file" accept="image/*" onChange={handleFabricUpload} className="sr-only" />
             </div>
           )}
 
@@ -616,55 +611,99 @@ const AIVisualizerDesktop = () => {
         </div>
       )}
 
-      {showOTP && (
+      {showLeadForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => !isGenerating && setShowOTP(false)} />
-          <div className="relative w-full max-w-[340px] sm:max-w-[360px] bg-white rounded-2xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col">
-             
-             {isGenerating ? (
-               <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12">
-                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-stone-100 border-t-primary rounded-full animate-spin mb-4 sm:mb-6" />
-                 <h3 className="text-xs sm:text-sm font-bold text-stone-800 tracking-wide uppercase mb-2">Generating...</h3>
-                 <p className="text-[11px] sm:text-xs text-stone-500 text-center">Using AI to apply your fabric to the product.</p>
-               </div>
-             ) : generateError ? (
-               <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12 gap-4">
-                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-50 border border-red-200 flex items-center justify-center">
-                   <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                 </div>
-                 <div className="text-center">
-                   <h3 className="text-xs sm:text-sm font-bold text-stone-800 tracking-wide uppercase mb-1">Generation Failed</h3>
-                   <p className="text-[11px] sm:text-xs text-red-500">{generateError}</p>
-                 </div>
-                 <button
-                   onClick={() => { setGenerateError(null); setShowOTP(false) }}
-                   className="px-6 py-2 bg-stone-900 text-white text-[11px] uppercase font-bold tracking-widest rounded-lg hover:bg-black transition-colors"
-                 >
-                   Try Again
-                 </button>
-               </div>
-             ) : (
-               <>
-                 <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50">
-                   <h3 className="text-[12px] font-bold text-stone-800 uppercase tracking-widest">Almost There</h3>
-                   <button onClick={() => setShowOTP(false)} className="text-stone-400 hover:text-stone-700">
-                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                   </button>
-                 </div>
-                 <div className="p-6">
-                   <OTPVerification
-                     otpStep={otpStep}
-                     mobileNumber={mobileNumber}
-                     setMobileNumber={setMobileNumber}
-                     otpCode={otpCode}
-                     setOtpCode={setOtpCode}
-                     onSendOTP={handleSendOTP}
-                     onVerify={handleVerifyAndGenerate}
-                     onCancel={() => setOtpStep(1)}
-                   />
-                 </div>
-               </>
-             )}
+          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => !isGenerating && setShowLeadForm(false)} />
+          <div className="relative w-full max-w-[340px] sm:max-w-[380px] bg-white rounded-2xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col">
+
+            {isGenerating ? (
+              <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-stone-100 border-t-primary rounded-full animate-spin mb-4 sm:mb-6" />
+                <h3 className="text-xs sm:text-sm font-bold text-stone-800 tracking-wide uppercase mb-2">Creating Your Preview...</h3>
+                <p className="text-[11px] sm:text-xs text-stone-500 text-center">Draping your chosen fabric beautifully over the sofa — this may take a moment.</p>
+              </div>
+            ) : generateError ? (
+              <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12 gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-50 border border-red-200 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </div>
+                <div className="text-center">
+                  <h3 className="text-xs sm:text-sm font-bold text-stone-800 tracking-wide uppercase mb-1">Preview Failed</h3>
+                  <p className="text-[11px] sm:text-xs text-red-500">{generateError}</p>
+                </div>
+                <button
+                  onClick={() => { setGenerateError(null); setShowLeadForm(false) }}
+                  className="px-6 py-2 bg-stone-900 text-white text-[11px] uppercase font-bold tracking-widest rounded-lg hover:bg-black transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Header */}
+                <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50">
+                  <div>
+                    <h3 className="text-[12px] font-bold text-stone-800 uppercase tracking-widest">Almost There</h3>
+                    <p className="text-[10px] text-stone-400 mt-0.5">Enter your details to get the preview</p>
+                  </div>
+                  <button onClick={() => setShowLeadForm(false)} className="text-stone-400 hover:text-stone-700">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+
+                {/* Form */}
+                <div className="p-6 flex flex-col gap-4">
+                  {/* Full Name */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase font-bold tracking-widest text-stone-900">
+                      Full Name <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Your full name"
+                      className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-stone-400 focus:bg-white transition-all font-medium"
+                    />
+                  </div>
+
+                  {/* Mobile */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase font-bold tracking-widest text-stone-900">
+                      Mobile Number <span className="text-red-400">*</span>
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-stone-400">+91</span>
+                      <input
+                        type="tel"
+                        value={mobileNumber}
+                        onChange={(e) => {
+                          setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))
+                          setMobileError('')
+                        }}
+                        placeholder="00000 00000"
+                        className={`w-full bg-stone-50 border rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:bg-white transition-all font-medium tracking-widest ${
+                          mobileError ? 'border-red-400 focus:border-red-400' : 'border-stone-200 focus:border-stone-400'
+                        }`}
+                      />
+                    </div>
+                    {mobileError && (
+                      <p className="text-[10px] text-red-500 font-medium">{mobileError}</p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleLeadSubmit}
+                    disabled={!fullName.trim() || mobileNumber.length < 10}
+                    className="w-full h-12 bg-stone-900 text-white rounded-xl font-bold uppercase tracking-widest text-[11px] shadow-lg hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-1 flex items-center justify-center gap-2 group"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    Generate My Preview
+                    <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

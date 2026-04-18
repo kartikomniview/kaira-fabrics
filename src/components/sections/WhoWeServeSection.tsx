@@ -15,34 +15,21 @@ const cards = [
     description: 'Priority access to bulk inventory, exclusive B2B pricing, and dedicated account management for large-scale production.',
     cta: 'Get a Quote',
     link: 'https://wa.me/918589925111?text=Hi%2C%20I%27m%20interested%20in%20a%20wholesale%20quote%20for%20my%20manufacturing%20business.',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-      </svg>
-    ),
+    image: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhoWeServe/Wholesale+%26+Manufacturing.webp',
   },
   {
     title: 'Designers & Architects',
     description: 'Trade benefits, free swatch books, 3D material libraries, and custom luxury fabric collaboration for creative professionals.',
     cta: 'Partner With Us',
     link: 'https://wa.me/918589925111?text=Hi%2C%20I%27m%20an%20interior%20designer%20looking%20to%20partner%20with%20Kaira.',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-      </svg>
-    ),
+    image: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhoWeServe/Designers+%26+Architects.webp',
   },
   {
     title: 'Retail & Homeowners',
     description: 'Free consultations with styling experts to find the perfect upholstery or drape fabric for your home.',
     cta: 'Talk to an Expert',
     link: 'https://wa.me/918589925111?text=Hi%2C%20I%20need%20help%20choosing%20fabrics%20for%20my%20home.',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 22V12h6v10" />
-      </svg>
-    ),
+    image: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhoWeServe/Retail+%26+Homeowners.webp',
   },
 ]
 
@@ -88,7 +75,7 @@ export default function WhoWeServeSection() {
 
         {/* Cards */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5"
+          className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6"
           variants={container}
           initial="hidden"
           animate={isVisible ? 'visible' : 'hidden'}
@@ -99,21 +86,39 @@ export default function WhoWeServeSection() {
                 href={card.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex flex-col h-full bg-stone-900 rounded-2xl p-6 border border-stone-800 hover:border-primary/50 transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1.5"
+                className="group relative flex flex-col overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 h-[420px] md:h-[460px]"
               >
-                <div className="w-10 h-10 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/10 transition-colors duration-300">
-                  {card.icon}
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  {/* Gradient overlay — warm tones at bottom */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/85 via-stone-800/30 to-stone-900/10" />
                 </div>
-                <h3 className="font-serif text-lg text-white italic mb-2 leading-snug">{card.title}</h3>
-                <p className="text-stone-400 text-[13px] leading-relaxed flex-1">{card.description}</p>
-                <div className="mt-5 pt-4 border-t border-stone-800 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 text-primary text-[11px] font-bold uppercase tracking-widest group-hover:gap-2.5 transition-all duration-300">
-                    {card.cta}
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
+
+                {/* Top label */}
+                <div className="relative p-5">
+                  <span className="inline-block text-[10px] font-bold uppercase tracking-[0.25em] text-white/60 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-3 py-1">
+                    {card.title}
                   </span>
-                  {WHATSAPP_SVG}
+                </div>
+
+                {/* Bottom content */}
+                <div className="relative mt-auto p-6">
+                  <h3 className="font-serif text-[1.35rem] text-white mb-2 leading-snug">{card.title}</h3>
+                  <p className="text-white/70 text-[13px] leading-relaxed mb-5">{card.description}</p>
+                  <div className="flex items-center justify-between pt-4 border-t border-white/15">
+                    <span className="inline-flex items-center gap-1.5 text-amber-200 text-[11px] font-bold uppercase tracking-widest group-hover:gap-3 transition-all duration-300">
+                      {card.cta}
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </span>
+                    {WHATSAPP_SVG}
+                  </div>
                 </div>
               </a>
             </motion.div>

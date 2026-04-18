@@ -43,7 +43,7 @@ const SectionLoader = ({
           className="absolute inset-0 rounded-full"
           style={{
             border: '2px solid rgba(162,239,15,0.12)',
-            borderTopColor: '#A2EF0F',
+            borderTopColor: '#97c41e',
             animation: 'kaira-spin-cw 1s linear infinite',
           }}
         />

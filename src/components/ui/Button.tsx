@@ -15,7 +15,7 @@ interface ButtonProps {
   loading?: boolean
 }
 
-const base = 'inline-flex items-center justify-center gap-2 font-medium tracking-widest uppercase transition-all duration-300 cursor-pointer'
+const base = 'inline-flex items-center justify-center gap-2 font-medium tracking-widest uppercase transition-all duration-300 cursor-pointer rounded-none'
 
 const variants = {
   primary:   'bg-gold text-charcoal hover:bg-gold-dark active:scale-95',
