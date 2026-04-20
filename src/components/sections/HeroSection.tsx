@@ -172,7 +172,7 @@ const HeroSection = () => {
         {/* ── Heading ── */}
         <div className="overflow-hidden pb-1">
           <motion.h1
-            className="font-serif text-2xl sm:text-3xl md:text-3xl lg:text-[2.75rem] text-white leading-[1.1] tracking-tight whitespace-nowrap"
+            className="font-serif text-2xl sm:text-3xl md:text-3xl lg:text-[2.75rem] text-white leading-[1.1] tracking-tight sm:whitespace-nowrap"
             style={{ textShadow: '0 2px 28px rgba(0,0,0,0.75)' }}
             initial={{ y: '115%' }}
             animate={{ y: '0%' }}
