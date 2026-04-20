@@ -27,47 +27,69 @@ const PageLoader = ({ exiting = false }: PageLoaderProps) => (
     aria-label="Loading"
     role="status"
   >
-    {/* Grid texture */}
+    {/* Soft fabric weave texture */}
     <div
       className="absolute inset-0 pointer-events-none"
       style={{
-        opacity: 0.055,
+        opacity: 0.06,
         backgroundImage:
-          'repeating-linear-gradient(0deg,#97c41e 0,#97c41e 1px,transparent 1px,transparent 54px),' +
-          'repeating-linear-gradient(90deg,#97c41e 0,#97c41e 1px,transparent 1px,transparent 54px)',
+          'repeating-linear-gradient(45deg, #c8a96e 0, #c8a96e 1px, transparent 1px, transparent 12px),' +
+          'repeating-linear-gradient(-45deg, #c8a96e 0, #c8a96e 1px, transparent 1px, transparent 12px)',
+      }}
+    />
+
+    {/* Warm radial glow from centre */}
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background: 'radial-gradient(ellipse 55% 45% at 50% 52%, rgba(180,130,60,0.10) 0%, transparent 70%)',
       }}
     />
 
     {/* Weave threads — bottom rising bars */}
     <div
       className="absolute bottom-0 left-0 right-0 flex justify-center items-end pointer-events-none overflow-hidden"
-      style={{ height: '60%', gap: 10 }}
+      style={{ height: '60%', gap: 7 }}
     >
       {Array.from({ length: THREAD_COUNT }).map((_, i) => (
         <div
           key={i}
           style={{
-            width: 1,
-            height: `${38 + (i % 7) * 8}%`,
+            width: i % 4 === 0 ? 2 : 1,
+            height: `${32 + (i % 7) * 9}%`,
+            borderRadius: 4,
             background:
-              i % 3 === 0 ? '#97c41e'
-              : i % 3 === 1 ? '#74623C'
-              : '#3d3020',
+              i % 3 === 0
+                ? 'linear-gradient(to top, #c8a46a, rgba(200,164,106,0.15))'
+                : i % 3 === 1
+                ? 'linear-gradient(to top, #74623C, rgba(116,98,60,0.12))'
+                : 'linear-gradient(to top, #4a3c28, rgba(74,60,40,0.08))',
             animation: `kaira-weave-rise ${1.25 + (i % 5) * 0.18}s ease-in-out ${(i * 0.06).toFixed(2)}s infinite alternate`,
           }}
         />
       ))}
     </div>
 
-    {/* Corner brackets */}
-    {(['top-8 left-8 border-t border-l', 'top-8 right-8 border-t border-r',
-       'bottom-8 left-8 border-b border-l', 'bottom-8 right-8 border-b border-r'] as const
-    ).map((pos) => (
-      <div
-        key={pos}
-        className={`absolute w-7 h-7 pointer-events-none ${pos}`}
-        style={{ borderColor: 'rgba(162,239,15,0.25)' }}
-      />
+    {/* Soft corner ornaments */}
+    {(['top-7 left-7', 'top-7 right-7', 'bottom-7 left-7', 'bottom-7 right-7'] as const).map((pos) => (
+      <div key={pos} className={`absolute pointer-events-none ${pos}`}>
+        <div
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: '50%',
+            border: '1px solid rgba(200,164,106,0.22)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 5,
+            borderRadius: '50%',
+            background: 'rgba(200,164,106,0.12)',
+          }}
+        />
+      </div>
     ))}
 
     {/* Centre content */}
