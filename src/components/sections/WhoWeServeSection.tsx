@@ -93,6 +93,8 @@ export default function WhoWeServeSection() {
                   <img
                     src={card.image}
                     alt={card.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
                   {/* Gradient overlay — warm tones at bottom */}

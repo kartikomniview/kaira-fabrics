@@ -6,7 +6,7 @@ const EXPO_OUT   = [0.16, 1, 0.3, 1] as const
 
 const KURIKKAL_LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/KirikalLogo.webp'
 
-const BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhyKaira/'
+const BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhyKaira/v1/'
 
 const advantages = [
   { title: 'Premium Fabrics & Leather',      desc: 'Curated wide range of textures, weaves & leathers for every design vision.',         image: `${BASE}Premium+Fabrics+%26+Leather.webp` },

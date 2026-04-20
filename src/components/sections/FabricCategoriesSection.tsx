@@ -192,6 +192,7 @@ const FabricCategoriesSection = () => {
                       <motion.img
                         src={imgUrl}
                         alt={label}
+                        loading="lazy"
                         decoding="async"
                         className="w-full h-full object-cover"
                         draggable={false}

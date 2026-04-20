@@ -23,11 +23,15 @@ const LENIS_DISABLED_PATHS = ['/3d-visualizer','/ai-visualizer','/collections','
 function LenisManager() {
   const { pathname } = useLocation()
   useEffect(() => {
-    if (LENIS_DISABLED_PATHS.includes(pathname) || LENIS_DISABLED_PATHS.some(path => pathname.includes(path))) return
+    // Skip on disabled routes
+    if (LENIS_DISABLED_PATHS.some(path => pathname.startsWith(path))) return
+    // Skip on touch/mobile devices — native scroll feels better and performs better
+    if (window.matchMedia('(pointer: coarse)').matches) return
+
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 0.9,
       smoothWheel: true,
+      touchMultiplier: 0,
     })
     let rafId: number
     function raf(time: number) {
