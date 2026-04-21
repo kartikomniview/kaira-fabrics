@@ -52,19 +52,32 @@ const ContactPage = () => {
     <div className="min-h-screen bg-white">
 
       {/* ── Page Header ──────────────────────────────────────────── */}
-      <div className="bg-stone-900 pt-24 pb-6">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <button
-            onClick={() => window.history.back()}
-            className="group flex items-center gap-2 px-3 py-1.5 border border-stone-300 bg-white text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-stone-50 transition-all mb-4"
-          >
-            <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="text-[9px] uppercase font-bold tracking-widest">Back to Home</span>
-          </button>
-          <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-primary mb-1.5">Get In Touch</p>
-          <h1 className="font-serif text-2xl md:text-3xl text-white">Contact Us</h1>
+      <div
+        className="relative pt-24 pb-12 overflow-hidden"
+        style={{
+          backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/stripsbg/strip1.webp)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-stone-950/50" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={() => window.history.back()}
+              className="group flex items-center gap-2 px-4 py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all rounded-full text-[11px] font-medium tracking-wide"
+            >
+              <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back
+            </button>
+          </div>
+          <p className="text-[11px] tracking-[0.35em] uppercase font-semibold text-white/50 mb-2">Get In Touch</p>
+          <h1 className="font-serif text-4xl md:text-5xl text-primary leading-tight">Contact Us</h1>
+          <p className="mt-3 text-sm text-white/60 font-light max-w-md leading-relaxed">
+            Reach out to us for fabric enquiries, custom orders, or to visit our showroom.
+          </p>
         </div>
       </div>
 
@@ -343,7 +356,7 @@ const ContactPage = () => {
               <span className="w-1 h-1 bg-primary rounded-full" />
             </div>
             <h2 className="font-serif text-3xl md:text-4xl text-stone-900 font-medium leading-tight mb-4">
-              Visit Our <span className="italic text-stone-400">Showroom</span>
+              Visit Our <span className="text-stone-400">Showroom</span>
             </h2>
             <p className="text-sm md:text-base text-stone-500 leading-relaxed font-sans max-w-lg mx-auto">
               Experience our premium fabrics in person. Our experts are ready to guide you through our extensive collection.
