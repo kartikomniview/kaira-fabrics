@@ -5,8 +5,7 @@ const navLinks = [
   { to: '/', label: 'Home' },
   { to: '/#collections', label: 'Collections & Fabrics' },
   { to: '/#why-kaira', label: 'Why Kaira' },
-  { to: '/#portfolio', label: 'Our Portfolio' },
-  { to: '/ai-visualizer', label: 'Visualizer' },
+  { to: '/#gallery', label: 'Our Portfolio' },
 ]
 
 const Header = () => {
@@ -52,7 +51,7 @@ const Header = () => {
 
       <div className="flex justify-center w-full">
         <header
-          className={`fixed z-50 transition-all duration-300 ease-in-out ${
+          className={`fixed z-50 transition-all duration-300 ease-in-out ${isMobileOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'} ${
             isHeroPage && isScrolled
               ? 'top-0 lg:top-5 w-full lg:w-[calc(100%-2rem)] max-w-[1400px] bg-white/95 backdrop-blur-md border-b lg:border border-stone-200 shadow-[0_4px_20px_rgb(0,0,0,0.05)] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)] lg:rounded-xl'
               : `top-[2px] w-full ${
@@ -68,9 +67,9 @@ const Header = () => {
               {/* Logo */}
               <Link to="/" className="flex items-center flex-shrink-0 group">
                 <img
-                  src="https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/clientLogos/KairaFabrics.png"
+                  src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
                   alt="Kaira Fabrics & Leather"
-                  className={`h-8 w-auto object-contain transition-all duration-500 group-hover:opacity-75 ${
+                  className={`h-12 w-auto object-contain transition-all duration-500 group-hover:opacity-75 ${
                     transparent && !isScrolled ? '' : ''
                   }`}
                 />
@@ -98,7 +97,7 @@ const Header = () => {
                           window.scrollTo({ top: 0, behavior: 'smooth' })
                         }
                       }}
-                      className={`relative text-[13px] tracking-[0.08em] font-semibold transition-colors duration-200 group/nav py-1.5 ${
+                      className={`relative text-[15px] tracking-[0.06em] font-semibold transition-colors duration-200 group/nav py-1.5 ${
                         transparent && !isScrolled
                           ? 'text-white/85 hover:text-white drop-shadow-sm'
                           : 'text-stone-600 hover:text-stone-950'
@@ -108,17 +107,31 @@ const Header = () => {
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transition-all duration-300 w-0 group-hover/nav:w-full" />
                     </Link>
                   ))}
+
+                  {/* Visualizer — chip nav item */}
+                  <Link
+                    to="/#ai-visualizer-banner"
+                    onClick={(e) => {
+                      if (location.pathname === '/') {
+                        const el = document.getElementById('ai-visualizer-banner')
+                        if (el) {
+                          e.preventDefault()
+                          el.scrollIntoView({ behavior: 'smooth' })
+                          window.history.pushState(null, '', '/#ai-visualizer-banner')
+                        }
+                      }
+                    }}
+                    className="text-[13px] tracking-[0.12em] font-bold uppercase px-3 py-1 transition-all duration-200 bg-primary text-white hover:bg-primary/80"
+                  >
+                    Visualizer
+                  </Link>
                 </nav>
 
                 {/* CTA + Mobile Toggle */}
                 <div className="flex items-center gap-4">
                   <Link
                     to="/contact"
-                    className={`hidden lg:inline-flex items-center justify-center px-7 py-3 text-[11px] tracking-[0.2em] uppercase font-bold transition-all duration-300 border ${
-                      transparent && !isScrolled
-                        ? 'bg-white/10 border-white/30 text-white hover:bg-white hover:border-white hover:text-stone-900 shadow-lg backdrop-blur-sm'
-                        : 'bg-stone-900 border-stone-900 text-white hover:bg-stone-800 hover:shadow-lg'
-                    }`}
+                    className="hidden lg:inline-flex items-center justify-center px-7 py-3 text-[11px] tracking-[0.2em] uppercase font-bold transition-all duration-300 border bg-secondary border-secondary text-white hover:bg-secondary/80 hover:shadow-lg"
                   >
                     Contact Us
                   </Link>
@@ -184,7 +197,7 @@ const Header = () => {
           {/* Drawer header */}
           <div className="flex items-center justify-between px-6 py-5 border-b border-stone-100">
             <img
-              src="https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/clientLogos/KairaFabrics.png"
+              src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
               alt="Kaira Fabrics"
               className="h-8 w-auto object-contain"
             />
@@ -220,11 +233,31 @@ const Header = () => {
                     window.scrollTo({ top: 0, behavior: 'smooth' })
                   }
                 }}
-                className="flex items-center justify-between py-4 border-b border-stone-50 text-[11px] tracking-[0.15em] uppercase transition-colors duration-200 text-stone-500 hover:text-stone-900"
+                className="flex items-center justify-between py-4 border-b border-stone-50 text-[13px] tracking-[0.12em] uppercase transition-colors duration-200 text-stone-500 hover:text-stone-900"
               >
                 <span>{link.label}</span>
               </Link>
             ))}
+
+            {/* Visualizer — accent text in mobile */}
+            <Link
+              to="/#ai-visualizer-banner"
+              onClick={(e) => {
+                setIsMobileOpen(false)
+                if (location.pathname === '/') {
+                  const el = document.getElementById('ai-visualizer-banner')
+                  if (el) {
+                    e.preventDefault()
+                    el.scrollIntoView({ behavior: 'smooth' })
+                    window.history.pushState(null, '', '/#ai-visualizer-banner')
+                  }
+                }
+              }}
+              className="flex items-center justify-between py-4 border-b border-stone-50 text-[13px] tracking-[0.12em] uppercase font-bold transition-colors duration-200"
+              style={{ background: 'linear-gradient(90deg, var(--color-primary), var(--color-secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+            >
+              <span>Visualizer</span>
+            </Link>
           </nav>
 
           {/* Mobile CTA */}

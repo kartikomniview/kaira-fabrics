@@ -94,7 +94,7 @@ const HomePage = () => {
       <CaptionStrip
         backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/stripsbg/strip1.webp"
         eyebrow="Our Approach"
-        before="We don't just sell fabric —"
+        before="We don't just sell fabric"
         highlight="we help customers visualize"
         after="and choose the right material."
       />
@@ -121,11 +121,8 @@ const HomePage = () => {
       {/* Who We Serve */}
       <WhoWeServeSection />
 
+      <TestimonialsSection />
 
-  
-
-      {/* About Us Section */}
-      <AboutSection />
 
       {/* Caption 4 */}
       <CaptionStrip
@@ -135,9 +132,14 @@ const HomePage = () => {
         highlight="One unwavering commitment"
         after="to quality."
       />
+  
+
+      {/* About Us Section */}
+      <AboutSection />
+
+     
 
       {/* Testimonials */}
-      <TestimonialsSection />
 
      
       {/* Clients Scrollbar | About | Who We Serve | Smart Catalog — toggle SHOW_EXTRA_SECTIONS to enable */}

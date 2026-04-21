@@ -7,7 +7,7 @@
  * The `exiting` prop triggers a CSS fade-out. After ~550 ms unmount it from the DOM.
  */
 
-const LOGO = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/clientLogos/KairaFabrics.png'
+const LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp'
 const THREAD_COUNT = 22
 
 interface PageLoaderProps {

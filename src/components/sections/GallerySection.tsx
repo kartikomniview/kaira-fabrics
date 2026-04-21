@@ -62,7 +62,7 @@ const GalleryRow = ({ label, title, items, onPreview }: GalleryRowProps) => {
       >
         <div className="flex flex-col">
           <span className="text-[10px] uppercase tracking-[0.35em] text-primary font-bold mb-1">{label}</span>
-          <h3 className="font-serif text-2xl sm:text-3xl text-black leading-tight">{title}</h3>
+          <h3 className="font-serif text-2xl sm:text-3xl color-secondary leading-tight">{title}</h3>
         </div>
         <motion.div
           className="flex-1 h-px bg-gradient-to-r from-primary/40 to-transparent ml-2"
@@ -199,19 +199,7 @@ const GallerySection = () => {
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, ease: EXPO_OUT }}
           >
-            <motion.span
-              className="h-px bg-primary"
-              initial={{ width: 0 }}
-              animate={headerInView ? { width: '2rem' } : {}}
-              transition={{ duration: 0.7, delay: 0.12, ease: SMOOTH_OUT }}
-            />
             <span className="text-[11px] uppercase tracking-[0.35em] text-primary font-bold">Woven Stories</span>
-            <motion.span
-              className="h-px bg-primary"
-              initial={{ width: 0 }}
-              animate={headerInView ? { width: '2rem' } : {}}
-              transition={{ duration: 0.7, delay: 0.12, ease: SMOOTH_OUT }}
-            />
           </motion.div>
 
           <div className="overflow-hidden">

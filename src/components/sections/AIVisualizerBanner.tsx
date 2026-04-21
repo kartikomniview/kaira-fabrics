@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
+import { BeforeAfterSlider } from '../ui/BeforeAfterSlider'
 
 const EXPO_OUT   = [0.16, 1, 0.3, 1]        as const
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
@@ -62,16 +63,7 @@ const AIVisualizerBanner = () => {
               <div className="absolute -inset-3 rounded-3xl border border-primary/30 pointer-events-none" />
               <div className="absolute -inset-[22px] rounded-[28px] border border-primary/12 pointer-events-none" />
 
-              <div className="relative rounded-2xl overflow-hidden shadow-[0_24px_64px_-12px_rgba(0,0,0,0.18)]">
-                <img
-                  src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/Smart+Visualization.webp"
-                  alt="AI Room Visualizer Preview"
-                  className="w-full h-auto object-cover"
-                  loading="lazy"
-                />
-                {/* Cinematic gradient vignette */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent pointer-events-none" />
-              </div>
+              <BeforeAfterSlider />
             </div>
           </motion.div>
 
@@ -85,7 +77,6 @@ const AIVisualizerBanner = () => {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, ease: EXPO_OUT }}
             >
-              <span className="w-8 h-px bg-primary/70" />
               <span className="text-[10px] uppercase tracking-[0.42em] text-primary font-semibold">
                 AI Visualizer · Free to Use
               </span>
@@ -154,9 +145,12 @@ const AIVisualizerBanner = () => {
             >
               <Link
                 to="/ai-visualizer"
-                className="group relative inline-flex items-center gap-3 px-9 py-4 bg-secondary text-white font-bold text-base rounded-xl shadow-xl shadow-secondary/20 hover:bg-secondary/90 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 overflow-hidden"
+                className="group relative inline-flex items-center gap-4 px-12 py-5 bg-secondary text-white font-bold text-lg shadow-2xl shadow-secondary/30 hover:bg-secondary/90 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 overflow-hidden"
               >
                 Try the Visualizer — It's Free
+                <svg className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
                 {/* Shimmer */}
                 <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/35 to-transparent" />
               </Link>

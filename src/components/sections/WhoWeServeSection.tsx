@@ -12,6 +12,19 @@ const WHATSAPP_SVG = (
 const cards = [
   {
     title: 'Wholesale & Manufacturing',
+    titleParts: [
+      { text: 'Wholesale', primary: true },
+      { text: ' & ', primary: false },
+      { text: 'Manufacturing', primary: false },
+    ],
+    tag: 'B2B · Bulk Orders',
+    tagColor: 'text-primary border-primary/40 bg-white',
+    icon: (
+      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M9 17h6M2 3h20v4H2zm2 4h16v14H4z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 21V11m6 10V11" />
+      </svg>
+    ),
     description: 'Priority access to bulk inventory, exclusive B2B pricing, and dedicated account management for large-scale production.',
     cta: 'Get a Quote',
     link: 'https://wa.me/918589925111?text=Hi%2C%20I%27m%20interested%20in%20a%20wholesale%20quote%20for%20my%20manufacturing%20business.',
@@ -19,6 +32,19 @@ const cards = [
   },
   {
     title: 'Designers & Architects',
+    titleParts: [
+      { text: 'Designers', primary: false },
+      { text: ' & ', primary: false },
+      { text: 'Architects', primary: true },
+    ],
+    tag: 'Trade Program',
+    tagColor: 'text-secondary border-secondary/40 bg-white',
+    icon: (
+      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+      </svg>
+    ),
     description: 'Trade benefits, free swatch books, 3D material libraries, and custom luxury fabric collaboration for creative professionals.',
     cta: 'Partner With Us',
     link: 'https://wa.me/918589925111?text=Hi%2C%20I%27m%20an%20interior%20designer%20looking%20to%20partner%20with%20Kaira.',
@@ -26,6 +52,18 @@ const cards = [
   },
   {
     title: 'Retail & Homeowners',
+    titleParts: [
+      { text: 'Retail', primary: true },
+      { text: ' & ', primary: false },
+      { text: 'Homeowners', primary: false },
+    ],
+    tag: 'Personal · Home',
+    tagColor: 'text-black border-black/20 bg-white',
+    icon: (
+      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
     description: 'Free consultations with styling experts to find the perfect upholstery or drape fabric for your home.',
     cta: 'Talk to an Expert',
     link: 'https://wa.me/918589925111?text=Hi%2C%20I%20need%20help%20choosing%20fabrics%20for%20my%20home.',
@@ -95,25 +133,31 @@ export default function WhoWeServeSection() {
                     alt={card.title}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 blur-[2px] scale-105"
                   />
-                  {/* Gradient overlay — warm tones at bottom */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/85 via-stone-800/30 to-stone-900/10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30" />
                 </div>
 
                 {/* Top label */}
                 <div className="relative p-5">
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-[0.25em] text-white/60 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-3 py-1">
-                    {card.title}
+                  <span className={`inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] border-2 shadow-md rounded-full px-4 py-2 ${card.tagColor}`}>
+                    {card.icon}
+                    {card.tag}
                   </span>
                 </div>
 
                 {/* Bottom content */}
                 <div className="relative mt-auto p-6">
-                  <h3 className="font-serif text-[1.35rem] text-white mb-2 leading-snug">{card.title}</h3>
+                  <h3 className="font-serif text-[1.6rem] mb-2 leading-snug inline-block bg-white/25 backdrop-blur-md shadow-sm rounded-md px-3 py-1">
+                    {card.titleParts.map((part, i) => (
+                      <span key={i} className={part.primary ? 'text-primary' : 'text-primary'}>
+                        {part.text}
+                      </span>
+                    ))}
+                  </h3>
                   <p className="text-white/70 text-[13px] leading-relaxed mb-5">{card.description}</p>
                   <div className="flex items-center justify-between pt-4 border-t border-white/15">
-                    <span className="inline-flex items-center gap-1.5 text-amber-200 text-[11px] font-bold uppercase tracking-widest group-hover:gap-3 transition-all duration-300">
+                    <span className="inline-flex items-center gap-1.5 text-primary text-[11px] font-bold uppercase tracking-widest group-hover:gap-3 transition-all duration-300">
                       {card.cta}
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />

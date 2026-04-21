@@ -4,16 +4,79 @@ import { motion, useInView } from 'framer-motion'
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
 const EXPO_OUT   = [0.16, 1, 0.3, 1] as const
 
-const KURIKKAL_LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/KirikalLogo.webp'
+const KURIKKAL_LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/KurikalLogo.webp'
 
-const BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhyKaira/v1/'
+const FabricIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+    {/* sofa body */}
+    <path d="M4 13h16v5H4z" />
+    {/* sofa back */}
+    <path d="M4 13V9a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v4" />
+    {/* armrests */}
+    <path d="M2 12h2v6H2zM20 12h2v6h-2z" />
+    {/* legs */}
+    <path d="M6 18v2M18 18v2" />
+    {/* fabric texture lines on back cushion */}
+    <path d="M8 10h2M12 10h4" strokeWidth="1" />
+  </svg>
+)
+
+const VisualizationIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+    {/* room walls & floor */}
+    <path d="M2 20h20" />
+    <path d="M4 20V8l8-5 8 5v12" />
+    {/* window */}
+    <rect x="9" y="9" width="6" height="5" rx="0.5" />
+    <line x1="12" y1="9" x2="12" y2="14" />
+    <line x1="9"  y1="11.5" x2="15" y2="11.5" />
+    {/* door */}
+    <path d="M10 20v-4h4v4" />
+  </svg>
+)
+
+const TrustedIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+    {/* centre person */}
+    <circle cx="12" cy="7" r="2.2" />
+    <path d="M8.5 19v-2a3.5 3.5 0 0 1 7 0v2" />
+    {/* left person */}
+    <circle cx="5" cy="8.5" r="1.8" />
+    <path d="M2 19v-1.5A2.8 2.8 0 0 1 7.5 17" />
+    {/* right person */}
+    <circle cx="19" cy="8.5" r="1.8" />
+    <path d="M22 19v-1.5A2.8 2.8 0 0 0 16.5 17" />
+  </svg>
+)
+
+const LegacyIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+    <path d="M3 21h18M9 21V7l3-4 3 4v14M4 21V11l4-2M20 21V11l-4-2" />
+    <path d="M9 12h6" />
+  </svg>
+)
 
 const advantages = [
-  { title: 'Premium Fabrics & Leather',      desc: 'Curated wide range of textures, weaves & leathers for every design vision.',         image: `${BASE}Premium+Fabrics+%26+Leather.webp` },
-  { title: 'Smart Visualization',             desc: 'See your space transformed with our AI-powered tool before you buy.',                image: `${BASE}Smart+Visualization.webp` },
-  { title: 'Trusted by Dealers & Designers', desc: 'Preferred partner across South India for quality and reliability.',                   image: `${BASE}Trusted+by+Dealers+%26+Designers.webp` },
-  { title: 'Kurikkal Group Legacy',           desc: "Backed by 33+ years of excellence from one of South India's trusted conglomerates.", image: `${BASE}Kurikkal+Group+Legacy.webp` },
-  { title: 'Passionate & Driven Team',        desc: 'An ambitious team pushing the boundaries of fabric innovation every day.',           image: `${BASE}Passionate+%26+Driven+Team.webp` },
+  {
+    title: '33+ Year Legacy',
+    desc:  "Backed by the Kurikkal Group — trusted since 1991.",
+    Icon:  LegacyIcon,
+  },
+  {
+    title: 'Premium Fabrics & Leather',
+    desc:  'Wide range of curated textures, weaves & leathers.',
+    Icon:  FabricIcon,
+  },
+  {
+    title: 'AI Visualizer',
+    desc:  'Preview your space with AI before you commit.',
+    Icon:  VisualizationIcon,
+  },
+  {
+    title: 'Dealer & Designer Trusted',
+    desc:  'Preferred quality partner across South India.',
+    Icon:  TrustedIcon,
+  },
 ]
 
 // ── Card entrance variants ─────────────────────────────────────
@@ -133,7 +196,7 @@ const WhyKairaSection = () => {
             transition={{ duration: 0.8, delay: 0.3, ease: EXPO_OUT }}
           >
             <div className="inline-flex items-center gap-2 mb-3">
-              <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">Kurikkal Group</span>
+              <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">A Legacy Brand</span>
             </div>
             <p className="text-stone-500 text-sm leading-relaxed font-sans">
               Three decades of crafting spaces and building relationships — powered by a relentless commitment to quality.
@@ -146,7 +209,7 @@ const WhyKairaSection = () => {
         <div ref={cardsRef}>
           {/* Scroll wrapper — horizontal scroll on mobile, grid on sm+ */}
           <div className="overflow-x-auto -mx-6 px-6 sm:overflow-visible sm:mx-0 sm:px-0 pb-3 sm:pb-0">
-            <div className="flex gap-3 sm:grid sm:grid-cols-3 lg:grid-cols-5 sm:gap-4 w-max sm:w-auto">
+            <div className="flex gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-5 w-max sm:w-auto">
               {advantages.map((adv, i) => (
                 <motion.div
                   key={i}
@@ -158,21 +221,16 @@ const WhyKairaSection = () => {
                   transition={{ duration: 0.32, ease: SMOOTH_OUT }}
                   className="group relative flex flex-col w-52 flex-shrink-0 sm:w-auto sm:flex-shrink rounded-xl overflow-hidden bg-white border border-stone-200 shadow-sm"
                 >
-                  {/* Image area — 4:3 aspect ratio */}
-                  <div className="relative overflow-hidden aspect-[4/3]">
-                    <img
-                      src={adv.image}
-                      alt={adv.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    {/* Warm golden wash on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-secondary/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Icon area */}
+                  <div className="flex items-center justify-center pt-7 pb-4">
+                    <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/15 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                      <adv.Icon />
+                    </div>
                   </div>
 
                   {/* Text */}
-                  <div className="px-4 py-3 border-t border-stone-100">
-                    <p className="font-sans font-semibold text-sm leading-snug mb-0.5 text-stone-800 group-hover:text-secondary transition-colors duration-300">
+                  <div className="px-5 pb-6 text-center">
+                    <p className="font-sans font-semibold text-sm leading-snug mb-1.5 text-stone-800 group-hover:text-secondary transition-colors duration-300">
                       {adv.title}
                     </p>
                     <p className="text-stone-500 text-xs leading-relaxed">{adv.desc}</p>
@@ -180,7 +238,7 @@ const WhyKairaSection = () => {
 
                   {/* Thin bottom accent — grows on hover */}
                   <motion.div
-                    className="absolute bottom-0 left-0 h-[2px] bg-secondary/60 rounded-b-xl"
+                    className="absolute bottom-0 left-0 h-[2px] bg-primary/60 rounded-b-xl"
                     initial={{ width: '0%' }}
                     whileHover={{ width: '100%' }}
                     transition={{ duration: 0.4, ease: SMOOTH_OUT }}

@@ -105,9 +105,9 @@ const AboutSection = () => {
 
             {/* Logo */}
             <motion.img
-              src="https://supoassets.s3.ap-south-1.amazonaws.com/public/assets/clientLogos/KairaFabrics.png"
+              src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
               alt="Kaira Fabrics"
-              className="h-16 sm:h-20 w-auto object-contain"
+              className="h-32 sm:h-24 w-auto object-contain"
               initial={{ opacity: 0, y: 18 }}
               animate={rightInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.75, delay: 0.1, ease: SOFT }}
@@ -140,7 +140,7 @@ const AboutSection = () => {
               animate={rightInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.65, delay: 0.35, ease: SOFT }}
             >
-              <p className="text-stone-400 text-sm sm:text-base leading-relaxed italic font-light">
+              <p className="text-stone-400 text-sm sm:text-base leading-relaxed font-light">
                 "A perfect blend of form and function with an uncompromising emphasis on quality and style."
               </p>
             </motion.blockquote>
@@ -164,16 +164,13 @@ const AboutSection = () => {
             >
               <Link
                 to="/about"
-                className="group inline-flex items-center gap-3 text-secondary font-semibold text-sm"
+                className="group relative inline-flex items-center gap-3 px-10 py-5 bg-secondary text-white font-semibold text-sm md:text-base tracking-widest uppercase overflow-hidden shadow-lg transition-shadow duration-300 hover:shadow-2xl"
               >
-                <span className="relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-secondary after:transition-all after:duration-300 group-hover:after:w-full transition-all duration-300">
-                  Discover Our Story
-                </span>
-                <span className="w-8 h-8 rounded-full border border-secondary/40 flex items-center justify-center transition-all duration-300 group-hover:bg-secondary group-hover:border-secondary">
-                  <svg className="w-3.5 h-3.5 transition-colors duration-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                  </svg>
-                </span>
+                <span className="relative z-10">Discover Our Story</span>
+                <svg className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+                <div className="absolute inset-0 bg-secondary-dark translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
               </Link>
             </motion.div>
 

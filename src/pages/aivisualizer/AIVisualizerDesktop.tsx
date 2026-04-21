@@ -1,8 +1,14 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { BeforeAfterSlider } from '../../components/ui/BeforeAfterSlider'
 import type { NewMaterial } from '../../data/newmaterials'
-import { dummyProducts, getProductImageUrl } from '../../data/products'
-import type { Product } from '../../data/products'
+
+const products = [
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Luma.webp',    productName: 'Luma'    },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Ember.webp',   productName: 'Ember'   },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Petal.webp',   productName: 'Petal'   },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Verdant.webp', productName: 'Verdant' },
+]
 import { MaterialsInventory, S3_THUMB } from './MaterialsInventory'
 import {
   generateRender,
@@ -82,11 +88,11 @@ const AIVisualizerDesktop = () => {
     e.target.value = ''
   }
 
-  const handleSelectProduct = (p: Product) => {
+  const handleSelectProduct = (p: typeof products[number]) => {
     setSelectedProduct({
-      id: p.product_id,
-      productName: p.product_name,
-      imageUrl: getProductImageUrl(p),
+      id: p.productName,
+      productName: p.productName,
+      imageUrl: p.productImageUrl,
       isCustom: false,
     })
   }
@@ -160,7 +166,7 @@ const AIVisualizerDesktop = () => {
 
   return (
     <div className="relative flex flex-col w-full min-h-screen" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
-      <div className="absolute inset-0 pointer-events-none opacity-[0.18]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.12]" style={{ backgroundImage: 'radial-gradient(circle, #97c41e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
       {/* ── Page Header ──────────────────────────────────── */}
       <div
@@ -171,8 +177,8 @@ const AIVisualizerDesktop = () => {
           backgroundPosition: 'center',
         }}
       >
-        {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-stone-950/60" />
+        {/* Soft warm overlay */}
+        <div className="absolute inset-0 bg-stone-950/50" />
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between mb-6">
@@ -203,74 +209,62 @@ const AIVisualizerDesktop = () => {
         {/* Unified AI Studio Card */}
         <div className="w-full bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col lg:flex-row min-h-[600px] mt-6 lg:mt-8 mb-8 lg:mb-0">
           
-          {/* Left Side: Header & Info */}
-          <div className="relative w-full lg:w-[45%] bg-stone-900 border-b lg:border-b-0 lg:border-r border-stone-800 px-8 py-10 sm:px-10 sm:py-16 hidden lg:flex flex-col justify-center">
-            {/* Subtle motion background */}
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
-            
-            <div className="relative z-10 flex flex-col text-left items-start">
-              {/* AI Powered Badge */}
-              <div className="inline-flex items-center gap-2 bg-stone-800 backdrop-blur-sm border border-stone-700 rounded-full px-3 py-1 mb-6 shadow-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-[10px] sm:text-[11px] text-stone-300 uppercase tracking-widest">AI Powered</span>
+          {/* Left Side: Header & Slider */}
+          <div className="relative w-full lg:w-[45%] bg-[#faf7f2] border-b lg:border-b-0 lg:border-r border-stone-200 px-7 py-10 hidden lg:flex flex-col justify-between gap-8">
+            {/* Badge + title */}
+            <div className="flex flex-col items-start gap-3">
+              <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3 py-1 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                <span className="text-[10px] text-primary uppercase tracking-widest font-semibold">AI Powered</span>
               </div>
-
-              {/* Title */}
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white leading-[1.1] mb-5">
-                Bring Fabrics<br />
-                <em className="not-italic text-primary">To Life</em>
+              <h2 className="font-serif text-2xl text-primary leading-[1.15]">
+                Bring Fabrics <em className="not-italic text-secondary">To Life</em>
               </h2>
-
-              {/* Divider */}
-              <div className="flex items-center justify-start gap-2 mb-6">
-                <span className="w-8 h-px bg-stone-700" />
-                <span className="w-1 h-1 rotate-45 bg-amber-400/70 inline-block" />
-                <span className="w-8 h-px bg-stone-700" />
-              </div>
-
-              {/* Description */}
-              <p className="text-[12px] sm:text-sm text-stone-300 font-light leading-relaxed mb-10">
-                Select a fabric, choose a product, and watch AI generate a photorealistic preview — see exactly how it looks before you order.
+              <p className="text-[11px] text-stone-400 leading-relaxed">
+                Pick a fabric, choose a product, see an instant AI preview.
               </p>
+            </div>
 
-              {/* Feature Highlights */}
-              <div className="flex flex-col gap-4 w-full">
-                <div className="flex items-center gap-3 text-stone-300">
-                  <div className="w-7 h-7 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
-                    <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+            {/* Before / After slider */}
+            <div className="flex-1 min-h-[240px]">
+              <BeforeAfterSlider />
+            </div>
+
+            {/* Step indicators */}
+            <div className="flex items-center justify-between gap-2">
+              {[
+                { n: 1, label: 'Choose Fabric' },
+                { n: 2, label: 'Choose Product' },
+                { n: 3, label: 'Get Preview' },
+              ].map(({ n, label }, i) => {
+                const active = Math.floor(currentStep) >= n
+                return (
+                  <div key={n} className="flex items-center gap-2 flex-1">
+                    <div className={`flex items-center gap-2 flex-1 ${active ? 'opacity-100' : 'opacity-40'}`}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold border ${active ? 'bg-primary border-primary text-stone-900' : 'border-stone-300 text-stone-400'}`}>
+                        {Math.floor(currentStep) > n ? (
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        ) : n}
+                      </div>
+                      <span className="text-[10px] uppercase tracking-widest font-semibold text-stone-600 leading-tight">{label}</span>
+                    </div>
+                    {i < 2 && <div className={`w-4 h-px shrink-0 ${active ? 'bg-primary/50' : 'bg-stone-200'}`} />}
                   </div>
-                  <span className="text-xs sm:text-sm">Choose any fabric</span>
-                </div>
-                <div className="flex items-center gap-3 text-stone-300">
-                  <div className="w-7 h-7 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
-                    <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-xs sm:text-sm">Pick any product</span>
-                </div>
-                <div className="flex items-center gap-3 text-stone-300">
-                  <div className="w-7 h-7 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
-                    <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-xs sm:text-sm">See an instant lifelike preview</span>
-                </div>
-              </div>
+                )
+              })}
             </div>
           </div>
 
           {/* Right Side: Interactive Studio */}
-          <div className="w-full lg:w-[55%] flex flex-col bg-stone-50/30">
+          <div className="w-full lg:w-[55%] flex flex-col bg-white/60">
         
             {/* Studio Header */}
-            <div className="shrink-0 bg-white/50 backdrop-blur border-b border-stone-100 px-6 py-5 flex justify-between items-center">
+            <div className="shrink-0 bg-white/70 backdrop-blur border-b border-stone-100 px-6 py-5 flex justify-between items-center">
                 <div>
-                  <h1 className="text-base sm:text-base font-bold tracking-widest uppercase text-stone-800">AI Studio Workspace</h1>
-                  <p className="text-[11px] text-stone-500 uppercase tracking-widest mt-0.5">Step {Math.floor(currentStep)} of 3</p>
+                  <h1 className="text-base sm:text-base font-bold tracking-widest uppercase text-secondary">AI Studio Workspace</h1>
+                  <p className="text-[11px] text-stone-400 uppercase tracking-widest mt-0.5">Step {Math.floor(currentStep)} of 3</p>
                 </div>
                 {/* Progress Indicator */}
                 <div className="flex gap-1.5">
@@ -284,21 +278,21 @@ const AIVisualizerDesktop = () => {
           {/* Step 1: Material Selection */}
           {currentStep === 1 && (
             <div className="flex flex-col h-full items-center justify-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4">
-              <h2 className="text-sm sm:text-base font-semibold text-stone-700 uppercase tracking-widest mb-1 sm:mb-2 text-center">Step 1: Choose Fabric</h2>
-              
+              <h2 className="text-sm sm:text-base font-semibold text-stone-900 uppercase tracking-widest mb-1 sm:mb-2 text-center">Step 1: Choose Fabric</h2>
+
               {/* Primary: Inventory */}
               <button
                 onClick={() => setIsInventoryModalOpen(true)}
-                className="w-full flex flex-col items-center justify-center gap-3 sm:gap-4 bg-stone-900 border-2 border-stone-900 rounded-xl py-8 sm:py-10 hover:bg-stone-800 hover:border-stone-800 transition-all group shadow-lg"
+                className="w-full flex flex-col items-center justify-center gap-3 sm:gap-4 bg-secondary border-2 border-secondary rounded-xl py-8 sm:py-10 hover:bg-secondary/90 hover:border-secondary/90 transition-all group shadow-md"
               >
-                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
                   <svg className="w-5 h-5 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>
                 <div className="text-center">
                   <span className="block text-[13px] sm:text-sm font-bold uppercase tracking-widest text-white">Browse Kaira Inventory</span>
-                  <span className="block text-[10px] sm:text-[11px] text-stone-400 mt-1">Explore our curated fabric collection</span>
+                  <span className="block text-[10px] sm:text-[11px] text-white/60 mt-1">Explore our curated fabric collection</span>
                 </div>
               </button>
 
@@ -327,11 +321,11 @@ const AIVisualizerDesktop = () => {
             <div className="flex flex-col h-full items-center justify-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4">
               <div className="flex items-center w-full mb-1">
                 <button onClick={() => { setSelectedMaterial(null); setCurrentStep(1); }} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-xs">←</button>
-                <h2 className="text-[11px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest mx-auto pr-8">Fabric Preview</h2>
+                <h2 className="text-[11px] sm:text-sm font-semibold text-stone-900 uppercase tracking-widest mx-auto pr-8">Fabric Preview</h2>
               </div>
 
               {/* Large texture preview */}
-              <div className="w-auto aspect-square max-h-[160px] sm:max-h-[320px] rounded-2xl overflow-hidden border border-stone-200 shadow-md bg-stone-100">
+              <div className="w-40 aspect-square max-h-[160px] sm:max-h-[320px] rounded-2xl overflow-hidden border border-stone-200 shadow-md bg-stone-100">
                 <img
                   src={selectedMaterial?.textureUrl}
                   alt={selectedMaterial?.fabricName}
@@ -357,7 +351,7 @@ const AIVisualizerDesktop = () => {
                 </button>
                 <button
                   onClick={() => setCurrentStep(2)}
-                  className="flex-1 h-11 sm:h-12 bg-stone-900 text-white rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] shadow-lg hover:bg-black transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                  className="flex-1 h-11 sm:h-12 bg-primary text-stone-900 rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] shadow-md hover:bg-primary/90 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
                 >
                   <span>Use This Fabric</span>
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
@@ -371,7 +365,7 @@ const AIVisualizerDesktop = () => {
             <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4">
               <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                  <button onClick={() => setCurrentStep(1.5)} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 text-xs">←</button>
-                 <h2 className="text-[13px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest flex-1">Step 2: Choose Product</h2>
+                 <h2 className="text-[13px] sm:text-sm font-semibold text-stone-900 uppercase tracking-widest flex-1">Step 2: Choose Product</h2>
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6 overflow-y-auto max-h-[400px] sm:max-h-[480px] p-0.5 sm:p-1">
@@ -388,18 +382,18 @@ const AIVisualizerDesktop = () => {
                 </button>
                 <input ref={productUploadRef} type="file" accept="image/*" onChange={(e) => { handleProductUpload(e); setCurrentStep(2.5); }} className="sr-only" />
                 
-                {dummyProducts.map(p => {
-                    const isActive = selectedProduct?.id === p.product_id
+                {products.map(p => {
+                    const isActive = selectedProduct?.id === p.productName
                     return (
                        <button
-                         key={p.product_id}
+                         key={p.productName}
                          onClick={() => { handleSelectProduct(p); setCurrentStep(2.5); }}
                          className={`aspect-[4/3] border-2 rounded-xl flex flex-col items-center justify-center p-3 sm:p-4 gap-2 transition-all ${isActive ? 'border-primary bg-primary/5' : 'border-stone-200 bg-white hover:border-stone-400'}`}
                        >
                          <div className="flex-1 w-full flex items-center justify-center overflow-hidden">
-                           <img src={getProductImageUrl(p)} alt="" className="max-h-full max-w-full object-contain transform group-hover:scale-105 transition-transform duration-500" />
+                           <img src={p.productImageUrl} alt="" className="max-h-full max-w-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
                          </div>
-                         <span className="text-[11px] sm:text-xs font-bold uppercase text-stone-700 text-center leading-tight tracking-wider">{p.product_name}</span>
+                         <span className="text-[11px] sm:text-xs font-bold uppercase text-stone-700 text-center leading-tight tracking-wider">{p.productName}</span>
                        </button>
                     )
                 })}
@@ -412,7 +406,7 @@ const AIVisualizerDesktop = () => {
             <div className="flex flex-col h-full items-center justify-center gap-3 sm:gap-6 animate-in fade-in zoom-in-95">
                <div className="flex items-center w-full mb-1 sm:mb-2">
                  <button onClick={() => setCurrentStep(2)} className="p-1.5 sm:p-2 border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50 mr-auto text-xs">←</button>
-                 <h2 className="text-[13px] sm:text-sm font-semibold text-stone-700 uppercase tracking-widest mx-auto pr-8 sm:pr-10">Review</h2>
+                 <h2 className="text-[13px] sm:text-sm font-semibold text-stone-900 uppercase tracking-widest mx-auto pr-8 sm:pr-10">Review</h2>
                </div>
                
                <div className="flex flex-col sm:flex-row items-stretch gap-4 sm:gap-6 w-full">
@@ -441,7 +435,7 @@ const AIVisualizerDesktop = () => {
                   </div>
                </div>
 
-               <button onClick={handleGenerateClick} className="w-full h-12 sm:h-14 bg-stone-900 text-white rounded-xl font-bold uppercase tracking-widest shadow-xl hover:bg-black transition-all hover:-translate-y-1 mt-2 sm:mt-4 flex justify-center items-center gap-2 text-[11px] sm:text-xs">
+               <button onClick={handleGenerateClick} className="w-full h-12 sm:h-14 bg-primary text-stone-900 rounded-xl font-bold uppercase tracking-widest shadow-md hover:bg-primary/90 transition-all hover:-translate-y-1 mt-2 sm:mt-4 flex justify-center items-center gap-2 text-[11px] sm:text-xs">
                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                  Generate Render
                </button>
@@ -458,8 +452,8 @@ const AIVisualizerDesktop = () => {
                    onClick={() => setCompareMode(m => !m)}
                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[11px] font-bold uppercase tracking-widest border-2 shadow-sm transition-all ${
                      compareMode
-                       ? 'bg-stone-900 text-white border-stone-900 shadow-md'
-                       : 'bg-white text-stone-700 border-stone-300 hover:border-stone-900 hover:bg-stone-900 hover:text-white'
+                       ? 'bg-secondary text-white border-secondary shadow-md'
+                       : 'bg-white text-stone-600 border-stone-200 hover:border-secondary hover:bg-secondary hover:text-white'
                    }`}
                  >
                    {/* Split/compare columns icon */}
@@ -552,7 +546,7 @@ const AIVisualizerDesktop = () => {
                </button>
                
                <div className="flex gap-3 sm:gap-4 w-full">
-                  <button onClick={() => { startOver(); setCompareMode(false); }} className="flex-1 h-10 sm:h-12 border-2 border-stone-200 text-stone-600 rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] hover:border-stone-400 transition-colors">
+                  <button onClick={() => { startOver(); setCompareMode(false); }} className="flex-1 h-10 sm:h-12 border-2 border-secondary/30 text-secondary rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] hover:border-secondary hover:bg-secondary/5 transition-colors">
                     Start Over
                   </button>
                   <button onClick={() => setShowImageModal(true)} className="flex-1 h-10 sm:h-12 bg-primary text-white rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-[11px] shadow-lg hover:bg-[#b8943f] transition-colors flex items-center justify-center gap-2">
@@ -571,24 +565,23 @@ const AIVisualizerDesktop = () => {
       </div>
 
       {/* ── 3D Visualizer Promo Strip ───────────────────────── */}
-      <div className="bg-stone-900 border-t border-stone-800 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
+      <div className="bg-[#faf7f2] border-t border-stone-200 relative overflow-hidden">
         <div className="relative max-w-6xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
 
           {/* Left */}
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+            <div className="w-14 h-14 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
               <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">3D Powered</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+                <span className="text-[11px] md:text-xs text-primary uppercase tracking-widest font-bold">3D Powered</span>
               </div>
-              <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-white leading-tight">
-                Drape any fabric on a 3D model — <span className="text-primary">in real time</span>
+              <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-secondary leading-tight">
+                Visualize any fabric on a 3D model — <span className="text-primary">in real time</span>
               </p>
             </div>
           </div>
@@ -596,7 +589,7 @@ const AIVisualizerDesktop = () => {
           {/* Right */}
           <Link
             to="/3d-visualizer"
-            className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-stone-900 text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
+            className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-secondary text-white text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-secondary/80 transition-all rounded-sm shadow-md transform hover:-translate-y-0.5"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -648,7 +641,7 @@ const AIVisualizerDesktop = () => {
                 </div>
                 <button
                   onClick={() => { setGenerateError(null); setShowLeadForm(false) }}
-                  className="px-6 py-2 bg-stone-900 text-white text-[11px] uppercase font-bold tracking-widest rounded-lg hover:bg-black transition-colors"
+                  className="px-6 py-2 bg-primary text-stone-900 text-[11px] uppercase font-bold tracking-widest rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   Try Again
                 </button>
@@ -656,9 +649,9 @@ const AIVisualizerDesktop = () => {
             ) : (
               <>
                 {/* Header */}
-                <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50">
+                <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-[#faf7f2]">
                   <div>
-                    <h3 className="text-[12px] font-bold text-stone-800 uppercase tracking-widest">Almost There</h3>
+                    <h3 className="text-[12px] font-bold text-primary uppercase tracking-widest">Almost There</h3>
                     <p className="text-[10px] text-stone-400 mt-0.5">Enter your details to get the preview</p>
                   </div>
                   <button onClick={() => setShowLeadForm(false)} className="text-stone-400 hover:text-stone-700">
@@ -710,7 +703,7 @@ const AIVisualizerDesktop = () => {
                   <button
                     onClick={handleLeadSubmit}
                     disabled={!fullName.trim() || mobileNumber.length < 10}
-                    className="w-full h-12 bg-stone-900 text-white rounded-xl font-bold uppercase tracking-widest text-[11px] shadow-lg hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-1 flex items-center justify-center gap-2 group"
+                    className="w-full h-12 bg-primary text-stone-900 rounded-xl font-bold uppercase tracking-widest text-[11px] shadow-md hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-1 flex items-center justify-center gap-2 group"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                     Generate My Preview

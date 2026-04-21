@@ -7,8 +7,6 @@ const VIDEOS = [
   'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/HeroV2.mp4',
 ]
 
-const KAIRA_LETTERS = 'KAIRA'.split('')
-
 // Easing curves
 const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
@@ -113,61 +111,23 @@ const HeroSection = () => {
         style={{ opacity: contentOpacity, y: contentY }}
       >
 
-        {/* ── Brand: KAIRA letter-by-letter drop ── */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex items-center gap-3 sm:gap-4">
-
-            {/* Left decorative line — expands from 0 */}
-            <motion.span
-              className="h-px bg-amber-400/55"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: '2rem', opacity: 1 }}
-              transition={{ duration: 0.9, delay: 0.9, ease: SMOOTH_OUT }}
-            />
-
-            {/* Individual letters */}
-            <div className="flex items-center">
-              {KAIRA_LETTERS.map((letter, i) => (
-                <motion.span
-                  key={i}
-                  className="font-sans text-[32px] sm:text-[46px] uppercase text-primary font-black inline-block"
-                  style={{
-                    letterSpacing: '0.48em',
-                    textShadow: '0 2px 20px rgba(0,0,0,0.9)',
-                  }}
-                  initial={{ opacity: 0, y: 28 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.9,
-                    delay: 0.15 + i * 0.12,
-                    ease: EXPO_OUT,
-                  }}
-                >
-                  {letter}
-                </motion.span>
-              ))}
-            </div>
-
-            {/* Right decorative line */}
-            <motion.span
-              className="h-px bg-amber-400/55"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: '2rem', opacity: 1 }}
-              transition={{ duration: 0.9, delay: 0.9, ease: SMOOTH_OUT }}
-            />
-          </div>
-
-          {/* "Design for Life" — letter-spacing expands in */}
-          <motion.span
-            className="font-sans text-[9px] sm:text-[11px] uppercase text-amber-300/85 font-semibold"
-            style={{ textShadow: '0 1px 8px rgba(0,0,0,0.8)' }}
-            initial={{ opacity: 0, letterSpacing: '0.1em' }}
-            animate={{ opacity: 1, letterSpacing: '0.48em' }}
-            transition={{ duration: 1.1, delay: 1.0, ease: SMOOTH_OUT }}
-          >
-            Design for Life
-          </motion.span>
-        </div>
+        {/* ── Brand: Logo ── */}
+        <motion.div
+          className="px-6 py-3 sm:px-8 sm:py-4 rounded-sm"
+          style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.15, ease: EXPO_OUT }}
+        >
+          <motion.img
+            src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
+            alt="Kaira Fabrics & Leather"
+            className="h-20 sm:h-28 w-auto object-contain"
+            initial={{ filter: 'blur(18px) drop-shadow(0 2px 12px rgba(0,0,0,0.3))', opacity: 0 }}
+            animate={{ filter: 'blur(0px) drop-shadow(0 2px 12px rgba(0,0,0,0.3))', opacity: 1 }}
+            transition={{ duration: 1.1, delay: 0.25, ease: EXPO_OUT }}
+          />
+        </motion.div>
 
         {/* ── Heading ── */}
         <div className="overflow-hidden pb-1">
@@ -183,12 +143,16 @@ const HeroSection = () => {
         </div>
 
         {/* ── Tagline — each word staggers in ── */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5">
-          {['Visualize.', 'Choose.', 'Transform.'].map((word, i) => (
+        <div className="flex items-center gap-1.5 sm:gap-2.5 px-3 py-1.5 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.18)' }}>
+          {[
+            { word: 'Visualize.' },
+            { word: 'Choose.'    },
+            { word: 'Transform.' },
+          ].map(({ word }, i) => (
             <motion.span
               key={i}
-              className="font-sans text-amber-300/90 text-[11px] sm:text-[13px] uppercase tracking-[0.28em] font-bold"
-              style={{ textShadow: '0 1px 8px rgba(0,0,0,0.8)' }}
+              className="font-sans text-[11px] sm:text-[13px] uppercase tracking-[0.28em] font-bold"
+              style={{ color: 'var(--color-primary)' }}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 1.25 + i * 0.14, ease: SMOOTH_OUT }}
@@ -198,32 +162,6 @@ const HeroSection = () => {
           ))}
         </div>
 
-        {/* ── Decorative divider — lines grow, diamond pops ── */}
-        <motion.div
-          className="flex items-center gap-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 1.65 }}
-        >
-          <motion.span
-            className="h-px bg-white/22"
-            initial={{ width: 0 }}
-            animate={{ width: '2.5rem' }}
-            transition={{ duration: 0.7, delay: 1.7, ease: SMOOTH_OUT }}
-          />
-          <motion.span
-            className="w-1 h-1 rotate-45 bg-amber-400/65 inline-block"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 16, delay: 1.9 }}
-          />
-          <motion.span
-            className="h-px bg-white/22"
-            initial={{ width: 0 }}
-            animate={{ width: '2.5rem' }}
-            transition={{ duration: 0.7, delay: 1.7, ease: SMOOTH_OUT }}
-          />
-        </motion.div>
 
         {/* ── Description ── */}
         <motion.p
@@ -254,7 +192,7 @@ const HeroSection = () => {
                 if (section) section.scrollIntoView({ behavior: 'smooth' })
               }}
               variant="outline"
-              className="w-full sm:w-auto text-sm sm:text-base font-bold !px-10 sm:!px-12 !py-4 rounded-none shadow-lg tracking-widest uppercase !border-white/50 !text-white hover:!bg-white/10 hover:!text-white"
+              className="w-full sm:w-auto text-sm sm:text-base font-bold !px-10 sm:!px-12 !py-4 rounded-none shadow-lg tracking-widest uppercase !bg-secondary !border-secondary !text-white hover:!bg-secondary-dark hover:!border-secondary-dark"
             >
               <span className="flex items-center justify-center gap-2.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
