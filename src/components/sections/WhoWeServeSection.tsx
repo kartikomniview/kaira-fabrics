@@ -124,7 +124,7 @@ export default function WhoWeServeSection() {
                 href={card.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex flex-col overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 h-[420px] md:h-[460px]"
+                className="group relative flex flex-col overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 h-[420px] md:h-[460px]"
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">

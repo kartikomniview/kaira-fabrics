@@ -169,7 +169,7 @@ const WhyKairaSection = () => {
             className="flex justify-center"
           >
             <motion.div
-              className="inline-flex flex-col gap-3 p-5 sm:p-6 border border-stone-200 rounded-2xl bg-white shadow-md shadow-stone-100/80"
+              className="inline-flex flex-col gap-3 p-5 sm:p-6 border border-stone-200 bg-white shadow-md shadow-stone-100/80"
               animate={{ y: [0, -5, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
               whileHover={{ scale: 1.03, boxShadow: '0 12px 40px rgba(116,98,60,0.14)' }}
@@ -219,7 +219,7 @@ const WhyKairaSection = () => {
                   animate={cardsInView ? 'visible' : 'hidden'}
                   whileHover={{ y: -6, boxShadow: '0 16px 40px rgba(116,98,60,0.13)' }}
                   transition={{ duration: 0.32, ease: SMOOTH_OUT }}
-                  className="group relative flex flex-col w-52 flex-shrink-0 sm:w-auto sm:flex-shrink rounded-xl overflow-hidden bg-white border border-stone-200 shadow-sm"
+                  className="group relative flex flex-col w-52 flex-shrink-0 sm:w-auto sm:flex-shrink overflow-hidden bg-white border border-stone-200 shadow-sm"
                 >
                   {/* Icon area */}
                   <div className="flex items-center justify-center pt-7 pb-4">

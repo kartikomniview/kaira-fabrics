@@ -84,7 +84,7 @@ const GalleryRow = ({ label, title, items, onPreview }: GalleryRowProps) => {
               initial="hidden"
               animate={rowInView ? 'visible' : 'hidden'}
               onClick={() => onPreview(item)}
-              className="group relative overflow-hidden rounded-3xl border border-stone-200/50 shadow-md cursor-pointer aspect-[3/4]"
+              className="group relative overflow-hidden border border-stone-200/50 shadow-md cursor-pointer aspect-[3/4]"
               whileHover={{ y: -4, boxShadow: '0 20px 60px rgba(116,98,60,0.18)' }}
               transition={{ duration: 0.3, ease: SMOOTH_OUT }}
             >

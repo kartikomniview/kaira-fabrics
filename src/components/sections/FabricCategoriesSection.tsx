@@ -187,7 +187,7 @@ const FabricCategoriesSection = () => {
                   onClick={(e) => { if (isDragging.current) e.preventDefault() }}
                 >
                   {/* Image */}
-                  <div className="aspect-[3/4] relative overflow-hidden rounded-md shadow-md mb-4 bg-stone-100">
+                  <div className="aspect-[3/4] relative overflow-hidden shadow-md mb-4 bg-stone-100">
                     {revealedIndices.has(cardIndex) ? (
                       <motion.img
                         src={imgUrl}

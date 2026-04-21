@@ -21,7 +21,7 @@ const TestimonialCard = ({ item, onPlay }: { item: GalleryItem; onPlay: (url: st
     <div
       ref={cardRef}
       onClick={() => onPlay(item.asset_url)}
-      className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] relative bg-black border border-primary/20 rounded-2xl overflow-hidden shadow-lg hover:shadow-primary/20 hover:shadow-xl group flex flex-col h-[340px] cursor-pointer transition-shadow duration-300"
+      className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] relative bg-black border border-primary/20 overflow-hidden shadow-lg hover:shadow-primary/20 hover:shadow-xl group flex flex-col h-[340px] cursor-pointer transition-shadow duration-300"
     >
       <div className="relative flex-1 overflow-hidden bg-stone-900">
         {/* Thumbnail image or dark gradient placeholder */}
@@ -200,7 +200,7 @@ const TestimonialsSection = () => {
               ? Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] rounded-xl bg-stone-200 animate-pulse aspect-[3/4.5]"
+                    className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] bg-stone-200 animate-pulse aspect-[3/4.5]"
                   />
                 ))
               : fetchFailed
