@@ -5,7 +5,11 @@ import type { Material } from '../../data/materials'
 import { getCollectionImageUrl } from '../../data/materials'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import type { Collection } from '../../data/collections'
-import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../../utils/textureUtils'
+import {
+  fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS,
+  getRoughnessMapURL, getNormalMapURL, getSheenMapUrl,
+  getUvValue, getRoughnessValue, setupModelMeshes,
+} from '../../utils/textureUtils'
 
 const MODEL_URL =
   'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
@@ -78,6 +82,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
   const [isTextureLoading, setIsTextureLoading] = useState(false)
   const [zoomPos, setZoomPos] = useState<{ x: number; y: number } | null>(null)
   const mvRef = useRef<HTMLElement>(null)
+  const fabricMeshesRef = useRef<any[]>([])
   const navigate = useNavigate()
 
   const handleImageMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -105,18 +110,36 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
     if (!show3D) return
     const mv = mvRef.current as any
     if (!mv) return
+    fabricMeshesRef.current = []
 
-    const applyTexture = async () => {
+    const onLoad = async () => {
+      fabricMeshesRef.current = setupModelMeshes(mv)
+      const collectionName = material.collection_name
+      const materialType = material.material_type ?? ''
+      const sheenUrl = getSheenMapUrl(materialType)
       setIsTextureLoading(true)
       try {
-        const baseBlobUrl = await fetchBlobUrl(textureUrl)
+        const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
+          fetchBlobUrl(textureUrl),
+          fetchBlobUrl(getRoughnessMapURL(collectionName)),
+          fetchBlobUrl(getNormalMapURL(collectionName)),
+          sheenUrl ? fetchBlobUrl(sheenUrl) : Promise.resolve(null),
+        ])
         await applyTextureToModel(mv, {
           baseBlobUrl,
-          roughness: material.roughness,
+          roughness: getRoughnessValue(materialType, collectionName, material.roughness),
           metalness: material.metalness,
+          uvScale: getUvValue(collectionName),
           skipParts: NO_FABRIC_PARTS,
+          roughnessBlobUrl,
+          normalBlobUrl,
+          sheenBlobUrl,
+          meshes: fabricMeshesRef.current,
         })
         if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
+        if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
+        if (normalBlobUrl) URL.revokeObjectURL(normalBlobUrl)
+        if (sheenBlobUrl) URL.revokeObjectURL(sheenBlobUrl)
       } catch {
         // silent — model still renders without texture
       } finally {
@@ -124,9 +147,9 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
       }
     }
 
-    mv.addEventListener('load', applyTexture)
-    return () => mv.removeEventListener('load', applyTexture)
-  }, [show3D, textureUrl, material.roughness, material.metalness])
+    mv.addEventListener('load', onLoad)
+    return () => mv.removeEventListener('load', onLoad)
+  }, [show3D, textureUrl, material.roughness, material.metalness, material.collection_name, material.material_type])
 
   return (
     <div

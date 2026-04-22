@@ -3,8 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { type Collection } from '../data/collections'
 import type { NewMaterial } from '../data/newmaterials'
 import { useMaterials } from '../contexts/MaterialsContext'
+import InlineLoader from '../components/ui/InlineLoader'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../utils/textureUtils'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
+const MODEL_URL = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
 
 /* ── Catalog Preview Modal ───────────────────────────────────────── */
 function CatalogPreviewModal({
@@ -377,10 +380,47 @@ function CollectionModal({
   const [imgOffset, setImgOffset] = useState({ x: 0, y: 0 })
   const dragStart = useRef<{ mx: number; my: number; ox: number; oy: number } | null>(null)
 
+  // ── 3D viewer state ──────────────────────────────────────────
+  const [show3D, setShow3D] = useState(false)
+  const [isTextureLoading, setIsTextureLoading] = useState(false)
+  const mvRef = useRef<HTMLElement>(null)
+
   useEffect(() => {
     setImgScale(1)
     setImgOffset({ x: 0, y: 0 })
+    setShow3D(false)
   }, [zoomedIndex])
+
+  // Apply texture when model-viewer loads for the zoomed overlay
+  useEffect(() => {
+    if (!show3D || zoomedIndex === null) return
+    const mv = mvRef.current as any
+    if (!mv) return
+    const m = materials[zoomedIndex]
+    const textureUrl = `${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`
+    let applied = false
+    const apply = async () => {
+      if (applied) return
+      applied = true
+      setIsTextureLoading(true)
+      try {
+        const baseBlobUrl = await fetchBlobUrl(textureUrl)
+        await applyTextureToModel(mv, {
+          baseBlobUrl,
+          roughness: (m as any).roughness ?? 0.8,
+          metalness: (m as any).metalness ?? 0.0,
+          skipParts: NO_FABRIC_PARTS,
+        })
+        if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
+      } catch { /* silent */ } finally {
+        setIsTextureLoading(false)
+      }
+    }
+    mv.addEventListener('load', apply)
+    // If model already loaded (e.g. cached from a prior visit), fire immediately
+    if (mv.model) apply()
+    return () => mv.removeEventListener('load', apply)
+  }, [show3D, zoomedIndex, materials])
 
   const handleImgWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault()
@@ -572,63 +612,97 @@ function CollectionModal({
               {/* Image pane — big, on top */}
               <div
                 className="relative w-full aspect-square bg-stone-900 flex items-center justify-center flex-shrink-0 overflow-hidden"
-                style={{ cursor: imgScale > 1 ? (dragStart.current ? 'grabbing' : 'grab') : 'zoom-in' }}
-                onWheel={handleImgWheel}
-                onMouseDown={handleImgMouseDown}
-                onMouseMove={handleImgMouseMove}
-                onMouseUp={handleImgMouseUp}
-                onMouseLeave={handleImgMouseUp}
+                style={{ cursor: show3D ? 'default' : imgScale > 1 ? (dragStart.current ? 'grabbing' : 'grab') : 'zoom-in' }}
+                onWheel={!show3D ? handleImgWheel : undefined}
+                onMouseDown={!show3D ? handleImgMouseDown : undefined}
+                onMouseMove={!show3D ? handleImgMouseMove : undefined}
+                onMouseUp={!show3D ? handleImgMouseUp : undefined}
+                onMouseLeave={!show3D ? handleImgMouseUp : undefined}
               >
-                <img
-                  key={m.id}
-                  src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
-                  alt={m.material_name}
-                  className="w-full h-full object-cover select-none"
-                  style={{
-                    transform: `scale(${imgScale}) translate(${imgOffset.x / imgScale}px, ${imgOffset.y / imgScale}px)`,
-                    transition: dragStart.current ? 'none' : 'transform 0.15s ease',
-                  }}
-                  draggable={false}
-                  onDoubleClick={handleImgDblClick}
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0' }}
-                />
-                {/* Zoom controls */}
-                <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setImgScale((s) => { const n = Math.min(4, s + 0.5); if (n === 1) setImgOffset({ x: 0, y: 0 }); return n }) }}
-                    className="w-7 h-7 rounded-full bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow"
-                    aria-label="Zoom in"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setImgScale((s) => { const n = Math.max(1, s - 0.5); if (n === 1) setImgOffset({ x: 0, y: 0 }); return n }) }}
-                    className="w-7 h-7 rounded-full bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow"
-                    aria-label="Zoom out"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16" />
-                    </svg>
-                  </button>
-                  {imgScale > 1 && (
+                {show3D ? (
+                  <>
+                    {isTextureLoading && (
+                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm">
+                        <InlineLoader color="secondary" />
+                        <p className="mt-2 text-[10px] uppercase tracking-widest text-white/60 animate-pulse">Applying Texture…</p>
+                      </div>
+                    )}
+                    <model-viewer
+                      ref={mvRef as any}
+                      src={MODEL_URL}
+                      alt={`${m.material_name} on sofa`}
+                      camera-controls
+                      auto-rotate
+                      shadow-intensity="1"
+                      exposure="0.9"
+                      environment-image="neutral"
+                      style={{ width: '100%', height: '100%', background: 'transparent' }}
+                    />
+                  </>
+                ) : (
+                  <img
+                    key={m.id}
+                    src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
+                    alt={m.material_name}
+                    className="w-full h-full object-cover select-none"
+                    style={{
+                      transform: `scale(${imgScale}) translate(${imgOffset.x / imgScale}px, ${imgOffset.y / imgScale}px)`,
+                      transition: dragStart.current ? 'none' : 'transform 0.15s ease',
+                    }}
+                    draggable={false}
+                    onDoubleClick={handleImgDblClick}
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0' }}
+                  />
+                )}
+                {/* Zoom controls — hidden in 3D mode */}
+                {!show3D && (
+                  <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
                     <button
-                      onClick={(e) => { e.stopPropagation(); setImgScale(1); setImgOffset({ x: 0, y: 0 }) }}
-                      className="w-7 h-7 rounded-full bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow text-[9px] font-bold"
-                      aria-label="Reset zoom"
+                      onClick={(e) => { e.stopPropagation(); setImgScale((s) => { const n = Math.min(4, s + 0.5); if (n === 1) setImgOffset({ x: 0, y: 0 }); return n }) }}
+                      className="w-7 h-7 rounded-full bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow"
+                      aria-label="Zoom in"
                     >
-                      1:1
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
                     </button>
-                  )}
-                </div>
-                {/* Zoom level badge */}
-                {imgScale > 1 && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setImgScale((s) => { const n = Math.max(1, s - 0.5); if (n === 1) setImgOffset({ x: 0, y: 0 }); return n }) }}
+                      className="w-7 h-7 rounded-full bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow"
+                      aria-label="Zoom out"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16" />
+                      </svg>
+                    </button>
+                    {imgScale > 1 && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setImgScale(1); setImgOffset({ x: 0, y: 0 }) }}
+                        className="w-7 h-7 rounded-full bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow text-[9px] font-bold"
+                        aria-label="Reset zoom"
+                      >
+                        1:1
+                      </button>
+                    )}
+                  </div>
+                )}
+                {/* View in 3D button — bottom right */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShow3D((v) => !v) }}
+                  className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 bg-stone-900/80 border border-stone-600 text-white px-2.5 py-1.5 text-[9px] uppercase tracking-widest hover:bg-stone-800 transition-colors shadow"
+                >
+                  <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                  </svg>
+                  {show3D ? 'Show Texture' : 'View in 3D'}
+                </button>
+                {/* Zoom level badge — hidden in 3D mode */}
+                {!show3D && imgScale > 1 && (
                   <span className="absolute top-3 left-3 text-[9px] font-bold tabular-nums text-white/80 bg-stone-900/60 px-2 py-0.5 rounded-full tracking-wider">
                     {Math.round(imgScale * 100)}%
                   </span>
                 )}
-                {imgScale === 1 && (
+                {!show3D && imgScale === 1 && (
                   <span className="absolute top-3 left-3 text-[9px] text-white/40 bg-stone-900/40 px-2 py-0.5 rounded-full tracking-wide">
                     scroll to zoom
                   </span>

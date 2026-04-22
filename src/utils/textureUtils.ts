@@ -5,6 +5,77 @@
 import * as THREE from 'three'
 
 const S3_KAIRA_ORIGIN = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
+const COMPANY = 'KairaFabrics'
+
+export function getRoughnessMapURL(collectionName: string): string {
+  return `${S3_KAIRA_ORIGIN}/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
+}
+
+export function getNormalMapURL(collectionName: string): string {
+  return `${S3_KAIRA_ORIGIN}/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
+}
+
+export function getSheenMapUrl(materialType: string): string {
+  const t = materialType.toLowerCase()
+  if (t.includes('fabric') || t.includes('chenille') || t.includes('velvet')) {
+    return `${S3_KAIRA_ORIGIN}/textures/Common/SheenColorMap.webp`
+  }
+  return ''
+}
+
+export function getUvValue(collectionName: string): number {
+  if (
+    collectionName === 'Florious' || collectionName === 'Indigo' ||
+    collectionName === 'Aboone' || collectionName === 'Perth' ||
+    collectionName === 'Ibiza' || collectionName === 'Intense'
+  ) return 8
+  if (collectionName.includes('DigitalPrint') || collectionName === 'Kadillac') return 8
+  if (collectionName === 'Impression') return 14
+  return 16
+}
+
+export function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
+  const t = materialType.toLowerCase()
+  if (t.includes('chenille') || t.includes('fabric') || t.includes('digitalprint')) return 0.8
+  if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
+  if (t.includes('leather')) return 0.5
+  return baseRoughness
+}
+
+/**
+ * Traverses a model-viewer's internal Three.js scene, replaces each mesh's
+ * material with a MeshPhysicalMaterial (preserving original maps), and returns
+ * the collected mesh objects so textures can be applied via the fast direct path.
+ */
+export function setupModelMeshes(mv: any): any[] {
+  const meshes: any[] = []
+  const sceneSymbol = Object.getOwnPropertySymbols(mv).find((s: any) => s.description === 'scene')
+  if (!sceneSymbol) return meshes
+  const scene = (mv as any)[sceneSymbol]
+  if (!scene) return meshes
+
+  scene.traverse((child: any) => {
+    if (child.isMesh && child.material) {
+      const old = child.material
+      child.material = new THREE.MeshPhysicalMaterial({
+        map: old.map,
+        color: old.color,
+        normalMap: old.normalMap,
+        roughnessMap: old.roughnessMap,
+        metalnessMap: old.metalnessMap,
+        aoMap: old.aoMap,
+        aoMapIntensity: old.aoMapIntensity ?? 1,
+        roughness: old.roughness ?? 0.5,
+        metalness: old.metalness ?? 0.5,
+        transparent: old.transparent,
+        opacity: old.opacity,
+        side: old.side,
+      })
+      meshes.push(child)
+    }
+  })
+  return meshes
+}
 
 /**
  * Fetches a remote S3 asset through the /s3proxy or /s3kaira rewrite and returns a blob URL.

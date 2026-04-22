@@ -226,7 +226,7 @@ const GallerySection = () => {
         {/* ROW 1 — Crafted Pieces */}
         <GalleryRow
           label="From Our Studio"
-          title="Crafted Pieces"
+          title="Fabric Stories"
           items={finalProducts}
           onPreview={setPreview}
         />

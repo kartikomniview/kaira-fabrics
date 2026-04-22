@@ -200,13 +200,14 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
         ) : (
           <div className="flex items-center gap-3">
             {/* Type Dropdown — first */}
-            <div className="flex shrink-0">
+            <div className="relative flex shrink-0">
+              <span className="absolute -top-2 left-2 z-10 bg-stone-800 px-1 text-[9px] font-semibold text-stone-300 uppercase tracking-wider leading-none rounded-sm">Type</span>
               <select
                 value={activeMaterialType}
                 onChange={(e) => setActiveMaterialType(e.target.value)}
                 className="bg-white border border-stone-200 text-xs sm:text-xs px-2.5 py-1.5 h-8 sm:h-9 rounded-lg focus:outline-none focus:border-secondary/60 text-stone-700 font-bold uppercase tracking-wider cursor-pointer max-w-[100px] sm:max-w-none"
               >
-                <option value="All">Types</option>
+                <option value="All">All</option>
                 {materialTypeOptions.filter(t => t !== 'All').map(t => (
                   <option key={t} value={t}>{t}</option>
                 ))}
@@ -215,6 +216,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
 
             {/* Collection Dropdown — filtered by selected type */}
             <div className="relative shrink-0 w-[120px] sm:w-[145px]" data-col-dropdown>
+              <span className="absolute -top-2 left-2 z-10 bg-stone-800 px-1 text-[9px] font-semibold text-stone-300 uppercase tracking-wider leading-none rounded-sm">Collection</span>
               <button
                 onClick={() => setShowColDropdown(!showColDropdown)}
                 className="w-full bg-white border border-stone-200 text-xs sm:text-xs px-3 py-1.5 h-8 sm:h-9 rounded-lg flex items-center justify-between hover:border-stone-300"
@@ -277,7 +279,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                       key={c}
                       onClick={() => setActiveColorGroup(isActive ? 'All' : c)}
                       title={c}
-                      className={`relative shrink-0 flex items-center justify-center w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-full transition-all ${
+                      className={`relative shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full transition-all ${
                         isActive ? 'ring-2 ring-offset-1 ring-secondary scale-110' : 'hover:scale-110 hover:ring-1 hover:ring-stone-300 ring-offset-1 z-10'
                       }`}
                     >

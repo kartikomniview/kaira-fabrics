@@ -153,7 +153,7 @@ const WhyKairaSection = () => {
             transition={{ duration: 0.8, delay: 0.3, ease: EXPO_OUT }}
           >
             <div className="inline-flex items-center gap-2 mb-3">
-              <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">Est. 1991</span>
+              <span className="text-[14px] uppercase tracking-[0.35em] text-secondary font-bold">Est. 1991</span>
             </div>
             <h3 className="font-serif text-2xl sm:text-3xl text-stone-900 leading-snug">
               Keeping your{' '}
@@ -196,7 +196,7 @@ const WhyKairaSection = () => {
             transition={{ duration: 0.8, delay: 0.3, ease: EXPO_OUT }}
           >
             <div className="inline-flex items-center gap-2 mb-3">
-              <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">A Legacy Brand</span>
+              <span className="text-[14px] uppercase tracking-[0.35em] text-secondary font-bold">A Legacy Brand</span>
             </div>
             <p className="text-stone-500 text-sm leading-relaxed font-sans">
               Three decades of crafting spaces and building relationships — powered by a relentless commitment to quality.
@@ -223,14 +223,14 @@ const WhyKairaSection = () => {
                 >
                   {/* Icon area */}
                   <div className="flex items-center justify-center pt-7 pb-4">
-                    <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/15 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                    <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-secondary/15 text-secondary group-hover:bg-secondary group-hover:text-white transition-colors duration-300">
                       <adv.Icon />
                     </div>
                   </div>
 
                   {/* Text */}
                   <div className="px-5 pb-6 text-center">
-                    <p className="font-sans font-semibold text-sm leading-snug mb-1.5 text-stone-800 group-hover:text-secondary transition-colors duration-300">
+                    <p className="font-sans font-semibold text-base leading-snug mb-1.5 text-stone-800 group-hover:text-secondary transition-colors duration-300">
                       {adv.title}
                     </p>
                     <p className="text-stone-500 text-xs leading-relaxed">{adv.desc}</p>

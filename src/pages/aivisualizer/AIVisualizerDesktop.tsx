@@ -5,10 +5,14 @@ import type { NewMaterial } from '../../data/newmaterials'
 
 const products = [
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Luma.webp',    productName: 'Luma'    },
-  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Ember.webp',   productName: 'Ember'   },
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Petal.webp',   productName: 'Petal'   },
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Verdant.webp', productName: 'Verdant' },
-]
+
+  // Appended products
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Cognac.webp',  productName: 'Cognac'  },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Sienna.webp',  productName: 'Sienna'  },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Ivory.webp',   productName: 'Ivory'   },
+];
 import { MaterialsInventory, S3_THUMB } from './MaterialsInventory'
 import {
   generateRender,
@@ -170,7 +174,7 @@ const AIVisualizerDesktop = () => {
 
       {/* ── Page Header ──────────────────────────────────── */}
       <div
-        className="relative pt-24 pb-12 overflow-hidden"
+        className="relative pt-14 pb-6 overflow-hidden"
         style={{
           backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/stripsbg/strip1.webp)',
           backgroundSize: 'cover',
@@ -388,12 +392,12 @@ const AIVisualizerDesktop = () => {
                        <button
                          key={p.productName}
                          onClick={() => { handleSelectProduct(p); setCurrentStep(2.5); }}
-                         className={`aspect-[4/3] border-2 rounded-xl flex flex-col items-center justify-center p-3 sm:p-4 gap-2 transition-all ${isActive ? 'border-primary bg-primary/5' : 'border-stone-200 bg-white hover:border-stone-400'}`}
+                         className={`aspect-[4/3] border-2 rounded-xl overflow-hidden relative transition-all ${isActive ? 'border-primary ring-1 ring-primary' : 'border-stone-200 hover:border-stone-400'}`}
                        >
-                         <div className="flex-1 w-full flex items-center justify-center overflow-hidden">
-                           <img src={p.productImageUrl} alt="" className="max-h-full max-w-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                         <img src={p.productImageUrl} alt="" className="w-full h-full object-contain bg-stone-100" />
+                         <div className={`absolute bottom-0 left-0 right-0 py-1.5 px-2 text-center ${isActive ? 'bg-primary/15' : 'bg-white/75 backdrop-blur-sm'}`}>
+                           <span className="text-[10px] sm:text-[11px] font-bold uppercase text-stone-800 leading-tight tracking-wider">{p.productName}</span>
                          </div>
-                         <span className="text-[11px] sm:text-xs font-bold uppercase text-stone-700 text-center leading-tight tracking-wider">{p.productName}</span>
                        </button>
                     )
                 })}
