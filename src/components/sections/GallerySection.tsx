@@ -199,7 +199,7 @@ const GallerySection = () => {
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, ease: EXPO_OUT }}
           >
-            <span className="text-[11px] uppercase tracking-[0.35em] text-primary font-bold">Woven Stories</span>
+            <span className="text-[11px] uppercase tracking-[0.35em] text-primary font-bold font-serif">Woven Stories</span>
           </motion.div>
 
           <div className="overflow-hidden">

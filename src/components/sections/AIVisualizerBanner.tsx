@@ -83,9 +83,9 @@ const AIVisualizerBanner = () => {
             </motion.div>
 
             {/* Headline */}
-            <div className="overflow-hidden mb-1">
+            <div className="overflow-hidden mb-1 font-serif">
               <motion.h2
-                className="font-serif text-5xl sm:text-6xl lg:text-[3.75rem] text-stone-900 leading-[1.04]"
+                className="font-primary font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-stone-900 leading-tight"
                 initial={{ y: '110%' }}
                 animate={inView ? { y: '0%' } : {}}
                 transition={{ duration: 0.9, delay: 0.15, ease: EXPO_OUT }}
@@ -95,7 +95,7 @@ const AIVisualizerBanner = () => {
             </div>
             <div className="overflow-hidden mb-8">
               <motion.h2
-                className="font-serif text-5xl sm:text-6xl lg:text-[3.75rem] text-primary leading-[1.04]"
+                className="font-primary font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-primary leading-tight"
                 initial={{ y: '110%' }}
                 animate={inView ? { y: '0%' } : {}}
                 transition={{ duration: 0.9, delay: 0.27, ease: EXPO_OUT }}

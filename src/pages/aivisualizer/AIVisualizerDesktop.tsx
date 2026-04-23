@@ -174,7 +174,7 @@ const AIVisualizerDesktop = () => {
 
       {/* ── Page Header ──────────────────────────────────── */}
       <div
-        className="relative pt-14 pb-6 overflow-hidden"
+        className="relative pt-20 lg:pt-24 pb-6 overflow-hidden"
         style={{
           backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/stripsbg/strip1.webp)',
           backgroundSize: 'cover',
@@ -197,7 +197,7 @@ const AIVisualizerDesktop = () => {
             </button>
           </div>
 
-          <p className="text-[11px] tracking-[0.35em] uppercase font-semibold text-white/50 mb-2">Imagine it draped just right</p>
+          <p className="text-[11px] tracking-[0.35em] uppercase font-semibold text-white/50 mb-2">AI Fabric Visualizer</p>
           <h1 className="font-serif text-4xl md:text-5xl text-primary leading-tight">
             See Your Fabric Come to Life
           </h1>
@@ -372,7 +372,7 @@ const AIVisualizerDesktop = () => {
                  <h2 className="text-[13px] sm:text-sm font-semibold text-stone-900 uppercase tracking-widest flex-1">Step 2: Choose Product</h2>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6 overflow-y-auto max-h-[400px] sm:max-h-[480px] p-0.5 sm:p-1">
+              <div className="overflow-y-auto max-h-[400px] sm:max-h-[480px] mb-4 sm:mb-6 p-0.5 sm:p-1"><div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <button
                   onClick={() => productUploadRef.current?.click()}
                   className="aspect-[4/3] border-2 border-dashed border-stone-300 rounded-xl flex items-center justify-center flex-col gap-2 sm:gap-3 hover:border-primary hover:bg-primary/5 transition-all text-stone-500 group"
@@ -401,7 +401,7 @@ const AIVisualizerDesktop = () => {
                        </button>
                     )
                 })}
-              </div>
+              </div></div>
             </div>
           )}
 
@@ -481,7 +481,7 @@ const AIVisualizerDesktop = () => {
                        <svg className="w-5 h-5 text-stone-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5" /></svg>
                      </div>
                    </div>
-                   <div className="absolute bottom-2 right-2 bg-stone-900/70 backdrop-blur rounded-full px-2.5 py-1">
+                   <div className="absolute bottom-2 left-2 bg-stone-900/70 backdrop-blur rounded-full px-2.5 py-1">
                      <span className="text-[9px] text-white uppercase tracking-widest font-bold">Tap to expand</span>
                    </div>
                  </button>

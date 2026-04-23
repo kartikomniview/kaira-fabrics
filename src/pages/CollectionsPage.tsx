@@ -5,9 +5,46 @@ import type { NewMaterial } from '../data/newmaterials'
 import { useMaterials } from '../contexts/MaterialsContext'
 import InlineLoader from '../components/ui/InlineLoader'
 import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../utils/textureUtils'
+import * as THREE from 'three'
+import '@google/model-viewer'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
+const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
+const COMPANY = 'KairaFabrics'
 const MODEL_URL = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
+
+function getRoughnessMapURL(collectionName: string) {
+  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
+}
+
+function getNormalMapURL(collectionName: string) {
+  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
+}
+
+function getSheenMapUrl(materialType: string) {
+  if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
+    return `${S3_BASE}/textures/Common/SheenColorMap.webp`
+  }
+  return ''
+}
+
+function getUvValue(collectionName: string): number {
+  if (
+    collectionName === 'Florious' || collectionName === 'Indigo' ||
+    collectionName === 'Aboone' || collectionName === 'Perth' ||
+    collectionName === 'Ibiza' || collectionName === 'Intense'
+  ) return 8
+  if (collectionName.includes('DigitalPrint') || collectionName === 'Kadillac') return 8
+  if (collectionName === 'Impression') return 14
+  return 16
+}
+
+function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
+  if (materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8
+  if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
+  if (materialType.toLowerCase().includes('leather')) return 0.5
+  return baseRoughness
+}
 
 /* ── Catalog Preview Modal ───────────────────────────────────────── */
 function CatalogPreviewModal({
@@ -383,7 +420,9 @@ function CollectionModal({
   // ── 3D viewer state ──────────────────────────────────────────
   const [show3D, setShow3D] = useState(false)
   const [isTextureLoading, setIsTextureLoading] = useState(false)
+  const [isModelLoading, setIsModelLoading] = useState(false)
   const mvRef = useRef<HTMLElement>(null)
+  const fabricMeshesRef = useRef<any[]>([])
 
   useEffect(() => {
     setImgScale(1)
@@ -402,22 +441,65 @@ function CollectionModal({
     const apply = async () => {
       if (applied) return
       applied = true
+
+      // Setup meshes with MeshPhysicalMaterial — same as ThreeDVisualizerPage
+      fabricMeshesRef.current = []
+      const sceneSymbol: any = Object.getOwnPropertySymbols(mv).find((s: any) => s.description === 'scene')
+      const scene = mv[sceneSymbol]
+      scene.traverse((child: any) => {
+        if (child.isMesh && child.material) {
+          const oldMaterial = child.material
+          const newMaterial = new THREE.MeshPhysicalMaterial({
+            map: oldMaterial.map,
+            color: oldMaterial.color,
+            normalMap: oldMaterial.normalMap,
+            roughnessMap: oldMaterial.roughnessMap,
+            metalnessMap: oldMaterial.metalnessMap,
+            aoMap: oldMaterial.aoMap,
+            aoMapIntensity: oldMaterial.aoMapIntensity ?? 1,
+            roughness: oldMaterial.roughness ?? 0.5,
+            metalness: oldMaterial.metalness ?? 0.5,
+            transparent: oldMaterial.transparent,
+            opacity: oldMaterial.opacity,
+            side: oldMaterial.side,
+          })
+          child.material = newMaterial
+          fabricMeshesRef.current.push(child)
+        }
+      })
+
+      setIsModelLoading(false)
       setIsTextureLoading(true)
       try {
-        const baseBlobUrl = await fetchBlobUrl(textureUrl)
+        const uvScale = getUvValue(m.collection_name)
+        const roughness = getRoughnessValue(m.material_type ?? '', m.collection_name, (m as any).roughness ?? 0.8)
+        const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
+          fetchBlobUrl(textureUrl),
+          fetchBlobUrl(getRoughnessMapURL(m.collection_name)),
+          fetchBlobUrl(getNormalMapURL(m.collection_name)),
+          (() => { const u = getSheenMapUrl(m.material_type ?? ''); return u ? fetchBlobUrl(u) : Promise.resolve(null) })(),
+        ])
         await applyTextureToModel(mv, {
           baseBlobUrl,
-          roughness: (m as any).roughness ?? 0.8,
+          roughness,
           metalness: (m as any).metalness ?? 0.0,
+          uvScale,
           skipParts: NO_FABRIC_PARTS,
+          roughnessBlobUrl,
+          normalBlobUrl,
+          sheenBlobUrl,
+          meshes: fabricMeshesRef.current,
         })
         if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
+        if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
+        if (normalBlobUrl) URL.revokeObjectURL(normalBlobUrl)
+        if (sheenBlobUrl) URL.revokeObjectURL(sheenBlobUrl)
       } catch { /* silent */ } finally {
         setIsTextureLoading(false)
       }
     }
+    if (!mv.model) setIsModelLoading(true)
     mv.addEventListener('load', apply)
-    // If model already loaded (e.g. cached from a prior visit), fire immediately
     if (mv.model) apply()
     return () => mv.removeEventListener('load', apply)
   }, [show3D, zoomedIndex, materials])
@@ -621,7 +703,13 @@ function CollectionModal({
               >
                 {show3D ? (
                   <>
-                    {isTextureLoading && (
+                    {isModelLoading && (
+                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+                        <InlineLoader color="secondary" />
+                        <p className="mt-2 text-[10px] uppercase tracking-widest text-white/60 animate-pulse">Loading 3D Model…</p>
+                      </div>
+                    )}
+                    {!isModelLoading && isTextureLoading && (
                       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm">
                         <InlineLoader color="secondary" />
                         <p className="mt-2 text-[10px] uppercase tracking-widest text-white/60 animate-pulse">Applying Texture…</p>
@@ -633,10 +721,12 @@ function CollectionModal({
                       alt={`${m.material_name} on sofa`}
                       camera-controls
                       auto-rotate
-                      shadow-intensity="1"
+                      disable-pan
+                      tone-mapping="neutral"
                       exposure="0.9"
-                      environment-image="neutral"
-                      style={{ width: '100%', height: '100%', background: 'transparent' }}
+                      shadow-intensity="1.2"
+                      shadow-softness="0.8"
+                      style={{ width: '100%', height: '100%', background: '#fafaf9' }}
                     />
                   </>
                 ) : (
@@ -689,9 +779,9 @@ function CollectionModal({
                 {/* View in 3D button — bottom right */}
                 <button
                   onClick={(e) => { e.stopPropagation(); setShow3D((v) => !v) }}
-                  className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 bg-stone-900/80 border border-stone-600 text-white px-2.5 py-1.5 text-[9px] uppercase tracking-widest hover:bg-stone-800 transition-colors shadow"
+                  className="absolute bottom-3 right-3 z-10 flex items-center gap-2 bg-primary border border-primary text-stone-900 font-bold px-4 py-2.5 text-[11px] uppercase tracking-widest hover:bg-white transition-colors shadow"
                 >
-                  <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
                   </svg>
                   {show3D ? 'Show Texture' : 'View in 3D'}

@@ -82,6 +82,14 @@
   --font-serif:     "LEMON MILK", sans-serif;
 }
 
+.font-serif span {
+  font-family: var(--font-serif);
+}
+
+section h1, section h2, section h3, section h4 {
+  font-family: var(--font-serif);
+}
+
 /* ─── Hero Cinematic Background Keyframes ───────────────────────────────────
    15 s total cycle. Each image occupies a 5 s slot but fades out over 6 s so
    consecutive images overlap by ~1 s, creating seamless crossfade transitions.

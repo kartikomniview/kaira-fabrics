@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import type { Material } from '../../data/materials'
 import MaterialDetailModal from '../../components/ui/MaterialDetailModal'
 import { useMaterials } from '../../contexts/MaterialsContext'
@@ -7,6 +7,7 @@ import { useMaterials } from '../../contexts/MaterialsContext'
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
 const MaterialsPage = () => {
+  const navigate = useNavigate()
   const { newMaterials, collections } = useMaterials()
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedCollection = searchParams.get('collection') || collections[0]?.name || ''
@@ -324,7 +325,7 @@ const MaterialsPage = () => {
         </div>
       </div>
 
-      {/* ── Smart Catalog Promo Strip ─────────────────────────────── */}
+      {/* ── AI Visualizer Promo Strip ─────────────────────────────── */}
       <div className="bg-stone-900 border-t border-stone-800 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -333,30 +334,30 @@ const MaterialsPage = () => {
           <div className="flex items-center gap-5">
             <div className="w-14 h-14 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
               <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
               </svg>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">Smart Discovery</span>
+                <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">AI Powered</span>
               </div>
               <p className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
-                Browse <span className="text-primary">500+ premium fabrics</span> across 100+ collections
+                Visualize any fabric on real products — <span className="text-primary">instantly</span>
               </p>
             </div>
           </div>
 
           {/* Right */}
-          <Link
-            to="/materials"
+          <button
+            onClick={() => navigate('/ai-visualizer')}
             className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-stone-900 text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all rounded-sm shadow-lg transform hover:-translate-y-0.5"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            Open Smart Catalog
-          </Link>
+            Try AI Visualizer
+          </button>
 
         </div>
       </div>

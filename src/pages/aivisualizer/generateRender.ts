@@ -69,6 +69,7 @@ export async function generateRender({
       `The background should be tasteful and slightly out of focus (shallow depth of field) so the sofa and its fabric remain the clear hero of the image.`,
       `Do not let any background element distract from the sofa or its fabric detail.`,
       `Output aspect ratio 1:1.`,
+      `Place the logo from the second image in the bottom-right corner of the output image, small and unobtrusive.`,
     ].join(' ')
 
     const ua = new UAParser.UAParser().getResult()
@@ -80,11 +81,14 @@ export async function generateRender({
       language: navigator.language,
     })
 
+    const logoUrl = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp'
+
+    console.log([fabricImage, productImage, logoUrl])
     const response = await fetch('https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage/ai-visualize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        inputImages: [fabricImage, productImage],
+        inputImages: [fabricImage,logoUrl,productImage, ],
         prompt,
         mobile_number: mobileNumber,
         device_info,
