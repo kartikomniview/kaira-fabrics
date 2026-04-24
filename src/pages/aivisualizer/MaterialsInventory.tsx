@@ -45,12 +45,6 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
   const isSearchMode = search.trim().length > 0
   const PAGE_SIZE = 24
 
-  // Auto-focus search on mount
-  useEffect(() => {
-    const t = setTimeout(() => searchInputRef.current?.focus(), 100)
-    return () => clearTimeout(t)
-  }, [])
-
   // Close collection dropdown on outside click
   useEffect(() => {
     if (!showColDropdown) return

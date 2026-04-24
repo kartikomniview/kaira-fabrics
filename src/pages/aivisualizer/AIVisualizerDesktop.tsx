@@ -376,10 +376,10 @@ const AIVisualizerDesktop = () => {
                  <h2 className="text-[13px] sm:text-sm font-semibold text-stone-900 uppercase tracking-widest flex-1">Step 2: Choose Product</h2>
               </div>
 
-              <div className="overflow-y-auto max-h-[400px] sm:max-h-[480px] mb-4 sm:mb-6 p-0.5 sm:p-1"><div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="overflow-y-auto max-h-[520px] sm:max-h-[480px] mb-4 sm:mb-6 p-0.5 sm:p-1"><div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <button
                   onClick={() => productUploadRef.current?.click()}
-                  className="aspect-[4/3] border-2 border-dashed border-stone-300 rounded-xl flex items-center justify-center flex-col gap-2 sm:gap-3 hover:border-primary hover:bg-primary/5 transition-all text-stone-500 group"
+                  className="aspect-square sm:aspect-[4/3] border-2 border-dashed border-stone-300 rounded-xl flex items-center justify-center flex-col gap-2 sm:gap-3 hover:border-primary hover:bg-primary/5 transition-all text-stone-500 group"
                 >
                   <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                     <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -396,7 +396,7 @@ const AIVisualizerDesktop = () => {
                        <button
                          key={p.productName}
                          onClick={() => { handleSelectProduct(p); setCurrentStep(2.5); }}
-                         className={`aspect-[4/3] border-2 rounded-xl overflow-hidden relative transition-all ${isActive ? 'border-primary ring-1 ring-primary' : 'border-stone-200 hover:border-stone-400'}`}
+                         className={`aspect-square sm:aspect-[4/3] border-2 rounded-xl overflow-hidden relative transition-all ${isActive ? 'border-primary ring-1 ring-primary' : 'border-stone-200 hover:border-stone-400'}`}
                        >
                          <img src={p.productImageUrl} alt="" className="w-full h-full object-contain bg-stone-100" />
                          <div className={`absolute bottom-0 left-0 right-0 py-1.5 px-2 text-center ${isActive ? 'bg-primary/15' : 'bg-white/75 backdrop-blur-sm'}`}>

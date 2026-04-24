@@ -80,11 +80,14 @@ function DeviceInfoCell({ raw }: { raw?: string }) {
   )
 }
 
+const PAGE_SIZE = 20
+
 const VisualizerLogsPanel = () => {
   const [logs, setLogs] = useState<VisualizerLog[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   const fetchLogs = useCallback(async () => {
     setLoading(true)
@@ -110,10 +113,18 @@ const VisualizerLogsPanel = () => {
 
   useEffect(() => { fetchLogs() }, [fetchLogs])
 
-  const filtered = logs.filter((l) => {
-    const q = search.toLowerCase()
-    return !q || l.mobile_number?.toLowerCase().includes(q) || l.status?.toLowerCase().includes(q) || l.id?.toLowerCase().includes(q)
-  })
+  const filtered = logs
+    .filter((l) => {
+      const q = search.toLowerCase()
+      return !q || l.mobile_number?.toLowerCase().includes(q) || l.status?.toLowerCase().includes(q) || l.id?.toLowerCase().includes(q)
+    })
+    .sort((a, b) => {
+      const ta = a.created_at ? new Date(a.created_at).getTime() : 0
+      const tb = b.created_at ? new Date(b.created_at).getTime() : 0
+      return tb - ta
+    })
+
+  const visible = filtered.slice(0, visibleCount)
 
   return (
     <div>
@@ -122,7 +133,7 @@ const VisualizerLogsPanel = () => {
         <div>
           <h1 className="font-serif text-2xl text-stone-900">Visualizer Logs</h1>
           <p className="text-stone-400 text-sm mt-1">
-            {loading ? 'Loading…' : `${filtered.length} record${filtered.length !== 1 ? 's' : ''}${search ? ' found' : ' total'}`}
+            {loading ? 'Loading…' : `${visible.length} of ${filtered.length} record${filtered.length !== 1 ? 's' : ''}${search ? ' found' : ' total'}`}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -130,7 +141,7 @@ const VisualizerLogsPanel = () => {
             type="search"
             placeholder="Search mobile, status, id…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setVisibleCount(PAGE_SIZE) }}
             className="w-full sm:w-64 border border-stone-300 bg-white rounded px-4 py-2 text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-600 transition-colors"
           />
           <button
@@ -194,7 +205,7 @@ const VisualizerLogsPanel = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((l, idx) => (
+              {visible.map((l, idx) => (
                 <tr
                   key={l.id ?? idx}
                   className="bg-white even:bg-stone-50 border-t border-stone-100 hover:bg-amber-50/40 transition-colors align-top"
@@ -244,6 +255,18 @@ const VisualizerLogsPanel = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Load More */}
+      {!loading && !error && visibleCount < filtered.length && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+            className="px-6 py-2 border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 text-xs uppercase tracking-widest rounded transition-colors"
+          >
+            Load more ({filtered.length - visibleCount} remaining)
+          </button>
         </div>
       )}
     </div>
