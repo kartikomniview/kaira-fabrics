@@ -20,7 +20,7 @@ const cards = [
     tag: 'B2B · Bulk Orders',
     tagColor: 'text-primary border-primary/40 bg-white',
     icon: (
-      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M9 17h6M2 3h20v4H2zm2 4h16v14H4z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 21V11m6 10V11" />
       </svg>
@@ -40,7 +40,7 @@ const cards = [
     tag: 'For Professionals',
     tagColor: 'text-secondary border-secondary/40 bg-white',
     icon: (
-      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
       </svg>
@@ -60,7 +60,7 @@ const cards = [
     tag: 'Personal · Home',
     tagColor: 'text-black border-black/20 bg-white',
     icon: (
-      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
     ),
@@ -140,7 +140,7 @@ export default function WhoWeServeSection() {
 
                 {/* Top label */}
                 <div className="relative p-5">
-                  <span className={`inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] border-2 shadow-md rounded-full px-4 py-2 ${card.tagColor}`}>
+                  <span className={`inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] border shadow-sm rounded-full px-3 py-1 ${card.tagColor}`}>
                     {card.icon}
                     {card.tag}
                   </span>
@@ -157,9 +157,9 @@ export default function WhoWeServeSection() {
                   </h3>
                   <p className="text-white/70 text-[13px] leading-relaxed mb-5">{card.description}</p>
                   <div className="flex items-center justify-between pt-4 border-t border-white/15">
-                    <span className="inline-flex items-center gap-1.5 bg-white text-primary text-[11px] font-bold uppercase tracking-widest px-4 py-2 group-hover:gap-3 transition-all duration-300">
+                    <span className="inline-flex items-center gap-2 bg-primary text-white text-xs font-bold uppercase tracking-widest px-6 py-3 group-hover:gap-3.5 transition-all duration-300">
                       {card.cta}
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
                     </span>
