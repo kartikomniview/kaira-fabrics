@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Remove-Item \"d:\\\\KairaSite\\\\kaira-fabrics\\\\src\\\\pages\\\\aivisualizer\\\\AIVisualizerDesktop.tsx\")"
+    ]
+  }
+}
