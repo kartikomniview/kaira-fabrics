@@ -206,7 +206,7 @@ const AIVisualizerDesktop = () => {
             See Your Fabric Come to Life
           </h1>
           <p className="mt-3 text-sm text-white/60 font-light max-w-md leading-relaxed">
-            Pick a fabric, choose a product, and let our AI show you exactly how it looks — before you decide.
+            Pick a fabric, choose a product, and let our AI show you exactly how it looks before you decide.
           </p>
         </div>
       </div>
@@ -636,7 +636,7 @@ const AIVisualizerDesktop = () => {
               <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-stone-100 border-t-primary rounded-full animate-spin mb-4 sm:mb-6" />
                 <h3 className="text-xs sm:text-sm font-bold text-stone-800 tracking-wide uppercase mb-2">Creating Your Preview...</h3>
-                <p className="text-[11px] sm:text-xs text-stone-500 text-center">Draping your chosen fabric beautifully over the sofa — this may take a moment.</p>
+                <p className="text-[11px] sm:text-xs text-stone-500 text-center">Draping your chosen fabric beautifully over the sofa this may take a moment.</p>
               </div>
             ) : generateError ? (
               <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12 gap-4">

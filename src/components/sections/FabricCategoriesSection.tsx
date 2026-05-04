@@ -207,7 +207,7 @@ const FabricCategoriesSection = () => {
                     <motion.div
                       variants={{ rest: { y: '100%', opacity: 0 }, hover: { y: 0, opacity: 1 } }}
                       transition={{ duration: 0.38, type: 'tween' }}
-                      className="absolute inset-x-0 bottom-0 bg-stone-900/80 backdrop-blur-sm p-4 pointer-events-none"
+                      className="absolute inset-x-0 bottom-0 bg-secondary-dark backdrop-blur-sm p-4 pointer-events-none"
                     >
                       <div className="space-y-1.5 mb-2">
                         {features.map((f) => (
@@ -226,18 +226,18 @@ const FabricCategoriesSection = () => {
                   </div>
 
                   {/* Always visible: label + desc */}
-                  <h3 className="font-serif text-xl text-stone-900 group-hover:text-primary transition-colors duration-200">{label}</h3>
-                  <p className="text-xs text-stone-500 font-light mt-1.5 leading-relaxed">{desc}</p>
+                  <h3 className="font-serif text-xl text-secondary-dark group-hover:text-primary transition-colors duration-200">{label}</h3>
+                  <p className="text-xs text-secondary-dark font-light mt-1.5 leading-relaxed">{desc}</p>
 
                   {/* Always visible: CTA */}
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="text-xs text-stone-900 uppercase tracking-[0.2em] font-bold border-b border-stone-900/30 pb-px">
+                    <span className="text-xs text-secondary-dark uppercase tracking-[0.2em] font-bold border-b pb-px" style={{borderColor:"var(--color-secondary-dark)"}}>
                       Browse Collection
                     </span>
                     <motion.svg
                       variants={{ rest: { x: 0, opacity: 0.6 }, hover: { x: 5, opacity: 1 } }}
                       transition={{ duration: 0.3, type: 'tween' }}
-                      className="w-4 h-4 text-stone-900"
+                      className="w-4 h-4 text-secondary-dark"
                       fill="none" viewBox="0 0 24 24" stroke="currentColor"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />

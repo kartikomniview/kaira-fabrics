@@ -18,7 +18,7 @@ const cards = [
       { text: 'Manufacturing', primary: false },
     ],
     tag: 'B2B · Bulk Orders',
-    tagColor: 'text-primary border-primary/40 bg-white',
+    tagColor: 'text-secondary border-secondary/40 bg-white',
     icon: (
       <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M9 17h6M2 3h20v4H2zm2 4h16v14H4z" />
@@ -103,11 +103,11 @@ export default function WhoWeServeSection() {
             <span className="text-[12px] font-bold uppercase tracking-[0.3em] text-stone-500">Who We Serve</span>
             <span className="h-px w-6 bg-primary" />
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-[2.75rem] text-stone-900 leading-[1.15]">
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-[2.75rem] color-secondary-dark leading-[1.15]">
             Ready to elevate <em className="not-italic text-primary">your next project?</em>
           </h2>
           <p className="mt-3 text-stone-500 text-sm md:text-base max-w-md mx-auto leading-relaxed">
-            Whether you're scaling production, designing a luxury hotel, or styling your home — we have tailored solutions for you.
+            Whether you're scaling production, designing a luxury hotel, or styling your home we have tailored solutions for you.
           </p>
         </motion.div>
 
@@ -140,7 +140,7 @@ export default function WhoWeServeSection() {
 
                 {/* Top label */}
                 <div className="relative p-5">
-                  <span className={`inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] border shadow-sm rounded-full px-3 py-1 ${card.tagColor}`}>
+                  <span className={`inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] border shadow-sm px-3 py-1 ${card.tagColor}`}>
                     {card.icon}
                     {card.tag}
                   </span>

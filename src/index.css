@@ -46,8 +46,17 @@
 :root {
   --color-primary:   #97c41e;
   --color-secondary: #74623c;
+  --color-secondary-dark: #5b4c2f;
   --font-primary:    "LEMON MILK", sans-serif;
   --font-secondary:  "ITC Avant Garde Gothic BT", "Century Gothic", "Trebuchet MS", sans-serif;
+}
+
+.color-secondary-dark {
+  color: var(--color-secondary-dark);
+}
+
+.bg-secondary-dark {
+  background-color: var(--color-secondary-dark);
 }
 
 /* ─── Tailwind Theme ─────────────────────────────────────────────────────────

@@ -61,7 +61,7 @@ const S3_WHY = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhyKaira/v
 const advantages = [
   {
     title: '35+ Year Legacy',
-    desc:  "Backed by the Kurikkal Group — trusted since 1991.",
+    desc:  "Backed by the Kurikkal Group trusted since 1991.",
     Icon:  LegacyIcon,
     bgImg: `${S3_WHY}/Kurikkal Group Legacy.webp`,
   },
@@ -138,12 +138,12 @@ const WhyKairaSection = () => {
           </motion.div>
           <div className="overflow-hidden">
             <motion.h2
-              className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-stone-900 leading-tight"
+              className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] color-secondary-dark leading-tight"
               initial={{ y: '115%', skewY: 2 }}
               animate={headerInView ? { y: '0%', skewY: 0 } : {}}
               transition={{ duration: 1.0, delay: 0.18, ease: EXPO_OUT }}
             >
-              Why <span className="text-primary">Kaira Fabrics?</span>
+              Why <span className="text-primary">Kaira?</span>
             </motion.h2>
           </div>
         </div>
@@ -205,7 +205,7 @@ const WhyKairaSection = () => {
               <span className="text-[14px] uppercase tracking-[0.35em] text-secondary font-bold">A Legacy Brand</span>
             </div>
             <p className="text-stone-500 text-sm leading-relaxed font-sans">
-              Three decades of crafting spaces and building relationships — powered by a relentless commitment to quality.
+              Three decades of crafting spaces and building relationships powered by a relentless commitment to quality.
             </p>
           </motion.div>
 

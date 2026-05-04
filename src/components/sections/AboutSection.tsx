@@ -130,7 +130,7 @@ const AboutSection = () => {
             >
               Kaira is an entity under the{' '}
               <strong className="font-semibold text-stone-700">Kurikkal Group</strong>, specializing
-              in premium sofa fabrics and leathers — delivering remarkable quality right to your doorstep.
+              in premium sofa fabrics and leathers delivering remarkable quality right to your doorstep.
             </motion.p>
 
             {/* Pull quote */}
@@ -152,7 +152,7 @@ const AboutSection = () => {
               animate={rightInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.45, ease: SOFT }}
             >
-              <StatCard value={20} suffix="+" label="Years of Heritage" delay={0.5} />
+              <StatCard value={35} suffix="+" label="Years of Legacy" delay={0.5} />
               <StatCard value={10} suffix="k+" label="Fabric Varieties" delay={0.6} />
             </motion.div>
 
