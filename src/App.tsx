@@ -105,7 +105,7 @@ function App() {
       {showLoader && <PageLoader exiting={appReady} />}
       
       {/* WhatsApp icon for mobile view */}
-      {/* <WhatsAppIcon /> */}
+      <WhatsAppIcon />
     </>
   )
 }
