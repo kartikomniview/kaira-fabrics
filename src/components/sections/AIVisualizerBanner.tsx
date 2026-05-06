@@ -70,18 +70,6 @@ const AIVisualizerBanner = () => {
           {/* ── RIGHT: Text ── */}
           <div className="flex-1 flex flex-col items-start">
 
-            {/* Eyebrow */}
-            <motion.div
-              className="inline-flex items-center gap-3 mb-7"
-              initial={{ opacity: 0, y: -16 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: EXPO_OUT }}
-            >
-              <span className="text-[10px] uppercase tracking-[0.42em] text-primary font-semibold">
-                AI Visualizer · Free to Use
-              </span>
-            </motion.div>
-
             {/* Headline */}
             <div className="overflow-hidden mb-1 font-serif">
               <motion.h2

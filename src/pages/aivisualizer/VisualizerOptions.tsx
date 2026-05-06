@@ -1,6 +1,7 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import AiVisualizerEngine from './AiVisualizerEngine'
 import ThreeDVisualizerEngine, { type SelectedMaterial } from '../threedvisualizer/ThreeDVisualizerEngine'
+import ThreeDVisualizerPageMobile from '../ThreeDVisualizerPageMobile'
 import { dummyProducts } from '../../data/products'
 import type { Product } from '../../data/products'
 
@@ -27,6 +28,14 @@ const VisualizerOptions = () => {
   const [isEngineReady, setIsEngineReady] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
   const engineTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const handleOpen = useCallback((selected: Mode, e: React.MouseEvent) => {
     const card = (e.currentTarget as HTMLElement).closest('[data-card]') as HTMLElement | null
@@ -111,7 +120,7 @@ const VisualizerOptions = () => {
 
       {/* ── Page Header ── */}
       <div
-        className="relative pt-20 lg:pt-24 pb-6 overflow-hidden"
+        className="relative pt-24 sm:pt-20 lg:pt-24 pb-5 sm:pb-6 overflow-hidden"
         style={{
           backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/stripsbg/strip1.webp)',
           backgroundSize: 'cover',
@@ -119,23 +128,23 @@ const VisualizerOptions = () => {
         }}
       >
         <div className="absolute inset-0 bg-stone-950/50" />
-        <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10">
-          <div className="flex items-center justify-between mb-6">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <button
               onClick={() => window.history.back()}
-              className="group flex items-center gap-2 px-4 py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all rounded-full text-[11px] font-medium tracking-wide"
+              className="group flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all rounded-full text-[11px] font-medium tracking-wide"
             >
-              <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Back
             </button>
           </div>
-          <p className="text-[11px] tracking-[0.35em] uppercase font-semibold text-white/50 mb-2">AI Fabric Visualizer</p>
-          <h1 className="font-serif text-4xl md:text-5xl text-primary leading-tight">
+          <p className="text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] uppercase font-semibold text-white/50 mb-1.5 sm:mb-2">AI Fabric Visualizer</p>
+          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl text-primary leading-tight">
             See Your Fabric Come to Life
           </h1>
-          <p className="mt-3 text-sm text-white/60 font-light max-w-md leading-relaxed">
+          <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-white/60 font-light max-w-xs sm:max-w-md leading-relaxed">
             Pick a fabric, choose a product, and let our AI show you exactly how it looks before you decide.
           </p>
         </div>
@@ -150,7 +159,7 @@ const VisualizerOptions = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
 
           {/* ── AI Visualizer Card ── */}
-          <div data-card className="relative h-[420px] lg:h-[500px] rounded-3xl overflow-hidden group">
+          <div data-card className="relative h-[300px] sm:h-[380px] lg:h-[500px] rounded-3xl overflow-hidden group">
             <img
               src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/after.webp"
               alt=""
@@ -160,20 +169,20 @@ const VisualizerOptions = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950/95 via-stone-950/55 to-stone-950/10" />
 
             {/* content */}
-            <div className="absolute inset-0 flex flex-col justify-end p-7 sm:p-9">
-              <div className="inline-flex items-center gap-1.5 bg-primary/20 border border-primary/30 backdrop-blur-sm rounded-full px-3 py-1 mb-4 w-fit">
+            <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-7 lg:p-9">
+              <div className="inline-flex items-center gap-1.5 bg-primary/20 border border-primary/30 backdrop-blur-sm rounded-full px-3 py-1 mb-3 w-fit">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 <span className="text-[9px] text-primary uppercase tracking-widest font-semibold">AI Powered</span>
               </div>
 
-              <h2 className="font-serif text-3xl sm:text-4xl text-white mb-2 leading-tight">
+              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white mb-1.5 leading-tight">
                 AI Visualizer
               </h2>
-              <p className="text-[12px] sm:text-[13px] text-white/60 leading-relaxed mb-5 max-w-xs">
+              <p className="text-[11px] sm:text-[13px] text-white/60 leading-relaxed mb-3 sm:mb-5 max-w-xs hidden sm:block">
                 Drape any fabric onto real product silhouettes using generative AI. See exactly how it looks before you order.
               </p>
 
-              <div className="flex flex-wrap gap-x-5 gap-y-1.5 mb-6">
+              <div className="hidden sm:flex flex-wrap gap-x-5 gap-y-1.5 mb-4 sm:mb-6">
                 {['Browse Inventory', 'Upload Fabric', 'AI Preview'].map(f => (
                   <div key={f} className="flex items-center gap-1.5">
                     <svg className="w-3 h-3 text-primary shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -186,7 +195,7 @@ const VisualizerOptions = () => {
 
               <button
                 onClick={(e) => handleOpen('ai', e)}
-                className="w-full py-4 bg-primary text-stone-900 rounded-2xl font-bold uppercase tracking-widest text-[12px] shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                className="w-full py-3 sm:py-4 bg-primary text-stone-900 rounded-2xl font-bold uppercase tracking-widest text-[11px] sm:text-[12px] shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -202,50 +211,33 @@ const VisualizerOptions = () => {
           {/* ── 3D Studio Card ── */}
           <div
             data-card
-            className="relative h-[420px] lg:h-[500px] rounded-3xl overflow-hidden group"
-            style={{ background: 'linear-gradient(135deg, #18181b 0%, #27272a 45%, #18181b 100%)' }}
+            className="relative h-[300px] sm:h-[380px] lg:h-[500px] rounded-3xl overflow-hidden group"
           >
-            {/* subtle dot grid */}
-            <div
-              className="absolute inset-0 opacity-[0.06]"
-              style={{ backgroundImage: 'radial-gradient(circle, #ffffff 1.5px, transparent 1.5px)', backgroundSize: '30px 30px' }}
+            {/* background image */}
+            <img
+              src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/ThreeDEngine.webp"
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            {/* wireframe cube decoration */}
-            <div className="absolute top-8 right-8 w-36 h-36 opacity-[0.08] transition-opacity duration-500 group-hover:opacity-[0.14]">
-              <svg viewBox="0 0 100 100" fill="none" stroke="white" strokeWidth="1.2">
-                <line x1="50" y1="12" x2="88" y2="32" />
-                <line x1="88" y1="32" x2="88" y2="72" />
-                <line x1="88" y1="72" x2="50" y2="88" />
-                <line x1="50" y1="88" x2="12" y2="72" />
-                <line x1="12" y1="72" x2="12" y2="32" />
-                <line x1="12" y1="32" x2="50" y2="12" />
-                <line x1="50" y1="12" x2="50" y2="50" />
-                <line x1="88" y1="32" x2="50" y2="50" />
-                <line x1="12" y1="32" x2="50" y2="50" />
-                <line x1="50" y1="50" x2="50" y2="88" />
-                <line x1="50" y1="50" x2="88" y2="72" />
-                <line x1="50" y1="50" x2="12" y2="72" />
-              </svg>
-            </div>
             {/* gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/30 to-transparent" />
 
             {/* content */}
-            <div className="absolute inset-0 flex flex-col justify-end p-7 sm:p-9">
-              <div className="inline-flex items-center gap-1.5 bg-primary/20 border border-primary/30 backdrop-blur-sm rounded-full px-3 py-1 mb-4 w-fit">
+            <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-7 lg:p-9">
+              <div className="inline-flex items-center gap-1.5 bg-primary/20 border border-primary/30 backdrop-blur-sm rounded-full px-3 py-1 mb-3 w-fit">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 <span className="text-[9px] text-primary uppercase tracking-widest font-semibold">Interactive 3D</span>
               </div>
 
-              <h2 className="font-serif text-3xl sm:text-4xl text-white mb-2 leading-tight">
+              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white mb-1.5 leading-tight">
                 3D Studio
               </h2>
-              <p className="text-[12px] sm:text-[13px] text-white/60 leading-relaxed mb-5 max-w-xs">
+              <p className="text-[11px] sm:text-[13px] text-white/60 leading-relaxed mb-3 sm:mb-5 max-w-xs hidden sm:block">
                 Explore fabrics in an immersive 3D environment. Rotate, zoom and inspect every weave in stunning detail.
               </p>
 
-              <div className="flex flex-wrap gap-x-5 gap-y-1.5 mb-6">
-                {['360° Rotation', 'Real-time Preview', 'HD Render'].map(f => (
+              <div className="hidden sm:flex flex-wrap gap-x-5 gap-y-1.5 mb-4 sm:mb-6">
+                {['360° Rotation', 'Real-time Preview', 'Finish Options'].map(f => (
                   <div key={f} className="flex items-center gap-1.5">
                     <svg className="w-3 h-3 text-primary shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -257,7 +249,7 @@ const VisualizerOptions = () => {
 
               <button
                 onClick={(e) => handleOpen('3d', e)}
-                className="w-full py-4 bg-primary text-stone-900 rounded-2xl font-bold uppercase tracking-widest text-[12px] shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                className="w-full py-3 sm:py-4 bg-primary text-stone-900 rounded-2xl font-bold uppercase tracking-widest text-[11px] sm:text-[12px] shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -347,7 +339,10 @@ const VisualizerOptions = () => {
               {isEngineReady && mode === 'ai' && <AiVisualizerEngine />}
 
               {/* 3D engine */}
-              {isEngineReady && mode === '3d' && (
+              {isEngineReady && mode === '3d' && isMobile && (
+                <ThreeDVisualizerPageMobile embedded />
+              )}
+              {isEngineReady && mode === '3d' && !isMobile && (
                 <div className="flex flex-col bg-stone-50 font-sans h-full">
                   {/* Studio sub-toolbar — product / texture / status only (branding is in the overlay header) */}
                   <div style={{display:"none"}} className="h-10 shrink-0 bg-stone-800 border-b border-stone-700 flex items-center px-5 gap-3">
