@@ -156,108 +156,137 @@ const VisualizerOptions = () => {
           Choose Your Experience
         </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
+        <div className="flex flex-col gap-4 lg:gap-5">
 
-          {/* ── AI Visualizer Card ── */}
-          <div data-card className="relative h-[300px] sm:h-[380px] lg:h-[500px] rounded-3xl overflow-hidden group">
-            <img
-              src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/after.webp"
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-            />
-            {/* gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/95 via-stone-950/55 to-stone-950/10" />
+          {/* ── AI Visualizer Banner ── */}
+          <div data-card className="flex flex-col sm:flex-row sm:h-[220px] lg:h-[240px] rounded-2xl overflow-hidden bg-white ring-1 ring-stone-200 shadow-sm mx-4 sm:mx-0">
 
-            {/* content */}
-            <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-7 lg:p-9">
-              <div className="inline-flex items-center gap-1.5 bg-primary/20 border border-primary/30 backdrop-blur-sm rounded-full px-3 py-1 mb-3 w-fit">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <span className="text-[9px] text-primary uppercase tracking-widest font-semibold">AI Powered</span>
+            {/* Image */}
+            <div className="relative h-[220px] sm:h-auto w-full sm:w-[230px] lg:w-[310px] shrink-0">
+              <img
+                src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/after.webp"
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              {/* mobile: fade bottom → desktop: fade right */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50 sm:hidden" />
+              <div className="absolute inset-0 hidden sm:block bg-gradient-to-r from-transparent via-white/10 to-white" />
+              {/* tag */}
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2 bg-primary text-stone-900 rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 shadow-md z-10">
+                <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest">AI Visualizer</span>
               </div>
+            </div>
 
-              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white mb-1.5 leading-tight">
+            {/* Text */}
+            <div className="flex-1 flex flex-col justify-center px-4 pt-4 pb-2 sm:px-7 sm:py-6 lg:px-8 min-w-0">
+              <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.35em] uppercase text-primary mb-1.5 sm:mb-3">
+                Generative AI · Fabric Preview
+              </p>
+              <h2 className="font-serif text-xl sm:text-3xl lg:text-[2.25rem] text-stone-900 leading-tight mb-1.5 sm:mb-3">
                 AI Visualizer
               </h2>
-              <p className="text-[11px] sm:text-[13px] text-white/60 leading-relaxed mb-3 sm:mb-5 max-w-xs hidden sm:block">
-                Drape any fabric onto real product silhouettes using generative AI. See exactly how it looks before you order.
+              <p className="text-[11px] sm:text-[12px] text-stone-500 font-light leading-relaxed hidden sm:block max-w-xs">
+                Drape any fabric onto real silhouettes using generative AI. See how it looks before you order.
               </p>
-
-              <div className="hidden sm:flex flex-wrap gap-x-5 gap-y-1.5 mb-4 sm:mb-6">
-                {['Browse Inventory', 'Upload Fabric', 'AI Preview'].map(f => (
-                  <div key={f} className="flex items-center gap-1.5">
-                    <svg className="w-3 h-3 text-primary shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-[10px] text-white/55 font-medium">{f}</span>
-                  </div>
+              <div className="hidden sm:flex items-center gap-2 mt-3">
+                {['Browse Inventory', 'Upload Fabric', 'AI Preview'].map((f, i) => (
+                  <span key={f} className="flex items-center gap-2">
+                    <span className="text-[9px] text-stone-400 tracking-wide">{f}</span>
+                    {i < 2 && <span className="text-stone-300 text-xs select-none">·</span>}
+                  </span>
                 ))}
               </div>
-
+              {/* mobile CTA — full width, inside text section */}
               <button
                 onClick={(e) => handleOpen('ai', e)}
-                className="w-full py-3 sm:py-4 bg-primary text-stone-900 rounded-2xl font-bold uppercase tracking-widest text-[11px] sm:text-[12px] shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                className="sm:hidden mt-3 mb-1 w-full flex items-center justify-center gap-2.5 py-3 bg-primary text-stone-900 rounded-xl font-black uppercase tracking-wider text-[10px] shadow-md active:scale-[0.98] transition-all"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
                 Launch AI Visualizer
-                <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </button>
+            </div>
+
+            {/* Desktop-only right CTA */}
+            <div className="hidden sm:flex shrink-0 items-center px-5 sm:px-6 lg:px-8 border-l border-stone-100">
+              <button
+                onClick={(e) => handleOpen('ai', e)}
+                className="flex items-center gap-3 px-5 sm:px-7 py-3.5 sm:py-4 bg-primary text-stone-900 rounded-xl font-black uppercase tracking-wider text-[10px] sm:text-[11px] whitespace-nowrap shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
+                <span>Launch AI Visualizer</span>
               </button>
             </div>
           </div>
 
-          {/* ── 3D Studio Card ── */}
-          <div
-            data-card
-            className="relative h-[300px] sm:h-[380px] lg:h-[500px] rounded-3xl overflow-hidden group"
-          >
-            {/* background image */}
-            <img
-              src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/ThreeDEngine.webp"
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            {/* gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/30 to-transparent" />
+          {/* ── 3D Engine Banner ── */}
+          <div data-card className="flex flex-col sm:flex-row sm:h-[220px] lg:h-[240px] rounded-2xl overflow-hidden bg-white ring-1 ring-stone-200 shadow-sm mx-4 sm:mx-0">
 
-            {/* content */}
-            <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-7 lg:p-9">
-              <div className="inline-flex items-center gap-1.5 bg-primary/20 border border-primary/30 backdrop-blur-sm rounded-full px-3 py-1 mb-3 w-fit">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <span className="text-[9px] text-primary uppercase tracking-widest font-semibold">Interactive 3D</span>
+            {/* Image */}
+            <div className="relative h-[220px] sm:h-auto w-full sm:w-[230px] lg:w-[310px] shrink-0">
+              <img
+                src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/ThreeDEngine.webp"
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50 sm:hidden" />
+              <div className="absolute inset-0 hidden sm:block bg-gradient-to-r from-transparent via-white/10 to-white" />
+              {/* tag */}
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2 bg-secondary text-white rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 shadow-md z-10">
+                <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest">3D Engine</span>
               </div>
+            </div>
 
-              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white mb-1.5 leading-tight">
+            {/* Text */}
+            <div className="flex-1 flex flex-col justify-center px-4 pt-4 pb-2 sm:px-7 sm:py-6 lg:px-8 min-w-0">
+              <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.35em] uppercase text-secondary mb-1.5 sm:mb-3">
+                Interactive 3D · Real-time
+              </p>
+              <h2 className="font-serif text-xl sm:text-3xl lg:text-[2.25rem] text-stone-900 leading-tight mb-1.5 sm:mb-3">
                 3D Studio
               </h2>
-              <p className="text-[11px] sm:text-[13px] text-white/60 leading-relaxed mb-3 sm:mb-5 max-w-xs hidden sm:block">
-                Explore fabrics in an immersive 3D environment. Rotate, zoom and inspect every weave in stunning detail.
+              <p className="text-[11px] sm:text-[12px] text-stone-500 font-light leading-relaxed hidden sm:block max-w-xs">
+                Explore fabrics in an immersive 3D environment. Rotate, zoom and inspect every weave in detail.
               </p>
-
-              <div className="hidden sm:flex flex-wrap gap-x-5 gap-y-1.5 mb-4 sm:mb-6">
-                {['360° Rotation', 'Real-time Preview', 'Finish Options'].map(f => (
-                  <div key={f} className="flex items-center gap-1.5">
-                    <svg className="w-3 h-3 text-primary shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-[10px] text-white/55 font-medium">{f}</span>
-                  </div>
+              <div className="hidden sm:flex items-center gap-2 mt-3">
+                {['360° Rotation', 'Real-time Preview', 'Finish Options'].map((f, i) => (
+                  <span key={f} className="flex items-center gap-2">
+                    <span className="text-[9px] text-stone-400 tracking-wide">{f}</span>
+                    {i < 2 && <span className="text-stone-300 text-xs select-none">·</span>}
+                  </span>
                 ))}
               </div>
-
+              {/* mobile CTA */}
               <button
                 onClick={(e) => handleOpen('3d', e)}
-                className="w-full py-3 sm:py-4 bg-primary text-stone-900 rounded-2xl font-bold uppercase tracking-widest text-[11px] sm:text-[12px] shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                className="sm:hidden mt-3 mb-1 w-full flex items-center justify-center gap-2.5 py-3 bg-secondary text-white rounded-xl font-black uppercase tracking-wider text-[10px] shadow-md active:scale-[0.98] transition-all"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
                 Explore 3D Studio
-                <svg className="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </button>
+            </div>
+
+            {/* Desktop-only right CTA */}
+            <div className="hidden sm:flex shrink-0 items-center px-5 sm:px-6 lg:px-8 border-l border-stone-100">
+              <button
+                onClick={(e) => handleOpen('3d', e)}
+                className="flex items-center gap-3 px-5 sm:px-7 py-3.5 sm:py-4 bg-secondary text-white rounded-xl font-black uppercase tracking-wider text-[10px] sm:text-[11px] whitespace-nowrap shadow-lg hover:opacity-90 active:scale-[0.98] transition-all"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
+                <span>Explore 3D Studio</span>
               </button>
             </div>
           </div>
