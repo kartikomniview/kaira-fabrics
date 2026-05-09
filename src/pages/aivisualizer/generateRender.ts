@@ -97,7 +97,6 @@ export async function generateRender({
       `The fabric texture (color, weave, and pattern) must be replicated exactly as shown in the first image.`,
       `Study the product's style, scale, and design language, then build the ideal lifestyle scene around it — the room era, mood, color palette, lighting quality, and decor props must all be chosen to best complement this specific product.`,
       `The product should be prominently placed and the natural focal point of the fully rendered scene.`,
-      `Output aspect ratio 1:1.`,
     ].join(' ')
 
     const ua = new UAParser.UAParser().getResult()
@@ -109,7 +108,7 @@ export async function generateRender({
       language: navigator.language,
     })
 
-    const logoUrl = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/KairaLogo.png'
+    const logoUrl = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/KairaFabrics.png'
 
     const response = await fetch('https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage/ai-visualize', {
       method: 'POST',

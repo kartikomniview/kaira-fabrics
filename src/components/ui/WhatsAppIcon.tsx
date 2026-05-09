@@ -32,7 +32,7 @@ export function WhatsAppIcon() {
   }, [])
 
   return (
-    <div className="fixed bottom-6 right-4 z-50 flex items-center gap-2.5 md:hidden" style={{display:"none"}}>
+    <div className="fixed bottom-6 right-4 z-50 flex items-center gap-2.5 md:hidden">
       {/* Speech bubble text */}
       <div
         className="relative transition-all duration-400"

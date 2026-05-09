@@ -6,15 +6,16 @@ import { generateRender } from './generateRender'
 import type { SelectedMaterial, SelectedProduct } from './generateRender'
 
 const products = [
-  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Petal.webp',    productName: 'Petal'    },
-  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Hudson.webp',  productName: 'Hudson'   },
-  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Luna.webp',    productName: 'Luna'     },
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Alden.webp',   productName: 'Alden'    },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Petal.webp',    productName: 'Petal'    },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Luna.webp',    productName: 'Luna'     },
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Solstice.webp',productName: 'Solstice' },
-  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Arlo.webp',    productName: 'Arlo'     },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Luma.webp',    productName: 'Luma'     },
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Sienna.webp',  productName: 'Sienna'   },
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Ivory.webp',   productName: 'Ivory'    },
-  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Luma.webp',    productName: 'Luma'     },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Hudson.webp',  productName: 'Hudson'   },
+  { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Arlo.webp',    productName: 'Arlo'     },
+
 ]
 
 const AiVisualizerEngine = () => {
