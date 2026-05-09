@@ -70,22 +70,10 @@ const AIVisualizerBanner = () => {
           {/* ── RIGHT: Text ── */}
           <div className="flex-1 flex flex-col items-start">
 
-            {/* Eyebrow */}
-            <motion.div
-              className="inline-flex items-center gap-3 mb-7"
-              initial={{ opacity: 0, y: -16 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: EXPO_OUT }}
-            >
-              <span className="text-[10px] uppercase tracking-[0.42em] text-primary font-semibold">
-                AI Visualizer · Free to Use
-              </span>
-            </motion.div>
-
             {/* Headline */}
             <div className="overflow-hidden mb-1 font-serif">
               <motion.h2
-                className="font-primary font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-stone-900 leading-tight"
+                className="font-primary font-serif text-4xl sm:text-5xl md:text-[3.2rem] color-secondary-dark leading-tight"
                 initial={{ y: '110%' }}
                 animate={inView ? { y: '0%' } : {}}
                 transition={{ duration: 0.9, delay: 0.15, ease: EXPO_OUT }}
@@ -119,7 +107,7 @@ const AIVisualizerBanner = () => {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.45, ease: SMOOTH_OUT }}
             >
-              Upload a photo of your room and watch any fabric come alive on your furniture and walls — in seconds, with zero guesswork.
+              Upload a photo of your room and watch any fabric come alive on your furniture and walls in seconds, with zero guesswork.
             </motion.p>
 
             {/* Proof points */}

@@ -204,7 +204,7 @@ const GallerySection = () => {
 
           <div className="overflow-hidden">
             <motion.h2
-              className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-black leading-tight"
+              className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] color-secondary-dark leading-tight"
               initial={{ y: '115%', skewY: 2 }}
               animate={headerInView ? { y: '0%', skewY: 0 } : {}}
               transition={{ duration: 1.0, delay: 0.18, ease: EXPO_OUT }}

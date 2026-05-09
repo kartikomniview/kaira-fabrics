@@ -64,7 +64,7 @@ interface SelectedMaterial {
   colorGroup: string | null
 }
 
-const ThreeDVisualizerPageMobile = () => {
+const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }) => {
   const { newMaterials } = useMaterials()
   const mvRef = useRef<HTMLElement>(null)
   const fabricMeshesRef = useRef<any[]>([])
@@ -234,10 +234,7 @@ const ThreeDVisualizerPageMobile = () => {
     // The marginTop matches the fixed 64px header.
     <div
       className="flex flex-col overflow-hidden bg-stone-100"
-      style={{
-        height: 'calc(100dvh - 64px)',
-        marginTop: '64px',
-      }}
+      style={embedded ? { height: '100%' } : { height: 'calc(100dvh - 64px)', marginTop: '64px' }}
     >
       {/* ── Toolbar ── */}
       <div className="h-10 shrink-0 bg-white border-b border-stone-200 flex items-center px-3 gap-2 shadow-sm">

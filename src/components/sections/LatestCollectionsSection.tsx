@@ -111,7 +111,7 @@ const LatestCollectionsSection = () => {
             </span>
           </div>
           <h2 ref={headlineRef} style={{ opacity: 0 }} className="font-serif text-3xl sm:text-4xl md:text-5xl leading-[1.15]">
-            <span className="text-stone-900 font-serif">Our </span><span className="text-primary font-serif">Collections</span>
+            <span className="color-secondary-dark font-serif">Our </span><span className="text-primary font-serif">Collections</span>
           </h2>
           <p ref={subtitleRef} style={{ opacity: 0 }} className="text-stone-500 text-[15px] max-w-sm leading-relaxed">
             Premium fabrics and leathers, curated for the finest interiors and upholstery.

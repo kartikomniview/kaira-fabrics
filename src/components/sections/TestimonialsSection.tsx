@@ -21,7 +21,7 @@ const TestimonialCard = ({ item, onPlay }: { item: GalleryItem; onPlay: (url: st
     <div
       ref={cardRef}
       onClick={() => onPlay(item.asset_url)}
-      className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] relative bg-black border border-primary/20 overflow-hidden shadow-lg hover:shadow-primary/20 hover:shadow-xl group flex flex-col h-[340px] cursor-pointer transition-shadow duration-300"
+      className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] relative bg-secondary-dark overflow-hidden shadow-lg hover:shadow-primary/20 hover:shadow-xl group flex flex-col h-[340px] cursor-pointer transition-shadow duration-300"
     >
       <div className="relative flex-1 overflow-hidden bg-stone-900">
         {/* Thumbnail image or dark gradient placeholder */}
@@ -45,7 +45,7 @@ const TestimonialCard = ({ item, onPlay }: { item: GalleryItem; onPlay: (url: st
         </div>
 
         {/* Info Overlay */}
-        <div className="absolute bottom-0 inset-x-0 bg-black/95 backdrop-blur-md px-5 pt-4 pb-6 translate-y-[calc(100%-3.5rem)] group-hover:translate-y-0 transition-transform duration-500 ease-out border-t border-primary/30">
+        <div className="absolute bottom-0 inset-x-0 bg-secondary-dark backdrop-blur-md px-5 pt-4 pb-6 translate-y-[calc(100%-3.5rem)] group-hover:translate-y-0 transition-transform duration-500 ease-out border-t border-primary/30">
           {item.title && (
             <p className="text-base font-bold text-primary mb-3 tracking-wide">{item.title}</p>
           )}
@@ -151,7 +151,7 @@ const TestimonialsSection = () => {
           </div>
           <div className="overflow-hidden">
             <h2
-              className={`font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-stone-900 leading-tight transition-all duration-700 delay-100 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-[115%]'}`}
+              className={`font-serif text-4xl sm:text-5xl md:text-[3.2rem] color-secondary-dark leading-tight transition-all duration-700 delay-100 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-[115%]'}`}
             >
               Client <span className="text-primary">Stories</span>
             </h2>

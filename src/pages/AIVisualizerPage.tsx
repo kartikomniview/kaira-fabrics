@@ -1,5 +1,5 @@
 ﻿import { useEffect } from 'react'
-import AIVisualizerDesktop from './aivisualizer/AIVisualizerDesktop'
+import VisualizerOptions from './aivisualizer/VisualizerOptions'
 
 const AIVisualizerPage = () => {
   useEffect(() => {
@@ -7,7 +7,7 @@ const AIVisualizerPage = () => {
   }, [])
 
   return (
-       <AIVisualizerDesktop />
+       <VisualizerOptions />
   )
 }
 

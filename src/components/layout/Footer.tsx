@@ -35,7 +35,7 @@ const footerColumns = [
 
 const Footer = () => {
   return (
-    <footer className="bg-stone-900 text-stone-400">
+    <footer className="bg-secondary-dark text-stone-400">
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-14">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">

@@ -10,6 +10,37 @@ function extractFromDataUrl(dataUrl: string): { data: string; mimeType: string }
   return { data, mimeType }
 }
 
+function loadImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => resolve(img)
+    img.onerror = () => reject(new Error(`Failed to load image: ${url}`))
+    img.src = url
+  })
+}
+
+async function overlayLogo(imageUrl: string, logoUrl: string): Promise<string> {
+  const [mainImg, logoImg] = await Promise.all([loadImage(imageUrl), loadImage(logoUrl)])
+
+  const canvas = document.createElement('canvas')
+  canvas.width = mainImg.naturalWidth
+  canvas.height = mainImg.naturalHeight
+
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(mainImg, 0, 0)
+
+  // Logo height ~7% of image, centered horizontally, 2% margin from top
+  const logoHeight = Math.round(mainImg.naturalHeight * 0.12)
+  const logoWidth = Math.round(logoImg.naturalWidth * (logoHeight / logoImg.naturalHeight))
+  const logoX = Math.round((canvas.width - logoWidth) / 2)
+  const logoY = Math.round(canvas.height * 0.02)
+
+  ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight)
+
+  return canvas.toDataURL('image/jpeg', 0.95)
+}
+
 export interface SelectedMaterial {
   id: string | number
   fabricName: string
@@ -61,15 +92,12 @@ export async function generateRender({
     // The API uses only `prompt` for Gemini generateImages, so embed context in prompt.
     const prompt = [
       `You are a photorealistic furniture renderer.`,
-      `Apply the fabric texture (first image) onto the furniture product (second image).`,
-      `Produce a single photorealistic product render with the fabric fully applied.`,
-      `The fabric texture (color, weave, pattern) must match exactly.`,
-      `Keep the product shape, proportions, and lighting realistic.`,
-      `Place the sofa in a warm, modern living room lifestyle setting — soft natural light from a side window, subtle interior decor in the background (plants, a rug, a side table).`,
-      `The background should be tasteful and slightly out of focus (shallow depth of field) so the sofa and its fabric remain the clear hero of the image.`,
-      `Do not let any background element distract from the sofa or its fabric detail.`,
+      `Your task: apply the fabric texture (first image) onto the furniture product (second image) and produce a complete lifestyle render.`,
+      `CRITICAL — do not alter the product in any way: preserve its exact silhouette, structure, leg style, arm style, back height, cushion count, and all design details. Only the upholstery fabric changes.`,
+      `The fabric texture (color, weave, and pattern) must be replicated exactly as shown in the first image.`,
+      `Study the product's style, scale, and design language, then build the ideal lifestyle scene around it — the room era, mood, color palette, lighting quality, and decor props must all be chosen to best complement this specific product.`,
+      `The product should be prominently placed and the natural focal point of the fully rendered scene.`,
       `Output aspect ratio 1:1.`,
-      `Place the logo from the second image at the top-center of the output image, small and unobtrusive.`,
     ].join(' ')
 
     const ua = new UAParser.UAParser().getResult()
@@ -87,7 +115,7 @@ export async function generateRender({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        inputImages: [fabricImage,logoUrl,productImage, ],
+        inputImages: [fabricImage, productImage],
         prompt,
         mobile_number: mobileNumber,
         device_info,
@@ -105,7 +133,8 @@ export async function generateRender({
       throw new Error('API returned no image URL')
     }
 
-    onResult(data.imageUrl)
+    const composited = await overlayLogo(data.imageUrl, logoUrl)
+    onResult(composited)
   } catch (err) {
     hasError = true
     const message = err instanceof Error ? err.message : 'Unknown error'

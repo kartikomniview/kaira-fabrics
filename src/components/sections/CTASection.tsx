@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
 
-const KURIKKAL_LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/KurikalLogo.webp'
+const KURIKKAL_LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/KurikalLogoPlainLight.webp'
 
 const CTASection = () => {
   return (
     <section
       className="py-20 md:py-36 relative overflow-hidden"
-      style={{ backgroundImage: `url(${KURIKKAL_LOGO})`, backgroundSize: '35%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundColor: 'var(--color-secondary, #2e2b25)' }}
+      style={{backgroundColor: 'var(--color-secondary, #2e2b25)' }}
     >
       {/* Heavy overlay to fade the background image */}
       <div className="absolute inset-0 bg-secondary/90" />
@@ -15,11 +15,11 @@ const CTASection = () => {
 
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <div className="bg-white p-4 inline-flex">
+          <div className="p-4 inline-flex">
             <img
               src={KURIKKAL_LOGO}
               alt="Kurikkal Group"
-              className="h-28 md:h-36 w-auto object-contain"
+              className="h-28 md:h-48 w-auto object-contain"
               loading="lazy"
             />
           </div>

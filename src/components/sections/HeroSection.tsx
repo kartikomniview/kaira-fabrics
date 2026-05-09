@@ -171,7 +171,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 1.8, ease: SMOOTH_OUT }}
         >
-          Premium Fabrics &amp; Leather, curated with artisanal craftsmanship — where every texture, weave, and hue tells a story of timeless elegance.
+          Premium Fabrics &amp; Leather, curated with artisanal craftsmanship where every texture, weave, and hue tells a story of timeless elegance.
         </motion.p>
 
         {/* ── CTA Buttons ── */}
