@@ -81,7 +81,7 @@ const AIVisualizerBanner = () => {
                 See it in your
               </motion.h2>
             </div>
-            <div className="overflow-hidden mb-8">
+            <div className="overflow-hidden mb-4">
               <motion.h2
                 className="font-primary font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-primary leading-tight"
                 initial={{ y: '110%' }}
@@ -94,7 +94,7 @@ const AIVisualizerBanner = () => {
 
             {/* Divider */}
             <motion.div
-              className="w-12 h-[2px] bg-primary/50 mb-7"
+              className="w-12 h-[2px] bg-primary/50 mb-4"
               initial={{ scaleX: 0, originX: 0 }}
               animate={inView ? { scaleX: 1 } : {}}
               transition={{ duration: 0.7, delay: 0.42, ease: SMOOTH_OUT }}
@@ -102,7 +102,7 @@ const AIVisualizerBanner = () => {
 
             {/* Description */}
             <motion.p
-              className="text-stone-500 text-base sm:text-[17px] leading-relaxed mb-10 max-w-[400px]"
+              className="text-stone-500 text-base sm:text-[17px] leading-relaxed mb-6 max-w-[400px]"
               initial={{ opacity: 0, y: 14 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.45, ease: SMOOTH_OUT }}
@@ -112,7 +112,7 @@ const AIVisualizerBanner = () => {
 
             {/* Proof points */}
             <motion.div
-              className="flex gap-8 mb-10"
+              className="flex gap-8 mb-6"
               initial={{ opacity: 0, y: 14 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.56, ease: SMOOTH_OUT }}
@@ -133,7 +133,7 @@ const AIVisualizerBanner = () => {
             >
               <Link
                 to="/ai-visualizer"
-                className="group relative inline-flex items-center gap-4 px-12 py-5 bg-secondary text-white font-bold text-lg shadow-2xl shadow-secondary/30 hover:bg-secondary/90 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 overflow-hidden"
+                className="group relative inline-flex items-center gap-4 px-12 py-5 bg-secondary text-white font-bold text-sm sm:text-lg shadow-2xl shadow-secondary/30 hover:bg-secondary/90 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 overflow-hidden"
               >
                 Try the Visualizer — It's Free
                 <svg className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
