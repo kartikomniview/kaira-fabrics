@@ -132,7 +132,7 @@ const VisualizerOptions = () => {
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <button
               onClick={() => window.history.back()}
-              className="group flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all rounded-full text-[11px] font-medium tracking-wide"
+              className="group flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all text-[11px] font-medium tracking-wide"
             >
               <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -172,7 +172,7 @@ const VisualizerOptions = () => {
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50 sm:hidden" />
               <div className="absolute inset-0 hidden sm:block bg-gradient-to-r from-transparent via-white/10 to-white" />
               {/* tag */}
-              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2 bg-primary text-stone-900 rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 shadow-md z-10">
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2 bg-primary text-stone-900 px-3 sm:px-4 py-1.5 sm:py-2 shadow-md z-10">
                 <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -202,7 +202,7 @@ const VisualizerOptions = () => {
               {/* mobile CTA — full width, inside text section */}
               <button
                 onClick={(e) => handleOpen('ai', e)}
-                className="sm:hidden mt-3 mb-1 w-full flex items-center justify-center gap-2.5 py-3 bg-primary text-stone-900 rounded-xl font-black uppercase tracking-wider text-[10px] shadow-md active:scale-[0.98] transition-all"
+                className="sm:hidden mt-3 mb-1 w-full flex items-center justify-center gap-2.5 py-3 bg-primary text-stone-900 font-black uppercase tracking-wider text-[10px] shadow-md active:scale-[0.98] transition-all"
               >
                 <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -215,7 +215,7 @@ const VisualizerOptions = () => {
             <div className="hidden sm:flex shrink-0 items-center px-5 sm:px-6 lg:px-8 border-l border-stone-100">
               <button
                 onClick={(e) => handleOpen('ai', e)}
-                className="flex items-center gap-3 px-5 sm:px-7 py-3.5 sm:py-4 bg-primary text-stone-900 rounded-xl font-black uppercase tracking-wider text-[10px] sm:text-[11px] whitespace-nowrap shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all"
+                className="flex items-center gap-3 px-5 sm:px-7 py-3.5 sm:py-4 bg-primary text-stone-900 font-black uppercase tracking-wider text-[10px] sm:text-[11px] whitespace-nowrap shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -238,7 +238,7 @@ const VisualizerOptions = () => {
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50 sm:hidden" />
               <div className="absolute inset-0 hidden sm:block bg-gradient-to-r from-transparent via-white/10 to-white" />
               {/* tag */}
-              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2 bg-secondary text-white rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 shadow-md z-10">
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2 bg-secondary text-white px-3 sm:px-4 py-1.5 sm:py-2 shadow-md z-10">
                 <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
@@ -268,7 +268,7 @@ const VisualizerOptions = () => {
               {/* mobile CTA */}
               <button
                 onClick={(e) => handleOpen('3d', e)}
-                className="sm:hidden mt-3 mb-1 w-full flex items-center justify-center gap-2.5 py-3 bg-secondary text-white rounded-xl font-black uppercase tracking-wider text-[10px] shadow-md active:scale-[0.98] transition-all"
+                className="sm:hidden mt-3 mb-1 w-full flex items-center justify-center gap-2.5 py-3 bg-secondary text-white font-black uppercase tracking-wider text-[10px] shadow-md active:scale-[0.98] transition-all"
               >
                 <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -281,7 +281,7 @@ const VisualizerOptions = () => {
             <div className="hidden sm:flex shrink-0 items-center px-5 sm:px-6 lg:px-8 border-l border-stone-100">
               <button
                 onClick={(e) => handleOpen('3d', e)}
-                className="flex items-center gap-3 px-5 sm:px-7 py-3.5 sm:py-4 bg-secondary text-white rounded-xl font-black uppercase tracking-wider text-[10px] sm:text-[11px] whitespace-nowrap shadow-lg hover:opacity-90 active:scale-[0.98] transition-all"
+                className="flex items-center gap-3 px-5 sm:px-7 py-3.5 sm:py-4 bg-secondary text-white font-black uppercase tracking-wider text-[10px] sm:text-[11px] whitespace-nowrap shadow-lg hover:opacity-90 active:scale-[0.98] transition-all"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -318,7 +318,7 @@ const VisualizerOptions = () => {
             >
               <button
                 onClick={handleGoBack}
-                className="group flex items-center gap-2 h-8 px-3.5 bg-white border border-white/20 hover:bg-white/80 hover:border-white/100 text-black transition-all rounded-sm"
+                className="group flex items-center gap-2 h-8 px-3.5 bg-white border border-white/20 hover:bg-white/80 hover:border-white/100 text-black transition-all"
               >
                 <svg className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
