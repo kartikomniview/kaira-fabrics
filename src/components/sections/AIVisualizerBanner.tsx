@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import { BeforeAfterSlider } from '../ui/BeforeAfterSlider'
 
-const EXPO_OUT   = [0.16, 1, 0.3, 1]        as const
+const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
 
 const proofPoints = [
-  { value: 'Any',  label: 'Fabric Brand' },
-  { value: 'No',   label: 'Sign-up Needed' },
+  { value: 'Any', label: 'Fabric Brand' },
+  { value: 'No', label: 'Sign-up Needed' },
   { value: '~10s', label: 'To Preview' },
 ]
 
@@ -27,20 +27,20 @@ const AIVisualizerBanner = () => {
       <div className="absolute inset-0 opacity-[0.04] bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat pointer-events-none" />
 
       {/* Atmospheric glows */}
-      <div className="absolute -bottom-40 -left-40 w-[480px] h-[480px] bg-primary/8 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-0 right-0 w-[320px] h-[320px] bg-secondary/6 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -left-40 w-[480px] h-[480px] bg-primary/8  blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[320px] h-[320px] bg-secondary/6  blur-3xl pointer-events-none" />
 
       {/* Floating attention tag */}
       <motion.div
-        className="absolute top-5 right-5 sm:top-7 sm:right-8 z-10 flex items-center gap-2 px-4 py-2 bg-primary rounded-full shadow-lg shadow-primary/25"
+        className="absolute top-5 right-5 sm:top-7 sm:right-8 z-10 flex items-center gap-2 px-4 py-2 bg-primary  shadow-lg shadow-primary/25"
         initial={{ opacity: 0, y: -12, scale: 0.85 }}
         animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
         transition={{ duration: 0.7, delay: 0.2, ease: EXPO_OUT }}
       >
         {/* Pulse dot */}
         <span className="relative flex h-2 w-2 shrink-0">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+          <span className="animate-ping absolute inline-flex h-full w-full  bg-white opacity-60" />
+          <span className="relative inline-flex  h-2 w-2 bg-white" />
         </span>
         <span className="text-[10px] uppercase tracking-[0.32em] text-stone-900 font-bold whitespace-nowrap">
           AI Visualizer
@@ -60,8 +60,8 @@ const AIVisualizerBanner = () => {
           >
             <div className="relative">
               {/* Decorative rings */}
-              <div className="absolute -inset-3 rounded-3xl border border-primary/30 pointer-events-none" />
-              <div className="absolute -inset-[22px] rounded-[28px] border border-primary/12 pointer-events-none" />
+              <div className="absolute -inset-3  border border-primary/30 pointer-events-none" />
+              <div className="absolute -inset-[22px] border border-primary/12 pointer-events-none" />
 
               <BeforeAfterSlider />
             </div>
@@ -107,7 +107,7 @@ const AIVisualizerBanner = () => {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.45, ease: SMOOTH_OUT }}
             >
-              Upload a photo of your room and watch any fabric come alive on your furniture and walls in seconds, with zero guesswork.
+              Upload a photo of your room and watch any fabric come alive on your furniture in seconds, with zero guesswork.
             </motion.p>
 
             {/* Proof points */}

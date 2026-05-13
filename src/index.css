@@ -11,6 +11,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "LEMON MILK";
   src: url('/fonts/lemonmilk/LemonMilkbold.otf') format('opentype');
@@ -18,6 +19,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "LEMON MILK";
   src: url('/fonts/lemonmilk/LemonMilklight.otf') format('opentype');
@@ -25,6 +27,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "ITC Avant Garde Gothic BT";
   src: url('/fonts/avantgarde-bk-bt-2/AVGARDN_2.TTF') format('truetype');
@@ -32,6 +35,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "ITC Avant Garde Gothic BT";
   src: url('/fonts/avantgarde-bk-bt-2/AVGARDD_2.TTF') format('truetype');
@@ -44,18 +48,19 @@
    Reference these anywhere with var(--color-primary) etc.
    ─────────────────────────────────────────────────────────────────────────── */
 :root {
-  --color-primary:   #97c41e;
+  --color-primary: #97c41e;
   --color-secondary: #74623c;
   --color-secondary-dark: #5b4c2f;
-  --font-primary:    "LEMON MILK", sans-serif;
-  --font-secondary:  "ITC Avant Garde Gothic BT", "Century Gothic", "Trebuchet MS", sans-serif;
+  --font-primary: "LEMON MILK", sans-serif;
+  --font-secondary: "ITC Avant Garde Gothic BT", "Century Gothic", "Trebuchet MS", sans-serif;
 }
 
 .color-secondary-dark {
   color: var(--color-secondary-dark);
 }
 
-.bg-secondary-dark {
+.bg-secondary-dark,
+.bg-color-secondary-dark {
   background-color: var(--color-secondary-dark);
 }
 
@@ -69,33 +74,36 @@
    ─────────────────────────────────────────────────────────────────────────── */
 @theme {
   /* Primary – lime green #97c41e */
-  --color-primary:       #97c41e;
+  --color-primary: #97c41e;
   --color-primary-light: #bdf43e;
-  --color-primary-dark:  #7ec00a;
+  --color-primary-dark: #7ec00a;
 
   /* Secondary – warm brown #74623C */
-  --color-secondary:       #74623c;
+  --color-secondary: #74623c;
   --color-secondary-light: #9a8460;
-  --color-secondary-dark:  #574929;
+  --color-secondary-dark: #574929;
 
   /* Legacy aliases so existing Tailwind classes resolve to new brand colours */
-  --color-gold:       #97c41e;
+  --color-gold: #97c41e;
   --color-gold-light: #bdf43e;
-  --color-gold-dark:  #7ec00a;
-  --color-cream:      #FAF8F5;
-  --color-charcoal:   #74623C;
+  --color-gold-dark: #7ec00a;
+  --color-cream: #FAF8F5;
+  --color-charcoal: #74623C;
 
   /* Font families */
-  --font-primary:   "LEMON MILK", sans-serif;
+  --font-primary: "LEMON MILK", sans-serif;
   --font-secondary: "ITC Avant Garde Gothic BT", "Century Gothic", "Trebuchet MS", sans-serif;
-  --font-serif:     "LEMON MILK", sans-serif;
+  --font-serif: "LEMON MILK", sans-serif;
 }
 
 .font-serif span {
   font-family: var(--font-serif);
 }
 
-section h1, section h2, section h3, section h4 {
+section h1,
+section h2,
+section h3,
+section h4 {
   font-family: var(--font-serif);
 }
 
@@ -105,61 +113,163 @@ section h1, section h2, section h3, section h4 {
    Delays: image 0 → 0s | image 1 → -10s | image 2 → -5s
    ─────────────────────────────────────────────────────────────────────────── */
 @keyframes heroSlideZoomIn {
-  0%      { opacity: 0; transform: scale(1);    }
-  6.67%   { opacity: 1; transform: scale(1.01); }
-  26.67%  { opacity: 1; transform: scale(1.08); }
-  40%     { opacity: 0; transform: scale(1.1);  }
-  40.01%  { opacity: 0; transform: scale(1);    }
-  100%    { opacity: 0; transform: scale(1);    }
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+
+  6.67% {
+    opacity: 1;
+    transform: scale(1.01);
+  }
+
+  26.67% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  40% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+
+  40.01% {
+    opacity: 0;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
 }
+
 @keyframes heroSlideZoomOut {
-  0%      { opacity: 0; transform: scale(1.1);  }
-  6.67%   { opacity: 1; transform: scale(1.09); }
-  26.67%  { opacity: 1; transform: scale(1.02); }
-  40%     { opacity: 0; transform: scale(1);    }
-  40.01%  { opacity: 0; transform: scale(1.1);  }
-  100%    { opacity: 0; transform: scale(1.1);  }
+  0% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+
+  6.67% {
+    opacity: 1;
+    transform: scale(1.09);
+  }
+
+  26.67% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+
+  40% {
+    opacity: 0;
+    transform: scale(1);
+  }
+
+  40.01% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
 }
 
 /* ─── Loader Keyframes ───────────────────────────────────────────────────── */
 @keyframes kaira-weave-rise {
-  from { transform: translateY(12%); opacity: 0.08; }
-  to   { transform: translateY(0);   opacity: 0.38; }
+  from {
+    transform: translateY(12%);
+    opacity: 0.08;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 0.38;
+  }
 }
+
 @keyframes kaira-fade-scale-in {
-  from { opacity: 0; transform: scale(0.88); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
+
 @keyframes kaira-progress-sweep {
-  0%   { left: -45%; }
-  100% { left: 110%; }
+  0% {
+    left: -45%;
+  }
+
+  100% {
+    left: 110%;
+  }
 }
+
 @keyframes kaira-spin-cw {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 @keyframes kaira-spin-ccw {
-  to { transform: rotate(-360deg); }
+  to {
+    transform: rotate(-360deg);
+  }
 }
+
 @keyframes kaira-shimmer {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(300%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(300%);
+  }
 }
+
 @keyframes kaira-bounce-dot {
-  0%, 80%, 100% { transform: translateY(0);    opacity: 0.5; }
-  40%           { transform: translateY(-5px); opacity: 1;   }
+
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+
+  40% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
 }
+
 @keyframes kaira-exit-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @layer base {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     box-sizing: border-box;
   }
+
   html {
     scroll-behavior: smooth;
   }
+
   body {
     font-family: var(--font-secondary);
     background-color: var(--color-cream);
@@ -170,7 +280,13 @@ section h1, section h2, section h3, section h4 {
     min-width: 320px;
     min-height: 100vh;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-primary);
     font-weight: 400;
   }
@@ -181,6 +297,7 @@ section h1, section h2, section h3, section h4 {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }

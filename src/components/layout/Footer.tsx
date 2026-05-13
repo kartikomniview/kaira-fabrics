@@ -38,7 +38,35 @@ const Footer = () => {
     <footer className="bg-secondary-dark text-stone-400">
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-14">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 lg:gap-12">
+          {/* Company Info */}
+          <div className="col-span-2 md:col-span-4 lg:col-span-2 mb-4 lg:mb-0 space-y-6">
+            <Link to="/" className="inline-block">
+              <img
+                src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
+                alt="Kaira Fabrics"
+                className="h-20 w-auto object-contain opacity-90"
+              />
+            </Link>
+            <address className="not-italic text-sm text-stone-400 space-y-4">
+              <p className="leading-relaxed">
+                Hira Arcade, Opp. Crescent King Spear,<br />
+                Mini Bypass Road, Govindhapuram,<br />
+                Mankavu, Calicut
+              </p>
+              <div className="space-y-1.5">
+                <p>
+                  <a href="tel:+918589925111" className="hover:text-white transition-colors duration-200">+91 8589925111</a>
+                  <span className="mx-2 text-stone-600">|</span>
+                  <a href="tel:+918589925222" className="hover:text-white transition-colors duration-200">+91 8589925222</a>
+                </p>
+                <p>
+                  <a href="mailto:info@kairafabrics.in" className="hover:text-white transition-colors duration-200">info@kairafabrics.in</a>
+                </p>
+              </div>
+            </address>
+          </div>
+
           {footerColumns.map((col) => (
             <div key={col.heading}>
               <h4 className="text-xs tracking-[0.15em] uppercase font-semibold text-stone-300 mb-4">

@@ -191,25 +191,24 @@ const TestimonialsSection = () => {
             onMouseLeave={() => setIsPaused(false)}
             onTouchStart={() => setIsPaused(true)}
             onTouchEnd={() => setTimeout(() => setIsPaused(false), 5000)}
-            className={`flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth transition-all duration-700 ease-out ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
+            className={`flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {loading
               ? Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] bg-stone-200 animate-pulse aspect-[3/4.5]"
-                  />
-                ))
+                <div
+                  key={i}
+                  className="snap-start shrink-0 w-[70vw] sm:w-[260px] lg:w-[240px] bg-stone-200 animate-pulse aspect-[3/4.5]"
+                />
+              ))
               : fetchFailed
-              ? (
+                ? (
                   <div className="w-full py-10 text-center text-sm text-stone-400">
                     Could not load testimonials.
                   </div>
                 )
-              : items.map(item => (
+                : items.map(item => (
                   <TestimonialCard key={item.id} item={item} onPlay={setPreviewUrl} />
                 ))
             }
@@ -228,7 +227,7 @@ const TestimonialsSection = () => {
           className="fixed inset-0 z-[70] flex items-center justify-center p-4"
           onClick={() => setPreviewUrl(null)}
         >
-          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-color-secondary-dark backdrop-blur-sm" />
           <div className="relative z-10 w-full max-w-2xl flex flex-col" style={{ maxHeight: 'calc(100vh - 2rem)' }} onClick={e => e.stopPropagation()}>
             <div className="flex justify-end mb-2 shrink-0">
               <button
