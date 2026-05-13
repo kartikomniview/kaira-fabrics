@@ -14,7 +14,7 @@ interface GalleryItem {
 
 const TestimonialCard = ({ item, onPlay }: { item: GalleryItem; onPlay: (url: string) => void }) => {
   const videoName = item.asset_url.split('/').pop()?.replace(/\.[^.]+$/, '') ?? ''
-  const thumbnail = `https://kairafabrics.s3.ap-south-1.amazonaws.com/thumbnails/Testimonial/${videoName}.webp`
+  const thumbnail = `https://kairafabrics.s3.ap-south-1.amazonaws.com/thumbnails/Testimonial/v1/${videoName}.webp`
   const cardRef = useRef<HTMLDivElement>(null)
 
   return (

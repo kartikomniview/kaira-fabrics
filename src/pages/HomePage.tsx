@@ -92,7 +92,7 @@ const HomePage = () => {
 
       {/* Caption 1 */}
       <CaptionStrip
-        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/stripsbg/strip1.webp"
+        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/banner2.webp"
         eyebrow="Our Approach"
         before="We don't just sell fabric"
         highlight="we help customers visualize"
@@ -107,14 +107,14 @@ const HomePage = () => {
 
       {/* Caption 2 */}
       <CaptionStrip
-        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/stripsbg/strip1.webp"
+        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/banner1.webp"
         eyebrow="Craftsmanship"
         before="Every thread tells a story."
         highlight="Every collection,"
         after="a new chapter."
       />
 
-       {/* Gallery */}
+      {/* Gallery */}
       <GallerySection />
 
 
@@ -126,30 +126,30 @@ const HomePage = () => {
 
       {/* Caption 4 */}
       <CaptionStrip
-        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/stripsbg/strip1.webp"
+        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/banner2.webp"
         eyebrow="Our Legacy"
         before="Decades of craft."
         highlight="One unwavering commitment"
         after="to quality."
       />
-  
+
 
       {/* About Us Section */}
       <AboutSection />
 
-     
+
 
       {/* Testimonials */}
 
-     
+
       {/* Clients Scrollbar | About | Who We Serve | Smart Catalog — toggle SHOW_EXTRA_SECTIONS to enable */}
       {SHOW_EXTRA_SECTIONS && (
         <>
           <ClientsScrollbar />
 
-       
 
-          
+
+
 
           {/* Smart Catalog */}
           <SmartCatalogSection />

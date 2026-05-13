@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
-const EXPO_OUT   = [0.16, 1, 0.3, 1] as const
+const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 
 const KURIKKAL_LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/KurikalLogo.webp'
 
@@ -29,7 +29,7 @@ const VisualizationIcon = () => (
     {/* window */}
     <rect x="9" y="9" width="6" height="5" rx="0.5" />
     <line x1="12" y1="9" x2="12" y2="14" />
-    <line x1="9"  y1="11.5" x2="15" y2="11.5" />
+    <line x1="9" y1="11.5" x2="15" y2="11.5" />
     {/* door */}
     <path d="M10 20v-4h4v4" />
   </svg>
@@ -61,26 +61,26 @@ const S3_WHY = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhyKaira/v
 const advantages = [
   {
     title: '35+ Year Legacy',
-    desc:  "Backed by the Kurikkal Group trusted since 1991.",
-    Icon:  LegacyIcon,
+    desc: "Backed by the Kurikkal Group trusted since 1991.",
+    Icon: LegacyIcon,
     bgImg: `${S3_WHY}/Kurikkal Group Legacy.webp`,
   },
   {
     title: 'Premium Fabrics & Leather',
-    desc:  'Wide range of curated textures, weaves & leathers.',
-    Icon:  FabricIcon,
+    desc: 'Wide range of curated textures, weaves & leathers.',
+    Icon: FabricIcon,
     bgImg: `${S3_WHY}/Premium Fabrics & Leather.webp`,
   },
   {
     title: 'Smart Visualization',
-    desc:  'Preview your space with AI before you commit.',
-    Icon:  VisualizationIcon,
+    desc: 'Preview your space with AI before you commit.',
+    Icon: VisualizationIcon,
     bgImg: `${S3_WHY}/Smart Visualization.webp`,
   },
   {
     title: 'Dealer & Designer Trusted',
-    desc:  'Preferred quality partner across South India.',
-    Icon:  TrustedIcon,
+    desc: 'Preferred quality partner across South India.',
+    Icon: TrustedIcon,
     bgImg: `${S3_WHY}/Trusted by Dealers & Designers.webp`,
   },
 ]
@@ -97,10 +97,10 @@ const cardVariants = {
 // ─────────────────────────────────────────────────────────────
 const WhyKairaSection = () => {
   const headerRef = useRef<HTMLDivElement>(null)
-  const cardsRef  = useRef<HTMLDivElement>(null)
+  const cardsRef = useRef<HTMLDivElement>(null)
 
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
-  const cardsInView  = useInView(cardsRef,  { once: true, margin: '-80px' })
+  const cardsInView = useInView(cardsRef, { once: true, margin: '-80px' })
 
   return (
     <section
@@ -108,7 +108,7 @@ const WhyKairaSection = () => {
       className="relative overflow-hidden border-b border-stone-200 bg-[#f5ede0]"
     >
       {/* Arabesque texture overlay */}
-      <div className="absolute inset-0 opacity-[0.15] bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat pointer-events-none" />
+      <div style={{ backgroundSize: "cover" }} className="absolute inset-0 opacity-[0.15] bg-[url('https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b3.webp')] bg-repeat pointer-events-none" />
 
       {/* ── Secondary top accent bar — draws in ── */}
       <motion.div

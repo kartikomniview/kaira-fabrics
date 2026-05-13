@@ -21,10 +21,15 @@ const AIVisualizerBanner = () => {
     <section
       ref={ref}
       id="ai-visualizer-banner"
-      className="relative overflow-hidden bg-white border-y-2 border-primary"
+      className="relative overflow-hidden border-y-2 border-primary"
+      style={{
+        backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b3.webp)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
     >
-      {/* Subtle warm texture */}
-      <div className="absolute inset-0 opacity-[0.04] bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat pointer-events-none" />
+      {/* Light overlay for readability */}
+      <div className="absolute inset-0 bg-white/85 backdrop-blur-[1px]" />
 
       {/* Atmospheric glows */}
       <div className="absolute -bottom-40 -left-40 w-[480px] h-[480px] bg-primary/8  blur-3xl pointer-events-none" />

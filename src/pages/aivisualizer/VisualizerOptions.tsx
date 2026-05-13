@@ -122,7 +122,7 @@ const VisualizerOptions = () => {
       <div
         className="relative pt-24 sm:pt-20 lg:pt-24 pb-5 sm:pb-6 overflow-hidden"
         style={{
-          backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/stripsbg/strip1.webp)',
+          backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/banner1.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

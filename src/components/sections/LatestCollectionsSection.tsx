@@ -34,20 +34,20 @@ const LatestCollectionsSection = () => {
         { opacity: 0, x: -12 },
         { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out' },
       )
-      // Headline slides up
-      .fromTo(
-        headlineRef.current,
-        { opacity: 0, y: 32 },
-        { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out' },
-        '<0.1',
-      )
-      // Subtitle fades in
-      .fromTo(
-        subtitleRef.current,
-        { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-        '<0.15',
-      )
+        // Headline slides up
+        .fromTo(
+          headlineRef.current,
+          { opacity: 0, y: 32 },
+          { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out' },
+          '<0.1',
+        )
+        // Subtitle fades in
+        .fromTo(
+          subtitleRef.current,
+          { opacity: 0, y: 18 },
+          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+          '<0.15',
+        )
       /* ── Grid reveal (scrub fade+rise) ── */
       gsap.fromTo(
         gridRef.current,
@@ -98,7 +98,7 @@ const LatestCollectionsSection = () => {
       className="border-b border-stone-200 bg-stone-50 pt-16 md:pt-28 pb-16 md:pb-24 relative overflow-hidden"
     >
       {/* Arabesque texture overlay */}
-      <div className="absolute inset-0 opacity-[0.15] bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat pointer-events-none" />
+      <div style={{ backgroundSize: "contain" }} className="absolute inset-0 opacity-[0.15] bg-[url('https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b2.webp')] bg-repeat pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
 

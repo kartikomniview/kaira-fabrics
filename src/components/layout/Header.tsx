@@ -51,15 +51,13 @@ const Header = () => {
 
       <div className="flex justify-center w-full">
         <header
-          className={`fixed z-50 transition-all duration-300 ease-in-out ${isMobileOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'} ${
-            isHeroPage && isScrolled
+          className={`fixed z-50 transition-all duration-300 ease-in-out ${isMobileOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'} ${isHeroPage && isScrolled
               ? 'top-0 lg:top-5 w-full lg:w-[calc(100%-2rem)] max-w-[1400px] bg-white/95 backdrop-blur-md border-b lg:border border-stone-200 shadow-[0_4px_20px_rgb(0,0,0,0.05)] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)] lg:rounded-xl'
-              : `top-[2px] w-full ${
-                  transparent
-                    ? 'bg-transparent border-b border-white/10'
-                    : 'bg-white/95 backdrop-blur-md border-b border-stone-200'
-                }`
-          }`}
+              : `top-[2px] w-full ${transparent
+                ? 'bg-transparent border-b border-white/10'
+                : 'bg-white/95 backdrop-blur-md border-b border-stone-200'
+              }`
+            }`}
         >
           <div className={`${(isHeroPage && isScrolled) ? 'px-6 sm:px-8' : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12'}`}>
             <div className={`flex items-center justify-between transition-all duration-300 ${(isHeroPage && isScrolled) ? 'h-16' : 'h-16 lg:h-[76px]'}`}>
@@ -69,9 +67,8 @@ const Header = () => {
                 <img
                   src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
                   alt="Kaira Fabrics & Leather"
-                  className={`h-12 w-auto object-contain transition-all duration-500 group-hover:opacity-75 ${
-                    transparent && !isScrolled ? '' : ''
-                  }`}
+                  className={`h-12 w-auto object-contain transition-all duration-500 group-hover:opacity-75 ${transparent && !isScrolled ? '' : ''
+                    }`}
                 />
               </Link>
 
@@ -97,11 +94,10 @@ const Header = () => {
                           window.scrollTo({ top: 0, behavior: 'smooth' })
                         }
                       }}
-                      className={`relative text-[13px] tracking-[0.06em] font-semibold transition-colors duration-200 group/nav py-1.5 ${
-                        transparent && !isScrolled
+                      className={`relative text-[13px] tracking-[0.06em] font-semibold transition-colors duration-200 group/nav py-1.5 ${transparent && !isScrolled
                           ? 'text-white/85 hover:text-white drop-shadow-sm'
                           : 'text-stone-600 hover:text-stone-950'
-                      }`}
+                        }`}
                     >
                       {link.label}
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transition-all duration-300 w-0 group-hover/nav:w-full" />
@@ -126,7 +122,7 @@ const Header = () => {
                     <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round">
                       <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
                     </svg>
-                    AI Visualizer
+                    Start Visualizing
                   </Link>
                 </nav>
 
@@ -146,25 +142,22 @@ const Header = () => {
                     className="lg:hidden flex flex-col gap-[5px] p-2.5 -mr-2 touch-manipulation"
                   >
                     <span
-                      className={`block w-5 h-px transition-all duration-300 ${
-                        isMobileOpen
+                      className={`block w-5 h-px transition-all duration-300 ${isMobileOpen
                           ? 'rotate-45 translate-y-[6px] bg-stone-800'
                           : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
-                      }`}
+                        }`}
                     />
                     <span
-                      className={`block w-5 h-px transition-all duration-300 ${
-                        isMobileOpen
+                      className={`block w-5 h-px transition-all duration-300 ${isMobileOpen
                           ? 'opacity-0 scale-x-0'
                           : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
-                      }`}
+                        }`}
                     />
                     <span
-                      className={`block w-5 h-px transition-all duration-300 ${
-                        isMobileOpen
+                      className={`block w-5 h-px transition-all duration-300 ${isMobileOpen
                           ? '-rotate-45 -translate-y-[6px] bg-stone-800'
                           : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
-                      }`}
+                        }`}
                     />
                   </button>
                 </div>
@@ -176,23 +169,20 @@ const Header = () => {
 
       {/* ── Mobile Menu ──────────────────────────────────────────────────── */}
       <div
-        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ${
-          isMobileOpen ? 'pointer-events-auto' : 'pointer-events-none'
-        }`}
+        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ${isMobileOpen ? 'pointer-events-auto' : 'pointer-events-none'
+          }`}
       >
         {/* Backdrop */}
         <div
-          className={`absolute inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity duration-300 ${
-            isMobileOpen ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`absolute inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity duration-300 ${isMobileOpen ? 'opacity-100' : 'opacity-0'
+            }`}
           onClick={() => setIsMobileOpen(false)}
         />
 
         {/* Slide-in drawer */}
         <div
-          className={`absolute top-0 right-0 h-full w-[min(300px,82vw)] bg-white flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${
-            isMobileOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
+          className={`absolute top-0 right-0 h-full w-[min(300px,82vw)] bg-white flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
         >
           {/* Drawer accent stripe */}
           <div className="h-[3px] bg-primary w-full flex-shrink-0" />

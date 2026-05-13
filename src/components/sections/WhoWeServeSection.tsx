@@ -87,7 +87,7 @@ export default function WhoWeServeSection() {
 
   return (
     <section ref={ref} className="relative py-16 md:py-24 border-b border-stone-200 overflow-hidden bg-[#f5ede0]">
-      <div className="absolute inset-0 opacity-[0.15] bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat pointer-events-none" />
+      <div className="absolute inset-0 opacity-[0.15] bg-[url('https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b4.webp')] bg-repeat pointer-events-none" />
 
       <div className="relative max-w-6xl mx-auto px-6 lg:px-10">
 
@@ -99,9 +99,7 @@ export default function WhoWeServeSection() {
           transition={{ duration: 0.7, ease: EXPO_OUT }}
         >
           <div className="inline-flex items-center gap-3 mb-4">
-            <span className="h-px w-6 bg-primary" />
             <span className="text-[12px] font-bold uppercase tracking-[0.3em] text-stone-500">Who We Serve</span>
-            <span className="h-px w-6 bg-primary" />
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl md:text-[2.75rem] color-secondary-dark leading-[1.15]">
             Ready to elevate <em className="not-italic text-primary">your next project?</em>

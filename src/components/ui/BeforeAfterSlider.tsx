@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback } from 'react'
 
-const BEFORE_IMG = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/before.webp'
-const AFTER_IMG = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/after.webp'
+const BEFORE_IMG = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/before_v1.webp'
+const AFTER_IMG = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/after_v1.webp'
 
 export function BeforeAfterSlider() {
   const [pos, setPos] = useState(50)

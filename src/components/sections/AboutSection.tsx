@@ -14,8 +14,8 @@ const SOFT = [0.25, 0.46, 0.45, 0.94] as const
 // ── Animated stat counter ─────────────────────────────────────
 const Counter = ({ to, suffix = '' }: { to: number; suffix?: string }) => {
   const nodeRef = useRef<HTMLSpanElement>(null)
-  const count   = useMotionValue(0)
-  const inView  = useInView(nodeRef, { once: true })
+  const count = useMotionValue(0)
+  const inView = useInView(nodeRef, { once: true })
 
   useEffect(() => {
     if (!inView) return
@@ -36,7 +36,7 @@ const Counter = ({ to, suffix = '' }: { to: number; suffix?: string }) => {
 const StatCard = ({
   value, suffix, label, delay,
 }: { value: number; suffix: string; label: string; delay: number }) => {
-  const ref    = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-40px' })
 
   return (
@@ -58,7 +58,7 @@ const StatCard = ({
 // ── Component ─────────────────────────────────────────────────
 const AboutSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const rightRef   = useRef<HTMLDivElement>(null)
+  const rightRef = useRef<HTMLDivElement>(null)
 
   const rightInView = useInView(rightRef, { once: true, margin: '-60px' })
 
@@ -74,11 +74,12 @@ const AboutSection = () => {
     >
       {/* ── Parallax background image ── */}
       <motion.div
-        className="absolute inset-[-6%] bg-cover bg-center bg-no-repeat"
+        className="absolute inset-[-6%] bg-repeat"
         style={{
-          backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background2.webp')",
+          backgroundImage: "url('https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b4.webp')",
+          backgroundSize: 'contain',
           y: bgY,
-          opacity: 0.55,
+          opacity: 0.15,
         }}
       />
 
@@ -90,91 +91,91 @@ const AboutSection = () => {
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 sm:px-10 lg:px-16 py-20 lg:py-28">
 
-          {/* ── Content ── */}
-          <div ref={rightRef} className="space-y-6 text-center flex flex-col items-center">
+        {/* ── Content ── */}
+        <div ref={rightRef} className="space-y-6 text-center flex flex-col items-center">
 
-            {/* Eyebrow label */}
-            <motion.p
-              className="text-sm uppercase tracking-[0.3em] text-secondary font-semibold"
-              initial={{ opacity: 0, y: 10 }}
-              animate={rightInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.55, ease: SOFT }}
+          {/* Eyebrow label */}
+          <motion.p
+            className="text-sm uppercase tracking-[0.3em] text-secondary font-semibold"
+            initial={{ opacity: 0, y: 10 }}
+            animate={rightInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.55, ease: SOFT }}
+          >
+            Our Story
+          </motion.p>
+
+          {/* Logo */}
+          <motion.img
+            src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
+            alt="Kaira Fabrics"
+            className="h-32 sm:h-24 w-auto object-contain"
+            initial={{ opacity: 0, y: 18 }}
+            animate={rightInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.75, delay: 0.1, ease: SOFT }}
+          />
+
+          {/* Soft divider */}
+          <motion.div
+            className="h-px w-24 bg-gradient-to-r from-secondary/20 via-secondary/50 to-secondary/20"
+            initial={{ scaleX: 0 }}
+            animate={rightInView ? { scaleX: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.2, ease: SOFT }}
+          />
+
+          {/* Body */}
+          <motion.p
+            className="text-stone-500 text-base sm:text-lg leading-relaxed font-light"
+            initial={{ opacity: 0, y: 14 }}
+            animate={rightInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.25, ease: SOFT }}
+          >
+            Kaira is an entity under the{' '}
+            <strong className="font-semibold text-stone-700">Kurikkal Group</strong>, specializing
+            in premium sofa fabrics and leathers delivering remarkable quality right to your doorstep.
+          </motion.p>
+
+          {/* Pull quote */}
+          <motion.blockquote
+            className="max-w-lg"
+            initial={{ opacity: 0, y: 10 }}
+            animate={rightInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.65, delay: 0.35, ease: SOFT }}
+          >
+            <p className="text-stone-400 text-sm sm:text-base leading-relaxed font-light">
+              "A perfect blend of form and function with an uncompromising emphasis on quality and style."
+            </p>
+          </motion.blockquote>
+
+          {/* Stats */}
+          <motion.div
+            className="grid grid-cols-2 gap-3 pt-1 w-full max-w-xs"
+            initial={{ opacity: 0, y: 18 }}
+            animate={rightInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.45, ease: SOFT }}
+          >
+            <StatCard value={35} suffix="+" label="Years of Legacy" delay={0.5} />
+            <StatCard value={10} suffix="k+" label="Fabric Varieties" delay={0.6} />
+          </motion.div>
+
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={rightInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.55, ease: SOFT }}
+          >
+            <Link
+              to="/about"
+              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-secondary text-white font-semibold text-sm md:text-base tracking-widest uppercase overflow-hidden shadow-lg transition-shadow duration-300 hover:shadow-2xl"
             >
-              Our Story
-            </motion.p>
+              <span className="relative z-10">Discover Our Story</span>
+              <svg className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+              <div className="absolute inset-0 bg-secondary-dark translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
+            </Link>
+          </motion.div>
 
-            {/* Logo */}
-            <motion.img
-              src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
-              alt="Kaira Fabrics"
-              className="h-32 sm:h-24 w-auto object-contain"
-              initial={{ opacity: 0, y: 18 }}
-              animate={rightInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.75, delay: 0.1, ease: SOFT }}
-            />
-
-            {/* Soft divider */}
-            <motion.div
-              className="h-px w-24 bg-gradient-to-r from-secondary/20 via-secondary/50 to-secondary/20"
-              initial={{ scaleX: 0 }}
-              animate={rightInView ? { scaleX: 1 } : {}}
-              transition={{ duration: 0.8, delay: 0.2, ease: SOFT }}
-            />
-
-            {/* Body */}
-            <motion.p
-              className="text-stone-500 text-base sm:text-lg leading-relaxed font-light"
-              initial={{ opacity: 0, y: 14 }}
-              animate={rightInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, delay: 0.25, ease: SOFT }}
-            >
-              Kaira is an entity under the{' '}
-              <strong className="font-semibold text-stone-700">Kurikkal Group</strong>, specializing
-              in premium sofa fabrics and leathers delivering remarkable quality right to your doorstep.
-            </motion.p>
-
-            {/* Pull quote */}
-            <motion.blockquote
-              className="max-w-lg"
-              initial={{ opacity: 0, y: 10 }}
-              animate={rightInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.65, delay: 0.35, ease: SOFT }}
-            >
-              <p className="text-stone-400 text-sm sm:text-base leading-relaxed font-light">
-                "A perfect blend of form and function with an uncompromising emphasis on quality and style."
-              </p>
-            </motion.blockquote>
-
-            {/* Stats */}
-            <motion.div
-              className="grid grid-cols-2 gap-3 pt-1 w-full max-w-xs"
-              initial={{ opacity: 0, y: 18 }}
-              animate={rightInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, delay: 0.45, ease: SOFT }}
-            >
-              <StatCard value={35} suffix="+" label="Years of Legacy" delay={0.5} />
-              <StatCard value={10} suffix="k+" label="Fabric Varieties" delay={0.6} />
-            </motion.div>
-
-            {/* CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={rightInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.55, ease: SOFT }}
-            >
-              <Link
-                to="/about"
-                className="group relative inline-flex items-center gap-3 px-10 py-5 bg-secondary text-white font-semibold text-sm md:text-base tracking-widest uppercase overflow-hidden shadow-lg transition-shadow duration-300 hover:shadow-2xl"
-              >
-                <span className="relative z-10">Discover Our Story</span>
-                <svg className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-                <div className="absolute inset-0 bg-secondary-dark translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-              </Link>
-            </motion.div>
-
-          </div>
+        </div>
       </div>
     </section>
   )
