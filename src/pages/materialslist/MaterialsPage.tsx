@@ -12,8 +12,8 @@ const MaterialsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedCollection = searchParams.get('collection') || collections[0]?.name || ''
 
-  const [activePattern,    setActivePattern]    = useState('All')
-  const [selectedMaterial, setSelectedMaterial]  = useState<Material | null>(null)
+  const [activePattern, setActivePattern] = useState('All')
+  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)
 
   const allPatterns = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.pattern).filter((v): v is string => v !== null))).sort()], [newMaterials])
 
@@ -44,11 +44,11 @@ const MaterialsPage = () => {
     if (filteredCollections.length > 0) {
       selectCollection(filteredCollections[0].name)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePattern])
 
   useEffect(() => {
-      window.scrollTo(0, 0)
+    window.scrollTo(0, 0)
   }, [])
 
   const selectCollection = (name: string) => {
@@ -70,7 +70,7 @@ const MaterialsPage = () => {
         <div className="absolute inset-0 pointer-events-none opacity-[0.18]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
         {/* ── Page Header ──────────────────────────────────────────── */}
-        <div className="bg-stone-900 pt-24 pb-6">
+        <div className="bg-color-secondary-dark pt-24 pb-6">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
             <Link
               to="/"
@@ -127,18 +127,17 @@ const MaterialsPage = () => {
                   <button
                     key={c.id}
                     onClick={() => selectCollection(c.name)}
-                    className={`w-full text-left px-3 py-2.5 flex items-center justify-between gap-3 border-b border-stone-50 transition-all duration-150 ${
-                      isActive
-                        ? 'bg-charcoal text-cream'
-                        : 'bg-white text-stone-600 hover:bg-stone-50 hover:text-charcoal'
-                    }`}
+                    className={`w-full text-left px-3 py-2.5 flex items-center justify-between gap-3 border-b border-stone-50 transition-all duration-150 ${isActive
+                      ? 'bg-charcoal text-cream'
+                      : 'bg-white text-stone-600 hover:bg-stone-50 hover:text-charcoal'
+                      }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       {/* Collection Thumbnail */}
                       <div className={`w-10 h-10 rounded-sm overflow-hidden shrink-0 border ${isActive ? 'border-stone-700' : 'border-stone-100'}`}>
-                        <img 
-                          src={c.image} 
-                          alt={c.name} 
+                        <img
+                          src={c.image}
+                          alt={c.name}
                           className="w-full h-full object-cover"
                           onError={(e) => { (e.currentTarget as HTMLImageElement).src = 'https://via.placeholder.com/40?text=K' }}
                         />
@@ -152,9 +151,8 @@ const MaterialsPage = () => {
                         </p>
                       </div>
                     </div>
-                    <span className={`text-[9px] font-bold shrink-0 px-1.5 py-0.5 rounded-full min-w-[22px] text-center leading-none ${
-                      isActive ? 'bg-gold text-charcoal' : 'bg-stone-100 text-stone-400'
-                    }`}>
+                    <span className={`text-[9px] font-bold shrink-0 px-1.5 py-0.5 rounded-full min-w-[22px] text-center leading-none ${isActive ? 'bg-gold text-charcoal' : 'bg-stone-100 text-stone-400'
+                      }`}>
                       {c.itemCount}
                     </span>
                   </button>
@@ -167,9 +165,8 @@ const MaterialsPage = () => {
           <div className="md:hidden w-full">
             <button
               onClick={() => setShowMobileCollections((v) => !v)}
-              className={`w-full flex items-center justify-between gap-2 border px-4 py-2.5 text-[12px] uppercase tracking-widest font-medium transition-colors ${
-                showMobileCollections ? 'bg-charcoal text-cream border-charcoal' : 'bg-white text-charcoal border-stone-200'
-              }`}
+              className={`w-full flex items-center justify-between gap-2 border px-4 py-2.5 text-[12px] uppercase tracking-widest font-medium transition-colors ${showMobileCollections ? 'bg-charcoal text-cream border-charcoal' : 'bg-white text-charcoal border-stone-200'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <svg className="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,15 +184,14 @@ const MaterialsPage = () => {
                   <button
                     key={c.id}
                     onClick={() => { selectCollection(c.name); setShowMobileCollections(false) }}
-                    className={`w-full text-left px-4 py-2.5 flex items-center justify-between border-b border-stone-50 text-[12px] uppercase tracking-widest font-medium transition-colors ${
-                      c.name === selectedCollection ? 'bg-stone-100 text-charcoal' : 'text-stone-500 hover:bg-stone-50 hover:text-charcoal'
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 flex items-center justify-between border-b border-stone-50 text-[12px] uppercase tracking-widest font-medium transition-colors ${c.name === selectedCollection ? 'bg-stone-100 text-charcoal' : 'text-stone-500 hover:bg-stone-50 hover:text-charcoal'
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-sm overflow-hidden shrink-0 border border-stone-100">
-                        <img 
-                          src={c.image} 
-                          alt={c.name} 
+                        <img
+                          src={c.image}
+                          alt={c.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
