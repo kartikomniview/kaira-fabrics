@@ -146,6 +146,14 @@ const WhyKairaSection = () => {
               Why <span className="text-primary">Kaira?</span>
             </motion.h2>
           </div>
+          <motion.p
+            className="text-stone-500 mt-4 text-lg font-sans"
+            initial={{ opacity: 0, y: 10 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.4, ease: EXPO_OUT }}
+          >
+            Driven by an ambitious & enthusiastic team.
+          </motion.p>
         </div>
 
         {/* ══ COMPACT INFO ROW ══ */}

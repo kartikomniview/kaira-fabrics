@@ -107,7 +107,7 @@ const AIVisualizerBanner = () => {
 
             {/* Description */}
             <motion.p
-              className="text-stone-500 text-base sm:text-[17px] leading-relaxed mb-6 max-w-[400px]"
+              className="color-secondary-dark text-base sm:text-[17px] leading-relaxed mb-6 max-w-[400px]"
               initial={{ opacity: 0, y: 14 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.45, ease: SMOOTH_OUT }}
@@ -125,7 +125,7 @@ const AIVisualizerBanner = () => {
               {proofPoints.map((p, i) => (
                 <div key={i} className="flex flex-col items-start">
                   <span className="font-serif text-2xl text-primary leading-none mb-1">{p.value}</span>
-                  <span className="text-stone-400 text-[11px] uppercase tracking-widest leading-snug border-t border-stone-200 pt-1">{p.label}</span>
+                  <span className="color-secondary-dark text-[11px] uppercase tracking-widest leading-snug border-t border-stone-200 pt-1">{p.label}</span>
                 </div>
               ))}
             </motion.div>

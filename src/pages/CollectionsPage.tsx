@@ -1089,7 +1089,7 @@ function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => 
         )}
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/5 transition-colors duration-300 flex items-center justify-center">
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-stone-900/90 text-white text-[9px] uppercase font-bold tracking-[0.2em] px-4 py-2  shadow-sm">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-color-secondary-dark text-white text-[9px] uppercase font-bold tracking-[0.2em] px-4 py-2  shadow-sm">
             View Collection
           </span>
         </div>
@@ -1268,7 +1268,7 @@ const CollectionsPage = () => {
                           key={type}
                           onClick={() => setActiveMaterialType(type)}
                           className={`flex items-center gap-1.5 px-3 md:px-4 py-2 md:py-2.5 text-[11px] md:text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200  shadow-sm whitespace-nowrap ${isActive
-                            ? 'bg-stone-900 text-white'
+                            ? 'bg-color-secondary-dark text-white'
                             : 'bg-white border border-stone-200 text-stone-600 hover:border-primary/40 hover:text-stone-900'
                             }`}
                         >
@@ -1367,7 +1367,7 @@ const CollectionsPage = () => {
                 <div className="flex flex-col items-center gap-2 mt-8 md:mt-10">
                   <button
                     onClick={() => setVisibleCount((v) => v + 12)}
-                    className="group flex items-center gap-3 px-10 py-3.5 bg-stone-900 text-white text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-primary hover:text-stone-900 transition-all duration-300  shadow-md"
+                    className="group flex items-center gap-3 px-10 py-3.5 bg-color-secondary-dark text-white text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-primary hover:text-stone-900 transition-all duration-300  shadow-md"
                   >
                     Load More
                     <svg className="w-4 h-4 group-hover:translate-y-0.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -1421,7 +1421,7 @@ const CollectionsPage = () => {
           {/* Right */}
           <button
             onClick={() => navigate('/ai-visualizer')}
-            className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-stone-900 text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all  shadow-lg transform hover:-translate-y-0.5"
+            className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-color-secondary-dark text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all  shadow-lg transform hover:-translate-y-0.5"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
