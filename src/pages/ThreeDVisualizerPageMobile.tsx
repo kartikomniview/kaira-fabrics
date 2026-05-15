@@ -671,45 +671,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
               </div>
             )}
           </div>
-
-          {/* Selected material bar — slides in when a fabric is active */}
-          <div
-            className={`shrink-0 border-t border-stone-200 bg-stone-50 overflow-hidden transition-all duration-200 ${selected ? 'max-h-16' : 'max-h-0 border-t-0'}`}
-            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-          >
-            {selected && (
-              <div className="px-3 py-2 flex items-center gap-2.5">
-                <div className="relative shrink-0">
-                  <img
-                    src={selected.textureUrl}
-                    alt={selected.fabricName}
-                    className="w-9 h-9  object-cover border-2 border-secondary/30"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                  />
-                  {isApplying && (
-                    <div className="absolute inset-0  bg-white/60 flex items-center justify-center">
-                      <div className="w-3 h-3 border border-secondary/40 border-t-secondary animate-spin" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-[10px] font-bold text-stone-800 uppercase tracking-tight truncate">{selected.collectionName}</p>
-                    {selected.colorGroup && (
-                      <span
-                        className="w-3 h-3 border border-white/50 shrink-0"
-                        style={{ backgroundColor: COLOR_MAP[selected.colorGroup] ?? '#aaa' }}
-                      />
-                    )}
-                  </div>
-                  <p className="text-[9px] text-stone-400 truncate">{selected.fabricName.replace(selected.collectionName, '').trim()}</p>
-                </div>
-                <div className={`text-[8px] px-1.5 py-0.5 shrink-0 ${isApplying ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                  {isApplying ? 'Applying…' : 'Applied'}
-                </div>
-              </div>
-            )}
-          </div>
+         
         </div>
       </div>
 

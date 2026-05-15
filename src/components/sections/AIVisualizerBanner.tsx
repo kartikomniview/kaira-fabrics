@@ -37,7 +37,7 @@ const AIVisualizerBanner = () => {
 
       {/* Floating attention tag */}
       <motion.div
-        className="absolute top-5 right-5 sm:top-7 sm:right-8 z-10 flex items-center gap-2 px-4 py-2 bg-primary  shadow-lg shadow-primary/25"
+        className="hidden sm:flex absolute top-5 right-5 sm:top-7 sm:right-8 z-10 items-center gap-2 px-4 py-2 bg-primary  shadow-lg shadow-primary/25"
         initial={{ opacity: 0, y: -12, scale: 0.85 }}
         animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
         transition={{ duration: 0.7, delay: 0.2, ease: EXPO_OUT }}
@@ -52,7 +52,7 @@ const AIVisualizerBanner = () => {
         </span>
       </motion.div>
 
-      <div className="relative max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-20 lg:py-28">
+      <div className="relative max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10 md:py-20 lg:py-28">
 
         <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-20">
 
@@ -78,7 +78,7 @@ const AIVisualizerBanner = () => {
             {/* Headline */}
             <div className="overflow-hidden mb-1 font-serif">
               <motion.h2
-                className="font-primary font-serif text-4xl sm:text-5xl md:text-[3.2rem] color-secondary-dark leading-tight"
+                className="font-primary font-serif text-3xl sm:text-4xl md:text-[3.2rem] color-secondary-dark leading-tight"
                 initial={{ y: '110%' }}
                 animate={inView ? { y: '0%' } : {}}
                 transition={{ duration: 0.9, delay: 0.15, ease: EXPO_OUT }}
@@ -107,7 +107,7 @@ const AIVisualizerBanner = () => {
 
             {/* Description */}
             <motion.p
-              className="color-secondary-dark text-base sm:text-[17px] leading-relaxed mb-6 max-w-[400px]"
+              className="color-secondary-dark text-base sm:text-[16px] leading-relaxed mb-6 max-w-[400px]"
               initial={{ opacity: 0, y: 14 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.45, ease: SMOOTH_OUT }}

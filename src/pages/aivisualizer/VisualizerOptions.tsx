@@ -330,7 +330,7 @@ const VisualizerOptions = () => {
 
               <div className="flex items-center gap-2">
                 <div className={`w-1.5 h-1.5 rounded-full ${isEngineReady ? 'bg-emerald-500' : 'bg-primary animate-pulse'}`} />
-                <span className="text-[11px] color-secondary-dark font-bold tracking-[0.2em] uppercase">
+                <span className="text-[11px] text-white font-bold tracking-[0.2em] uppercase">
                   {mode === 'ai' ? 'AI Visualizer' : '3D Fabric Studio'}
                 </span>
               </div>
