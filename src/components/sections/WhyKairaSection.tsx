@@ -215,6 +215,15 @@ const WhyKairaSection = () => {
             <p className="text-stone-500 text-sm leading-relaxed font-sans">
               Three decades of crafting spaces and building relationships powered by a relentless commitment to quality.
             </p>
+            <a
+              href="/about"
+              className="inline-flex items-center gap-1 mt-3 text-secondary text-sm font-semibold tracking-wide hover:underline underline-offset-4 transition-colors duration-300"
+            >
+              Discover our story
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path fillRule="evenodd" d="M5 10a.75.75 0 0 1 .75-.75h6.638L10.23 7.29a.75.75 0 1 1 1.04-1.08l3.5 3.25a.75.75 0 0 1 0 1.08l-3.5 3.25a.75.75 0 1 1-1.04-1.08l2.158-1.96H5.75A.75.75 0 0 1 5 10Z" clipRule="evenodd" />
+              </svg>
+            </a>
           </motion.div>
 
         </div>

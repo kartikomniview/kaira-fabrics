@@ -111,18 +111,18 @@ export default function WhoWeServeSection() {
 
         {/* Cards */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6"
+          className="flex flex-row overflow-x-auto gap-4 snap-x snap-mandatory pb-3 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-x-visible md:pb-0"
           variants={container}
           initial="hidden"
           animate={isVisible ? 'visible' : 'hidden'}
         >
           {cards.map((card) => (
-            <motion.div key={card.title} variants={cardAnim} className="h-full">
+            <motion.div key={card.title} variants={cardAnim} className="shrink-0 w-[72vw] sm:w-[55vw] snap-center md:w-auto md:h-full">
               <a
                 href={card.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex flex-col overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 h-[420px] md:h-[460px]"
+                className="group relative flex flex-col overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 h-[300px] md:h-[460px]"
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -137,7 +137,7 @@ export default function WhoWeServeSection() {
                 </div>
 
                 {/* Top label */}
-                <div className="relative p-5">
+                <div className="relative p-3 md:p-5">
                   <span className={`inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] border shadow-sm px-3 py-1 ${card.tagColor}`}>
                     {card.icon}
                     {card.tag}
@@ -145,17 +145,17 @@ export default function WhoWeServeSection() {
                 </div>
 
                 {/* Bottom content */}
-                <div className="relative mt-auto p-6">
-                  <h3 className="font-serif text-[1.6rem] mb-2 leading-snug inline-block bg-white/25 backdrop-blur-md shadow-sm rounded-md px-3 py-1">
+                <div className="relative mt-auto p-4 md:p-6">
+                  <h3 className="font-serif text-[1.3rem] md:text-[1.6rem] mb-1.5 md:mb-2 leading-snug inline-block bg-white/25 backdrop-blur-md shadow-sm rounded-md px-3 py-1">
                     {card.titleParts.map((part, i) => (
                       <span key={i} className={part.primary ? 'text-primary' : 'text-primary'}>
                         {part.text}
                       </span>
                     ))}
                   </h3>
-                  <p className="text-white/70 text-[13px] leading-relaxed mb-5">{card.description}</p>
-                  <div className="flex items-center justify-between pt-4 border-t border-white/15">
-                    <span className="inline-flex items-center gap-2 bg-primary text-white text-xs font-bold uppercase tracking-widest px-6 py-3 group-hover:gap-3.5 transition-all duration-300">
+                  <p className="text-white/70 text-[12px] md:text-[13px] leading-relaxed mb-3 md:mb-5 line-clamp-2 md:line-clamp-none">{card.description}</p>
+                  <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-white/15">
+                    <span className="inline-flex items-center gap-2 bg-primary text-white text-[10px] md:text-xs font-bold uppercase tracking-widest px-4 py-2 md:px-6 md:py-3 group-hover:gap-3.5 transition-all duration-300">
                       {card.cta}
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />

@@ -1,4 +1,14 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+
+const LOADING_MESSAGES = [
+  "Matching the texture and colour just right...",
+  "Almost there — adding the finishing touches...",
+  "Giving your sofa a fresh new look...",
+  "Blending the fabric into the scene...",
+  "Checking every detail before the reveal...",
+  "Your preview is coming together nicely...",
+  "Just a few more seconds...",
+]
 import { BeforeAfterSlider } from '../../components/ui/BeforeAfterSlider'
 import type { NewMaterial } from '../../data/newmaterials'
 import { MaterialsInventory, S3_THUMB } from './MaterialsInventory'
@@ -35,6 +45,20 @@ const AiVisualizerEngine = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [generateError, setGenerateError] = useState<string | null>(null)
+  const [cyclingMsg, setCyclingMsg] = useState(LOADING_MESSAGES[0])
+
+  useEffect(() => {
+    if (!isGenerating) { setCyclingMsg(LOADING_MESSAGES[0]); return }
+    let idx = 0
+    const id = setInterval(() => {
+      if (idx < LOADING_MESSAGES.length - 1) {
+        idx += 1
+        setCyclingMsg(LOADING_MESSAGES[idx])
+      }
+    }, 3000)
+    return () => clearInterval(id)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGenerating])
   const [showImageModal, setShowImageModal] = useState(false)
   const [imgZoom, setImgZoom] = useState(1)
   const [showFabricModal, setShowFabricModal] = useState(false)
@@ -505,9 +529,14 @@ const AiVisualizerEngine = () => {
 
             {isGenerating ? (
               <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-stone-100 border-t-primary animate-spin mb-4 sm:mb-6" />
+                <div className="w-10 h-10 rounded-full sm:w-12 sm:h-12 border-4 border-stone-100 border-t-primary animate-spin mb-4 sm:mb-6" />
                 <h3 className="text-xs sm:text-sm font-bold color-secondary-dark tracking-wide uppercase mb-2">Creating Your Preview...</h3>
-                <p className="text-[11px] sm:text-xs color-secondary-dark text-center">Draping your chosen fabric beautifully over the sofa this may take a moment.</p>
+                <p
+                  key={cyclingMsg}
+                  className="text-[11px] sm:text-xs color-secondary-dark text-center transition-opacity duration-500 animate-[fadeInUp_0.5s_ease_forwards]"
+                >
+                  {cyclingMsg}
+                </p>
               </div>
             ) : generateError ? (
               <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12 gap-4">

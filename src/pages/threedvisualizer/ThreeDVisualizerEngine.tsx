@@ -104,8 +104,9 @@ const ThreeDVisualizerEngine = ({
   const colorScrollRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const fabricMeshesRef = useRef<any[]>([])
+  const autoAppliedRef = useRef(false)
   const [activeMaterialType, setActiveMaterialType] = useState('All')
-  const [activeCollection, setActiveCollection] = useState('All')
+  const [activeCollection, setActiveCollection] = useState('Knoxa')
   const [activeColorGroup, setActiveColorGroup] = useState('All')
   const [activePattern, setActivePattern] = useState('All')
   const [search, setSearch] = useState('')
@@ -141,7 +142,12 @@ const ThreeDVisualizerEngine = ({
   }, [showColDropdown])
 
   useEffect(() => {
-    setActiveCollection('All')
+    if (activeMaterialType === 'All') {
+      setActiveCollection('Knoxa')
+    } else {
+      const firstInType = collectionsWithThumbs[0]
+      setActiveCollection(firstInType ? firstInType.name : 'All')
+    }
   }, [activeMaterialType])
 
   useEffect(() => {
@@ -298,6 +304,28 @@ const ThreeDVisualizerEngine = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelLoaded])
 
+  // Auto-apply first Knoxa material on initial load
+  useEffect(() => {
+    if (autoAppliedRef.current || newMaterials.length === 0) return
+    const firstKnoxa = newMaterials.find(m => m.collection_name === 'Knoxa')
+    if (!firstKnoxa) return
+    autoAppliedRef.current = true
+    const mat: SelectedMaterial = {
+      id: firstKnoxa.id,
+      fabricName: `${firstKnoxa.collection_name} ${firstKnoxa.material_name}`,
+      textureUrl: `${S3_THUMB}/${firstKnoxa.collection_name}/${firstKnoxa.material_code}.webp`,
+      roughness: firstKnoxa.roughness ?? 0.5,
+      metalness: firstKnoxa.metalness ?? 0,
+      collectionName: firstKnoxa.collection_name,
+      materialCode: firstKnoxa.material_code,
+      materialType: firstKnoxa.material_type ?? '',
+      colorGroup: firstKnoxa.color_group,
+    }
+    setSelected(mat)
+    if (modelLoaded) applyTexture(mat)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newMaterials])
+
   useEffect(() => {
     setModelLoaded(false)
     fabricMeshesRef.current = []
@@ -327,13 +355,12 @@ const ThreeDVisualizerEngine = ({
 
             {/* Search bar */}
             <div
-              className={`flex items-center gap-2 rounded-none border transition-all duration-200 px-3 py-2 ${
-                isSearchFocused
-                  ? 'border-primary/60 bg-white shadow-md ring-1 ring-primary/20'
-                  : isSearchMode
+              className={`flex items-center gap-2 rounded-none border transition-all duration-200 px-3 py-2 ${isSearchFocused
+                ? 'border-primary/60 bg-white shadow-md ring-1 ring-primary/20'
+                : isSearchMode
                   ? 'border-primary/30 bg-primary/5'
                   : 'border-stone-200 bg-white hover:border-stone-300'
-              }`}
+                }`}
             >
               <svg className={`w-3.5 h-3.5 shrink-0 transition-colors ${isSearchFocused || isSearchMode ? 'text-primary' : 'color-secondary-dark/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -446,9 +473,8 @@ const ThreeDVisualizerEngine = ({
                           key={c}
                           onClick={() => setActiveColorGroup(c)}
                           title={c}
-                          className={`relative shrink-0 flex items-center justify-center w-[18px] h-[18px] rounded-none transition-all ${
-                            isActive ? 'ring-2 ring-offset-1 ring-primary scale-110' : 'hover:scale-110 hover:ring-1 hover:ring-stone-300 ring-offset-1'
-                          }`}
+                          className={`relative shrink-0 flex items-center justify-center w-[18px] h-[18px] rounded-none transition-all ${isActive ? 'ring-2 ring-offset-1 ring-primary scale-110' : 'hover:scale-110 hover:ring-1 hover:ring-stone-300 ring-offset-1'
+                            }`}
                         >
                           <span
                             className="absolute inset-0 rounded-none border border-stone-200 shadow-sm"
@@ -475,7 +501,7 @@ const ThreeDVisualizerEngine = ({
                   <span className="inline-flex items-center gap-1 bg-secondary-dark text-white text-[11px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-none">
                     <span className="text-white/40 mr-0.5">Type:</span>{activeMaterialType}
                     <button onClick={() => setActiveMaterialType('All')} className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-none bg-white/10 hover:bg-white/20 transition-colors shrink-0">
-                      <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                      <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
                     </button>
                   </span>
                 )}
@@ -483,7 +509,7 @@ const ThreeDVisualizerEngine = ({
                   <span className="inline-flex items-center gap-1 bg-secondary-dark text-white text-[11px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-none">
                     <span className="text-white/40 mr-0.5">Col:</span>{activeCollection}
                     <button onClick={() => setActiveCollection('All')} className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-none bg-white/10 hover:bg-white/20 transition-colors shrink-0">
-                      <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                      <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
                     </button>
                   </span>
                 )}
@@ -492,7 +518,7 @@ const ThreeDVisualizerEngine = ({
                     <span className="w-2.5 h-2.5 rounded-none border border-white/20 shrink-0" style={{ background: COLOR_MAP[activeColorGroup] ?? '#d0c8c0' }} />
                     {activeColorGroup}
                     <button onClick={() => setActiveColorGroup('All')} className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-none bg-white/10 hover:bg-white/20 transition-colors shrink-0">
-                      <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                      <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
                     </button>
                   </span>
                 )}
@@ -500,7 +526,7 @@ const ThreeDVisualizerEngine = ({
                   <span className="inline-flex items-center gap-1 bg-secondary-dark text-white text-[11px] font-bold uppercase tracking-wider pl-2.5 pr-1.5 py-1 rounded-none">
                     <span className="text-white/40 mr-0.5">Pattern:</span>{activePattern}
                     <button onClick={() => setActivePattern('All')} className="ml-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-none bg-white/10 hover:bg-white/20 transition-colors shrink-0">
-                      <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                      <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
                     </button>
                   </span>
                 )}
@@ -544,11 +570,9 @@ const ThreeDVisualizerEngine = ({
                       <button
                         key={m.id}
                         onClick={() => handleSelect(m)}
-                        className={`overflow-hidden rounded-none border-2 relative transition-all ${
-                          isSearchMode ? 'aspect-[4/5]' : 'aspect-square'
-                        } ${
-                          isActive ? 'border-primary shadow-md scale-[1.03]' : 'border-transparent hover:border-stone-300'
-                        }`}
+                        className={`overflow-hidden rounded-none border-2 relative transition-all ${isSearchMode ? 'aspect-[4/5]' : 'aspect-square'
+                          } ${isActive ? 'border-primary shadow-md scale-[1.03]' : 'border-transparent hover:border-stone-300'
+                          }`}
                       >
                         <img
                           src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
@@ -575,10 +599,10 @@ const ThreeDVisualizerEngine = ({
                             {(m.material_type?.toLowerCase().includes(search.toLowerCase()) ||
                               m.color_group?.toLowerCase().includes(search.toLowerCase()) ||
                               (m as any).pattern?.toLowerCase().includes(search.toLowerCase())) && (
-                              <p className="text-[9px] text-primary/80 mt-0.5 truncate">
-                                {highlight(m.material_type ?? '', search.trim())} · {highlight(m.color_group ?? '', search.trim())}
-                              </p>
-                            )}
+                                <p className="text-[9px] text-primary/80 mt-0.5 truncate">
+                                  {highlight(m.material_type ?? '', search.trim())} · {highlight(m.color_group ?? '', search.trim())}
+                                </p>
+                              )}
                           </div>
                         ) : (
                           <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex flex-col items-center justify-center transition-opacity p-1 text-center">
@@ -615,7 +639,7 @@ const ThreeDVisualizerEngine = ({
           <div className="h-12 shrink-0 bg-white border-b border-stone-200/80 flex items-center px-4 gap-4 z-10 relative">
             <button
               onClick={() => setProductPanelOpen(true)}
-              style={{display:"none"}}
+              style={{ display: "none" }}
               className=" items-center gap-2 h-8 px-4 bg-secondary-dark hover:bg-stone-800 text-white transition-all rounded-none shrink-0 shadow-sm"
             >
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -639,10 +663,10 @@ const ThreeDVisualizerEngine = ({
               alt={`${currentProduct.product_name} 3D model`}
               camera-controls
               disable-pan
-              tone-mapping="neutral"
-              exposure="0.9"
-              shadow-intensity="1.2"
-              shadow-softness="0.8"
+              tone-mapping="commerce"
+              exposure="0.7"
+              shadow-intensity="0.6"
+              shadow-softness="1"
               max-camera-orbit="Infinity 90deg auto"
               camera-orbit="auto auto 4m"
               ar
@@ -652,15 +676,13 @@ const ThreeDVisualizerEngine = ({
 
             {/* ── Product selector slide panel ── */}
             <div
-              className={`absolute inset-0 z-20 bg-stone-900/30 backdrop-blur-[1px] transition-opacity duration-300 ${
-                productPanelOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-              }`}
+              className={`absolute inset-0 z-20 bg-stone-900/30 backdrop-blur-[1px] transition-opacity duration-300 ${productPanelOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
               onClick={() => setProductPanelOpen(false)}
             />
             <div
-              className={`absolute inset-y-0 left-0 z-30 w-72 flex flex-col bg-white border-r border-stone-200 shadow-2xl transition-transform duration-300 ease-in-out ${
-                productPanelOpen ? 'translate-x-0' : '-translate-x-full'
-              }`}
+              className={`absolute inset-y-0 left-0 z-30 w-72 flex flex-col bg-white border-r border-stone-200 shadow-2xl transition-transform duration-300 ease-in-out ${productPanelOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}
             >
               <div className="h-12 shrink-0 bg-stone-50 border-b border-stone-200 flex items-center px-5 justify-between">
                 <div>
@@ -683,11 +705,10 @@ const ThreeDVisualizerEngine = ({
                     <button
                       key={p.product_id}
                       onClick={() => { setCurrentProduct(p); setProductPanelOpen(false) }}
-                      className={`w-full flex items-center gap-4 px-5 py-3.5 transition-all border-l-[3px] border-b border-stone-50/50 ${
-                        isActive
-                          ? 'bg-stone-50 text-stone-900 border-l-stone-900'
-                          : 'hover:bg-stone-50 border-l-transparent text-stone-600'
-                      }`}
+                      className={`w-full flex items-center gap-4 px-5 py-3.5 transition-all border-l-[3px] border-b border-stone-50/50 ${isActive
+                        ? 'bg-stone-50 text-stone-900 border-l-stone-900'
+                        : 'hover:bg-stone-50 border-l-transparent text-stone-600'
+                        }`}
                     >
                       <div className="w-14 h-14 shrink-0 rounded-none overflow-hidden border border-stone-200 bg-white">
                         <img
@@ -698,9 +719,8 @@ const ThreeDVisualizerEngine = ({
                         />
                       </div>
                       <div className="flex-1 min-w-0 text-left">
-                        <p className={`text-xs font-bold uppercase tracking-widest truncate ${
-                          isActive ? 'color-secondary-dark' : 'color-secondary-dark/70'
-                        }`}>
+                        <p className={`text-xs font-bold uppercase tracking-widest truncate ${isActive ? 'color-secondary-dark' : 'color-secondary-dark/70'
+                          }`}>
                           {p.product_name}
                         </p>
                         <p className="text-[10px] text-stone-400 font-medium tracking-[0.1em] mt-1 uppercase">

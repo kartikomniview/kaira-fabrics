@@ -108,7 +108,7 @@ const AboutSection = () => {
           <motion.img
             src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
             alt="Kaira Fabrics"
-            className="h-32 sm:h-24 w-auto object-contain"
+            className="h-24 md:h-32 sm:h-24 w-auto object-contain"
             initial={{ opacity: 0, y: 18 }}
             animate={rightInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.75, delay: 0.1, ease: SOFT }}

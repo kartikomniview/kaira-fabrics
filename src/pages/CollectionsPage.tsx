@@ -78,7 +78,7 @@ function CatalogPreviewModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-stone-900 flex-shrink-0 border-b border-white/5">
+        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-secondary-dark flex-shrink-0 border-b border-white/5">
           <div className="flex items-center gap-2.5 md:gap-3.5">
             <svg className="w-4 h-4 md:w-5 md:h-5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -90,7 +90,7 @@ function CatalogPreviewModal({
           <div className="flex items-center gap-3 md:gap-5">
             <button
               onClick={() => setShowContactForm(true)}
-              className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[10px] md:text-xs uppercase font-bold tracking-[0.2em] bg-primary text-stone-900 hover:bg-white transition-all shadow-lg hover:scale-[1.02] active:scale-95"
+              className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[10px] md:text-xs uppercase font-bold tracking-[0.2em] bg-primary text-color-secondary-dark hover:bg-white transition-all shadow-lg hover:scale-[1.02] active:scale-95"
             >
               <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -99,7 +99,7 @@ function CatalogPreviewModal({
             </button>
             <button
               onClick={onClose}
-              className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-stone-500 hover:text-white hover:bg-white/10 transition-all"
+              className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-color-secondary-dark hover:text-white hover:bg-white/10 transition-all"
             >
               <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -125,12 +125,12 @@ function CatalogPreviewModal({
               <div className="absolute inset-0 flex flex-col justify-between p-4 md:p-8">
                 <div className="flex items-center justify-between">
                   <span className="text-[7px] md:text-[9px] tracking-[0.35em] text-primary uppercase font-medium">KAIRA FABRICS</span>
-                  <span className="text-[6px] md:text-[8px] tracking-[0.2em] text-stone-500 uppercase">Product Catalog</span>
+                  <span className="text-[6px] md:text-[8px] tracking-[0.2em] text-color-secondary-dark uppercase">Product Catalog</span>
                 </div>
                 <div>
                   <p className="text-[7px] md:text-[9px] tracking-[0.3em] text-primary/80 uppercase mb-1 md:mb-2">{collection.category}</p>
                   <h1 className="font-serif text-[20px] md:text-[32px] text-white leading-tight mb-1 md:mb-2">{collection.name}</h1>
-                  <p className="text-[9px] md:text-[11px] text-stone-400 leading-relaxed max-w-md" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <p className="text-[9px] md:text-[11px] text-color-secondary-dark leading-relaxed max-w-md" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {collection.description}
                   </p>
                 </div>
@@ -142,11 +142,11 @@ function CatalogPreviewModal({
             <div className="px-4 md:px-8 py-5 md:py-8 border-b border-stone-100 flex items-start gap-4 md:gap-12">
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] md:text-[11px] tracking-[0.3em] uppercase font-bold text-primary mb-2 md:mb-3">About this Collection</p>
-                <p className="text-[13px] md:text-[15px] text-stone-600 leading-relaxed font-medium">{collection.description}</p>
+                <p className="text-[13px] md:text-[15px] text-color-secondary-dark leading-relaxed font-medium">{collection.description}</p>
                 {collection.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-3 md:mt-5">
                     {collection.tags.map((tag) => (
-                      <span key={tag} className="text-[9px] md:text-[10px] px-2.5 md:px-3 py-1 border border-stone-200 text-stone-500 tracking-wider uppercase font-bold">
+                      <span key={tag} className="text-[9px] md:text-[10px] px-2.5 md:px-3 py-1 border border-stone-200 text-color-secondary-dark tracking-wider uppercase font-bold">
                         {tag}
                       </span>
                     ))}
@@ -154,20 +154,20 @@ function CatalogPreviewModal({
                 )}
               </div>
               <div className="flex-shrink-0 text-right border-l border-stone-100 pl-4 md:pl-8">
-                <p className="text-[10px] md:text-[11px] tracking-[0.2em] uppercase font-bold text-stone-400 mb-1 md:mb-2 text-right">Variants</p>
+                <p className="text-[10px] md:text-[11px] tracking-[0.2em] uppercase font-bold text-color-secondary-dark mb-1 md:mb-2 text-right">Variants</p>
                 <p className="font-serif text-4xl md:text-5xl text-gold leading-none">{collection.itemCount}</p>
-                <p className="text-[10px] md:text-[11px] text-stone-400 mt-1 md:mt-2 tracking-widest font-bold text-right">SKUs</p>
+                <p className="text-[10px] md:text-[11px] text-color-secondary-dark mt-1 md:mt-2 tracking-widest font-bold text-right">SKUs</p>
               </div>
             </div>
 
             {/* ── Materials Grid ───────────────────────── */}
             <div className="px-4 md:px-8 py-6 md:py-10">
               <div className="flex items-center justify-between mb-5 md:mb-8 border-b border-stone-50 pb-3">
-                <p className="text-[10px] md:text-[12px] tracking-[0.3em] uppercase font-bold text-stone-900/40">Materials &amp; Swatches</p>
-                <span className="text-[10px] md:text-[12px] text-stone-400 font-bold tracking-widest">{materials.length} items</span>
+                <p className="text-[10px] md:text-[12px] tracking-[0.3em] uppercase font-bold text-color-secondary-dark/40">Materials &amp; Swatches</p>
+                <span className="text-[10px] md:text-[12px] text-color-secondary-dark font-bold tracking-widest">{materials.length} items</span>
               </div>
               {materials.length === 0 ? (
-                <p className="text-xs md:text-sm text-stone-400 text-center py-12 md:py-16">No materials listed for this collection.</p>
+                <p className="text-xs md:text-sm text-color-secondary-dark text-center py-12 md:py-16">No materials listed for this collection.</p>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
                   {materials.map((m) => (
@@ -191,10 +191,10 @@ function CatalogPreviewModal({
             </div>
 
             {/* ── Document Footer ──────────────────────── */}
-            <div className="flex items-center justify-between px-4 md:px-8 py-2 md:py-3 bg-stone-900 border-t border-stone-800">
+            <div className="flex items-center justify-between px-4 md:px-8 py-2 md:py-3 bg-secondary-dark border-t border-stone-800">
               <span className="text-[7px] md:text-[8px] tracking-[0.3em] font-bold text-primary uppercase">KAIRA FABRICS</span>
-              <span className="text-[6px] md:text-[7px] font-medium text-stone-500 tracking-wide uppercase">Trade Use Only</span>
-              <span className="text-[6px] md:text-[7px] font-medium text-stone-500 uppercase">kairafabrics.com</span>
+              <span className="text-[6px] md:text-[7px] font-medium text-color-secondary-dark tracking-wide uppercase">Trade Use Only</span>
+              <span className="text-[6px] md:text-[7px] font-medium text-color-secondary-dark uppercase">kairafabrics.com</span>
             </div>
 
           </div>
@@ -218,7 +218,7 @@ function CatalogPreviewModal({
               </div>
               <button
                 onClick={() => { setShowContactForm(false); setContactSubmitted(false) }}
-                className="w-8 h-8 flex items-center justify-center text-stone-500 hover:text-white transition-colors"
+                className="w-8 h-8 flex items-center justify-center text-color-secondary-dark hover:text-white transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -233,13 +233,13 @@ function CatalogPreviewModal({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                   </svg>
                 </div>
-                <h4 className="font-serif text-2xl text-stone-900 mb-2">Request Sent</h4>
-                <p className="text-xs text-stone-500 leading-relaxed max-w-xs mx-auto">
+                <h4 className="font-serif text-2xl text-color-secondary-dark mb-2">Request Sent</h4>
+                <p className="text-xs text-color-secondary-dark leading-relaxed max-w-xs mx-auto">
                   Thank you! We'll get back to you with the catalog shortly.
                 </p>
                 <button
                   onClick={() => { setShowContactForm(false); setContactSubmitted(false) }}
-                  className="mt-8 px-8 py-3 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-colors w-full sm:w-auto "
+                  className="mt-8 px-8 py-3 bg-secondary-dark text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-colors w-full sm:w-auto "
                 >
                   Close
                 </button>
@@ -249,58 +249,58 @@ function CatalogPreviewModal({
                 className="px-6 py-5 flex flex-col gap-4 bg-white"
                 onSubmit={(e) => { e.preventDefault(); setContactSubmitted(true) }}
               >
-                <p className="text-[10px] text-stone-500 leading-relaxed -mt-1">
-                  Fill in your details and we'll send the full catalog for <span className="text-stone-900 font-semibold">{collection.name}</span>.
+                <p className="text-[10px] text-color-secondary-dark leading-relaxed -mt-1">
+                  Fill in your details and we'll send the full catalog for <span className="text-color-secondary-dark font-semibold">{collection.name}</span>.
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-900">Name <span className="text-primary">*</span></label>
+                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Name <span className="text-primary">*</span></label>
                     <input
                       required
                       type="text"
                       value={contactData.name}
                       onChange={(e) => setContactData((d) => ({ ...d, name: e.target.value }))}
                       placeholder="Your name"
-                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
+                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-900">Email <span className="text-primary">*</span></label>
+                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Email <span className="text-primary">*</span></label>
                     <input
                       required
                       type="email"
                       value={contactData.email}
                       onChange={(e) => setContactData((d) => ({ ...d, email: e.target.value }))}
                       placeholder="you@company.com"
-                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
+                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
                     />
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-900">Company</label>
+                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Company</label>
                   <input
                     type="text"
                     value={contactData.company}
                     onChange={(e) => setContactData((d) => ({ ...d, company: e.target.value }))}
                     placeholder="Your company (optional)"
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
+                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-900">Message</label>
+                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Message</label>
                   <textarea
                     rows={3}
                     value={contactData.message}
                     onChange={(e) => setContactData((d) => ({ ...d, message: e.target.value }))}
                     placeholder="Any specific requirements..."
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all resize-none "
+                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all resize-none "
                   />
                 </div>
                 <div className="flex items-center justify-between pt-1">
                   <button
                     type="button"
                     onClick={() => setShowContactForm(false)}
-                    className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 hover:text-stone-900 transition-colors"
+                    className="text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark hover:text-color-secondary-dark transition-colors"
                   >
                     Cancel
                   </button>
@@ -376,7 +376,7 @@ function MaterialThumb({
         )}
         {error && (
           <div className="absolute inset-0 flex items-center justify-center bg-stone-200">
-            <svg className="w-5 h-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-color-secondary-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
@@ -389,7 +389,7 @@ function MaterialThumb({
       </div>
       <div className="mt-1.5 px-0.5">
         <p className="text-[10px] font-semibold text-charcoal uppercase truncate leading-tight">{label}</p>
-        {subLabel && <p className="text-[9px] text-stone-400 truncate">{subLabel}</p>}
+        {subLabel && <p className="text-[9px] text-color-secondary-dark truncate">{subLabel}</p>}
       </div>
     </div>
   )
@@ -595,23 +595,23 @@ function CollectionModal({
               <p className="text-[11px] md:text-[10px] tracking-[0.3em] font-bold uppercase text-primary mb-1">{collection.category}</p>
               <h2 className="font-serif text-3xl md:text-2xl text-white leading-tight">{collection.name}</h2>
             </div>
-            <p className="text-stone-300 text-sm md:text-xs leading-relaxed">{collection.description}</p>
+            <p className="text-color-secondary-dark text-sm md:text-xs leading-relaxed">{collection.description}</p>
             {collection.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {collection.tags.map((tag) => (
-                  <span key={tag} className="text-[10px] md:text-[9px] font-bold px-2 py-0.5 border border-stone-700 text-stone-400 tracking-[0.2em] uppercase">
+                  <span key={tag} className="text-[10px] md:text-[9px] font-bold px-2 py-0.5 border border-stone-700 text-color-secondary-dark tracking-[0.2em] uppercase">
                     {tag}
                   </span>
                 ))}
               </div>
             )}
             <div className="flex items-center justify-between border-t border-stone-800 pt-4 mt-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500">Variants</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Variants</span>
               <span className="text-primary font-bold text-sm">{collection.itemCount}</span>
             </div>
             <button
               onClick={() => setShowCatalog(true)}
-              className="mt-4 w-full py-3.5 bg-primary text-stone-900 text-xs uppercase font-bold tracking-[0.2em] hover:bg-white hover:text-stone-900 transition-all flex items-center justify-center gap-2.5  shadow-md"
+              className="mt-4 w-full py-3.5 bg-primary text-color-secondary-dark text-xs uppercase font-bold tracking-[0.2em] hover:bg-white hover:text-color-secondary-dark transition-all flex items-center justify-center gap-2.5  shadow-md"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -625,11 +625,11 @@ function CollectionModal({
         {/* ── Right: Materials List ──────────────────── */}
         <div className="flex-1 flex flex-col md:min-h-0 bg-stone-50">
           <div className="pl-6 pr-14 py-3 border-b border-stone-200 bg-white flex items-center gap-3">
-            <p className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 shrink-0">
+            <p className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark shrink-0">
               Materials in this collection
             </p>
             <div className="flex items-center gap-2 border border-stone-200  bg-stone-50 px-2.5 py-1 flex-1 max-w-xs focus-within:border-stone-400 focus-within:bg-white transition-all">
-              <svg className="w-3 h-3 text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 text-color-secondary-dark shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
@@ -637,15 +637,15 @@ function CollectionModal({
                 value={materialSearch}
                 onChange={(e) => setMaterialSearch(e.target.value)}
                 placeholder="Search…"
-                className="flex-1 bg-transparent text-[12px] text-stone-700 placeholder-stone-400 focus:outline-none min-w-0"
+                className="flex-1 bg-transparent text-[12px] text-color-secondary-dark placeholder-stone-400 focus:outline-none min-w-0"
               />
               {materialSearch && (
-                <button onClick={() => setMaterialSearch('')} className="text-stone-400 hover:text-stone-600 transition-colors">
+                <button onClick={() => setMaterialSearch('')} className="text-color-secondary-dark hover:text-color-secondary-dark transition-colors">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
                 </button>
               )}
             </div>
-            <span className="ml-auto text-[9px] font-bold bg-stone-100 text-stone-500 px-2 py-0.5 tracking-[0.1em] uppercase shrink-0">
+            <span className="ml-auto text-[9px] font-bold bg-stone-100 text-color-secondary-dark px-2 py-0.5 tracking-[0.1em] uppercase shrink-0">
               {materialSearch ? `${materials.filter(m => m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) || m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) || m.color_group?.toLowerCase().includes(materialSearch.toLowerCase())).length} results` : `${materials.length} items`}
             </span>
           </div>
@@ -722,10 +722,10 @@ function CollectionModal({
                       camera-controls
                       auto-rotate
                       disable-pan
-                      tone-mapping="neutral"
-                      exposure="0.9"
-                      shadow-intensity="1.2"
-                      shadow-softness="0.8"
+                      tone-mapping="commerce"
+                      exposure="0.7"
+                      shadow-intensity="0.6"
+                      shadow-softness="1"
                       style={{ width: '100%', height: '100%', background: '#fafaf9' }}
                     />
                   </>
@@ -779,7 +779,7 @@ function CollectionModal({
                 {/* View in 3D button — bottom right */}
                 <button
                   onClick={(e) => { e.stopPropagation(); setShow3D((v) => !v) }}
-                  className="absolute bottom-3 right-3 z-10 flex items-center gap-2 bg-primary border border-primary text-stone-900 font-bold px-4 py-2.5 text-[11px] uppercase tracking-widest hover:bg-white transition-colors shadow"
+                  className="absolute bottom-3 right-3 z-10 flex items-center gap-2 bg-primary border border-primary text-color-secondary-dark font-bold px-4 py-2.5 text-[11px] uppercase tracking-widest hover:bg-white transition-colors shadow"
                 >
                   <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
@@ -827,35 +827,35 @@ function CollectionModal({
               <div className="w-full bg-white px-6 py-4 flex flex-col gap-2.5">
                 <div>
                   <p className="text-[9px] tracking-[0.3em] uppercase font-bold text-primary mb-0.5">{m.collection_name}</p>
-                  <h3 className="font-serif text-xl text-stone-900 leading-tight">{m.material_name}</h3>
+                  <h3 className="font-serif text-xl text-color-secondary-dark leading-tight">{m.material_name}</h3>
                 </div>
                 <div className="flex flex-wrap gap-x-6 gap-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400">Code</span>
-                    <span className="text-[11px] font-bold text-stone-700 tracking-wide">{m.material_code}</span>
+                    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-color-secondary-dark">Code</span>
+                    <span className="text-[11px] font-bold text-color-secondary-dark tracking-wide">{m.material_code}</span>
                   </div>
                   {m.material_type && (
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400">Type</span>
-                      <span className="text-[11px] text-stone-700">{m.material_type}</span>
+                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-color-secondary-dark">Type</span>
+                      <span className="text-[11px] text-color-secondary-dark">{m.material_type}</span>
                     </div>
                   )}
                   {m.color_group && (
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400">Colour</span>
-                      <span className="text-[11px] text-stone-700">{m.color_group}</span>
+                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-color-secondary-dark">Colour</span>
+                      <span className="text-[11px] text-color-secondary-dark">{m.color_group}</span>
                     </div>
                   )}
                   {m.pattern && (
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400">Pattern</span>
-                      <span className="text-[11px] text-stone-700">{m.pattern}</span>
+                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-color-secondary-dark">Pattern</span>
+                      <span className="text-[11px] text-color-secondary-dark">{m.pattern}</span>
                     </div>
                   )}
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); setZoomedIndex(null) }}
-                  className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-stone-900 border border-stone-900 text-white hover:bg-black hover:border-black transition-all text-[11px] font-bold uppercase tracking-widest "
+                  className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-secondary-dark text-white transition-all text-[11px] font-bold uppercase tracking-widest "
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -918,14 +918,14 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-5 bg-stone-900 flex items-center justify-between">
+        <div className="px-6 py-5 bg-secondary-dark flex items-center justify-between">
           <div>
             <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-primary mb-1">Enquiry</p>
             <h3 className="font-serif text-xl text-white leading-tight">Get a Quote</h3>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-stone-500 hover:text-white transition-colors"
+            className="w-8 h-8 flex items-center justify-center text-color-secondary-dark hover:text-white transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -940,8 +940,8 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
             </div>
-            <h4 className="font-serif text-2xl text-stone-900 mb-2">Request Sent</h4>
-            <p className="text-xs text-stone-500 leading-relaxed max-w-xs mx-auto">
+            <h4 className="font-serif text-2xl text-color-secondary-dark mb-2">Request Sent</h4>
+            <p className="text-xs text-color-secondary-dark leading-relaxed max-w-xs mx-auto">
               Thank you! Our team will get back to you with a quote shortly.
             </p>
             <button
@@ -955,18 +955,18 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
           <form className="px-6 py-6 flex flex-col gap-5 bg-white" onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Name <span className="text-primary">*</span></label>
+                <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Name <span className="text-primary">*</span></label>
                 <input
                   required
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData((d) => ({ ...d, name: e.target.value }))}
                   placeholder="Your name"
-                  className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all  shadow-sm"
+                  className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all  shadow-sm"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Mobile <span className="text-primary">*</span></label>
+                <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Mobile <span className="text-primary">*</span></label>
                 <input
                   required
                   type="tel"
@@ -975,28 +975,28 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
                   value={formData.mobile}
                   onChange={(e) => setFormData((d) => ({ ...d, mobile: e.target.value }))}
                   placeholder="+91 XXXXX XXXXX"
-                  className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all  shadow-sm"
+                  className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all  shadow-sm"
                 />
               </div>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Email <span className="text-stone-400 font-normal normal-case tracking-normal ml-1">(Optional)</span></label>
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Email <span className="text-color-secondary-dark font-normal normal-case tracking-normal ml-1">(Optional)</span></label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData((d) => ({ ...d, email: e.target.value }))}
                 placeholder="you@company.com"
-                className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all  shadow-sm"
+                className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all  shadow-sm"
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Message <span className="text-stone-400 font-normal normal-case tracking-normal ml-1">(Optional)</span></label>
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Message <span className="text-color-secondary-dark font-normal normal-case tracking-normal ml-1">(Optional)</span></label>
               <textarea
                 rows={3}
                 value={formData.message}
                 onChange={(e) => setFormData((d) => ({ ...d, message: e.target.value }))}
                 placeholder="Any specific requirements..."
-                className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all resize-none  shadow-sm"
+                className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all resize-none  shadow-sm"
               />
             </div>
 
@@ -1008,7 +1008,7 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 hover:text-stone-900 transition-colors"
+                className="text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark hover:text-color-secondary-dark transition-colors"
                 disabled={loading}
               >
                 Cancel
@@ -1016,7 +1016,7 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-stone-900 text-white text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-stone-800 transition-all  shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
+                className="px-6 py-3 bg-secondary-dark text-white text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-stone-800 transition-all  shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
               >
                 {loading ? 'Sending...' : 'Send Request'}
               </button>
@@ -1082,7 +1082,7 @@ function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => 
         )}
         {imgError && (
           <div className="absolute inset-0 flex items-center justify-center bg-stone-200">
-            <svg className="w-8 h-8 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-8 h-8 text-color-secondary-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
@@ -1097,9 +1097,9 @@ function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => 
 
       {/* Info */}
       <div className="p-2 md:p-3 border-t border-stone-200 bg-white flex-1 flex flex-col justify-center">
-        <p className="text-[12px] md:text-[11px] font-bold text-stone-900 group-hover:text-secondary transition-colors uppercase tracking-tight leading-tight truncate">{col.name}</p>
+        <p className="text-[12px] md:text-[11px] font-bold text-color-secondary-dark group-hover:text-secondary transition-colors uppercase tracking-tight leading-tight truncate">{col.name}</p>
         <div className="flex items-center justify-between mt-1 md:mt-1.5">
-          <span className="text-[10px] md:text-[10px] text-stone-500 truncate max-w-[60%] font-semibold tracking-wider uppercase">{col.category}</span>
+          <span className="text-[10px] md:text-[10px] text-color-secondary-dark truncate max-w-[60%] font-semibold tracking-wider uppercase">{col.category}</span>
           <span className="text-[10px] md:text-[10px] text-secondary font-bold tracking-widest">{col.itemCount} var.</span>
         </div>
       </div>
@@ -1249,7 +1249,7 @@ const CollectionsPage = () => {
                 {/* Scroll left — mobile only */}
                 <button
                   onClick={() => scrollChips('left')}
-                  className="lg:hidden shrink-0 w-7 h-7 flex items-center justify-center bg-white border border-stone-200  shadow-sm text-stone-500 hover:text-stone-900 hover:border-stone-400 transition-colors"
+                  className="lg:hidden shrink-0 w-7 h-7 flex items-center justify-center bg-white border border-stone-200  shadow-sm text-color-secondary-dark hover:text-color-secondary-dark hover:border-stone-400 transition-colors"
                   aria-label="Scroll left"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -1269,11 +1269,11 @@ const CollectionsPage = () => {
                           onClick={() => setActiveMaterialType(type)}
                           className={`flex items-center gap-1.5 px-3 md:px-4 py-2 md:py-2.5 text-[11px] md:text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200  shadow-sm whitespace-nowrap ${isActive
                             ? 'bg-color-secondary-dark text-white'
-                            : 'bg-white border border-stone-200 text-stone-600 hover:border-primary/40 hover:text-stone-900'
+                            : 'bg-white border border-stone-200 text-color-secondary-dark hover:border-primary/40 hover:text-color-secondary-dark'
                             }`}
                         >
                           {type}
-                          <span className={`text-[10px] md:text-[9px] px-1.5 py-0.5  ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                          <span className={`text-[10px] md:text-[9px] px-1.5 py-0.5  ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-color-secondary-dark'}`}>
                             {count}
                           </span>
                         </button>
@@ -1284,7 +1284,7 @@ const CollectionsPage = () => {
                 {/* Scroll right — mobile only */}
                 <button
                   onClick={() => scrollChips('right')}
-                  className="lg:hidden shrink-0 w-7 h-7 flex items-center justify-center bg-white border border-stone-200  shadow-sm text-stone-500 hover:text-stone-900 hover:border-stone-400 transition-colors"
+                  className="lg:hidden shrink-0 w-7 h-7 flex items-center justify-center bg-white border border-stone-200  shadow-sm text-color-secondary-dark hover:text-color-secondary-dark hover:border-stone-400 transition-colors"
                   aria-label="Scroll right"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -1295,7 +1295,7 @@ const CollectionsPage = () => {
 
               {/* Right: search input — pinned, bigger */}
               <div className="shrink-0 flex items-center gap-2 border border-stone-200  bg-white px-3 py-2 md:py-2.5 focus-within:border-stone-500 focus-within:shadow-sm transition-all shadow-sm w-full lg:w-auto">
-                <svg className="w-4 h-4 text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-color-secondary-dark shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -1303,10 +1303,10 @@ const CollectionsPage = () => {
                   value={collectionSearch}
                   onChange={(e) => setCollectionSearch(e.target.value)}
                   placeholder="Search collections…"
-                  className="bg-transparent text-sm text-stone-700 placeholder-stone-400 focus:outline-none flex-1 lg:w-52"
+                  className="bg-transparent text-sm text-color-secondary-dark placeholder-stone-400 focus:outline-none flex-1 lg:w-52"
                 />
                 {collectionSearch && (
-                  <button onClick={() => setCollectionSearch('')} className="text-stone-400 hover:text-stone-600 transition-colors">
+                  <button onClick={() => setCollectionSearch('')} className="text-color-secondary-dark hover:text-color-secondary-dark transition-colors">
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
                   </button>
                 )}
@@ -1314,7 +1314,7 @@ const CollectionsPage = () => {
             </div>
 
             {/* Bottom: count text */}
-            <p className="mt-2 md:mt-3 text-[10px] md:text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400">
+            <p className="mt-2 md:mt-3 text-[10px] md:text-[10px] uppercase font-bold tracking-[0.2em] text-color-secondary-dark">
               {filtered.length} collection{filtered.length !== 1 ? 's' : ''}{collectionSearch ? ` matching "${collectionSearch}"` : ''}
             </p>
           </div>
@@ -1367,14 +1367,14 @@ const CollectionsPage = () => {
                 <div className="flex flex-col items-center gap-2 mt-8 md:mt-10">
                   <button
                     onClick={() => setVisibleCount((v) => v + 12)}
-                    className="group flex items-center gap-3 px-10 py-3.5 bg-color-secondary-dark text-white text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-primary hover:text-stone-900 transition-all duration-300  shadow-md"
+                    className="group flex items-center gap-3 px-10 py-3.5 bg-color-secondary-dark text-white text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-primary hover:text-color-secondary-dark transition-all duration-300  shadow-md"
                   >
                     Load More
                     <svg className="w-4 h-4 group-hover:translate-y-0.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-color-secondary-dark font-bold">
                     Showing {Math.min(visibleCount, filtered.length)} of {filtered.length}
                   </p>
                 </div>
@@ -1382,7 +1382,7 @@ const CollectionsPage = () => {
             </>
           ) : (
             <div className="text-center py-20 border border-dashed border-stone-200 bg-stone-50 ">
-              <p className="font-serif text-2xl text-stone-900 mb-3">No collections found</p>
+              <p className="font-serif text-2xl text-color-secondary-dark mb-3">No collections found</p>
               <button
                 onClick={() => setActiveMaterialType('All')}
                 className="text-xs uppercase tracking-[0.2em] font-bold text-primary border border-primary/40 px-5 py-2 hover:bg-stone-900 hover:text-white transition-colors "
@@ -1395,14 +1395,14 @@ const CollectionsPage = () => {
       </div>
 
       {/* ── AI Visualizer Promo Strip ────────────────────────────── */}
-      <div className="bg-stone-900 border-t border-stone-800 relative overflow-hidden">
+      <div className="bg-secondary-dark border-t border-stone-800 relative overflow-hidden">
         {/* Subtle motion background */}
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
 
           {/* Left */}
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14  bg-stone-800 border border-stone-700 flex items-center justify-center shrink-0">
+            <div className="w-14 h-14  bg-secondary-dark border flex items-center justify-center shrink-0">
               <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
               </svg>
@@ -1410,7 +1410,7 @@ const CollectionsPage = () => {
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-2.5 h-2.5 bg-amber-400 animate-pulse" />
-                <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">AI Powered</span>
+                <span className="text-[11px] md:text-xs text-gray-100 uppercase tracking-widest font-bold">AI Powered</span>
               </div>
               <p className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
                 Visualize any fabric on real products — <span className="text-primary">instantly</span>

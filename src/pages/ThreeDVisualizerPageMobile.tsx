@@ -68,11 +68,12 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const { newMaterials } = useMaterials()
   const mvRef = useRef<HTMLElement>(null)
   const fabricMeshesRef = useRef<any[]>([])
+  const autoAppliedRef = useRef(false)
   const [selected, setSelected] = useState<SelectedMaterial | null>(null)
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
   const [activeMaterialType, setActiveMaterialType] = useState('All')
-  const [activeCollection, setActiveCollection] = useState('All')
+  const [activeCollection, setActiveCollection] = useState('Knoxa')
   const [activeColorGroup, setActiveColorGroup] = useState('All')
   const [search, setSearch] = useState('')
   const [currentProduct, setCurrentProduct] = useState<Product>(dummyProducts[0])
@@ -217,6 +218,28 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelLoaded])
 
+  // Auto-apply first Knoxa material on initial load
+  useEffect(() => {
+    if (autoAppliedRef.current || newMaterials.length === 0) return
+    const firstKnoxa = newMaterials.find(m => m.collection_name === 'Knoxa')
+    if (!firstKnoxa) return
+    autoAppliedRef.current = true
+    const mat: SelectedMaterial = {
+      id: firstKnoxa.id,
+      fabricName: `${firstKnoxa.collection_name} ${firstKnoxa.material_name}`,
+      textureUrl: `${S3_THUMB}/${firstKnoxa.collection_name}/${firstKnoxa.material_code}.webp`,
+      roughness: firstKnoxa.roughness ?? 0.5,
+      metalness: firstKnoxa.metalness ?? 0,
+      collectionName: firstKnoxa.collection_name,
+      materialCode: firstKnoxa.material_code,
+      materialType: firstKnoxa.material_type ?? '',
+      colorGroup: firstKnoxa.color_group,
+    }
+    setSelected(mat)
+    if (modelLoaded) applyTexture(mat)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newMaterials])
+
   // Reset model loaded state when product changes so loading overlay re-shows
   useEffect(() => {
     setModelLoaded(false)
@@ -281,10 +304,10 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             alt={`${currentProduct.product_name} 3D model`}
             camera-controls
             disable-pan
-            tone-mapping="neutral"
-            exposure="0.8"
-            shadow-intensity="1"
-            shadow-softness="0.5"
+            tone-mapping="commerce"
+            exposure="0.7"
+            shadow-intensity="0.6"
+            shadow-softness="1"
             max-camera-orbit="Infinity 90deg auto"
             camera-orbit="auto auto 4m"
             ar

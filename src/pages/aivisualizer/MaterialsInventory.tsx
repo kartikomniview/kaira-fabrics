@@ -33,7 +33,7 @@ interface MaterialsInventoryProps {
 export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialId }: MaterialsInventoryProps) => {
     const { newMaterials, collections } = useMaterials()
     const [activeMaterialType, setActiveMaterialType] = useState('All')
-    const [activeCollection, setActiveCollection] = useState(collections[0]?.name || 'All')
+    const [activeCollection, setActiveCollection] = useState('')
     const [activeColorGroup, setActiveColorGroup] = useState('All')
     const [activePattern, setActivePattern] = useState('All')
     const [search, setSearch] = useState('')
@@ -98,15 +98,15 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
 
     const activeFilterCount = [activeMaterialType, activeCollection, activeColorGroup, activePattern].filter((v) => v !== 'All').length
 
-    // Reset activeCollection when material type changes (select first available in that type)
+    // Reset activeCollection when material type changes
     useEffect(() => {
-        const firstInType = collectionsWithThumbs[0]
-        if (firstInType) {
-            setActiveCollection(firstInType.name)
+        if (activeMaterialType === 'All') {
+            setActiveCollection('Knoxa')
         } else {
-            setActiveCollection('All')
+            const firstInType = collectionsWithThumbs[0]
+            setActiveCollection(firstInType ? firstInType.name : 'All')
         }
-    }, [activeMaterialType, collectionsWithThumbs])
+    }, [activeMaterialType])
 
     // Reset pagination whenever filters or search change
     useEffect(() => {

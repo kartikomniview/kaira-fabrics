@@ -10,7 +10,7 @@ const MaterialsPage = () => {
   const navigate = useNavigate()
   const { newMaterials, collections } = useMaterials()
   const [searchParams, setSearchParams] = useSearchParams()
-  const selectedCollection = searchParams.get('collection') || collections[0]?.name || ''
+  const selectedCollection = searchParams.get('collection') || 'Knoxa'
 
   const [activePattern, setActivePattern] = useState('All')
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)
@@ -322,7 +322,7 @@ const MaterialsPage = () => {
       </div>
 
       {/* ── AI Visualizer Promo Strip ─────────────────────────────── */}
-      <div className="bg-stone-900 border-t border-stone-800 relative overflow-hidden">
+      <div className="bg-secondary-dark border-t border-stone-800 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
 

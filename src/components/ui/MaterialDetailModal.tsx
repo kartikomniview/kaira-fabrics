@@ -209,8 +209,10 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
                   alt={`${material.material_name} on sofa`}
                   camera-controls
                   auto-rotate
-                  shadow-intensity="1"
-                  exposure="0.9"
+                  tone-mapping="commerce"
+                  exposure="0.7"
+                  shadow-intensity="0.6"
+                  shadow-softness="1"
                   environment-image="neutral"
                   style={{ width: '100%', height: '100%', background: 'transparent' }}
                 />
@@ -314,11 +316,10 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
             <div className="flex flex-col gap-2.5 mt-auto">
               <button
                 onClick={() => { setShow3D((v) => !v); setZoomPos(null) }}
-                className={`flex items-center justify-center gap-2 border text-[11px] uppercase tracking-widest py-4 transition-colors duration-200 font-medium ${
-                  show3D
+                className={`flex items-center justify-center gap-2 border text-[11px] uppercase tracking-widest py-4 transition-colors duration-200 font-medium ${show3D
                     ? 'border-stone-200 text-stone-500 hover:border-stone-400 hover:text-charcoal'
                     : 'border-charcoal text-charcoal hover:bg-charcoal hover:text-cream'
-                }`}
+                  }`}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path

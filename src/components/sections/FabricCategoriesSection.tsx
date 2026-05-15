@@ -25,7 +25,7 @@ const GAP = 24 // px (gap-6 equivalent)
 
 function getVisibleCount() {
   if (typeof window === 'undefined') return 4
-  if (window.innerWidth < 640) return 1
+  if (window.innerWidth < 640) return 2
   if (window.innerWidth < 1024) return 2
   if (window.innerWidth < 1280) return 3
   return 4
@@ -187,7 +187,7 @@ const FabricCategoriesSection = () => {
                   onClick={(e) => { if (isDragging.current) e.preventDefault() }}
                 >
                   {/* Image */}
-                  <div className="aspect-[3/4] relative overflow-hidden shadow-md mb-4 bg-stone-100">
+                  <div className="aspect-[3/4] relative overflow-hidden shadow-md mb-2 sm:mb-4 bg-stone-100">
                     {revealedIndices.has(cardIndex) ? (
                       <motion.img
                         src={imgUrl}
@@ -226,13 +226,13 @@ const FabricCategoriesSection = () => {
                   </div>
 
                   {/* Always visible: label + desc */}
-                  <h3 className="font-serif text-xl text-secondary-dark group-hover:text-primary transition-colors duration-200">{label}</h3>
-                  <p className="text-xs text-secondary-dark font-light mt-1.5 leading-relaxed">{desc}</p>
+                  <h3 className="font-serif text-sm sm:text-xl text-secondary-dark group-hover:text-primary transition-colors duration-200">{label}</h3>
+                  <p className="hidden sm:block text-xs text-secondary-dark font-light mt-1.5 leading-relaxed">{desc}</p>
 
                   {/* Always visible: CTA */}
-                  <div className="mt-4 flex items-center gap-2">
-                    <span className="text-xs text-secondary-dark uppercase tracking-[0.2em] font-bold border-b pb-px" style={{borderColor:"var(--color-secondary-dark)"}}>
-                      Browse Collection
+                  <div className="mt-2 sm:mt-4 flex items-center gap-2">
+                    <span className="text-[9px] sm:text-xs text-secondary-dark uppercase tracking-[0.15em] sm:tracking-[0.2em] font-bold border-b pb-px" style={{borderColor:"var(--color-secondary-dark)"}}>
+                      Browse
                     </span>
                     <motion.svg
                       variants={{ rest: { x: 0, opacity: 0.6 }, hover: { x: 5, opacity: 1 } }}
