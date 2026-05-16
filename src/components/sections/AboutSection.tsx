@@ -1,5 +1,4 @@
 import { useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import {
   motion,
   useInView,
@@ -163,8 +162,8 @@ const AboutSection = () => {
             animate={rightInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.55, ease: SOFT }}
           >
-            <Link
-              to="/about"
+            <a
+              href="/about"
               className="group relative inline-flex items-center gap-3 px-10 py-5 bg-secondary text-white font-semibold text-sm md:text-base tracking-widest uppercase overflow-hidden shadow-lg transition-shadow duration-300 hover:shadow-2xl"
             >
               <span className="relative z-10">Discover Our Story</span>
@@ -172,7 +171,7 @@ const AboutSection = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
               <div className="absolute inset-0 bg-secondary-dark translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-            </Link>
+            </a>
           </motion.div>
 
         </div>

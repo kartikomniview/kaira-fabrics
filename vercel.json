@@ -7,6 +7,10 @@
     {
       "source": "/s3kaira/:path*",
       "destination": "https://kairafabrics.s3.ap-south-1.amazonaws.com/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
