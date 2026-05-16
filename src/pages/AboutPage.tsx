@@ -191,7 +191,7 @@ const AboutPage = () => {
       <div
         className="relative pt-24 pb-12 overflow-hidden"
         style={{
-          backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/banner1.webp)',
+          backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner1.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -306,13 +306,13 @@ const AboutPage = () => {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className={`border border-secondary-light/30 p-7 hover:border-primary/50 transition-all duration-500 group ${philosophyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+                  className={`bg-white border border-stone-200 p-7 hover:border-primary/50 transition-all duration-500 group ${philosophyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
                   style={{ transitionDelay: philosophyVisible ? `${i * 120}ms` : '0ms' }}
                 >
-                  <span className="font-serif text-4xl text-primary group-hover:text-white transition-colors duration-300 block mb-4">{item.label}</span>
-                  <h3 className="font-serif text-lg text-white mb-3">{item.heading}</h3>
+                  <span className="font-serif text-4xl text-primary block mb-4">{item.label}</span>
+                  <h3 className="font-serif text-lg text-secondary mb-3">{item.heading}</h3>
                   <div className="w-6 h-px bg-primary mb-4" />
-                  <p className="text-stone-400 text-sm font-light leading-relaxed">{item.body}</p>
+                  <p className="text-stone-500 text-sm font-light leading-relaxed">{item.body}</p>
                 </div>
               ))}
             </div>

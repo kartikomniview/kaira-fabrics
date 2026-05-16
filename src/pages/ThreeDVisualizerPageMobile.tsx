@@ -73,7 +73,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
   const [activeMaterialType, setActiveMaterialType] = useState('All')
-  const [activeCollection, setActiveCollection] = useState('Knoxa')
+  const [activeCollection, setActiveCollection] = useState('Koral')
   const [activeColorGroup, setActiveColorGroup] = useState('All')
   const [search, setSearch] = useState('')
   const [currentProduct, setCurrentProduct] = useState<Product>(dummyProducts[0])
@@ -218,22 +218,22 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelLoaded])
 
-  // Auto-apply first Knoxa material on initial load
+  // Auto-apply first Koral material on initial load
   useEffect(() => {
     if (autoAppliedRef.current || newMaterials.length === 0) return
-    const firstKnoxa = newMaterials.find(m => m.collection_name === 'Knoxa')
-    if (!firstKnoxa) return
+    const firstKoral = newMaterials.find(m => m.collection_name === 'Koral')
+    if (!firstKoral) return
     autoAppliedRef.current = true
     const mat: SelectedMaterial = {
-      id: firstKnoxa.id,
-      fabricName: `${firstKnoxa.collection_name} ${firstKnoxa.material_name}`,
-      textureUrl: `${S3_THUMB}/${firstKnoxa.collection_name}/${firstKnoxa.material_code}.webp`,
-      roughness: firstKnoxa.roughness ?? 0.5,
-      metalness: firstKnoxa.metalness ?? 0,
-      collectionName: firstKnoxa.collection_name,
-      materialCode: firstKnoxa.material_code,
-      materialType: firstKnoxa.material_type ?? '',
-      colorGroup: firstKnoxa.color_group,
+      id: firstKoral.id,
+      fabricName: `${firstKoral.collection_name} ${firstKoral.material_name}`,
+      textureUrl: `${S3_THUMB}/${firstKoral.collection_name}/${firstKoral.material_code}.webp`,
+      roughness: firstKoral.roughness ?? 0.5,
+      metalness: firstKoral.metalness ?? 0,
+      collectionName: firstKoral.collection_name,
+      materialCode: firstKoral.material_code,
+      materialType: firstKoral.material_type ?? '',
+      colorGroup: firstKoral.color_group,
     }
     setSelected(mat)
     if (modelLoaded) applyTexture(mat)
@@ -318,7 +318,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
           {/* Change Product button */}
           <button
             onClick={() => setProductPanelOpen(true)}
-            style={{ touchAction: 'manipulation' }}
+            style={{ touchAction: 'manipulation',display:"none" }}
             className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 min-h-[36px] px-2.5 bg-secondary hover:bg-[#b8943f] text-white  shadow-sm transition-all active:scale-95"
           >
             <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

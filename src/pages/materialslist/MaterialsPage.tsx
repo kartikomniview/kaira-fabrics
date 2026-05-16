@@ -10,7 +10,7 @@ const MaterialsPage = () => {
   const navigate = useNavigate()
   const { newMaterials, collections } = useMaterials()
   const [searchParams, setSearchParams] = useSearchParams()
-  const selectedCollection = searchParams.get('collection') || 'Knoxa'
+  const selectedCollection = searchParams.get('collection') || 'Koral'
 
   const [activePattern, setActivePattern] = useState('All')
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)

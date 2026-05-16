@@ -92,7 +92,7 @@ const HomePage = () => {
 
       {/* Caption 1 */}
       <CaptionStrip
-        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/banner2.webp"
+        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner2.webp"
         eyebrow="Our Approach"
         before="We don't just sell fabric"
         highlight="we help customers visualize"
@@ -107,7 +107,7 @@ const HomePage = () => {
 
       {/* Caption 2 */}
       <CaptionStrip
-        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/banner1.webp"
+        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner1.webp"
         eyebrow="Craftsmanship"
         before="Every thread tells a story."
         highlight="Every collection,"
@@ -126,7 +126,7 @@ const HomePage = () => {
 
       {/* Caption 4 */}
       <CaptionStrip
-        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/banner2.webp"
+        backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner2.webp"
         eyebrow="Our Legacy"
         before="Decades of craft."
         highlight="One unwavering commitment"

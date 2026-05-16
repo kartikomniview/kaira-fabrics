@@ -106,7 +106,7 @@ const ThreeDVisualizerEngine = ({
   const fabricMeshesRef = useRef<any[]>([])
   const autoAppliedRef = useRef(false)
   const [activeMaterialType, setActiveMaterialType] = useState('All')
-  const [activeCollection, setActiveCollection] = useState('Knoxa')
+  const [activeCollection, setActiveCollection] = useState('Koral')
   const [activeColorGroup, setActiveColorGroup] = useState('All')
   const [activePattern, setActivePattern] = useState('All')
   const [search, setSearch] = useState('')
@@ -143,7 +143,7 @@ const ThreeDVisualizerEngine = ({
 
   useEffect(() => {
     if (activeMaterialType === 'All') {
-      setActiveCollection('Knoxa')
+      setActiveCollection('Koral')
     } else {
       const firstInType = collectionsWithThumbs[0]
       setActiveCollection(firstInType ? firstInType.name : 'All')
@@ -304,22 +304,22 @@ const ThreeDVisualizerEngine = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelLoaded])
 
-  // Auto-apply first Knoxa material on initial load
+  // Auto-apply first Koral material on initial load
   useEffect(() => {
     if (autoAppliedRef.current || newMaterials.length === 0) return
-    const firstKnoxa = newMaterials.find(m => m.collection_name === 'Knoxa')
-    if (!firstKnoxa) return
+    const firstKoral = newMaterials.find(m => m.collection_name === 'Koral')
+    if (!firstKoral) return
     autoAppliedRef.current = true
     const mat: SelectedMaterial = {
-      id: firstKnoxa.id,
-      fabricName: `${firstKnoxa.collection_name} ${firstKnoxa.material_name}`,
-      textureUrl: `${S3_THUMB}/${firstKnoxa.collection_name}/${firstKnoxa.material_code}.webp`,
-      roughness: firstKnoxa.roughness ?? 0.5,
-      metalness: firstKnoxa.metalness ?? 0,
-      collectionName: firstKnoxa.collection_name,
-      materialCode: firstKnoxa.material_code,
-      materialType: firstKnoxa.material_type ?? '',
-      colorGroup: firstKnoxa.color_group,
+      id: firstKoral.id,
+      fabricName: `${firstKoral.collection_name} ${firstKoral.material_name}`,
+      textureUrl: `${S3_THUMB}/${firstKoral.collection_name}/${firstKoral.material_code}.webp`,
+      roughness: firstKoral.roughness ?? 0.5,
+      metalness: firstKoral.metalness ?? 0,
+      collectionName: firstKoral.collection_name,
+      materialCode: firstKoral.material_code,
+      materialType: firstKoral.material_type ?? '',
+      colorGroup: firstKoral.color_group,
     }
     setSelected(mat)
     if (modelLoaded) applyTexture(mat)

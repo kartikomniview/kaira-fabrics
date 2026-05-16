@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
@@ -56,32 +57,44 @@ const LegacyIcon = () => (
   </svg>
 )
 
-const S3_WHY = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhyKaira/v1'
+const TeamIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+    <path d="M12 2l2.4 4.9L20 7.6l-4 3.9.9 5.5L12 14.4l-4.9 2.6.9-5.5L4 7.6l5.6-.7z" />
+  </svg>
+)
+
+const S3_WHY = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhyKaira'
 
 const advantages = [
   {
     title: '35+ Year Legacy',
     desc: "Backed by the Kurikkal Group trusted since 1991.",
     Icon: LegacyIcon,
-    bgImg: `${S3_WHY}/Kurikkal Group Legacy.webp`,
+    bgImg: `${S3_WHY}/v1/Kurikkal Group Legacy.webp`,
   },
   {
     title: 'Premium Fabrics & Leather',
     desc: 'Wide range of curated textures, weaves & leathers.',
     Icon: FabricIcon,
-    bgImg: `${S3_WHY}/Premium Fabrics & Leather.webp`,
+    bgImg: `${S3_WHY}/v2/Premium Fabrics & Leather.webp`,
   },
   {
     title: 'Smart Visualization',
     desc: 'Preview your space with AI before you commit.',
     Icon: VisualizationIcon,
-    bgImg: `${S3_WHY}/Smart Visualization.webp`,
+    bgImg: `${S3_WHY}/v2/Smart Visualization.webp`,
   },
   {
     title: 'Dealer & Designer Trusted',
     desc: 'Preferred quality partner across South India.',
     Icon: TrustedIcon,
-    bgImg: `${S3_WHY}/Trusted by Dealers & Designers.webp`,
+    bgImg: `${S3_WHY}/v1/Trusted by Dealers & Designers.webp`,
+  },
+  {
+    title: 'Ambitious & Enthusiastic Team',
+    desc: 'Driven by an ambitious & enthusiastic team.',
+    Icon: TeamIcon,
+    bgImg: `${S3_WHY}/v2/Ambitious & Enthusiastic Team.webp`,
   },
 ]
 
@@ -146,14 +159,6 @@ const WhyKairaSection = () => {
               Why <span className="text-primary">Kaira?</span>
             </motion.h2>
           </div>
-          <motion.p
-            className="text-stone-500 mt-4 text-lg font-sans"
-            initial={{ opacity: 0, y: 10 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.4, ease: EXPO_OUT }}
-          >
-            Driven by an ambitious & enthusiastic team.
-          </motion.p>
         </div>
 
         {/* ══ COMPACT INFO ROW ══ */}
@@ -215,15 +220,15 @@ const WhyKairaSection = () => {
             <p className="text-stone-500 text-sm leading-relaxed font-sans">
               Three decades of crafting spaces and building relationships powered by a relentless commitment to quality.
             </p>
-            <a
-              href="/about"
+            <Link
+              to="/about"
               className="inline-flex items-center gap-1 mt-3 text-secondary text-sm font-semibold tracking-wide hover:underline underline-offset-4 transition-colors duration-300"
             >
               Discover our story
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path fillRule="evenodd" d="M5 10a.75.75 0 0 1 .75-.75h6.638L10.23 7.29a.75.75 0 1 1 1.04-1.08l3.5 3.25a.75.75 0 0 1 0 1.08l-3.5 3.25a.75.75 0 1 1-1.04-1.08l2.158-1.96H5.75A.75.75 0 0 1 5 10Z" clipRule="evenodd" />
               </svg>
-            </a>
+            </Link>
           </motion.div>
 
         </div>
@@ -231,7 +236,7 @@ const WhyKairaSection = () => {
         {/* ══ ADVANTAGE CARDS ══ */}
         <div ref={cardsRef}>
           <div className="overflow-x-auto -mx-6 px-6 sm:overflow-visible sm:mx-0 sm:px-0 pb-3 sm:pb-0">
-            <div className="flex gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 w-max sm:w-auto">
+            <div className="flex gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-5 sm:gap-6 w-max sm:w-auto">
               {advantages.map((adv, i) => (
                 <motion.div
                   key={i}
@@ -239,44 +244,32 @@ const WhyKairaSection = () => {
                   variants={cardVariants}
                   initial="hidden"
                   animate={cardsInView ? 'visible' : 'hidden'}
-                  whileHover={{ y: -6, boxShadow: '0 24px 48px rgba(0,0,0,0.28)' }}
+                  whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(0,0,0,0.10)' }}
                   transition={{ duration: 0.32, ease: SMOOTH_OUT }}
-                  className="group relative w-56 flex-shrink-0 sm:w-auto sm:flex-shrink aspect-[4/3] overflow-hidden shadow-lg cursor-pointer"
+                  className="group relative w-52 flex-shrink-0 sm:w-auto sm:flex-shrink bg-white border border-stone-200 shadow-sm overflow-hidden cursor-pointer flex flex-col"
                 >
-                  {/* Background image */}
-                  <img
-                    src={adv.bgImg}
-                    alt=""
-                    aria-hidden
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-
-                  {/* Base scrim — warm dark, not pure black */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/70 via-stone-800/25 to-transparent pointer-events-none" />
-
-                  {/* Icon — top-right, secondary tinted */}
-                  <div className="absolute top-3 right-3 z-10">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-secondary text-white shadow-md group-hover:scale-110 transition-transform duration-300">
-                      <adv.Icon />
-                    </div>
+                  {/* Icon — top-left over image */}
+                  <div className="absolute top-3 left-3 z-10 p-2 text-primary">
+                    <adv.Icon />
                   </div>
 
-                  {/* Bottom content panel */}
-                  <div className="absolute bottom-0 inset-x-0 z-10 px-4 pb-4 pt-10 bg-gradient-to-t from-stone-900/85 via-stone-900/50 to-transparent">
-                    <p className="font-serif text-[15px] font-semibold text-primary leading-snug mb-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+                  {/* Image */}
+                  <div className="overflow-hidden">
+                    <img
+                      src={adv.bgImg}
+                      alt={adv.title}
+                      loading="lazy"
+                      className="w-full h-44 object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-4 py-4 flex-1 border-t border-stone-100">
+                    <span className="inline-block text-sm uppercase tracking-[0.14em] font-black text-primary mb-1.5 bg-primary/10 px-2 py-0.5 rounded-sm">
                       {adv.title}
-                    </p>
-                    <p className="text-stone-200 text-[11px] leading-relaxed">{adv.desc}</p>
+                    </span>
+                    <p className="color-secondary-dark text-[11px] leading-relaxed">{adv.desc}</p>
                   </div>
-
-                  {/* Secondary bottom border — slides in on hover */}
-                  <motion.div
-                    className="absolute bottom-0 left-0 h-[3px] bg-secondary"
-                    initial={{ width: '0%' }}
-                    whileHover={{ width: '100%' }}
-                    transition={{ duration: 0.4, ease: SMOOTH_OUT }}
-                  />
                 </motion.div>
               ))}
             </div>

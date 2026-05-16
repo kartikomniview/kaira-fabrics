@@ -186,7 +186,7 @@ const AiVisualizerEngine = () => {
   return (
     <>
       {/* ── Content Wrapper ── */}
-      <div className="relative z-10 flex flex-col w-full max-w-6xl mx-auto px-4 sm:px-8 pb-12 lg:pb-16">
+      <div className="relative z-10 flex flex-col w-full max-w-6xl mx-auto px-4 sm:px-8 pb-12 lg:pb-16 h-full overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 
         {/* Unified AI Studio Card */}
         <div className="w-full bg-white shadow-2xl border border-stone-200 overflow-hidden flex flex-col lg:flex-row min-h-[600px] mt-6 lg:mt-8 mb-8 lg:mb-0">
@@ -239,7 +239,7 @@ const AiVisualizerEngine = () => {
           </div>
 
           {/* Right Side: Interactive Studio */}
-          <div className="w-full lg:w-[55%] flex flex-col bg-white/60 lg:overflow-hidden">
+          <div className="w-full lg:w-[55%] flex flex-col bg-white/60 overflow-hidden">
 
             {/* Studio Header */}
             <div className="shrink-0 bg-white/70 backdrop-blur border-b border-stone-100 px-6 py-5 flex justify-between items-center">
@@ -254,7 +254,7 @@ const AiVisualizerEngine = () => {
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col p-6 sm:p-10 overflow-y-auto min-h-[400px]">
+            <div className="flex-1 flex flex-col p-6 sm:p-10 overflow-y-auto min-h-0">
 
               {/* Step 1: Material Selection */}
               {currentStep === 1 && (
