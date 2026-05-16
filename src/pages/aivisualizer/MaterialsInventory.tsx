@@ -101,7 +101,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
     // Reset activeCollection when material type changes
     useEffect(() => {
         if (activeMaterialType === 'All') {
-            setActiveCollection('Koral ')
+            setActiveCollection('Koral')
         } else {
             const firstInType = collectionsWithThumbs[0]
             setActiveCollection(firstInType ? firstInType.name : 'All')
