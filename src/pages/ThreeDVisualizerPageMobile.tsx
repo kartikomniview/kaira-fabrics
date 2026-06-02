@@ -26,6 +26,11 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const [toastVisible, setToastVisible] = useState(false)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   
+  const [debugLogs, setDebugLogs] = useState<string[]>([])
+  const addDebugLog = (log: string) => {
+    setDebugLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${log}`])
+  }
+
   // Keep track of active blob URLs so GLTFExporter can fetch them for AR
   const activeBlobUrlsRef = useRef<string[]>([])
 
@@ -80,6 +85,8 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     if (sheenBlobUrl) newBlobs.push(sheenBlobUrl)
     activeBlobUrlsRef.current = newBlobs
     
+    addDebugLog(`Textures applied (Blobs: ${newBlobs.length})`)
+
     // Trick model-viewer into knowing the model is dirty for AR export
     try {
       if (mv.model?.materials?.[0]) {
@@ -123,6 +130,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       })
       setMeshNames(fabricMeshesRef.current.map((m: any) => m.name ?? ''))
       setModelLoaded(true)
+      addDebugLog(`Model loaded, ${fabricMeshesRef.current.length} fabric meshes found.`)
     }
     mv.addEventListener('load', onLoad)
     return () => {
@@ -248,6 +256,18 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             {/* Custom AR button */}
             <button
               slot="ar-button"
+              onClick={async (e) => {
+                const mv = mvRef.current as any
+                if (!mv) return
+                addDebugLog("AR Button Clicked.")
+                try {
+                  addDebugLog("Testing manual exportScene()...")
+                  const gltf = await mv.exportScene()
+                  addDebugLog(`exportScene Success! Blob size: ${gltf ? gltf.size || gltf.byteLength : 0}`)
+                } catch (err: any) {
+                  addDebugLog(`exportScene ERROR: ${err?.message || err}`)
+                }
+              }}
               className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center gap-2 bg-secondary text-white font-semibold text-[11px] uppercase tracking-wider px-5 py-3 shadow-lg active:scale-95 transition-transform"
             >
               <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,6 +303,20 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white">{toast.msg}</span>
               </div>
             )}
+          </div>
+
+          {/* Debug Overlay */}
+          <div className="absolute top-16 left-3 right-3 z-20 pointer-events-none">
+            <div className="bg-black/80 backdrop-blur text-green-400 text-[9px] p-2 font-mono h-32 overflow-y-auto rounded shadow-xl pointer-events-auto">
+              <div className="flex justify-between items-center mb-1 border-b border-green-400/30 pb-1">
+                <span className="font-bold text-white uppercase tracking-widest">AR Debugger</span>
+                <button onClick={() => setDebugLogs([])} className="text-white bg-white/20 px-1 rounded hover:bg-white/40">Clear</button>
+              </div>
+              {debugLogs.length === 0 ? <span className="text-stone-400 opacity-50">Waiting for actions...</span> : null}
+              {debugLogs.map((log, i) => (
+                <div key={i} className="mb-0.5 break-words whitespace-pre-wrap">{log}</div>
+              ))}
+            </div>
           </div>
 
           {/* Corner bracket decorations */}
