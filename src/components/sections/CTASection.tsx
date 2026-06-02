@@ -5,11 +5,10 @@ const KURIKKAL_LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/log
 const CTASection = () => {
   return (
     <section
-      className="py-20 md:py-36 relative overflow-hidden"
-      style={{backgroundColor: 'var(--color-secondary, #2e2b25)' }}
+      className="py-20 md:py-36 relative overflow-hidden bg-gradient-to-br from-secondary-dark via-secondary to-secondary-dark"
     >
-      {/* Heavy overlay to fade the background image */}
-      <div className="absolute inset-0 bg-secondary/90" />
+      {/* Subtle overlay for added depth */}
+      <div className="absolute inset-0 bg-black/10" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 lg:px-10 text-center">
 

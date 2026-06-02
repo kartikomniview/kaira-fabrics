@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 
 const LOADING_MESSAGES = [
   "Matching the texture and colour just right...",
-  "Almost there — adding the finishing touches...",
+  "Almost there adding the finishing touches...",
   "Giving your sofa a fresh new look...",
   "Blending the fabric into the scene...",
   "Checking every detail before the reveal...",
@@ -194,10 +194,6 @@ const AiVisualizerEngine = () => {
           {/* Left Side: Header & Slider */}
           <div className="relative w-full lg:w-[45%] bg-[#faf7f2] border-b lg:border-b-0 lg:border-r border-stone-200 px-7 py-10 hidden lg:flex flex-col justify-between gap-8">
             <div className="flex flex-col items-start gap-3">
-              <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1 shadow-sm">
-                <span className="w-1.5 h-1.5 bg-primary animate-pulse" />
-                <span className="text-[10px] text-primary uppercase tracking-widest font-semibold">AI Powered</span>
-              </div>
               <h2 className="font-serif text-2xl text-primary leading-[1.15]">
                 Bring Fabrics <em className="not-italic text-secondary">To Life</em>
               </h2>

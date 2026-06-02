@@ -2,8 +2,8 @@
 import { useNavigate } from 'react-router-dom'
 import ThreeDVisualizerPageMobile from './ThreeDVisualizerPageMobile'
 import ThreeDVisualizerEngine, { type SelectedMaterial } from './threedvisualizer/ThreeDVisualizerEngine'
-import { dummyProducts } from '../data/products'
-import type { Product } from '../data/products'
+import { kairaProducts } from '../data/products'
+import type { KairaProduct } from '../data/products'
 
 const ThreeDVisualizerPage = () => {
   const navigate = useNavigate()
@@ -21,7 +21,7 @@ const ThreeDVisualizerPage = () => {
     setTimeout(() => navigate('/'), 600)
   }
 
-  const [currentProduct, setCurrentProduct] = useState<Product>(dummyProducts[0])
+  const [currentProduct, setCurrentProduct] = useState<KairaProduct>(kairaProducts[0])
   const [selected, setSelected] = useState<SelectedMaterial | null>(null)
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)

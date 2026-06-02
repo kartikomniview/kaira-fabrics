@@ -124,7 +124,7 @@ export const NO_FABRIC_PARTS = [
 ]
 
 export const FABRIC_PARTS = [
-  'seat', 'back', 'cushion', 'pad', 'upholstery', 'fabric', 'cover', 'body', 'armrest', 'base', 'armrest_pad', 'headrest', 'ottoman',
+  'seat', 'back', 'cushion', 'pad', 'upholstery', 'fabric', 'cover', 'body', 'armrest', 'base', 'armrest_pad', 'headrest', 'ottoman','pillow'
 ]
 
 export interface SheenOptions {
@@ -188,6 +188,8 @@ export interface ApplyTextureOptions {
   uvScale?: number
   /** Material name fragments to skip (e.g. legs, frame). */
   skipParts?: string[]
+  /** When provided, only meshes whose name contains one of these strings are updated. 'All' or empty = all eligible parts. */
+  onlyParts?: string[]
   /** Pre-fetched blob URL for the metallic-roughness map. Pass null to skip. */
   roughnessBlobUrl?: string | null
   /** Pre-fetched blob URL for the normal map. Pass null to skip. */
@@ -214,6 +216,7 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
     metalness,
     uvScale = 1,
     skipParts = [],
+    onlyParts = [],
     roughnessBlobUrl = null,
     normalBlobUrl = null,
     sheenBlobUrl = null,
@@ -266,6 +269,7 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
 
       const isAllowed = FABRIC_PARTS.some((p) => partName.includes(p) || p.includes(partName))
       if (!isAllowed) continue
+      if (onlyParts.length > 0 && !onlyParts.some((p) => partName.includes(p.toLowerCase()))) continue
 
       const mat = mesh.material as THREE.MeshPhysicalMaterial
       if (baseTex) mat.map = baseTex
@@ -323,6 +327,7 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
 
     const isAllowed = FABRIC_PARTS.some((p) => partName.includes(p) || p.includes(partName))
     if (!isAllowed) continue
+    if (onlyParts.length > 0 && !onlyParts.some((p) => partName.includes(p.toLowerCase()))) continue
 
     try {
       m.pbrMetallicRoughness.setRoughnessFactor(roughness)

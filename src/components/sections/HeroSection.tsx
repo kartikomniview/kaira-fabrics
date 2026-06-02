@@ -170,9 +170,8 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 1.8, ease: SMOOTH_OUT }}
         >
-          Premium Fabrics &amp; Leather, curated with artisanal craftsmanship where every texture, weave, and hue tells a story of timeless elegance.
-        </motion.p>
-
+          Premium Fabrics & Leather Solutions powered by smart visualization helping you see your space before you buy</motion.p>
+ 
         {/* ── CTA Buttons ── */}
         <motion.div
           className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 mt-3 sm:mt-2"

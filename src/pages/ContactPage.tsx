@@ -73,7 +73,6 @@ const ContactPage = () => {
               Back
             </button>
           </div>
-          <p className="text-[11px] tracking-[0.35em] uppercase font-semibold text-white/50 mb-2">Get In Touch</p>
           <h1 className="font-serif text-4xl md:text-5xl text-primary leading-tight">Contact Us</h1>
           <p className="mt-3 text-sm text-white/60 font-light max-w-md leading-relaxed">
             Reach out to us for fabric enquiries, custom orders, or to visit our showroom.
@@ -258,9 +257,9 @@ const ContactPage = () => {
                       <div>
                         <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase leading-none mb-2">Address</p>
                         <p className="text-stone-100 text-sm leading-relaxed">
-                          Hira Arcade, Opp. Crescent King Spear,<br />
-                          Mini Bypass Road, Govindhapuram,<br />
-                          Mankavu, Calicut
+                          Lulu Mall Exit Gate, Near,<br />
+                          Mini Bypass Rd, Mankave,<br />
+                          Kozhikode, Kerala 673007
                         </p>
                       </div>
                     </div>
@@ -276,8 +275,9 @@ const ContactPage = () => {
                       </div>
                       <div>
                         <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase leading-none mb-2">Phone</p>
-                        <a href="tel:+918589925111" className="block text-stone-100 text-sm hover:text-primary transition-colors">+91 8589925111</a>
-                        <a href="tel:+918589925222" className="block text-stone-100 text-sm hover:text-primary transition-colors mt-1">+91 8589925222</a>
+                        <a href="tel:+918589925222" className="block text-stone-100 text-sm hover:text-primary transition-colors">+91 8589925222</a>
+                        <a href="tel:+918589925333" className="block text-stone-100 text-sm hover:text-primary transition-colors mt-1">+91 8589925333</a>
+                        <a href="tel:+918589925666" className="block text-stone-100 text-sm hover:text-primary transition-colors mt-1">+91 8589925666</a>
                       </div>
                     </div>
 
@@ -296,28 +296,13 @@ const ContactPage = () => {
                       </div>
                     </div>
 
-                    <div className="h-px bg-white/8" />
-
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-shrink-0 w-9 h-9 bg-white/10 border border-white/15 flex items-center justify-center mt-0.5">
-                        <svg className="w-[18px] h-[18px] text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase leading-none mb-2">Showroom Hours</p>
-                        <p className="text-stone-100 text-sm">Mon – Sat: 10:00 AM – 7:30 PM</p>
-                        <p className="text-stone-300 text-xs mt-1">Sunday: By appointment only</p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
 
               {/* WhatsApp CTA */}
               <a
-                href="https://wa.me/918589925111"
+                href="https://wa.me/918589925666"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 w-full bg-primary hover:bg-primary/90 text-white px-6 py-4 transition-colors group shadow-sm"
@@ -343,11 +328,6 @@ const ContactPage = () => {
       <section className="bg-stone-50 py-16 md:py-24 border-b border-stone-200 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
-            <div className="inline-flex items-center gap-3 mb-4 justify-center">
-              <span className="w-1 h-1 bg-primary" />
-              <span className="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold">Location</span>
-              <span className="w-1 h-1 bg-primary" />
-            </div>
             <h2 className="font-serif text-3xl md:text-4xl text-[#5b4c2f] font-medium leading-tight mb-4">
               Visit Our <span className="text-stone-400">Showroom</span>
             </h2>
@@ -364,7 +344,7 @@ const ContactPage = () => {
             <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary z-10" />
             <iframe
               title="Kaira Fabrics Showroom Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3912.013447053!2d75.7764!3d11.2588!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba65938563f1c3f%3A0x3d8e55ace2aa8bd5!2sMankavu%2C%20Kozhikode%2C%20Kerala!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3719.6327015757183!2d75.8008345!3d11.242464499999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba6599c1ce3f4c1%3A0x5b25cf64b86cbd96!2sKaira%20Fabrics%20%26%20Leather!5e1!3m2!1sen!2sin!4v1780297424266!5m2!1sen!2sin"
               width="100%"
               height="100%"
               style={{ border: 0, filter: 'grayscale(20%) contrast(1.05)' }}
@@ -380,10 +360,10 @@ const ContactPage = () => {
                   d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              Hira Arcade, Mini Bypass Road, Govindhapuram, Mankavu, Calicut
+              Lulu Mall Exit Gate, Near, Mini Bypass Rd, Mankave, Kozhikode, Kerala 673007
             </p>
             <a
-              href="https://maps.google.com/?q=Mankavu+Calicut+Kerala"
+              href="https://maps.google.com/?q=Lulu+Mall+Exit+Gate+Mini+Bypass+Rd+Mankave+Kozhikode+Kerala+673007"
               target="_blank"
               rel="noopener noreferrer"
               className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#5b4c2f] text-white hover:bg-primary hover:text-[#5b4c2f] transition-all duration-300 overflow-hidden"

@@ -27,8 +27,7 @@ const footerColumns = [
   {
     heading: 'Follow Us',
     links: [
-      { label: 'Instagram', href: 'https://www.instagram.com/kaira_fabrics_/?hl=en' },
-      { label: 'Facebook', href: 'https://www.facebook.com/kairafabricsandleather/' },
+      { label: 'Instagram', href: 'https://www.instagram.com/kaira_fabrics_?igsh=MTl5ZHhoNWkxMmhlMA==' }
     ],
   },
 ]
@@ -56,7 +55,7 @@ const Footer = () => {
               </p>
               <div className="space-y-1.5">
                 <p>
-                  <a href="tel:+918589925111" className="hover:text-white transition-colors duration-200">+91 8589925111</a>
+                  <a href="tel:+91 8589925222" className="hover:text-white transition-colors duration-200">+91 8589925111</a>
                   <span className="mx-2 text-stone-600">|</span>
                   <a href="tel:+918589925222" className="hover:text-white transition-colors duration-200">+91 8589925222</a>
                 </p>

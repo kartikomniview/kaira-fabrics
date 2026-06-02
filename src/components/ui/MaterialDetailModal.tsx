@@ -12,7 +12,7 @@ import {
 } from '../../utils/textureUtils'
 
 const MODEL_URL =
-  'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
+  'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Nova.glb'
 const S3_THUMB =
   'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 

@@ -55,7 +55,7 @@ export function WhatsAppIcon() {
 
       {/* Icon circle */}
       <a
-        href="https://wa.me/918589925111"
+        href="https://wa.me/918589925666"
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center justify-center bg-[#25D366] text-white rounded-full shadow-xl hover:bg-[#1ebe5d] active:scale-95 transition-all duration-300 shrink-0"

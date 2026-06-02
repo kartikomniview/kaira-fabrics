@@ -2,8 +2,8 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import AiVisualizerEngine from './AiVisualizerEngine'
 import ThreeDVisualizerEngine, { type SelectedMaterial } from '../threedvisualizer/ThreeDVisualizerEngine'
 import ThreeDVisualizerPageMobile from '../ThreeDVisualizerPageMobile'
-import { dummyProducts } from '../../data/products'
-import type { Product } from '../../data/products'
+import { kairaProducts } from '../../data/products'
+import type { KairaProduct } from '../../data/products'
 
 type Mode = 'ai' | '3d' | null
 
@@ -20,7 +20,7 @@ const VisualizerOptions = () => {
   const [isVisible, setIsVisible] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
-  const [currentProduct, setCurrentProduct] = useState<Product>(dummyProducts[0])
+  const [currentProduct, setCurrentProduct] = useState<KairaProduct>(kairaProducts[0])
   const [selected3d, setSelected3d] = useState<SelectedMaterial | null>(null)
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
@@ -140,7 +140,6 @@ const VisualizerOptions = () => {
               Back
             </button>
           </div>
-          <p className="text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] uppercase font-semibold text-white/50 mb-1.5 sm:mb-2">AI Fabric Visualizer</p>
           <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl text-primary leading-tight">
             See Your Fabric Come to Life
           </h1>

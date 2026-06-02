@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 const S3_URL =
-  'https://kairafabrics.s3.ap-south-1.amazonaws.com/data/newmaterials.ts'
+  'https://kairafabrics.s3.ap-south-1.amazonaws.com/data/materials/newmaterials.ts'
 
 export interface NewMaterial {
   id: number

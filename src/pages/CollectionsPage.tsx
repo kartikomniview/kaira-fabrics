@@ -11,7 +11,7 @@ import '@google/model-viewer'
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 const COMPANY = 'KairaFabrics'
-const MODEL_URL = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
+const MODEL_URL = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Nova.glb'
 
 function getRoughnessMapURL(collectionName: string) {
   return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
@@ -42,7 +42,7 @@ function getUvValue(collectionName: string): number {
 function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
   if (materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8
   if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
-  if (materialType.toLowerCase().includes('leather')) return 0.5
+  if (materialType.toLowerCase().includes('leather')) return 0.6
   return baseRoughness
 }
 
@@ -722,8 +722,8 @@ function CollectionModal({
                       camera-controls
                       auto-rotate
                       disable-pan
-                      tone-mapping="commerce"
-                      exposure="0.7"
+                      tone-mapping="neutral"
+                      exposure="0.5"
                       shadow-intensity="0.6"
                       shadow-softness="1"
                       style={{ width: '100%', height: '100%', background: '#fafaf9' }}
@@ -1110,7 +1110,7 @@ function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => 
 /* ── Page ─────────────────────────────────────────────────────────── */
 const CollectionsPage = () => {
   const location = useLocation()
-  const { collections } = useMaterials()
+  const { collections, isLoading: materialsLoading } = useMaterials()
 
   const [collectionSearch, setCollectionSearch] = useState('')
   const [activeMaterialType, setActiveMaterialType] = useState('All')
@@ -1143,11 +1143,12 @@ const CollectionsPage = () => {
   }, [])
 
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [minDelayDone, setMinDelayDone] = useState(false)
   useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 700)
+    const t = setTimeout(() => setMinDelayDone(true), 700)
     return () => clearTimeout(t)
   }, [])
+  const isLoading = !minDelayDone || materialsLoading
 
   const filtered = useMemo(() => {
     let result = activeMaterialType === 'All' ? collections : collections.filter((c) => c.category === activeMaterialType)
@@ -1156,7 +1157,7 @@ const CollectionsPage = () => {
       result = result.filter((c) => c.name.toLowerCase().includes(q) || c.category?.toLowerCase().includes(q))
     }
     return result
-  }, [activeMaterialType, collectionSearch])
+  }, [activeMaterialType, collectionSearch, collections])
 
   const [visibleCount, setVisibleCount] = useState(12)
 
@@ -1211,7 +1212,7 @@ const CollectionsPage = () => {
                 <span className="hidden sm:inline">Get a Quote</span>
               </button>
               <a
-                href="https://wa.me/918589925111"
+                href="https://wa.me/918589925666"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 sm:px-5 py-2 bg-[#25D366]/90 backdrop-blur-sm text-white hover:bg-[#1ebe5d] transition-all text-[11px] font-medium tracking-wide shadow-md"
@@ -1224,7 +1225,6 @@ const CollectionsPage = () => {
             </div>
           </div>
 
-          <p className="text-[11px] tracking-[0.35em] uppercase font-semibold text-white/50 mb-2">Curated Textile Collections</p>
           <h1 className="font-serif text-4xl md:text-5xl text-primary leading-tight">
             Fabric Collections
           </h1>
@@ -1408,10 +1408,6 @@ const CollectionsPage = () => {
               </svg>
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="w-2.5 h-2.5 bg-amber-400 animate-pulse" />
-                <span className="text-[11px] md:text-xs text-gray-100 uppercase tracking-widest font-bold">AI Powered</span>
-              </div>
               <p className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
                 Visualize any fabric on real products — <span className="text-primary">instantly</span>
               </p>

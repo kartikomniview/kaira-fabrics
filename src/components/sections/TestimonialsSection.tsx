@@ -131,7 +131,6 @@ const TestimonialsSection = () => {
     <section
       ref={sectionRef}
       className="py-16 md:py-24 border-b border-stone-200 relative overflow-hidden"
-      style={{ backgroundImage: "url('https://supoassets.s3.ap-south-1.amazonaws.com/public/kaira-fabrics/homepage/Background2.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
     >
       {/* Overlay for readability */}
       <div className="absolute inset-0 bg-white/75 backdrop-blur-[1px]" />

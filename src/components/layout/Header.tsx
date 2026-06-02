@@ -3,8 +3,8 @@ import { Link, useLocation } from 'react-router-dom'
 
 const navLinks = [
   { to: '/', label: 'Home' },
-  { to: '/#collections', label: 'Collections & Fabrics' },
-  { to: '/#why-kaira', label: 'Why Kaira' },
+  { to: '/#collections', label: 'Collections' },
+  { to: '/#why-kaira', label: 'Why KAIRA' },
   { to: '/#gallery', label: 'Our Portfolio' },
 ]
 

@@ -42,9 +42,13 @@ const AdminLoginPage = ({ onSuccess }: { onSuccess: () => void }) => {
   return (
     <div className="min-h-screen bg-stone-100 flex flex-col font-sans">
       {/* Top bar */}
-      <header className="bg-stone-900 text-white px-6 py-4 flex items-center justify-between shadow-sm">
+      <header className="bg-secondary-dark text-white px-6 py-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <span className="font-serif text-xl tracking-wide text-amber-400">KAIRA</span>
+          <img
+            src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
+            alt="Kaira Fabrics"
+            className="h-8 w-auto object-contain"
+          />
           <span className="text-stone-500 text-sm">|</span>
           <span className="text-stone-300 text-sm uppercase tracking-widest">Admin Portal</span>
         </div>
@@ -62,7 +66,11 @@ const AdminLoginPage = ({ onSuccess }: { onSuccess: () => void }) => {
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-sm bg-white border border-stone-200 rounded-lg shadow-sm p-8">
           <div className="text-center mb-8">
-            <span className="font-serif text-2xl tracking-wide text-amber-600">KAIRA</span>
+            <img
+              src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
+              alt="Kaira Fabrics"
+              className="h-16 w-auto object-contain mx-auto"
+            />
             <p className="text-stone-400 text-xs uppercase tracking-widest mt-1">Admin Sign In</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-5">
@@ -103,7 +111,7 @@ const AdminLoginPage = ({ onSuccess }: { onSuccess: () => void }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-stone-900 text-white text-xs uppercase tracking-widest py-3 rounded hover:bg-stone-700 disabled:opacity-50 transition-colors"
+              className="w-full bg-secondary-dark text-white text-xs uppercase tracking-widest py-3 rounded hover:bg-secondary-dark disabled:opacity-50 transition-colors"
             >
               {loading ? 'Signing in…' : 'Sign In'}
             </button>

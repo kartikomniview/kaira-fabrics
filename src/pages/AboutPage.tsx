@@ -10,7 +10,7 @@ const pillars = [
       </svg>
     ),
     title: "Uncompromising Quality",
-    description: "Every fabric is carefully sourced and selected for texture, durability, and finish — performing beautifully in everyday living while maintaining elegance over time."
+    description: "Every fabric is carefully sourced and selected for texture, durability, and finish performing beautifully in everyday living while maintaining elegance over time."
   },
   {
     icon: (
@@ -28,7 +28,7 @@ const pillars = [
       </svg>
     ),
     title: "Experience That Guides",
-    description: "With years in the upholstery and fabric industry, our team understands what works for different homes, furniture, and lifestyles — guiding you to choose with confidence."
+    description: "With years in the upholstery and fabric industry, our team understands what works for different homes, furniture, and lifestyles guiding you to choose with confidence."
   },
   {
     icon: (
@@ -37,7 +37,7 @@ const pillars = [
       </svg>
     ),
     title: "Spaces of Comfort",
-    description: "We go beyond selling fabrics — we help create spaces that feel like a personal retreat. A place to relax, recharge, and enjoy everyday moments with lasting beauty."
+    description: "We go beyond selling fabrics, we help create spaces that feel like a personal retreat. A place to relax, recharge, and enjoy everyday moments with lasting beauty."
   }
 ]
 
@@ -49,107 +49,32 @@ type PillarCardProps = {
 }
 
 const PillarCard = ({ pillar, index, visible }: PillarCardProps) => {
-  const ref = useRef<HTMLDivElement>(null)
-
-  // Raw mouse position relative to card centre (-0.5 → 0.5)
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-
-  // Spring-smooth the raw values
-  const springCfg = { stiffness: 220, damping: 22, mass: 0.6 }
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), springCfg)
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), springCfg)
-
-  // Spotlight follows cursor — reactive gradient via motion template
-  const spotX = useTransform(mouseX, [-0.5, 0.5], ['0%', '100%'])
-  const spotY = useTransform(mouseY, [-0.5, 0.5], ['0%', '100%'])
-  const spotGradient = useMotionTemplate`radial-gradient(180px circle at ${spotX} ${spotY}, rgba(151,196,30,0.12), transparent 80%)`
-
-  const [hovered, setHovered] = useState(false)
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return
-    const { left, top, width, height } = ref.current.getBoundingClientRect()
-    mouseX.set((e.clientX - left) / width - 0.5)
-    mouseY.set((e.clientY - top) / height - 0.5)
-  }
-
-  const handleMouseLeave = () => {
-    mouseX.set(0)
-    mouseY.set(0)
-    setHovered(false)
-  }
-
   return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        rotateX,
-        rotateY,
-        transformPerspective: 900,
-        transformStyle: 'preserve-3d',
-        transitionDelay: visible ? `${index * 80}ms` : '0ms',
-      }}
-      initial={{ opacity: 0, y: 32 }}
-      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
-      transition={{ duration: 0.6, delay: index * 0.09, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -8, boxShadow: '0 24px 52px -8px rgba(0,0,0,0.16)' }}
-      className="relative bg-white border border-stone-200 p-7 overflow-hidden shadow-sm cursor-default"
+    <div
+      className={`relative bg-white p-6 md:p-7 flex flex-col group transition-all duration-700 ease-out hover:-translate-y-2 hover:shadow-xl border border-stone-100 overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+      style={{ transitionDelay: visible ? `${index * 150}ms` : '0ms' }}
     >
-      {/* Cursor-following spotlight */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: spotGradient }}
-        animate={{ opacity: hovered ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
-      />
+      {/* Top Hover Accent Line */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/10 via-primary to-primary/10 scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center" />
 
-      {/* Top accent bar — sweeps left → right */}
-      <motion.div
-        className="absolute top-0 left-0 h-[3px] bg-gradient-to-r from-primary to-primary/50"
-        initial={{ width: '0%' }}
-        animate={{ width: hovered ? '100%' : '0%' }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      />
+      {/* Decorative Watermark Number */}
+      <div className="absolute -bottom-2 -right-1 text-7xl font-serif text-stone-50 group-hover:text-stone-100 transition-colors duration-700 select-none z-0">
+        0{index + 1}
+      </div>
 
-      {/* Icon — floats up + glows */}
-      <motion.div
-        className="w-12 h-12 bg-stone-100 flex items-center justify-center text-stone-600 mb-6"
-        animate={hovered
-          ? { scale: 1.12, y: -3, backgroundColor: 'rgb(151 196 30 / 0.15)', color: '#5a7a0f', boxShadow: '0 0 18px rgba(151,196,30,0.30)' }
-          : { scale: 1, y: 0, backgroundColor: 'rgb(245 245 244)', color: 'rgb(87 83 78)', boxShadow: 'none' }
-        }
-        transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-        style={{ transformStyle: 'preserve-3d', translateZ: 12 }}
-      >
-        {pillar.icon}
-      </motion.div>
-
-      {/* Title */}
-      <motion.h3
-        className="font-serif text-base md:text-lg color-secondary-dark mb-3 leading-snug"
-        animate={hovered ? { x: 2 } : { x: 0 }}
-        transition={{ duration: 0.3 }}
-        style={{ translateZ: 8 }}
-      >
-        {pillar.title}
-      </motion.h3>
-
-      {/* Accent divider — grows */}
-      <motion.div
-        className="h-px bg-primary mb-4"
-        animate={{ width: hovered ? '3rem' : '1.5rem' }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      />
-
-      {/* Description */}
-      <p className="color-secondary-dark leading-relaxed text-xs md:text-sm font-light">
-        {pillar.description}
-      </p>
-    </motion.div>
+      <div className="relative z-10 flex flex-col h-full">
+        <h3 className="font-serif text-lg md:text-xl color-secondary-dark mb-3 group-hover:text-primary transition-colors duration-500">
+          {pillar.title}
+        </h3>
+        
+        {/* Animated Divider */}
+        <div className="w-10 h-px bg-stone-300 mb-4 group-hover:bg-primary group-hover:w-16 transition-all duration-500" />
+        
+        <p className="text-stone-600 text-sm font-light leading-relaxed flex-grow">
+          {pillar.description}
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -189,32 +114,23 @@ const AboutPage = () => {
     <>
       {/* ── Page Header ──────────────────────────────────────── */}
       <div
-        className="relative pt-24 pb-12 overflow-hidden"
+        className="relative flex items-center justify-center py-36 md:py-46 overflow-hidden"
         style={{
-          backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner1.webp)',
+          backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/prints/banner1.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-stone-950/55" />
+        <div className="absolute inset-0 bg-stone-950/20" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={() => window.history.back()}
-              className="group flex items-center gap-2 px-4 py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all text-[11px] font-medium tracking-wide"
-            >
-              <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back
-            </button>
+        <div className="relative z-10 px-6 text-center">
+          <div className="inline-flex items-center justify-center gap-6">
+            <span className="w-12 md:w-16 h-px bg-white/50 drop-shadow-sm" />
+            <h1 className="text-xs md:text-sm font-light uppercase tracking-[0.3em] text-white drop-shadow-md">
+              About Us
+            </h1>
+            <span className="w-12 md:w-16 h-px bg-white/50 drop-shadow-sm" />
           </div>
-          <p className="text-[11px] tracking-[0.35em] uppercase font-semibold text-white/50 mb-2">Calicut · South India</p>
-          <h1 className="font-serif text-4xl md:text-5xl text-primary leading-tight mb-3">About Us</h1>
-          <p className="text-white/60 text-sm font-light max-w-xl leading-relaxed">
-            A premium destination for sofa fabrics and upholstery materials — where elegance, durability, and comfort meet.
-          </p>
         </div>
       </div>
 
@@ -223,116 +139,138 @@ const AboutPage = () => {
         <div className="absolute inset-0 pointer-events-none opacity-[0.12]" style={{ backgroundImage: 'radial-gradient(circle, #97c41e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
         {/* ── About Us Intro ─────────────────────────────────────── */}
-        <section ref={introRef} className="border-b border-stone-200 py-14 md:py-24 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none opacity-[0.12]" style={{ backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b4.webp), radial-gradient(circle, #97c41e 1px, transparent 1px)', backgroundSize: 'cover' }} />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-stone-100/60 blur-3xl pointer-events-none" />
-          <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10">
-            <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
-              {/* Left: headline */}
-              <div className={`transition-all duration-700 ${introVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-                <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1 shadow-sm mb-5">
-                  <span className="w-1.5 h-1.5 bg-primary" />
-                  <span className="text-[10px] text-primary uppercase tracking-widest font-semibold">Who We Are</span>
-                </div>
-                <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl color-primary leading-[1.15] mb-6">
-                  Kaira Fabrics<br />& Leather
-                </h2>
-                <p className="color-secondary-dark text-sm font-light leading-relaxed mb-6">
+        <section ref={introRef} className="border-b border-stone-200 py-12 md:py-16 relative overflow-hidden bg-cream">
+          <div className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b4.webp)', backgroundSize: 'cover' }} />
+
+          <div className="relative z-10 max-w-3xl mx-auto px-6 lg:px-10 text-center">
+            <div className={`flex flex-col items-center transition-all duration-1000 ease-out ${introVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+
+              <div className="mb-2">
+                <span className="text-sm text-stone-500 font-serif">Welcome to Kaira</span>
+              </div>
+
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-primary leading-tight mb-5">
+                Kaira Fabrics & Leather
+              </h2>
+
+              <div className="space-y-4 text-stone-600 text-base md:text-lg font-light leading-relaxed mb-10">
+                <p>
                   A premium destination for sofa fabrics and upholstery materials in <strong className="color-secondary-dark font-medium">Calicut</strong>, offering a thoughtfully curated collection that blends elegance, durability, and comfort.
                 </p>
-                {/* Stats row */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-stone-200">
-                  <div>
-                    <p className="font-serif text-2xl color-secondary-dark mb-0.5">South India</p>
-                    <p className="text-[11px] uppercase tracking-widest color-secondary-dark font-bold">Serving Region</p>
-                  </div>
-                  <div>
-                    <p className="font-serif text-2xl color-secondary-dark mb-0.5">Since 1991</p>
-                    <p className="text-[11px] uppercase tracking-widest color-secondary-dark font-bold">Group Legacy</p>
-                  </div>
+                <p>
+                  While rooted in Calicut, we proudly serve customers across South India, homeowners, interior designers, and furniture makers who seek refined fabrics that elevate living spaces.
+                </p>
+              </div>
+
+              {/* Stats row */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 mb-10">
+                <div className="group cursor-default">
+                  <p className="font-serif text-2xl md:text-3xl color-secondary-dark mb-1 group-hover:text-primary transition-colors duration-500">South India</p>
+                  <p className="text-sm text-stone-500 font-light">Serving Region</p>
+                </div>
+
+                <div className="group cursor-default">
+                  <p className="font-serif text-2xl md:text-3xl color-secondary-dark mb-1 group-hover:text-primary transition-colors duration-500">Since 1991</p>
+                  <p className="text-sm text-stone-500 font-light">Group Legacy</p>
                 </div>
               </div>
 
-              {/* Right: body text */}
-              <div className={`space-y-5 transition-all duration-700 delay-150 ${introVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-                <p className="color-secondary-dark text-base md:text-lg leading-relaxed font-light">
-                  While rooted in Calicut, Kaira Fabrics & Leather proudly serves customers across South India — homeowners, interior designers, and furniture makers who seek refined fabrics that elevate living spaces.
+              {/* Quote */}
+              <div className="max-w-xl mx-auto pt-2">
+                <svg className="w-6 h-6 text-primary/30 mx-auto mb-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                </svg>
+
+                <p className="color-secondary-dark text-base md:text-lg leading-relaxed font-serif">
+                  "With a commitment to consistency and trust, Kaira makes it easier for customers to choose the right materials for their spaces."
                 </p>
-                <p className="color-secondary-dark text-base md:text-lg leading-relaxed font-light">
-                  Our collections are designed to enhance modern and classic interiors alike, ensuring long-lasting performance along with refined aesthetics.
-                </p>
-                <div className="flex items-start gap-3 p-5 bg-white border border-stone-200 shadow-sm">
-                  <div className="shrink-0 w-1 h-full min-h-[40px] bg-primary" />
-                  <p className="color-secondary-dark text-sm leading-relaxed font-light">
-                    With a commitment to consistency and trust, Kaira makes it easier for customers to choose the right materials for their spaces.
-                  </p>
-                </div>
               </div>
+
             </div>
           </div>
         </section>
 
         {/* ── More Than Fabrics ───────────────────────────────────── */}
-        <section ref={philosophyRef} className="py-14 md:py-24 border-b border-stone-200 relative overflow-hidden bg-secondary">
-          <div className="absolute inset-0 opacity-[0.2] bg-[url('https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/background-dark-1.webp')]" style={{ backgroundSize: "cover" }} />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-          <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-10">
-            <div className={`text-center mb-12 transition-all duration-700 ${philosophyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-              <div className="inline-flex items-center gap-2 mb-4">
-                <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-stone-400">Our Philosophy</span>
-              </div>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white leading-[1.15]">
-                More Than Fabrics —<br className="hidden sm:block" /> A Better <span className="text-primary">Living Experience</span>
-              </h2>
-            </div>
+        <section ref={philosophyRef} className="py-24 md:py-32 border-b border-stone-200 relative overflow-hidden bg-stone-50">
+          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+            <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                {
-                  label: "01",
-                  heading: "Spaces That Matter",
-                  body: "The spaces we return to matter more than we realise. Every space — home, office, or commercial — should feel as good as it looks. Upholstered furniture shapes how people relax, work, and connect every day."
-                },
-                {
-                  label: "02",
-                  heading: "Where Trust Begins",
-                  body: "Choosing the right fabric should never feel uncertain. Every fabric we offer is carefully selected to deliver on comfort, durability, and lasting performance — not just design."
-                },
-                {
-                  label: "03",
-                  heading: "A Space That Feels Right",
-                  body: "It's not just about choosing a fabric. It's about creating a space that feels right, every single day — a place to unwind, recharge, and truly call your own."
-                }
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className={`bg-white border border-stone-200 p-7 hover:border-primary/50 transition-all duration-500 group ${philosophyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-                  style={{ transitionDelay: philosophyVisible ? `${i * 120}ms` : '0ms' }}
-                >
-                  <span className="font-serif text-4xl text-primary block mb-4">{item.label}</span>
-                  <h3 className="font-serif text-lg text-secondary mb-3">{item.heading}</h3>
-                  <div className="w-6 h-px bg-primary mb-4" />
-                  <p className="text-stone-500 text-sm font-light leading-relaxed">{item.body}</p>
+              {/* Left: Image */}
+              <div className={`relative h-[450px] lg:h-[650px] w-full transition-all duration-1000 ease-out ${philosophyVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
+                <div className="absolute inset-0 bg-stone-100 overflow-hidden shadow-sm">
+                  <img
+                    src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/WhyKaira/v2/Premium Fabrics & Leather.webp"
+                    alt="Kaira Fabrics Philosophy"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              ))}
+              </div>
+
+              {/* Right: Content */}
+              <div className={`flex flex-col transition-all duration-1000 delay-300 ease-out ${philosophyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+
+                <div className="mb-14">
+                  <div className="mb-4">
+                    <span className="text-sm text-stone-500 font-serif">Our Philosophy</span>
+                  </div>
+                  <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl color-secondary-dark leading-[1.15]">
+                    More Than Fabrics <br /> A Better <span className="text-primary">Living Experience</span>
+                  </h2>
+                </div>
+
+                <div className="space-y-6">
+                  {[
+                    {
+                      label: "01",
+                      heading: "Spaces That Matter",
+                      body: "The spaces we return to matter more than we realise. Every space, home, office, or commercial, should feel as good as it looks. Upholstered furniture shapes how people relax, work, and connect every day."
+                    },
+                    {
+                      label: "02",
+                      heading: "Where Trust Begins",
+                      body: "Choosing the right fabric should never feel uncertain. Every fabric we offer is carefully selected to deliver on comfort, durability, and lasting performance not just design."
+                    },
+                    {
+                      label: "03",
+                      heading: "A Space That Feels Right",
+                      body: "It's not just about choosing a fabric. It's about creating a space that feels right, every single day, a place to unwind, recharge, and truly call your own."
+                    }
+                  ].map((item, i) => (
+                    <div key={i} className="group">
+                      <h3 className="font-serif text-lg color-secondary-dark mb-1 group-hover:text-primary transition-colors duration-300">
+                        <span className="text-stone-400 text-sm mr-3">{item.label}.</span>
+                        {item.heading}
+                      </h3>
+                      <p className="text-stone-500 text-sm font-light leading-relaxed pl-[34px]">{item.body}</p>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
             </div>
           </div>
         </section>
 
         {/* ── Why Kaira (4 Pillars) ───────────────────────────────── */}
-        <section ref={pillarsRef} className="border-b border-stone-200 py-14 md:py-24 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none opacity-[0.12]" style={{ backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b4.webp)', backgroundSize: 'cover' }} />
-          <div className="absolute top-1/2 right-0 w-80 h-80 bg-white/50 blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/2" />
+        <section
+          ref={pillarsRef}
+          className="py-16 md:py-20 relative overflow-hidden"
+          style={{
+            backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/prints/banner2.webp)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          <div className="absolute inset-0 bg-secondary-dark/90" />
           <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
-            <div className={`text-center mb-10 md:mb-14 transition-all duration-700 ${pillarsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1 shadow-sm mb-4">
-                <span className="w-1.5 h-1.5 bg-primary" />
-                <span className="text-[10px] text-secondary uppercase tracking-widest font-semibold">What Sets Us Apart</span>
+            <div className={`text-center mb-10 md:mb-14 transition-all duration-1000 ease-out ${pillarsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+              <div className="mb-2">
+                <span className="text-sm text-white font-serif">What Sets Us Apart</span>
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-primary leading-[1.2]">Why Kaira</h2>
+              <h2 className="font-serif text-3xl sm:text-4xl text-primary leading-tight">Why You Should Choose KAIRA</h2>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6">
               {pillars.map((pillar, index) => (
                 <PillarCard
                   key={index}
@@ -393,7 +331,7 @@ const AboutPage = () => {
                 <div className="bg-white border border-stone-200 p-6 shadow-sm">
                   <div className="flex items-start gap-4">
                     <div className="shrink-0 w-1 self-stretch bg-primary" />
-                    <p className="font-serif text-xl md:text-2xl color-secondary-dark leading-snug">
+                    <p className="text-xl color-secondary-dark leading-snug">
                       "Our goal is simple to make it easier for customers to choose the right fabric for any space, with complete confidence in its quality and long-term value."
                     </p>
                   </div>
@@ -425,7 +363,7 @@ const AboutPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 shrink-0 w-full md:w-auto">
               <Link
                 to="/collections"
-                className="group inline-flex items-center justify-center gap-3 px-10 py-4 md:px-12 md:py-5 bg-primary text-stone-900 hover:bg-white transition-all duration-500 overflow-hidden shadow-lg font-bold text-xs md:text-sm uppercase tracking-widest w-full sm:w-auto"
+                className="group inline-flex items-center justify-center gap-3 px-10 py-4 md:px-12 md:py-5 bg-primary color-secondary-dark hover:bg-white transition-all duration-500 overflow-hidden shadow-lg font-bold text-xs md:text-sm uppercase tracking-widest w-full sm:w-auto"
               >
                 Browse Collections
                 <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">

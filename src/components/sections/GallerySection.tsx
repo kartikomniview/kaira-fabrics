@@ -96,16 +96,6 @@ const GalleryRow = ({ label, title, items, onPreview }: GalleryRowProps) => {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center transition-colors duration-300 group-hover:bg-black/45">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-colors duration-300">
-                        <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                      <span className="text-[9px] uppercase tracking-[0.25em] text-white/60">Click to play</span>
-                    </div>
-                  </div>
                 </div>
               ) : (
                 <div className="w-full h-full bg-stone-100">

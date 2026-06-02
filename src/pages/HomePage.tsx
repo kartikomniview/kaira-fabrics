@@ -25,7 +25,7 @@ const HomePage = () => {
       <div className="hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-50 flex-col items-start">
         {/* Call */}
         <a
-          href="tel:+918589925111"
+          href="tel:+91 8589925222"
           title="Call us"
           className="group flex items-center bg-color-secondary-dark border-b border-stone-700 hover:bg-primary transition-colors duration-200"
         >
@@ -53,7 +53,7 @@ const HomePage = () => {
 
         {/* WhatsApp */}
         <a
-          href="https://wa.me/918589925111"
+          href="https://wa.me/918589925666"
           target="_blank"
           rel="noopener noreferrer"
           title="WhatsApp"
@@ -69,7 +69,7 @@ const HomePage = () => {
 
         {/* Instagram */}
         <a
-          href="https://instagram.com/kairafabrics"
+          href="https://www.instagram.com/kaira_fabrics_?igsh=MTl5ZHhoNWkxMmhlMA=="
           target="_blank"
           rel="noopener noreferrer"
           title="Instagram"
@@ -94,7 +94,7 @@ const HomePage = () => {
       <CaptionStrip
         backgroundUrl="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner2.webp"
         eyebrow="Our Approach"
-        before="We don't just sell fabric"
+        before="We don't just sell fabric,"
         highlight="we help customers visualize"
         after="and choose the right material."
       />

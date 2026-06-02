@@ -34,7 +34,7 @@ function MaterialsDrawer({
       const res = await fetch(`${API}/getuploadurl`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token },
-        body: JSON.stringify({ file_name: 'newmaterials.ts', mime_type: 'text/plain', asset_type: 'data' }),
+        body: JSON.stringify({ file_name: 'materials/newmaterials.ts', mime_type: 'text/plain', asset_type: 'data' }),
       })
       if (!res.ok) throw new Error(`Could not get upload URL (${res.status})`)
       const { uploadUrl } = await res.json()

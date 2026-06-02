@@ -75,12 +75,6 @@ const AboutSection = () => {
       {/* ── Parallax background image ── */}
       <motion.div
         className="absolute inset-[-6%] bg-repeat"
-        style={{
-          backgroundImage: "url('https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b4.webp')",
-          backgroundSize: 'contain',
-          y: bgY,
-          opacity: 0.15,
-        }}
       />
 
       {/* Warm overlay to soften the background */}

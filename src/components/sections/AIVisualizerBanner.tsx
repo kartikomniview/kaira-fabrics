@@ -37,18 +37,18 @@ const AIVisualizerBanner = () => {
 
       {/* Floating attention tag */}
       <motion.div
-        className="hidden sm:flex absolute top-5 right-5 sm:top-7 sm:right-8 z-10 items-center gap-2 px-4 py-2 bg-primary  shadow-lg shadow-primary/25"
+        className="hidden sm:flex absolute top-5 right-5 sm:top-7 sm:right-8 z-10 items-center gap-2.5 px-5 py-2.5 bg-white/95 backdrop-blur-md border border-primary/30 shadow-xl shadow-stone-200/40 rounded-full"
         initial={{ opacity: 0, y: -12, scale: 0.85 }}
         animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
         transition={{ duration: 0.7, delay: 0.2, ease: EXPO_OUT }}
       >
         {/* Pulse dot */}
         <span className="relative flex h-2 w-2 shrink-0">
-          <span className="animate-ping absolute inline-flex h-full w-full  bg-white opacity-60" />
-          <span className="relative inline-flex  h-2 w-2 bg-white" />
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
         </span>
-        <span className="text-[10px] uppercase tracking-[0.32em] text-stone-900 font-bold whitespace-nowrap">
-          AI Visualizer
+        <span className="text-[11px] uppercase tracking-[0.25em] color-secondary-dark font-bold whitespace-nowrap pt-[1px]">
+          Try Visualizer
         </span>
       </motion.div>
 
@@ -64,10 +64,6 @@ const AIVisualizerBanner = () => {
             transition={{ duration: 1.1, ease: EXPO_OUT }}
           >
             <div className="relative">
-              {/* Decorative rings */}
-              <div className="absolute -inset-3  border border-primary/30 pointer-events-none" />
-              <div className="absolute -inset-[22px] border border-primary/12 pointer-events-none" />
-
               <BeforeAfterSlider />
             </div>
           </motion.div>
@@ -115,21 +111,6 @@ const AIVisualizerBanner = () => {
               Upload a photo of your room and watch any fabric come alive on your furniture in seconds, with zero guesswork.
             </motion.p>
 
-            {/* Proof points */}
-            <motion.div
-              className="flex gap-8 mb-6"
-              initial={{ opacity: 0, y: 14 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.56, ease: SMOOTH_OUT }}
-            >
-              {proofPoints.map((p, i) => (
-                <div key={i} className="flex flex-col items-start">
-                  <span className="font-serif text-2xl text-primary leading-none mb-1">{p.value}</span>
-                  <span className="color-secondary-dark text-[11px] uppercase tracking-widest leading-snug border-t border-stone-200 pt-1">{p.label}</span>
-                </div>
-              ))}
-            </motion.div>
-
             {/* CTA */}
             <motion.div
               initial={{ opacity: 0, y: 14 }}
@@ -140,7 +121,7 @@ const AIVisualizerBanner = () => {
                 to="/ai-visualizer"
                 className="group relative inline-flex items-center gap-4 px-12 py-5 bg-secondary text-white font-bold text-sm sm:text-lg shadow-2xl shadow-secondary/30 hover:bg-secondary/90 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 overflow-hidden"
               >
-                Try the Visualizer — It's Free
+                Try the Visualizer
                 <svg className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

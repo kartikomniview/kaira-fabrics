@@ -32,7 +32,7 @@ const CaptionStrip = ({ before, highlight, after = '', eyebrow, backgroundUrl }:
       <div className="absolute inset-0 bg-black/60" />
 
       <div className="relative max-w-3xl mx-auto px-6 lg:px-10 text-center z-10">
-        {eyebrow && (
+        {eyebrow && false && (
           <motion.p
             initial={{ opacity: 0, y: 8 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -45,11 +45,10 @@ const CaptionStrip = ({ before, highlight, after = '', eyebrow, backgroundUrl }:
         )}
 
         <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: eyebrow ? 0.2 : 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="text-2xl md:text-4xl lg:text-[2.75rem] leading-[1.35] font-light text-white tracking-wide"
-          style={{ fontFamily: '"ITC Avant Garde Gothic BT", "Century Gothic", sans-serif' }}
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ duration: 1.1, delay: eyebrow ? 0.2 : 0.1, ease: 'easeOut' }}
+          className="text-2xl font-serif md:text-2xl lg:text-[2.3rem] leading-[1.35] font-light text-white tracking-wide"
         >
           {before}
           <span className="font-normal text-[#b8d96e]"> {highlight}</span>

@@ -3,7 +3,7 @@ import InlineLoader from './InlineLoader'
 import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../../utils/textureUtils'
 // model-viewer is loaded via CDN script in index.html
 
-const MODEL_URL = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/models/OVL/Sofa/SetSofas/Linda.glb'
+const MODEL_URL = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Nova.glb'
 
 interface ThreeDModalProps {
   fabricName: string

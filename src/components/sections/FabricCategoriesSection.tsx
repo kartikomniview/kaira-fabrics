@@ -21,6 +21,8 @@ const categoryMeta: Record<string, { label: string; desc: string; features: stri
   'SUEDELEATHER': { label: 'Suede Leather',      desc: 'Buttery smooth leather that ages beautifully',          features: ['100% genuine leather', 'Develops patina', 'Luxurious grip'],    usedFor: 'Luxury upholstery' },
 }
 
+const SHOW_HOVER_OVERLAY = false // set to true to re-enable features + ideal-for overlay
+
 const GAP = 24 // px (gap-6 equivalent)
 
 function getVisibleCount() {
@@ -56,9 +58,16 @@ const FabricCategoriesSection = () => {
       acc[type].add(m.collection_name)
       return acc
     }, {} as Record<string, Set<string>>)
+    const order = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
     return Object.entries(
       Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, v.size]))
-    ).sort((a, b) => a[0].localeCompare(b[0]))
+    ).sort((a, b) => {
+      const ai = order.indexOf(a[0])
+      const bi = order.indexOf(b[0])
+      const aIdx = ai === -1 ? order.length : ai
+      const bIdx = bi === -1 ? order.length : bi
+      return aIdx - bIdx
+    })
   }, [materials])
 
   const maxSteps = Math.max(0, categories.length - visibleCount)
@@ -204,30 +213,32 @@ const FabricCategoriesSection = () => {
                     )}
 
                     {/* Hover overlay: features + ideal for */}
-                    <motion.div
-                      variants={{ rest: { y: '100%', opacity: 0 }, hover: { y: 0, opacity: 1 } }}
-                      transition={{ duration: 0.38, type: 'tween' }}
-                      className="absolute inset-x-0 bottom-0 bg-secondary-dark backdrop-blur-sm p-4 pointer-events-none"
-                    >
-                      <div className="space-y-1.5 mb-2">
-                        {features.map((f) => (
-                          <div key={f} className="flex items-center gap-2 text-xs text-white/85">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                            {f}
-                          </div>
-                        ))}
-                      </div>
-                      {usedFor && (
-                        <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">
-                          Ideal for: <span className="text-white/80 normal-case font-medium">{usedFor}</span>
-                        </p>
-                      )}
-                    </motion.div>
+                    {SHOW_HOVER_OVERLAY && (
+                      <motion.div
+                        variants={{ rest: { y: '100%', opacity: 0 }, hover: { y: 0, opacity: 1 } }}
+                        transition={{ duration: 0.38, type: 'tween' }}
+                        className="absolute inset-x-0 bottom-0 bg-secondary-dark backdrop-blur-sm p-4 pointer-events-none"
+                      >
+                        <div className="space-y-1.5 mb-2">
+                          {features.map((f) => (
+                            <div key={f} className="flex items-center gap-2 text-xs text-white/85">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                              {f}
+                            </div>
+                          ))}
+                        </div>
+                        {usedFor && (
+                          <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">
+                            Ideal for: <span className="text-white/80 normal-case font-medium">{usedFor}</span>
+                          </p>
+                        )}
+                      </motion.div>
+                    )}
                   </div>
 
                   {/* Always visible: label + desc */}
                   <h3 className="font-serif text-sm sm:text-xl text-secondary-dark group-hover:text-primary transition-colors duration-200">{label}</h3>
-                  <p className="hidden sm:block text-xs text-secondary-dark font-light mt-1.5 leading-relaxed">{desc}</p>
+                  {/* <p className="hidden sm:block text-xs text-secondary-dark font-light mt-1.5 leading-relaxed">{desc}</p> */}
 
                   {/* Always visible: CTA */}
                   <div className="mt-2 sm:mt-4 flex items-center gap-2">

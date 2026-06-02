@@ -70,7 +70,7 @@ const advantages = [
     title: '35+ Year Legacy',
     desc: "Backed by the Kurikkal Group trusted since 1991.",
     Icon: LegacyIcon,
-    bgImg: `${S3_WHY}/v1/Kurikkal Group Legacy.webp`,
+    bgImg: `${S3_WHY}/v3/Kurikkal Group Legacy.webp`,
   },
   {
     title: 'Premium Fabrics & Leather',
@@ -88,13 +88,13 @@ const advantages = [
     title: 'Dealer & Designer Trusted',
     desc: 'Preferred quality partner across South India.',
     Icon: TrustedIcon,
-    bgImg: `${S3_WHY}/v1/Trusted by Dealers & Designers.webp`,
+    bgImg: `${S3_WHY}/v3/Trusted by Dealers & Designers.webp`,
   },
   {
     title: 'Ambitious & Enthusiastic Team',
     desc: 'Driven by an ambitious & enthusiastic team.',
     Icon: TeamIcon,
-    bgImg: `${S3_WHY}/v2/Ambitious & Enthusiastic Team.webp`,
+    bgImg: `${S3_WHY}/v3/Ambitious & Enthusiastic Team.webp`,
   },
 ]
 
@@ -147,7 +147,7 @@ const WhyKairaSection = () => {
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, ease: EXPO_OUT }}
           >
-            <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">The Kaira Advantage</span>
+            {/* <span className="text-[11px] uppercase tracking-[0.35em] text-secondary font-bold">Kaira</span> */}
           </motion.div>
           <div className="overflow-hidden">
             <motion.h2
@@ -156,7 +156,11 @@ const WhyKairaSection = () => {
               animate={headerInView ? { y: '0%', skewY: 0 } : {}}
               transition={{ duration: 1.0, delay: 0.18, ease: EXPO_OUT }}
             >
-              Why <span className="text-primary">Kaira?</span>
+              Why <img
+                src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
+                alt="Kaira"
+                className="inline-block h-[1.5em] w-auto align-baseline object-contain transform translate-y-[1rem] sm:translate-y-[1.5rem]"
+              />?
             </motion.h2>
           </div>
         </div>
@@ -244,31 +248,28 @@ const WhyKairaSection = () => {
                   variants={cardVariants}
                   initial="hidden"
                   animate={cardsInView ? 'visible' : 'hidden'}
-                  whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(0,0,0,0.10)' }}
+                  whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
                   transition={{ duration: 0.32, ease: SMOOTH_OUT }}
-                  className="group relative w-52 flex-shrink-0 sm:w-auto sm:flex-shrink bg-white border border-stone-200 shadow-sm overflow-hidden cursor-pointer flex flex-col"
+                  className="group relative w-52 flex-shrink-0 sm:w-auto sm:flex-shrink bg-white border border-stone-100/80 rounded-2xl shadow-sm overflow-hidden cursor-pointer flex flex-col"
                 >
-                  {/* Icon — top-left over image */}
-                  <div className="absolute top-3 left-3 z-10 p-2 text-primary">
-                    <adv.Icon />
-                  </div>
-
                   {/* Image */}
-                  <div className="overflow-hidden">
+                  <div className="overflow-hidden relative">
                     <img
                       src={adv.bgImg}
                       alt={adv.title}
                       loading="lazy"
                       className="w-full h-44 object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
                     />
+                    {/* Subtle gradient overlay to enhance image richness */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
 
                   {/* Footer */}
-                  <div className="px-4 py-4 flex-1 border-t border-stone-100">
-                    <span className="inline-block text-sm uppercase tracking-[0.14em] font-black text-primary mb-1.5 bg-primary/10 px-2 py-0.5 rounded-sm">
+                  <div className="p-5 flex-1 flex flex-col">
+                    <h4 className="font-serif text-[17px] color-secondary-dark mb-2 group-hover:text-primary transition-colors duration-300">
                       {adv.title}
-                    </span>
-                    <p className="color-secondary-dark text-[11px] leading-relaxed">{adv.desc}</p>
+                    </h4>
+                    <p className="text-stone-500 text-[13px] leading-relaxed font-sans">{adv.desc}</p>
                   </div>
                 </motion.div>
               ))}

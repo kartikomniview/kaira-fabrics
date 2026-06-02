@@ -61,17 +61,21 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-stone-100 font-sans flex flex-col">
+    <div className="h-screen w-full bg-stone-100 font-sans grid grid-cols-[14rem_1fr] grid-rows-[auto_1fr] overflow-hidden">
       {/* Top bar */}
-      <header className="bg-stone-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
+      <header className="col-span-2 bg-white text-stone-900 px-6 py-4 flex items-center justify-between border-b border-stone-200 shadow-sm z-10">
         <Link to="/" className="flex items-center gap-3 group">
-          <span className="font-serif text-xl tracking-wide text-amber-400 group-hover:text-amber-300 transition-colors">KAIRA</span>
-          <span className="text-stone-600 text-sm">|</span>
-          <span className="text-stone-300 text-sm uppercase tracking-widest">Admin</span>
+          <img
+            src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
+            alt="Kaira"
+            className="h-8 w-auto object-contain group-hover:opacity-80 transition-opacity"
+          />
+          <span className="text-stone-300 text-sm">|</span>
+          <span className="text-stone-500 text-sm uppercase tracking-widest mt-1 font-medium">Admin</span>
         </Link>
         <button
           onClick={() => { localStorage.removeItem('adminToken'); setIsAuthenticated(false) }}
-          className="flex items-center gap-2 px-4 py-2 bg-red-900/50 hover:bg-red-800 text-xs uppercase tracking-widest text-red-300 transition-colors rounded"
+          className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-xs uppercase tracking-widest text-red-600 transition-colors rounded font-medium"
         >
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -80,37 +84,35 @@ const AdminPage = () => {
         </button>
       </header>
 
-      {/* Body: sidebar + content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar */}
-        <aside className="w-56 shrink-0 bg-stone-900 border-r border-stone-800 flex flex-col pt-6 pb-4">
-          <p className="px-5 mb-3 text-[9px] uppercase tracking-[0.2em] font-bold text-stone-500">Modules</p>
-          <nav className="flex flex-col gap-1 px-2">
-            {NAV_ITEMS.filter((item) => item.isShow).map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveModule(item.id)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${
-                  activeModule === item.id
-                    ? 'bg-amber-400 text-stone-900'
-                    : 'text-stone-400 hover:text-white hover:bg-stone-800'
+      {/* Left sidebar */}
+      <aside className="col-start-1 row-start-2 bg-white border-r border-secondary-dark/10 flex flex-col pt-6 pb-4 shadow-sm overflow-y-auto hide-scrollbar z-10">
+        <p className="px-5 mb-3 text-[9px] uppercase tracking-[0.2em] font-bold text-secondary-dark/60">Modules</p>
+        <nav className="flex flex-col gap-1 px-2">
+          {NAV_ITEMS.filter((item) => item.isShow).map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveModule(item.id)}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${activeModule === item.id
+                ? 'bg-primary text-secondary-dark shadow-sm'
+                : 'text-secondary-dark/70 hover:text-secondary-dark hover:bg-secondary-dark/5'
                 }`}
-              >
-                {item.icon}
-                {item.label}
-              </button>
-            ))}
-          </nav>
-        </aside>
+            >
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      </aside>
 
-        {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-8">
+      {/* Main content */}
+      <main className="col-start-2 row-start-2 overflow-y-auto p-0 bg-stone-100 relative">
+        <div className="bg-white p-6 md:p-4 min-h-full">
           {activeModule === 'leads' && <LeadsPanel />}
           {activeModule === 'visualizer-logs' && <VisualizerLogsPanel />}
           {activeModule === 'gallery' && <GalleryPanel />}
           {activeModule === 'collections' && <CollectionsPanel />}
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   )
 }

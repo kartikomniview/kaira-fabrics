@@ -8,7 +8,6 @@
  */
 
 const LOGO = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp'
-const THREAD_COUNT = 22
 
 interface PageLoaderProps {
   /** Set true to trigger the fade-out animation before unmounting */
@@ -45,30 +44,6 @@ const PageLoader = ({ exiting = false }: PageLoaderProps) => (
         background: 'radial-gradient(ellipse 55% 45% at 50% 52%, rgba(180,130,60,0.10) 0%, transparent 70%)',
       }}
     />
-
-    {/* Weave threads — bottom rising bars */}
-    <div
-      className="absolute bottom-0 left-0 right-0 flex justify-center items-end pointer-events-none overflow-hidden"
-      style={{ height: '60%', gap: 7 }}
-    >
-      {Array.from({ length: THREAD_COUNT }).map((_, i) => (
-        <div
-          key={i}
-          style={{
-            width: i % 4 === 0 ? 2 : 1,
-            height: `${32 + (i % 7) * 9}%`,
-            borderRadius: 4,
-            background:
-              i % 3 === 0
-                ? 'linear-gradient(to top, #c8a46a, rgba(200,164,106,0.15))'
-                : i % 3 === 1
-                ? 'linear-gradient(to top, #74623C, rgba(116,98,60,0.12))'
-                : 'linear-gradient(to top, #4a3c28, rgba(74,60,40,0.08))',
-            animation: `kaira-weave-rise ${1.25 + (i % 5) * 0.18}s ease-in-out ${(i * 0.06).toFixed(2)}s infinite alternate`,
-          }}
-        />
-      ))}
-    </div>
 
     {/* Soft corner ornaments */}
     {(['top-7 left-7', 'top-7 right-7', 'bottom-7 left-7', 'bottom-7 right-7'] as const).map((pos) => (
