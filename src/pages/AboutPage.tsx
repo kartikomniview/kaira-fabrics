@@ -50,7 +50,7 @@ type PillarCardProps = {
 const PillarCard = ({ pillar, index, visible }: PillarCardProps) => {
   return (
     <div
-      className={`relative bg-white p-6 md:p-7 flex flex-col group transition-all duration-700 ease-out hover:-translate-y-2 hover:shadow-xl border border-stone-100 overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+      className={`relative h-full bg-white p-6 md:p-7 flex flex-col group transition-all duration-700 ease-out hover:-translate-y-2 hover:shadow-xl border border-stone-100 overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
       style={{ transitionDelay: visible ? `${index * 150}ms` : '0ms' }}
     >
       {/* Top Hover Accent Line */}
@@ -124,8 +124,8 @@ const AboutPage = () => {
 
         <div className="relative z-10 px-6 text-center">
           <div className="inline-flex items-center justify-center gap-6">
-            <span className="w-12 md:w-16 h-px bg-white/50 drop-shadow-sm" />
-            <h1 className="text-xs md:text-sm font-light uppercase tracking-[0.3em] text-white drop-shadow-md">
+            <span className="w-12 md:w-16 h-px bg-white/50" />
+            <h1 className="text-xs md:text-sm font-light uppercase tracking-[0.3em] text-white bg-secondary/40 px-6 py-2.5 border border-white/20 rounded-md">
               About Us
             </h1>
             <span className="w-12 md:w-16 h-px bg-white/50 drop-shadow-sm" />
@@ -272,7 +272,7 @@ const AboutPage = () => {
             <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0 sm:overflow-visible pb-6 sm:pb-0 hide-scrollbar">
               <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-max sm:w-auto">
                 {pillars.map((pillar, index) => (
-                  <div key={index} className="w-[280px] shrink-0 sm:w-auto sm:shrink">
+                  <div key={index} className="w-[280px] shrink-0 sm:w-auto sm:shrink h-full">
                     <PillarCard
                       pillar={pillar}
                       index={index}

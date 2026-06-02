@@ -70,6 +70,15 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
     if (normalBlobUrl) URL.revokeObjectURL(normalBlobUrl)
     if (sheenBlobUrl) URL.revokeObjectURL(sheenBlobUrl)
+    
+    // Trick model-viewer into knowing the model is dirty for AR export
+    try {
+      if (mv.model?.materials?.[0]) {
+        const m = mv.model.materials[0]
+        m.pbrMetallicRoughness.setBaseColorFactor([...m.pbrMetallicRoughness.baseColorFactor])
+      }
+    } catch (e) {}
+
     setIsApplying(false)
   }
 
@@ -221,7 +230,18 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             ar
             ar-modes="scene-viewer quick-look"
             style={{ width: '100%', height: '100%', background: '#ffffff', touchAction: 'manipulation' }}
-          />
+          >
+            {/* Custom AR button */}
+            <button
+              slot="ar-button"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center gap-2 bg-secondary text-white font-semibold text-[11px] uppercase tracking-wider px-5 py-3 shadow-lg active:scale-95 transition-transform"
+            >
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+              View in your space
+            </button>
+          </model-viewer>
 
           {/* Change Product button */}
           <button
@@ -235,19 +255,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             <span className="text-[10px] font-semibold tracking-wide truncate max-w-[90px]">{currentProduct.product_name}</span>
           </button>
 
-          {/* Get Quotation button */}
-          {!productPanelOpen && (
-            <button
-              onClick={() => setQuotationOpen(true)}
-              style={{ touchAction: 'manipulation' }}
-              className="absolute top-3 right-3 z-10 flex items-center gap-1 pl-2 pr-2.5 min-h-[28px] bg-secondary hover:bg-[#b8943f] text-white shadow-lg transition-all text-[10px] font-semibold tracking-wide active:scale-95"
-            >
-              <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Get Quotation
-            </button>
-          )}
+
 
           {/* Toast */}
           <div className={`absolute top-14 right-3 z-20 pointer-events-none transition-all duration-300 ease-out ${toastVisible ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'}`}>
