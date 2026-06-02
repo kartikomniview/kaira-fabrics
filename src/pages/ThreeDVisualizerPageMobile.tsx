@@ -25,6 +25,9 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [toastVisible, setToastVisible] = useState(false)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  
+  // Keep track of active blob URLs so GLTFExporter can fetch them for AR
+  const activeBlobUrlsRef = useRef<string[]>([])
 
   const showToast = (msg: string, type: 'success' | 'error') => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
@@ -66,16 +69,24 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       sheenBlobUrl,
       meshes: fabricMeshesRef.current,
     })
-    if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
-    if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
-    if (normalBlobUrl) URL.revokeObjectURL(normalBlobUrl)
-    if (sheenBlobUrl) URL.revokeObjectURL(sheenBlobUrl)
+    // Cleanup previous blob URLs
+    activeBlobUrlsRef.current.forEach(url => URL.revokeObjectURL(url))
+    
+    // Store new active blob URLs
+    const newBlobs: string[] = []
+    if (baseBlobUrl) newBlobs.push(baseBlobUrl)
+    if (roughnessBlobUrl) newBlobs.push(roughnessBlobUrl)
+    if (normalBlobUrl) newBlobs.push(normalBlobUrl)
+    if (sheenBlobUrl) newBlobs.push(sheenBlobUrl)
+    activeBlobUrlsRef.current = newBlobs
     
     // Trick model-viewer into knowing the model is dirty for AR export
     try {
       if (mv.model?.materials?.[0]) {
         const m = mv.model.materials[0]
-        m.pbrMetallicRoughness.setBaseColorFactor([...m.pbrMetallicRoughness.baseColorFactor])
+        const c = m.pbrMetallicRoughness.baseColorFactor
+        // Change a value slightly to bypass equality check and force dirty flag
+        m.pbrMetallicRoughness.setBaseColorFactor([c[0], c[1], c[2], c[3] === 1 ? 0.99 : 1])
       }
     } catch (e) {}
 
@@ -114,7 +125,10 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       setModelLoaded(true)
     }
     mv.addEventListener('load', onLoad)
-    return () => mv.removeEventListener('load', onLoad)
+    return () => {
+      mv.removeEventListener('load', onLoad)
+      activeBlobUrlsRef.current.forEach(url => URL.revokeObjectURL(url))
+    }
   }, [])
 
   useEffect(() => {
