@@ -72,7 +72,6 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       roughnessBlobUrl,
       normalBlobUrl,
       sheenBlobUrl,
-      meshes: fabricMeshesRef.current,
     })
     // Cleanup previous blob URLs
     activeBlobUrlsRef.current.forEach(url => URL.revokeObjectURL(url))
