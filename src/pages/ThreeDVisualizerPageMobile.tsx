@@ -256,7 +256,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             {/* Custom AR button */}
             <button
               slot="ar-button"
-              onClick={async (e) => {
+              onClick={async () => {
                 const mv = mvRef.current as any
                 if (!mv) return
                 addDebugLog("AR Button Clicked.")
