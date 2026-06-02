@@ -32,7 +32,7 @@ const NAV_ITEMS: { id: Module; label: string; icon: React.ReactNode; isShow: boo
   {
     id: 'gallery',
     label: 'Gallery',
-    isShow: true,
+    isShow: false,
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -61,9 +61,9 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="h-screen w-full bg-stone-100 font-sans grid grid-cols-[14rem_1fr] grid-rows-[auto_1fr] overflow-hidden">
+    <div className="h-screen w-full bg-stone-100 font-sans flex flex-col overflow-hidden">
       {/* Top bar */}
-      <header className="col-span-2 bg-white text-stone-900 px-6 py-4 flex items-center justify-between border-b border-stone-200 shadow-sm z-10">
+      <header className="shrink-0 bg-white text-stone-900 px-6 py-4 flex items-center justify-between border-b border-stone-200 shadow-sm z-10">
         <Link to="/" className="flex items-center gap-3 group">
           <img
             src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
@@ -84,35 +84,40 @@ const AdminPage = () => {
         </button>
       </header>
 
-      {/* Left sidebar */}
-      <aside className="col-start-1 row-start-2 bg-white border-r border-secondary-dark/10 flex flex-col pt-6 pb-4 shadow-sm overflow-y-auto hide-scrollbar z-10">
-        <p className="px-5 mb-3 text-[9px] uppercase tracking-[0.2em] font-bold text-secondary-dark/60">Modules</p>
-        <nav className="flex flex-col gap-1 px-2">
-          {NAV_ITEMS.filter((item) => item.isShow).map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveModule(item.id)}
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${activeModule === item.id
-                ? 'bg-primary text-secondary-dark shadow-sm'
-                : 'text-secondary-dark/70 hover:text-secondary-dark hover:bg-secondary-dark/5'
-                }`}
-            >
-              {item.icon}
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </aside>
+      {/* Below-header row */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
 
-      {/* Main content */}
-      <main className="col-start-2 row-start-2 overflow-y-auto p-0 bg-stone-100 relative">
-        <div className="bg-white p-6 md:p-4 min-h-full">
-          {activeModule === 'leads' && <LeadsPanel />}
-          {activeModule === 'visualizer-logs' && <VisualizerLogsPanel />}
-          {activeModule === 'gallery' && <GalleryPanel />}
-          {activeModule === 'collections' && <CollectionsPanel />}
-        </div>
-      </main>
+        {/* Left sidebar */}
+        <aside className="w-56 shrink-0 bg-white border-r border-secondary-dark/10 flex flex-col pt-6 pb-4 shadow-sm overflow-y-auto hide-scrollbar z-10">
+          <p className="px-5 mb-3 text-[9px] uppercase tracking-[0.2em] font-bold text-secondary-dark/60">Modules</p>
+          <nav className="flex flex-col gap-1 px-2">
+            {NAV_ITEMS.filter((item) => item.isShow).map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveModule(item.id)}
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${activeModule === item.id
+                  ? 'bg-primary text-secondary-dark shadow-sm'
+                  : 'text-secondary-dark/70 hover:text-secondary-dark hover:bg-secondary-dark/5'
+                  }`}
+              >
+                {item.icon}
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main content */}
+        <main className="flex-1 overflow-y-auto bg-stone-100">
+          <div className="bg-white p-6 md:p-4 min-h-full">
+            {activeModule === 'leads' && <LeadsPanel />}
+            {activeModule === 'visualizer-logs' && <VisualizerLogsPanel />}
+            {activeModule === 'gallery' && <GalleryPanel />}
+            {activeModule === 'collections' && <CollectionsPanel />}
+          </div>
+        </main>
+
+      </div>
     </div>
   )
 }

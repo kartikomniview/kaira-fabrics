@@ -150,7 +150,7 @@ const VisualizerOptions = () => {
       </div>
 
       {/* ── Option Cards ── */}
-      <div className="relative z-10 max-w-6xl mx-auto w-full px-4 sm:px-8 pb-16 mt-10">
+      <div className="relative z-10 max-w-6xl mx-auto w-full px-2 sm:px-8 pb-8 mt-6">
         <p className="text-center text-[11px] color-secondary-dark uppercase tracking-[0.3em] font-semibold mb-8">
           Choose Your Experience
         </p>

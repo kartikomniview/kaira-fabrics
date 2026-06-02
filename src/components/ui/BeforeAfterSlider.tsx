@@ -62,8 +62,8 @@ export function BeforeAfterSlider() {
       </div>
 
       {/* Labels */}
-      <span className="absolute top-3 left-3 text-[10px] uppercase tracking-widest font-bold text-white bg-black/45 px-2.5 py-1 pointer-events-none">Before</span>
-      <span className="absolute top-3 right-3 text-[10px] uppercase tracking-widest font-bold text-white bg-black/45 px-2.5 py-1 pointer-events-none">After</span>
+      <span className="absolute top-3 left-3 text-[10px] uppercase tracking-widest font-bold text-white bg-secondary-dark/45 px-2.5 py-1 pointer-events-none">Before</span>
+      <span className="absolute top-3 right-3 text-[10px] uppercase tracking-widest font-bold text-white bg-secondary-dark/45 px-2.5 py-1 pointer-events-none">After</span>
 
       {/* Divider line */}
       <div

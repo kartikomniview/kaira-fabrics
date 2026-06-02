@@ -95,10 +95,6 @@ const ContactPage = () => {
               <div className="mb-10">
                 <p className="text-xs uppercase tracking-[0.2em] text-stone-400 font-bold mb-2">Enquiry Form</p>
                 <h3 className="font-serif text-2xl md:text-3xl text-[#5b4c2f] font-medium">Send a Message</h3>
-                <div className="flex items-center gap-2 mt-4">
-                  <span className="h-px w-8 bg-stone-300" />
-                  <span className="h-px w-8 bg-stone-300" />
-                </div>
               </div>
 
               {submitted ? (

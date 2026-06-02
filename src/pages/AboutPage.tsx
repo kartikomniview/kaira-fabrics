@@ -352,13 +352,6 @@ const AboutPage = () => {
           <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
           <div className="relative max-w-7xl mx-auto px-6 lg:px-10 flex flex-col md:flex-row items-center justify-between gap-8">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 mb-4">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 bg-primary"></span>
-                </span>
-                <span className="text-[10px] uppercase tracking-widest text-primary font-bold">Explore Kaira</span>
-              </div>
               <h2 className="font-serif text-2xl sm:text-3xl text-white mb-2">Ready to Find Your Perfect Fabric?</h2>
               <p className="text-stone-400 text-sm sm:text-base font-light max-w-lg">Browse our curated collections or visit our showroom to experience premium quality firsthand.</p>
             </div>

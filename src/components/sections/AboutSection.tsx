@@ -45,10 +45,10 @@ const StatCard = ({
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay, ease: SOFT }}
     >
-      <p className="font-serif text-3xl sm:text-4xl text-stone-800">
+      <p className="font-serif text-3xl sm:text-4xl text-secondary-dark">
         <Counter to={value} suffix={suffix} />
       </p>
-      <p className="text-[10px] uppercase tracking-[0.25em] text-stone-400 font-medium text-center">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.25em] text-secondary-dark font-medium text-center">{label}</p>
     </motion.div>
   )
 }
@@ -119,7 +119,7 @@ const AboutSection = () => {
             transition={{ duration: 0.7, delay: 0.25, ease: SOFT }}
           >
             Kaira is an entity under the{' '}
-            <strong className="font-semibold text-stone-700">Kurikkal Group</strong>, specializing
+            <strong className="font-semibold text-secondary-dark">Kurikkal Group</strong>, specializing
             in premium sofa fabrics and leathers delivering remarkable quality right to your doorstep.
           </motion.p>
 

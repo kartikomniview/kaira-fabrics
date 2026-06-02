@@ -388,7 +388,7 @@ const OtherGrid = ({ items, loading, error, onRefresh }: Props) => {
               autoPlay
               controls
               playsInline
-              className="w-full rounded-2xl shadow-2xl bg-black min-h-0"
+              className="w-full rounded-2xl shadow-2xl bg-secondary-dark min-h-0"
               style={{ maxHeight: 'calc(100vh - 6rem)' }}
             />
           </div>

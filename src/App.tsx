@@ -18,7 +18,7 @@ const ContactPage          = lazy(() => import('./pages/ContactPage'))
 const AdminPage            = lazy(() => import('./pages/admin/AdminPage'))
 
 // Disable smooth scroll on routes that manage their own scroll (e.g. 3D Studio)
-const LENIS_DISABLED_PATHS = ['/3d-visualizer','/ai-visualizer','/collections','/materials']
+const LENIS_DISABLED_PATHS = ['/3d-visualizer','/ai-visualizer','/collections','/materials','/admin']
 
 function LenisManager() {
   const { pathname } = useLocation()

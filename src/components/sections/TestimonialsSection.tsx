@@ -37,7 +37,7 @@ const TestimonialCard = ({ item, onPlay }: { item: GalleryItem; onPlay: (url: st
 
         {/* Play icon */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-          <div className="w-12 h-12 rounded-full bg-stone-900/60 flex items-center justify-center backdrop-blur-sm">
+          <div className="w-12 h-12 rounded-full bg-secondary-dark/60 flex items-center justify-center backdrop-blur-sm">
             <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
@@ -226,12 +226,12 @@ const TestimonialsSection = () => {
           className="fixed inset-0 z-[70] flex items-center justify-center p-4"
           onClick={() => setPreviewUrl(null)}
         >
-          <div className="absolute inset-0 bg-color-secondary-dark backdrop-blur-sm" />
+          <div className="absolute inset-0 backdrop-blur-sm" />
           <div className="relative z-10 w-full max-w-2xl flex flex-col" style={{ maxHeight: 'calc(100vh - 2rem)' }} onClick={e => e.stopPropagation()}>
             <div className="flex justify-end mb-2 shrink-0">
               <button
                 onClick={() => setPreviewUrl(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-black/75 hover:bg-white/30 text-white transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -243,7 +243,7 @@ const TestimonialsSection = () => {
               autoPlay
               controls
               playsInline
-              className="w-full rounded-2xl shadow-2xl bg-black min-h-0"
+              className="w-full rounded-2xl shadow-2xl bg-secondary-dark min-h-0"
               style={{ maxHeight: 'calc(100vh - 6rem)' }}
             />
           </div>

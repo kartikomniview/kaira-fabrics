@@ -196,7 +196,6 @@ const VisualizerLogsPanel = () => {
             <thead>
               <tr className="bg-stone-900 text-stone-300 uppercase text-[10px] tracking-widest">
                 <th className="px-5 py-3 font-medium">#</th>
-                <th className="px-5 py-3 font-medium">ID</th>
                 <th className="px-5 py-3 font-medium">Mobile</th>
                 <th className="px-5 py-3 font-medium">Output</th>
                 <th className="px-5 py-3 font-medium">Device</th>
@@ -211,9 +210,6 @@ const VisualizerLogsPanel = () => {
                   className="bg-white even:bg-stone-50 border-t border-stone-100 hover:bg-amber-50/40 transition-colors align-top"
                 >
                   <td className="px-5 py-3 text-stone-400">{idx + 1}</td>
-                  <td className="px-5 py-3 text-stone-400 font-mono text-xs max-w-[100px] truncate" title={l.id}>
-                    {l.id ?? '—'}
-                  </td>
                   <td className="px-5 py-3 font-medium text-stone-800">
                     {l.mobile_number ? (
                       <a href={`tel:${l.mobile_number}`} className="hover:text-amber-700 transition-colors">{l.mobile_number}</a>

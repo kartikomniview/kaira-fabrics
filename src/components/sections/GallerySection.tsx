@@ -129,7 +129,7 @@ const GalleryRow = ({ label, title, items, onPreview }: GalleryRowProps) => {
               {/* Video badge */}
               {video && (
                 <div className="absolute top-3 right-3 opacity-100 group-hover:opacity-0 transition-opacity">
-                  <div className="p-1.5 rounded-full bg-stone-900/50 backdrop-blur-sm border border-white/20">
+                  <div className="p-1.5 rounded-full bg-secondary-dark/50 backdrop-blur-sm border border-white/20">
                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M8 5v14l11-7z" />
                     </svg>
@@ -292,7 +292,7 @@ const GallerySection = () => {
                   autoPlay
                   controls
                   playsInline
-                  className="w-full rounded-2xl shadow-2xl bg-black min-h-0"
+                  className="w-full rounded-2xl shadow-2xl bg-secondary-dark min-h-0"
                   style={{ maxHeight: 'calc(100vh - 7rem)' }}
                 />
               ) : (

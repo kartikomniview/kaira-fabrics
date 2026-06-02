@@ -135,7 +135,7 @@ export default function WhoWeServeSection() {
                     decoding="async"
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary-dark/95 via-secondary-dark/50 to-transparent" />
                 </div>
 
                 {/* Top label */}

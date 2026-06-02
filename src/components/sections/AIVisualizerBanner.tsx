@@ -46,7 +46,7 @@ const AIVisualizerBanner = () => {
         </span>
       </motion.div>
 
-      <div className="relative max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10 md:py-20 lg:py-28">
+      <div className="relative max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-6 md:py-20 lg:py-28">
 
         <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-20">
 
