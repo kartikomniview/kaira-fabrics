@@ -152,11 +152,11 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     }))
     const on = () => meshes.forEach((m: any) => {
       (m.material as THREE.MeshPhysicalMaterial).emissive.set(0xffffff)
-      ;(m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.7
+        ; (m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.7
     })
     const off = () => meshes.forEach((m: any, i: number) => {
       (m.material as THREE.MeshPhysicalMaterial).emissive.copy(originals[i].emissive)
-      ;(m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = originals[i].intensity
+        ; (m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = originals[i].intensity
     })
     on()
     const t1 = setTimeout(off, 300)
@@ -219,7 +219,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             max-camera-orbit="Infinity 90deg auto"
             camera-orbit="auto auto 4m"
             ar
-            ar-modes="scene-viewer quick-look"
+            ar-modes="webxr scene-viewer quick-look"
             style={{ width: '100%', height: '100%', background: '#ffffff', touchAction: 'manipulation' }}
           >
             <button

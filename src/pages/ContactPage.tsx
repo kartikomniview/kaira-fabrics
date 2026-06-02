@@ -88,7 +88,6 @@ const ContactPage = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
 
           <div className="grid lg:grid-cols-[1fr_420px] gap-14 xl:gap-20 items-start">
-
             {/* ── Contact Form ────────────────────────────────────── */}
             <div>
               {/* section label */}
