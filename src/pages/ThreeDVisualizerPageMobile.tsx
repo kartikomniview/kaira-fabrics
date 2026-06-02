@@ -297,7 +297,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
                 return (
                   <button
                     key={p.id}
-                    onClick={() => { setCurrentProduct(p); setProductPanelOpen(false) }}
+                    onClick={() => { setCurrentProduct(p); setProductPanelOpen(false); setCurrSelectedPartForFinish('All') }}
                     style={{ touchAction: 'manipulation' }}
                     className={`w-full flex items-center gap-3 px-3 py-3 transition-all border-l-2 active:bg-stone-100 ${isActive ? 'bg-secondary/10 border-l-secondary' : 'hover:bg-stone-50 border-l-transparent'}`}
                   >

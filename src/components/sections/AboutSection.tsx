@@ -1,13 +1,11 @@
-import { useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import {
+  animate,
   motion,
   useInView,
-  useScroll,
-  useTransform,
-  useMotionValue,
-  animate,
+  useMotionValue
 } from 'framer-motion'
+import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 
 const SOFT = [0.25, 0.46, 0.45, 0.94] as const
 
@@ -61,9 +59,6 @@ const AboutSection = () => {
   const rightRef = useRef<HTMLDivElement>(null)
 
   const rightInView = useInView(rightRef, { once: true, margin: '-60px' })
-
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
-  const bgY = useTransform(scrollYProgress, [0, 1], ['-6%', '6%'])
 
   return (
     <section

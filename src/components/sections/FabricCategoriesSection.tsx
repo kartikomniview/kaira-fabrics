@@ -179,7 +179,7 @@ const FabricCategoriesSection = () => {
         >
           {categories.map(([name], cardIndex) => {
             const imgUrl = categoryImages[name] || categoryImages['DEFAULT']
-            const { label, desc, features, usedFor } = categoryMeta[name] ?? { label: name, desc: '', features: [], usedFor: '' }
+            const { label, features, usedFor } = categoryMeta[name] ?? { label: name, features: [], usedFor: '' }
             return (
               <motion.div
                 key={name}

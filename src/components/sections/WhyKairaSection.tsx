@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 
@@ -114,6 +114,21 @@ const WhyKairaSection = () => {
 
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
   const cardsInView = useInView(cardsRef, { once: true, margin: '-80px' })
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // On mobile, automatically scroll to the center card (3rd out of 5)
+    if (window.innerWidth < 640) {
+      const timer = setTimeout(() => {
+        if (scrollContainerRef.current) {
+          const container = scrollContainerRef.current;
+          const maxScrollLeft = container.scrollWidth - container.clientWidth;
+          container.scrollTo({ left: maxScrollLeft / 2, behavior: 'smooth' });
+        }
+      }, 300); // slight delay to allow layout to settle
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   return (
     <section
@@ -239,7 +254,7 @@ const WhyKairaSection = () => {
 
         {/* ══ ADVANTAGE CARDS ══ */}
         <div ref={cardsRef}>
-          <div className="overflow-x-auto -mx-6 px-6 sm:overflow-visible sm:mx-0 sm:px-0 pb-3 sm:pb-0">
+          <div ref={scrollContainerRef} className="overflow-x-auto -mx-6 px-6 sm:overflow-visible sm:mx-0 sm:px-0 pb-3 sm:pb-0 hide-scrollbar">
             <div className="flex gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-5 sm:gap-6 w-max sm:w-auto">
               {advantages.map((adv, i) => (
                 <motion.div
@@ -250,7 +265,7 @@ const WhyKairaSection = () => {
                   animate={cardsInView ? 'visible' : 'hidden'}
                   whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
                   transition={{ duration: 0.32, ease: SMOOTH_OUT }}
-                  className="group relative w-52 flex-shrink-0 sm:w-auto sm:flex-shrink bg-white border border-stone-100/80 rounded-2xl shadow-sm overflow-hidden cursor-pointer flex flex-col"
+                  className="group relative w-52 flex-shrink-0 sm:w-auto sm:flex-shrink bg-white border border-stone-100/80 shadow-sm overflow-hidden cursor-pointer flex flex-col"
                 >
                   {/* Image */}
                   <div className="overflow-hidden relative">

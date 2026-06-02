@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useMotionValue, useTransform, useSpring, useMotionTemplate } from 'framer-motion'
 
 const pillars = [
   {
@@ -66,10 +65,10 @@ const PillarCard = ({ pillar, index, visible }: PillarCardProps) => {
         <h3 className="font-serif text-lg md:text-xl color-secondary-dark mb-3 group-hover:text-primary transition-colors duration-500">
           {pillar.title}
         </h3>
-        
+
         {/* Animated Divider */}
         <div className="w-10 h-px bg-stone-300 mb-4 group-hover:bg-primary group-hover:w-16 transition-all duration-500" />
-        
+
         <p className="text-stone-600 text-sm font-light leading-relaxed flex-grow">
           {pillar.description}
         </p>
@@ -149,11 +148,11 @@ const AboutPage = () => {
                 <span className="text-sm text-stone-500 font-serif">Welcome to Kaira</span>
               </div>
 
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-primary leading-tight mb-5">
+              <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl text-primary leading-tight mb-5">
                 Kaira Fabrics & Leather
               </h2>
 
-              <div className="space-y-4 text-stone-600 text-base md:text-lg font-light leading-relaxed mb-10">
+              <div className="space-y-4 text-stone-600 text-sm sm:text-base md:text-lg font-light leading-relaxed mb-10">
                 <p>
                   A premium destination for sofa fabrics and upholstery materials in <strong className="color-secondary-dark font-medium">Calicut</strong>, offering a thoughtfully curated collection that blends elegance, durability, and comfort.
                 </p>
@@ -163,14 +162,14 @@ const AboutPage = () => {
               </div>
 
               {/* Stats row */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 mb-10">
+              <div className="flex flex-row items-center justify-center gap-6 sm:gap-16 mb-10">
                 <div className="group cursor-default">
-                  <p className="font-serif text-2xl md:text-3xl color-secondary-dark mb-1 group-hover:text-primary transition-colors duration-500">South India</p>
+                  <p className="font-serif text-xl sm:text-2xl md:text-3xl color-secondary-dark mb-1 group-hover:text-primary transition-colors duration-500">South India</p>
                   <p className="text-sm text-stone-500 font-light">Serving Region</p>
                 </div>
 
                 <div className="group cursor-default">
-                  <p className="font-serif text-2xl md:text-3xl color-secondary-dark mb-1 group-hover:text-primary transition-colors duration-500">Since 1991</p>
+                  <p className="font-serif text-xl sm:text-2xl md:text-3xl color-secondary-dark mb-1 group-hover:text-primary transition-colors duration-500">Since 1991</p>
                   <p className="text-sm text-stone-500 font-light">Group Legacy</p>
                 </div>
               </div>
@@ -181,7 +180,7 @@ const AboutPage = () => {
                   <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                 </svg>
 
-                <p className="color-secondary-dark text-base md:text-lg leading-relaxed font-serif">
+                <p className="color-secondary-dark text-sm sm:text-base md:text-lg leading-relaxed font-serif">
                   "With a commitment to consistency and trust, Kaira makes it easier for customers to choose the right materials for their spaces."
                 </p>
               </div>
@@ -213,7 +212,7 @@ const AboutPage = () => {
                   <div className="mb-4">
                     <span className="text-sm text-stone-500 font-serif">Our Philosophy</span>
                   </div>
-                  <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl color-secondary-dark leading-[1.15]">
+                  <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl color-secondary-dark leading-[1.15]">
                     More Than Fabrics <br /> A Better <span className="text-primary">Living Experience</span>
                   </h2>
                 </div>
@@ -237,11 +236,11 @@ const AboutPage = () => {
                     }
                   ].map((item, i) => (
                     <div key={i} className="group">
-                      <h3 className="font-serif text-lg color-secondary-dark mb-1 group-hover:text-primary transition-colors duration-300">
+                      <h3 className="font-serif text-base sm:text-lg color-secondary-dark mb-1 group-hover:text-primary transition-colors duration-300">
                         <span className="text-stone-400 text-sm mr-3">{item.label}.</span>
                         {item.heading}
                       </h3>
-                      <p className="text-stone-500 text-sm font-light leading-relaxed pl-[34px]">{item.body}</p>
+                      <p className="text-stone-500 text-xs sm:text-sm font-light leading-relaxed pl-[34px]">{item.body}</p>
                     </div>
                   ))}
                 </div>
@@ -267,18 +266,21 @@ const AboutPage = () => {
               <div className="mb-2">
                 <span className="text-sm text-white font-serif">What Sets Us Apart</span>
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl text-primary leading-tight">Why You Should Choose KAIRA</h2>
+              <h2 className="font-serif text-2xl sm:text-4xl text-primary leading-tight">Why You Should Choose KAIRA</h2>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6">
-              {pillars.map((pillar, index) => (
-                <PillarCard
-                  key={index}
-                  pillar={pillar}
-                  index={index}
-                  visible={pillarsVisible}
-                />
-              ))}
+            <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0 sm:overflow-visible pb-6 sm:pb-0 hide-scrollbar">
+              <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-max sm:w-auto">
+                {pillars.map((pillar, index) => (
+                  <div key={index} className="w-[280px] shrink-0 sm:w-auto sm:shrink">
+                    <PillarCard
+                      pillar={pillar}
+                      index={index}
+                      visible={pillarsVisible}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -295,7 +297,7 @@ const AboutPage = () => {
                 <div className="inline-flex items-center gap-2 mb-5">
                   <span className="text-[11px] font-bold uppercase tracking-[0.3em] color-secondary-dark">Our Origin</span>
                 </div>
-                <h2 className="font-serif text-3xl sm:text-4xl color-secondary-dark leading-[1.2] mb-8">Brand Story</h2>
+                <h2 className="font-serif text-2xl sm:text-4xl color-secondary-dark leading-[1.2] mb-8">Brand Story</h2>
 
                 {/* Heritage badge */}
                 <div className="bg-secondary text-white p-7 inline-block w-full max-w-xs border border-secondary-dark/40">
@@ -308,11 +310,11 @@ const AboutPage = () => {
                     />
                     <div>
                       <div className="text-[10px] uppercase tracking-[0.3em] text-stone-400 mb-1 font-bold">Part of</div>
-                      <p className="font-serif text-xl text-white">Kurikkal Group</p>
+                      <p className="font-serif text-lg sm:text-xl text-white">Kurikkal Group</p>
                     </div>
                   </div>
                   <div className="w-6 h-px bg-primary mb-4" />
-                  <p className="text-stone-400 text-xs font-light leading-relaxed">
+                  <p className="text-stone-400 text-[11px] sm:text-xs font-light leading-relaxed">
                     A trusted name with a legacy dating back to <strong className="text-stone-200 font-normal">1991</strong>. Decades of reliability, quality, and long-standing customer relationships.
                   </p>
                 </div>
@@ -320,10 +322,10 @@ const AboutPage = () => {
 
               {/* Right: story paragraphs */}
               <div className={`space-y-6 transition-all duration-700 delay-150 ${storyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-                <p className="color-secondary-dark text-base md:text-lg leading-relaxed font-light">
+                <p className="color-secondary-dark text-sm sm:text-base md:text-lg leading-relaxed font-light">
                   Kaira Fabrics & Leather was created with a clear purpose — to simplify the way people choose fabrics for their spaces. In today's market, customers face countless options, textures, and quality variations. While variety is valuable, it often makes it difficult to identify which materials truly offer the durability, comfort, and performance required.
                 </p>
-                <p className="color-secondary-dark text-base md:text-lg leading-relaxed font-light">
+                <p className="color-secondary-dark text-sm sm:text-base md:text-lg leading-relaxed font-light">
                   Recognising this gap, Kaira was introduced as a brand customers can rely on with confidence. Built on the Kurikkal Group's strong foundation, Kaira brings together carefully curated sofa fabrics and upholstery materials under one trusted brand — each collection selected to meet high standards of design, durability, and performance.
                 </p>
 
@@ -331,13 +333,13 @@ const AboutPage = () => {
                 <div className="bg-white border border-stone-200 p-6 shadow-sm">
                   <div className="flex items-start gap-4">
                     <div className="shrink-0 w-1 self-stretch bg-primary" />
-                    <p className="text-xl color-secondary-dark leading-snug">
+                    <p className="text-lg sm:text-xl color-secondary-dark leading-snug">
                       "Our goal is simple to make it easier for customers to choose the right fabric for any space, with complete confidence in its quality and long-term value."
                     </p>
                   </div>
                 </div>
 
-                <p className="color-secondary-dark text-base leading-relaxed font-light">
+                <p className="color-secondary-dark text-sm sm:text-base leading-relaxed font-light">
                   At Kaira, the journey goes beyond offering fabrics. It is about helping create spaces that are comfortable, functional, and built to be experienced every day.
                 </p>
               </div>
@@ -357,8 +359,8 @@ const AboutPage = () => {
                 </span>
                 <span className="text-[10px] uppercase tracking-widest text-primary font-bold">Explore Kaira</span>
               </div>
-              <h2 className="font-serif text-3xl text-white mb-2">Ready to Find Your Perfect Fabric?</h2>
-              <p className="text-stone-400 text-base font-light max-w-lg">Browse our curated collections or visit our showroom to experience premium quality firsthand.</p>
+              <h2 className="font-serif text-2xl sm:text-3xl text-white mb-2">Ready to Find Your Perfect Fabric?</h2>
+              <p className="text-stone-400 text-sm sm:text-base font-light max-w-lg">Browse our curated collections or visit our showroom to experience premium quality firsthand.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 shrink-0 w-full md:w-auto">
               <Link

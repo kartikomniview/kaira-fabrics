@@ -82,7 +82,7 @@ const ContactPage = () => {
 
       {/* ── Main content area ────────────────────────────────────── */}
       <section className="border-b border-stone-200 py-12 md:py-16 relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
-        <div className="absolute inset-0 pointer-events-none opacity-[0.2]" style={{ backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/BackgroundImages/b3.webp)', backgroundSize: '100%' }} />
+        <div className="absolute inset-0 pointer-events-none opacity-[0.2]"/>
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/70 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-stone-200/50 blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">

@@ -6,12 +6,6 @@ import { BeforeAfterSlider } from '../ui/BeforeAfterSlider'
 const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
 
-const proofPoints = [
-  { value: 'Any', label: 'Fabric Brand' },
-  { value: 'No', label: 'Sign-up Needed' },
-  { value: '~10s', label: 'To Preview' },
-]
-
 // ─────────────────────────────────────────────────────────────
 const AIVisualizerBanner = () => {
   const ref = useRef<HTMLElement>(null)

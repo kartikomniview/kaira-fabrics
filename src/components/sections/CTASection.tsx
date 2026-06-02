@@ -54,7 +54,7 @@ const CTASection = () => {
           </Link>
 
           <Link
-            to="/materials"
+            to="/collections"
             className="group inline-flex items-center justify-center gap-2 px-10 py-4 bg-transparent border border-white/40 hover:border-primary hover:bg-primary/10 text-white/80 hover:text-primary w-full sm:w-auto transition-all duration-300"
           >
             <span className="text-xs font-bold uppercase tracking-widest">Browse Catalog</span>
