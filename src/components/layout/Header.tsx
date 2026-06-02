@@ -52,11 +52,11 @@ const Header = () => {
       <div className="flex justify-center w-full">
         <header
           className={`fixed z-50 transition-all duration-300 ease-in-out ${isMobileOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'} ${isHeroPage && isScrolled
-              ? 'top-0 lg:top-5 w-full lg:w-[calc(100%-2rem)] max-w-[1400px] bg-white/95 backdrop-blur-md border-b lg:border border-stone-200 shadow-[0_4px_20px_rgb(0,0,0,0.05)] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)] lg:rounded-xl'
-              : `top-[2px] w-full ${transparent
-                ? 'bg-transparent border-b border-white/10'
-                : 'bg-white/95 backdrop-blur-md border-b border-stone-200'
-              }`
+            ? 'top-0 lg:top-5 w-full lg:w-[calc(100%-2rem)] max-w-[1400px] bg-white/95 backdrop-blur-md border-b lg:border border-stone-200 shadow-[0_4px_20px_rgb(0,0,0,0.05)] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)] lg:rounded-xl'
+            : `top-[2px] w-full ${transparent
+              ? 'bg-transparent border-b border-white/10'
+              : 'bg-white/95 backdrop-blur-md border-b border-stone-200'
+            }`
             }`}
         >
           <div className={`${(isHeroPage && isScrolled) ? 'px-6 sm:px-8' : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12'}`}>
@@ -67,7 +67,7 @@ const Header = () => {
                 <img
                   src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
                   alt="Kaira Fabrics & Leather"
-                  className={`h-14 lg:h-12 w-auto object-contain transition-all duration-500 group-hover:opacity-75 ${transparent && !isScrolled ? '' : ''
+                  className={`h-10 lg:h-12 w-auto object-contain transition-all duration-500 group-hover:opacity-75 ${transparent && !isScrolled ? '' : ''
                     }`}
                 />
               </Link>
@@ -95,8 +95,8 @@ const Header = () => {
                         }
                       }}
                       className={`relative text-[13px] tracking-[0.06em] font-semibold transition-colors duration-200 group/nav py-1.5 ${transparent && !isScrolled
-                          ? 'text-white/85 hover:text-white drop-shadow-sm'
-                          : 'text-stone-600 hover:text-stone-950'
+                        ? 'text-white/85 hover:text-white drop-shadow-sm'
+                        : 'text-stone-600 hover:text-stone-950'
                         }`}
                     >
                       {link.label}
@@ -143,20 +143,20 @@ const Header = () => {
                   >
                     <span
                       className={`block w-5 h-px transition-all duration-300 ${isMobileOpen
-                          ? 'rotate-45 translate-y-[6px] bg-stone-800'
-                          : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
+                        ? 'rotate-45 translate-y-[6px] bg-stone-800'
+                        : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
                         }`}
                     />
                     <span
                       className={`block w-5 h-px transition-all duration-300 ${isMobileOpen
-                          ? 'opacity-0 scale-x-0'
-                          : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
+                        ? 'opacity-0 scale-x-0'
+                        : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
                         }`}
                     />
                     <span
                       className={`block w-5 h-px transition-all duration-300 ${isMobileOpen
-                          ? '-rotate-45 -translate-y-[6px] bg-stone-800'
-                          : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
+                        ? '-rotate-45 -translate-y-[6px] bg-stone-800'
+                        : (transparent && !isScrolled) ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'bg-stone-700'
                         }`}
                     />
                   </button>
@@ -270,22 +270,11 @@ const Header = () => {
 
           {/* Mobile Footer */}
           <div className="px-6 py-8 mt-auto bg-stone-50 border-t border-stone-100">
-            <p className="text-[9px] text-stone-500 uppercase tracking-[0.2em] font-semibold mb-5">Reach Out</p>
-            <div className="space-y-4">
-              <a href="mailto:info@kairafabrics.in" className="flex items-center gap-3 text-[13px] text-stone-700 hover:text-primary transition-colors font-medium">
-                <svg className="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                info@kairafabrics.in
-              </a>
-              <a href="tel:+918589925222" className="flex items-center gap-3 text-[13px] text-stone-700 hover:text-primary transition-colors font-medium">
-                <svg className="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                +91 8589925222
-              </a>
-            </div>
             <div className="mt-8 pt-5 border-t border-stone-200 flex items-center justify-between">
               <p className="text-[10px] text-stone-400 uppercase tracking-[0.15em]">© {new Date().getFullYear()} Kaira</p>
               <div className="flex gap-4">
-                <a href="#" className="text-stone-400 hover:text-primary transition-colors"><svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
-                <a href="#" className="text-stone-400 hover:text-primary transition-colors"><svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+                <a href="#" className="text-stone-400 hover:text-primary transition-colors"><svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" /></svg></a>
+                <a href="#" className="text-stone-400 hover:text-primary transition-colors"><svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg></a>
               </div>
             </div>
           </div>

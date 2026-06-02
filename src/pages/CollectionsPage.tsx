@@ -1225,10 +1225,10 @@ const CollectionsPage = () => {
             </div>
           </div>
 
-          <h1 className="font-serif text-4xl md:text-5xl text-primary leading-tight">
+          <h1 className="font-serif text-3xl md:text-5xl text-primary leading-tight">
             Fabric Collections
           </h1>
-          <p className="mt-3 text-sm text-white/60 font-light max-w-md leading-relaxed">
+          <p className="mt-3 text-xs md:text-sm text-white/60 font-light max-w-md leading-relaxed">
             Explore our handpicked range of premium fabrics — from luxurious upholstery to delicate sheers, crafted for every space.
           </p>
         </div>
@@ -1238,7 +1238,7 @@ const CollectionsPage = () => {
       <div className="py-6 md:py-10 lg:py-14 relative" style={{ background: 'linear-gradient(160deg, #f5f5f4 0%, #ffffff 50%, #e7e5e4 100%)' }}>
         <div className="absolute inset-0 pointer-events-none opacity-[0.2]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         <div className="absolute top-0 right-0 w-96 h-96 bg-stone-100/60 blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-10">
+        <div className="relative z-10 max-w-7xl mx-auto px-2 md:px-6 lg:px-10">
 
           {/* Filter bar */}
           <div className="mb-6 md:mb-8">
@@ -1267,13 +1267,13 @@ const CollectionsPage = () => {
                         <button
                           key={type}
                           onClick={() => setActiveMaterialType(type)}
-                          className={`flex items-center gap-1.5 px-3 md:px-4 py-2 md:py-2.5 text-[11px] md:text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200  shadow-sm whitespace-nowrap ${isActive
+                          className={`flex items-center gap-1.5 px-3 md:px-4 py-2 md:py-2.5 text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200  shadow-sm whitespace-nowrap ${isActive
                             ? 'bg-color-secondary-dark text-white'
                             : 'bg-white border border-stone-200 text-color-secondary-dark hover:border-primary/40 hover:text-color-secondary-dark'
                             }`}
                         >
                           {type}
-                          <span className={`text-[10px] md:text-[9px] px-1.5 py-0.5  ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-color-secondary-dark'}`}>
+                          <span className={`text-[8px] md:text-[9px] px-1.5 py-0.5  ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-color-secondary-dark'}`}>
                             {count}
                           </span>
                         </button>
@@ -1303,7 +1303,7 @@ const CollectionsPage = () => {
                   value={collectionSearch}
                   onChange={(e) => setCollectionSearch(e.target.value)}
                   placeholder="Search collections…"
-                  className="bg-transparent text-sm text-color-secondary-dark placeholder-stone-400 focus:outline-none flex-1 lg:w-52"
+                  className="bg-transparent text-xs md:text-sm text-color-secondary-dark placeholder-stone-400 focus:outline-none flex-1 lg:w-52"
                 />
                 {collectionSearch && (
                   <button onClick={() => setCollectionSearch('')} className="text-color-secondary-dark hover:text-color-secondary-dark transition-colors">

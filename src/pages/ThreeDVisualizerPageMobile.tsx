@@ -170,41 +170,11 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       className="flex flex-col overflow-hidden bg-stone-100"
       style={embedded ? { height: '100%' } : { height: 'calc(100dvh - 64px)', marginTop: '64px' }}
     >
-      {/* ── Toolbar ── */}
-      <div className="h-10 shrink-0 bg-white border-b border-stone-200 flex items-center px-3 gap-2 shadow-sm">
-        <div className="flex items-center gap-1.5 select-none">
-          <div className="w-1.5 h-1.5 bg-secondary" />
-          <span className="text-[10px] text-stone-700 tracking-widest uppercase font-medium">3D Fabric Studio</span>
-        </div>
-
-        <div className="flex-1" />
-
-        {selected && (
-          <div className="flex items-center gap-1.5 max-w-[130px]">
-            <img
-              src={selected.textureUrl}
-              alt=""
-              className="w-4 h-4 object-cover border border-stone-200 shrink-0"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-            />
-            <span className="text-[9px] text-stone-500 truncate">{selected.fabricName}</span>
-            {isApplying && (
-              <div className="w-3 h-3 border border-secondary/40 border-t-secondary animate-spin shrink-0" />
-            )}
-          </div>
-        )}
-
-        <div className="flex items-center gap-1 ml-2">
-          <div className={`w-1.5 h-1.5 transition-colors ${modelLoaded ? 'bg-emerald-500' : 'bg-stone-300 animate-pulse'}`} />
-          <span className="text-[9px] text-stone-400">{modelLoaded ? 'Ready' : 'Loading'}</span>
-        </div>
-      </div>
-
       {/* ── Dynamic split ── */}
       <div className="flex-1 flex flex-col overflow-hidden min-h-0">
 
         {/* ── 3D Viewport ── */}
-        <div className="relative bg-white min-h-0" style={{ flex: '45 1 0%' }}>
+        <div className="relative bg-white min-h-0" style={{ flex: '50 1 0%' }}>
           {/* @ts-ignore */}
           <model-viewer
             ref={mvRef as any}
@@ -327,7 +297,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
           {/* Model loading overlay */}
           {!modelLoaded && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-10 pointer-events-none">
-              <div className="w-8 h-8 border-2 border-stone-200 border-t-secondary animate-spin mb-3" />
+              <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-secondary animate-spin mb-3" />
               <p className="text-stone-400 text-[10px] tracking-[0.2em] uppercase">Loading 3D Model</p>
               <p className="text-stone-300 text-[9px] mt-1">{currentProduct.product_name}</p>
             </div>
@@ -345,7 +315,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
         </div>
 
         {/* ── Materials Panel ── */}
-        <div className="min-h-0" style={{ flex: '55 1 0%' }}>
+        <div className="min-h-0" style={{ flex: '42 1 0%' }}>
           <MaterialSelector
             selectedId={selected?.id ?? null}
             onSelect={(mat) => { setSelected(mat); if (modelLoaded) applyTexture(mat) }}

@@ -48,15 +48,15 @@ export function BeforeAfterSlider() {
         <img src={BEFORE_IMG} alt="Before" className="w-full h-full object-cover block" loading="lazy" draggable={false} />
 
         {/* Fabric thumbnail */}
-        <div className="absolute bottom-4 left-4 flex items-center gap-2.5 bg-white/90 backdrop-blur-sm px-3 py-2 shadow-lg pointer-events-none">
+        <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-2 sm:gap-2.5 bg-white/90 backdrop-blur-sm px-2 py-1.5 sm:px-3 sm:py-2 shadow-lg pointer-events-none">
           <img
             src="https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics/Adelaide/16.webp"
             alt="Fabric sample"
-            className="w-10 h-10 object-cover shrink-0 border border-stone-200"
+            className="w-8 h-8 sm:w-10 sm:h-10 object-cover shrink-0 border border-stone-200"
           />
           <div className="flex flex-col leading-tight">
-            <span className="text-[9px] uppercase tracking-widest text-stone-400 font-semibold">Fabric Applied</span>
-            <span className="text-[11px] font-bold text-stone-700">See the change →</span>
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-widest text-stone-400 font-semibold">Fabric Applied</span>
+            <span className="text-[9px] sm:text-[11px] font-bold text-stone-700">See the change →</span>
           </div>
         </div>
       </div>

@@ -359,7 +359,7 @@ const ThreeDVisualizerEngine = ({
             {/* Model loading overlay */}
             {!modelLoaded && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-stone-50 z-10 pointer-events-none">
-                <div className="w-10 h-10 border-2 border-stone-200 border-t-secondary-dark rounded-full animate-spin mb-6" />
+                <div className="w-10 h-10 rounded-full border-2 border-stone-200 border-t-secondary-dark rounded-full animate-spin mb-6" />
                 <p className="color-secondary-dark text-[12px] font-bold tracking-[0.3em] uppercase">Loading 3D Model</p>
                 <p className="color-secondary-dark/50 text-[11px] mt-2 font-medium tracking-widest">{currentProduct.product_name}</p>
               </div>

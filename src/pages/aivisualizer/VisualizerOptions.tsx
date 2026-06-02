@@ -140,10 +140,10 @@ const VisualizerOptions = () => {
               Back
             </button>
           </div>
-          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl text-primary leading-tight">
+          <h1 className="font-serif text-xl sm:text-4xl md:text-5xl text-primary leading-tight">
             See Your Fabric Come to Life
           </h1>
-          <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-white/60 font-light max-w-xs sm:max-w-md leading-relaxed">
+          <p className="mt-2 sm:mt-3 text-[10px] sm:text-sm text-white/60 font-light max-w-xs sm:max-w-md leading-relaxed">
             Pick a fabric, choose a product, and let our AI show you exactly how it looks before you decide.
           </p>
         </div>
