@@ -144,13 +144,13 @@ const AboutPage = () => {
           <div className="relative z-10 max-w-3xl mx-auto px-6 lg:px-10 text-center">
             <div className={`flex flex-col items-center transition-all duration-1000 ease-out ${introVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
 
-              <div className="mb-2">
-                <span className="text-sm text-stone-500 font-serif">Welcome to Kaira</span>
+              <div className="flex justify-center mb-8">
+                <img 
+                  src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp" 
+                  alt="Kaira Fabrics & Leather" 
+                  className="h-24 sm:h-32 w-auto object-contain drop-shadow-sm"
+                />
               </div>
-
-              <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl text-primary leading-tight mb-5">
-                Kaira Fabrics & Leather
-              </h2>
 
               <div className="space-y-4 text-stone-600 text-sm sm:text-base md:text-lg font-light leading-relaxed mb-10">
                 <p>

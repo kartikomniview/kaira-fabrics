@@ -42,7 +42,7 @@ const AIVisualizerBanner = () => {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
         </span>
         <span className="text-[11px] uppercase tracking-[0.25em] color-secondary-dark font-bold whitespace-nowrap pt-[1px]">
-          Try Visualizer
+          Visualizer
         </span>
       </motion.div>
 
@@ -115,7 +115,7 @@ const AIVisualizerBanner = () => {
                 to="/ai-visualizer"
                 className="group relative inline-flex items-center gap-4 px-12 py-5 bg-secondary text-white font-bold text-sm sm:text-lg shadow-2xl shadow-secondary/30 hover:bg-secondary/90 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 overflow-hidden"
               >
-                Try the Visualizer
+                Try Visualizer
                 <svg className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
