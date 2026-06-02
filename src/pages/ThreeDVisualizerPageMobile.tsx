@@ -25,7 +25,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [toastVisible, setToastVisible] = useState(false)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  
+
   const [debugLogs, setDebugLogs] = useState<string[]>([])
   const addDebugLog = (log: string) => {
     setDebugLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${log}`])
@@ -72,10 +72,11 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       roughnessBlobUrl,
       normalBlobUrl,
       sheenBlobUrl,
+      meshes: fabricMeshesRef.current,
     })
     // Cleanup previous blob URLs
     activeBlobUrlsRef.current.forEach(url => URL.revokeObjectURL(url))
-    
+
     // Store new active blob URLs
     const newBlobs: string[] = []
     if (baseBlobUrl) newBlobs.push(baseBlobUrl)
@@ -83,7 +84,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     if (normalBlobUrl) newBlobs.push(normalBlobUrl)
     if (sheenBlobUrl) newBlobs.push(sheenBlobUrl)
     activeBlobUrlsRef.current = newBlobs
-    
+
     addDebugLog(`Textures applied (Blobs: ${newBlobs.length})`)
 
     // Trick model-viewer into knowing the model is dirty for AR export
@@ -94,7 +95,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
         // Change a value slightly to bypass equality check and force dirty flag
         m.pbrMetallicRoughness.setBaseColorFactor([c[0], c[1], c[2], c[3] === 1 ? 0.99 : 1])
       }
-    } catch (e) {}
+    } catch (e) { }
 
     setIsApplying(false)
   }
@@ -182,11 +183,11 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     }))
     const on = () => meshes.forEach((m: any) => {
       (m.material as THREE.MeshPhysicalMaterial).emissive.set(0xffffff)
-      ;(m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.7
+        ; (m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.7
     })
     const off = () => meshes.forEach((m: any, i: number) => {
       (m.material as THREE.MeshPhysicalMaterial).emissive.copy(originals[i].emissive)
-      ;(m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = originals[i].intensity
+        ; (m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = originals[i].intensity
     })
     on()
     const t1 = setTimeout(off, 300)
@@ -249,7 +250,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             max-camera-orbit="Infinity 90deg auto"
             camera-orbit="auto auto 4m"
             ar
-            ar-modes="scene-viewer quick-look"
+            ar-modes="webxr scene-viewer quick-look"
             style={{ width: '100%', height: '100%', background: '#ffffff', touchAction: 'manipulation' }}
           >
             {/* Custom AR button */}
