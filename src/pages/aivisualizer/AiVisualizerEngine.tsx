@@ -119,13 +119,14 @@ const AiVisualizerEngine = () => {
     })
   }
 
-  const handleGenerate = (mobile: string) => {
+  const handleGenerate = (mobile: string, name: string) => {
     if (!selectedMaterial || !selectedProduct) return
     setGenerateError(null)
     generateRender({
       selectedMaterial,
       selectedProduct,
       mobileNumber: mobile,
+      name,
       onGeneratingChange: setIsGenerating,
       onShowOTPChange: setShowLeadForm,
       onResult: (imageUrl) => {
@@ -153,7 +154,7 @@ const AiVisualizerEngine = () => {
     setMobileError('')
     localStorage.setItem('kaira_lead_name', fullName.trim())
     localStorage.setItem('kaira_lead_mobile', cleaned)
-    handleGenerate(cleaned)
+    handleGenerate(cleaned, fullName.trim())
   }
 
   const handleDownload = async () => {

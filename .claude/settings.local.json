@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(Remove-Item \"d:\\\\KairaSite\\\\kaira-fabrics\\\\src\\\\pages\\\\aivisualizer\\\\AIVisualizerDesktop.tsx\")"
+      "Bash(Remove-Item \"d:\\\\KairaSite\\\\kaira-fabrics\\\\src\\\\pages\\\\aivisualizer\\\\AIVisualizerDesktop.tsx\")",
+      "Read(//d/KairaSite/Kaira-Api/**)"
+    ],
+    "additionalDirectories": [
+      "d:\\KairaSite\\Kaira-Api"
     ]
   }
 }

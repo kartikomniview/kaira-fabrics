@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
 const messages = ['WhatsApp Us', 'Have a Query?', 'Chat With Us', "We're Online!"]
 
 export function WhatsAppIcon() {
   const [msgIndex, setMsgIndex] = useState(0)
   const [textVisible, setTextVisible] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
     // Show the bubble after 3s, then cycle: show 2.5s → hide 5s → show next → ...
@@ -30,6 +32,10 @@ export function WhatsAppIcon() {
     const initial = setTimeout(() => showBubble(0), 3000)
     return () => clearTimeout(initial)
   }, [])
+
+  if (location.pathname !== '/') {
+    return null
+  }
 
   return (
     <div className="fixed bottom-6 right-4 z-50 flex items-center gap-2.5 md:hidden">

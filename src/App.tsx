@@ -98,14 +98,13 @@ function App() {
             <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </Suspense>
+          {/* WhatsApp icon for mobile view */}
+          <WhatsAppIcon />
         </BrowserRouter>
       </MaterialsProvider>
 
       {/* Full-screen branded loader — overlays everything on initial page load */}
       {showLoader && <PageLoader exiting={appReady} />}
-      
-      {/* WhatsApp icon for mobile view */}
-      <WhatsAppIcon />
     </>
   )
 }

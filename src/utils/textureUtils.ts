@@ -120,11 +120,11 @@ export function applyTiling(texture: any, uvScale: number): void {
 /** Material name fragments that must not receive fabric texturing (structural parts). */
 export const NO_FABRIC_PARTS = [
   'leg', 'legs', 'foot', 'feet', 'frame', 'wood', 'metal',
-  'support', 'stand', 'caster', 'wheel', 'arm_rest_wood', 'armrest_wood','piping',
+  'support', 'stand', 'caster', 'wheel', 'arm_rest_wood', 'armrest_wood', 'piping',
 ]
 
 export const FABRIC_PARTS = [
-  'seat', 'back', 'cushion', 'pad', 'upholstery', 'fabric', 'cover', 'body', 'armrest', 'base', 'armrest_pad', 'headrest', 'ottoman','pillow'
+  'seat', 'back', 'cushion', 'pad', 'upholstery', 'fabric', 'cover', 'body', 'armrest', 'base', 'armrest_pad', 'headrest', 'ottoman', 'pillow'
 ]
 
 export interface SheenOptions {
@@ -253,7 +253,7 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
       sheenTex.flipY = false
     }
 
-   
+
     for (const tex of [baseTex, roughTex, normalTex, sheenTex]) {
       if (!tex) continue
       tex.wrapS = tex.wrapT = THREE.RepeatWrapping
@@ -276,9 +276,9 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
       if (roughTex) mat.roughnessMap = roughTex
       if (normalTex) mat.normalMap = normalTex
       if (sheenTex) {
-         let avgBaseColor = new THREE.Color(0xffffff)
+        let avgBaseColor = new THREE.Color(0xffffff)
         if (baseTex && baseTex.image) {
-          if(mat.map && (mat.map as any).image) {
+          if (mat.map && (mat.map as any).image) {
             avgBaseColor = getAverageColorHex((mat.map as any).image, { lighten: 0.25, desaturate: 0.4, hueShift: -0.02 })
           }
         }
@@ -291,7 +291,6 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
         mat.sheenColorMap = null
       }
       mat.roughness = roughness
-      console.log(roughness,mat.roughness)
       mat.metalness = metalness
       mat.color.set(0xffffff)
       mat.needsUpdate = true
@@ -358,12 +357,12 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
               m.setSheenRoughnessFactor(0.5)
             }
           }
-        } catch(error) {
+        } catch (error) {
           console.log(error)
         }
       }
-    } catch(error) {
-          console.log(error)
+    } catch (error) {
+      console.log(error)
     }
   }
 }

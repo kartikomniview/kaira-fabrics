@@ -60,6 +60,7 @@ export interface GenerateRenderParams {
   selectedMaterial: SelectedMaterial
   selectedProduct: SelectedProduct
   mobileNumber: string
+  name: string
   onGeneratingChange: (value: boolean) => void
   onShowOTPChange: (value: boolean) => void
   onResult: (imageUrl: string) => void
@@ -70,6 +71,7 @@ export async function generateRender({
   selectedMaterial,
   selectedProduct,
   mobileNumber,
+  name,
   onGeneratingChange,
   onShowOTPChange,
   onResult,
@@ -117,6 +119,7 @@ export async function generateRender({
         inputImages: [fabricImage, productImage],
         prompt,
         mobile_number: mobileNumber,
+        name,
         device_info,
       }),
     })
