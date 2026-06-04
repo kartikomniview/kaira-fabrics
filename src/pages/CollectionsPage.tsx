@@ -59,6 +59,8 @@ function CatalogPreviewModal({
   const [showContactForm, setShowContactForm] = useState(false)
   const [contactSubmitted, setContactSubmitted] = useState(false)
   const [contactData, setContactData] = useState({ name: '', email: '', company: '', message: '' })
+  const [contactLoading, setContactLoading] = useState(false)
+  const [contactError, setContactError] = useState<string | null>(null)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -211,13 +213,13 @@ function CatalogPreviewModal({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="px-6 py-5 bg-stone-900 flex items-center justify-between">
+            <div className="px-6 py-5 bg-secondary-dark flex items-center justify-between">
               <div>
                 <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-primary mb-1">Request Catalog</p>
                 <h3 className="font-serif text-xl text-white leading-tight">{collection.name}</h3>
               </div>
               <button
-                onClick={() => { setShowContactForm(false); setContactSubmitted(false) }}
+                onClick={() => { setShowContactForm(false); setContactSubmitted(false); setContactError(null) }}
                 className="w-8 h-8 flex items-center justify-center text-color-secondary-dark hover:text-white transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -247,7 +249,34 @@ function CatalogPreviewModal({
             ) : (
               <form
                 className="px-6 py-5 flex flex-col gap-4 bg-white"
-                onSubmit={(e) => { e.preventDefault(); setContactSubmitted(true) }}
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  setContactLoading(true)
+                  setContactError(null)
+                  try {
+                    const messageBody = [
+                      `Catalog Request: ${collection.name}`,
+                      contactData.company ? `Company: ${contactData.company}` : '',
+                      contactData.message ? contactData.message : '',
+                    ].filter(Boolean).join(' | ')
+                    const res = await fetch('https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage/contact', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        name: contactData.name,
+                        mobile: 'not provided',
+                        email: contactData.email,
+                        message: messageBody,
+                      }),
+                    })
+                    if (!res.ok) throw new Error('Failed to send request. Please try again.')
+                    setContactSubmitted(true)
+                  } catch (err) {
+                    setContactError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+                  } finally {
+                    setContactLoading(false)
+                  }
+                }}
               >
                 <p className="text-[10px] text-color-secondary-dark leading-relaxed -mt-1">
                   Fill in your details and we'll send the full catalog for <span className="text-color-secondary-dark font-semibold">{collection.name}</span>.
@@ -296,19 +325,24 @@ function CatalogPreviewModal({
                     className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all resize-none "
                   />
                 </div>
+                {contactError && (
+                  <p className="text-red-600 text-[11px] font-medium border border-red-200 bg-red-50 px-3 py-2 shadow-sm">{contactError}</p>
+                )}
                 <div className="flex items-center justify-between pt-1">
                   <button
                     type="button"
                     onClick={() => setShowContactForm(false)}
+                    disabled={contactLoading}
                     className="text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark hover:text-color-secondary-dark transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-stone-900 text-white text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-stone-800 transition-all  shadow-sm"
+                    disabled={contactLoading}
+                    className="px-5 py-2.5 bg-secondary-dark text-white text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-stone-800 transition-all shadow-sm disabled:opacity-70 disabled:cursor-not-allowed min-w-[110px] flex items-center justify-center"
                   >
-                    Send Request
+                    {contactLoading ? 'Sending...' : 'Send Request'}
                   </button>
                 </div>
               </form>
