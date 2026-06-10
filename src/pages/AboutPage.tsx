@@ -120,15 +120,28 @@ const AboutPage = () => {
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-stone-950/20" />
+        <div className="absolute inset-0 bg-stone-950/50" />
+
+        {/* Home button */}
+        <div className="absolute top-25 left-6 z-20">
+          <Link
+            to="/"
+            className="group flex items-center gap-2 px-4 py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all text-[11px] font-medium tracking-wide"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Home
+          </Link>
+        </div>
 
         <div className="relative z-10 px-6 text-center">
           <div className="inline-flex items-center justify-center gap-6">
-            <span className="w-12 md:w-16 h-px bg-white/50" />
-            <h1 className="text-xs md:text-sm font-light uppercase tracking-[0.3em] text-white bg-secondary/40 px-6 py-2.5 border border-white/20 rounded-md">
+            <span className="w-12 md:w-16 h-px bg-white/60" />
+            <h1 className="text-xs md:text-sm font-medium uppercase tracking-[0.3em] text-white bg-secondary/70 px-6 py-2.5 border border-white/40">
               About Us
             </h1>
-            <span className="w-12 md:w-16 h-px bg-white/50 drop-shadow-sm" />
+            <span className="w-12 md:w-16 h-px bg-white/60" />
           </div>
         </div>
       </div>
@@ -323,10 +336,10 @@ const AboutPage = () => {
               {/* Right: story paragraphs */}
               <div className={`space-y-6 transition-all duration-700 delay-150 ${storyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
                 <p className="color-secondary-dark text-sm sm:text-base md:text-lg leading-relaxed font-light">
-                  Kaira Fabrics & Leather was created with a clear purpose — to simplify the way people choose fabrics for their spaces. In today's market, customers face countless options, textures, and quality variations. While variety is valuable, it often makes it difficult to identify which materials truly offer the durability, comfort, and performance required.
+                  Kaira Fabrics & Leather was created with a clear purpose to simplify the way people choose fabrics for their spaces. In today's market, customers face countless options, textures, and quality variations. While variety is valuable, it often makes it difficult to identify which materials truly offer the durability, comfort, and performance required.
                 </p>
                 <p className="color-secondary-dark text-sm sm:text-base md:text-lg leading-relaxed font-light">
-                  Recognising this gap, Kaira was introduced as a brand customers can rely on with confidence. Built on the Kurikkal Group's strong foundation, Kaira brings together carefully curated sofa fabrics and upholstery materials under one trusted brand — each collection selected to meet high standards of design, durability, and performance.
+                  Recognising this gap, Kaira was introduced as a brand customers can rely on with confidence. Built on the Kurikkal Group's strong foundation, Kaira brings together carefully curated sofa fabrics and upholstery materials under one trusted brand each collection selected to meet high standards of design, durability, and performance.
                 </p>
 
                 {/* Pull quote */}

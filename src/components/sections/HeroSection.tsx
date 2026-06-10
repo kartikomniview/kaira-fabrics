@@ -7,6 +7,14 @@ const VIDEOS = [
   'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/HeroV2.mp4',
 ]
 
+const HERO_IMAGES = [
+  'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/hero/v1/h1.webp',
+  'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/hero/v1/h2.webp',
+  'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/hero/v1/h3.webp',
+]
+
+const IMAGE_INTERVAL = 4000
+
 // Easing curves
 const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
@@ -14,6 +22,8 @@ const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
 // ─────────────────────────────────────────────────────────────
 const HeroSection = () => {
   const [videoReady, setVideoReady] = useState(false)
+  const [allVideosEnded, setAllVideosEnded] = useState(false)
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
   const videoIndexRef = useRef(0)
   const prefetchedRef = useRef(false)
@@ -69,8 +79,18 @@ const HeroSection = () => {
         video.load()
         video.play().catch(() => { })
       }
+    } else {
+      setAllVideosEnded(true)
     }
   }
+
+  useEffect(() => {
+    if (!allVideosEnded) return
+    const timer = setInterval(() => {
+      setActiveImageIndex(i => (i + 1) % HERO_IMAGES.length)
+    }, IMAGE_INTERVAL)
+    return () => clearInterval(timer)
+  }, [allVideosEnded])
 
   return (
     <section
@@ -83,11 +103,21 @@ const HeroSection = () => {
         ref={videoRef}
         muted
         playsInline
-        className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-1000 ${videoReady ? 'opacity-100' : 'opacity-0'
-          }`}
+        className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-1000 ${videoReady && !allVideosEnded ? 'opacity-100' : 'opacity-0'}`}
         onCanPlay={handleCanPlay}
         onEnded={handleEnded}
       />
+
+      {/* ── Post-video image slideshow ── */}
+      {HERO_IMAGES.map((src, i) => (
+        <div
+          key={src}
+          className="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-1000"
+          style={{ opacity: allVideosEnded && activeImageIndex === i ? 1 : 0 }}
+        >
+          <img src={src} alt="" className="w-full h-full object-cover" />
+        </div>
+      ))}
 
       {/* ── Woven fabric texture overlay ── */}
       <div
@@ -113,7 +143,6 @@ const HeroSection = () => {
         {/* ── Brand: Logo ── */}
         <motion.div
           className="px-6 py-3 sm:px-8 sm:py-4 rounded-sm"
-          style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.15, ease: EXPO_OUT }}

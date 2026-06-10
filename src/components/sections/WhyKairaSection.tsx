@@ -70,7 +70,7 @@ const advantages = [
     title: '35+ Year Legacy',
     desc: "Backed by the Kurikkal Group trusted since 1991.",
     Icon: LegacyIcon,
-    bgImg: `${S3_WHY}/v3/Kurikkal Group Legacy.webp`,
+    bgImg: `${S3_WHY}/v4/Kurikkal Group Legacy.webp`,
   },
   {
     title: 'Premium Fabrics & Leather',

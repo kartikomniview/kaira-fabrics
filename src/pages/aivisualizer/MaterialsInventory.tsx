@@ -63,9 +63,16 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
             .sort((a, b) => a.name.localeCompare(b.name))
     }, [activeMaterialType, collections])
 
+    const MATERIAL_TYPE_ORDER = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
+    const normalizeType = (s: string) => s.toUpperCase().replace(/\s+/g, '')
+
     const materialTypeOptions = useMemo(() => [
         'All',
-        ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort(),
+        ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort((a, b) => {
+            const ai = MATERIAL_TYPE_ORDER.indexOf(normalizeType(a))
+            const bi = MATERIAL_TYPE_ORDER.indexOf(normalizeType(b))
+            return (ai === -1 ? MATERIAL_TYPE_ORDER.length : ai) - (bi === -1 ? MATERIAL_TYPE_ORDER.length : bi)
+        }),
     ], [newMaterials])
 
     const allColorGroups = useMemo(() => [

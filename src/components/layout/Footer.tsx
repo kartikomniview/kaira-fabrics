@@ -49,16 +49,14 @@ const Footer = () => {
             </Link>
             <address className="not-italic text-sm text-stone-400 space-y-4">
               <p className="leading-relaxed">
-                Hira Arcade, Opp. Crescent King Spear,<br />
-                Mini Bypass Road, Govindhapuram,<br />
-                Mankavu, Calicut
+                Near Lulu Mall Exit Gate,<br />
+                Mini Bypass Road, Kommeri Post,<br />
+                Mankavu, Calicut, Kerala – 673007
               </p>
               <div className="space-y-1.5">
-                <p>
-                  <a href="tel:+91 8589925222" className="hover:text-white transition-colors duration-200">+91 8589925111</a>
-                  <span className="mx-2 text-stone-600">|</span>
-                  <a href="tel:+918589925222" className="hover:text-white transition-colors duration-200">+91 8589925222</a>
-                </p>
+                <p><a href="tel:+918589925222" className="hover:text-white transition-colors duration-200">+91 8589925222</a></p>
+                <p><a href="tel:+918589925333" className="hover:text-white transition-colors duration-200">+91 8589925333</a></p>
+                <p><a href="tel:+918589925666" className="hover:text-white transition-colors duration-200">+91 8589925666</a></p>
                 <p>
                   <a href="mailto:info@kairafabrics.in" className="hover:text-white transition-colors duration-200">info@kairafabrics.in</a>
                 </p>

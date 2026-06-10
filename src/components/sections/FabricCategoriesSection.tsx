@@ -7,9 +7,9 @@ import { useMaterials } from '../../contexts/MaterialsContext'
 const categoryImages: Record<string, string> = {
   'CHENILLE':     'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Ripple.webp',
   'DIGITALPRINT': 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/DigitalPrints2.webp',
-  'LEATHERITE':   'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Adelaide.webp',
-  'SUEDEFABRIC':  'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Krystal.webp',
-  'SUEDELEATHER': 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Ivana.webp',
+  'LEATHERITE':   'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Armani.webp',
+  'SUEDEFABRIC':  'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Impression.webp',
+  'SUEDELEATHER': 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Inspira.webp',
   'DEFAULT':      'https://placehold.co/400x500/e7e5e4/a8a29e?text=Fabric',
 }
 

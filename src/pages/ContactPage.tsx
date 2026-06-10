@@ -3,6 +3,100 @@ import { useEffect, useState } from 'react'
 /* ── Fabric weave pattern as inline SVG data-URI ── */
 const weaveBg = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2397c41e' stroke-width='0.4' opacity='0.18'%3E%3Cpath d='M0 10h40M0 20h40M0 30h40M10 0v40M20 0v40M30 0v40'/%3E%3C/g%3E%3C/svg%3E")`
 
+const mapLocations = [
+  {
+    id: 'showroom',
+    label: 'Kaira Showroom',
+    address: 'Near Lulu Mall Exit Gate, Mini Bypass Road, Kommeri Post, Mankavu, Calicut, Kerala – 673007',
+    mapsUrl: 'https://maps.google.com/?q=Kaira+Fabrics+Leather+Calicut',
+    src: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3719.6327015757183!2d75.8008345!3d11.242464499999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba6599c1ce3f4c1%3A0x5b25cf64b86cbd96!2sKaira%20Fabrics%20%26%20Leather!5e1!3m2!1sen!2sin!4v1780297424266!5m2!1sen!2sin',
+  },
+  {
+    id: 'calicut-warehouse',
+    label: 'Calicut Warehouse',
+    address: 'Kurikkal Furnishing Pvt. Ltd, Calicut',
+    mapsUrl: 'https://maps.google.com/?q=Kurikkal+Furnishing+Pvt+Ltd+Calicut',
+    src: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3719.7793265212704!2d75.8570232!3d11.2310965!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba65b1637accbab%3A0xbb7e02367e27ee95!2sKurikkal%20Furnishing%20Pvt.Ltd!5e1!3m2!1sen!2sin!4v1781075546351!5m2!1sen!2sin',
+  },
+  {
+    id: 'kottakkal-warehouse',
+    label: 'Kottakkal Warehouse',
+    address: 'Kurikkal Furnishing, Kottakkal',
+    mapsUrl: 'https://maps.google.com/?q=Kurikkal+Furnishing+Kottakkal',
+    src: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3722.6637762683013!2d76.0750578!3d11.005105!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba6356dcd2177bf%3A0x2894a948b4037c07!2sKurikkal%20Furnishing%20Kottakkal!5e1!3m2!1sen!2sin!4v1781075583677!5m2!1sen!2sin',
+  },
+]
+
+const MapCard = ({ loc, height }: { loc: typeof mapLocations[0]; height: number }) => (
+  <div>
+    <div className="flex items-center justify-between mb-3">
+      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5b4c2f] flex items-center gap-2">
+        <svg className="w-3.5 h-3.5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        {loc.label}
+      </p>
+      <a
+        href={loc.mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-500 hover:text-[#5b4c2f] transition-colors"
+      >
+        Open
+        <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </a>
+    </div>
+    <div className="relative overflow-hidden border border-stone-200 shadow-sm" style={{ height }}>
+      <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-primary z-10" />
+      <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-primary z-10" />
+      <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-primary z-10" />
+      <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary z-10" />
+      <iframe
+        title={loc.label}
+        src={loc.src}
+        width="100%"
+        height="100%"
+        style={{ border: 0, filter: 'grayscale(20%) contrast(1.05)' }}
+        allowFullScreen
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+    </div>
+    <p className="mt-3 text-stone-500 text-xs leading-relaxed">{loc.address}</p>
+  </div>
+)
+
+const MapSection = () => {
+  const [showroom, calicut, kottakkal] = mapLocations
+
+  return (
+    <section className="bg-stone-50 py-16 md:py-24 border-b border-stone-200 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
+          <h2 className="font-serif text-3xl md:text-4xl text-[#5b4c2f] font-medium leading-tight mb-4">
+            Find <span className="text-stone-400">Us</span>
+          </h2>
+          <p className="text-sm md:text-base text-stone-500 leading-relaxed font-sans max-w-lg mx-auto">
+            Experience our premium fabrics in person. Our experts are ready to guide you through our extensive collection.
+          </p>
+        </div>
+
+        {/* Kaira Showroom — full width */}
+        <MapCard loc={showroom} height={420} />
+
+        {/* Warehouses — side by side */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <MapCard loc={calicut} height={280} />
+          <MapCard loc={kottakkal} height={280} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -252,9 +346,9 @@ const ContactPage = () => {
                       <div>
                         <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase leading-none mb-2">Address</p>
                         <p className="text-stone-100 text-sm leading-relaxed">
-                          Lulu Mall Exit Gate, Near,<br />
-                          Mini Bypass Rd, Mankave,<br />
-                          Kozhikode, Kerala 673007
+                          Near Lulu Mall Exit Gate,<br />
+                          Mini Bypass Road, Kommeri Post,<br />
+                          Mankavu, Calicut, Kerala – 673007
                         </p>
                       </div>
                     </div>
@@ -319,58 +413,8 @@ const ContactPage = () => {
         </div>
       </section>
 
-      {/* ── Google Map ──────────────────────────────────────────────── */}
-      <section className="bg-stone-50 py-16 md:py-24 border-b border-stone-200 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
-            <h2 className="font-serif text-3xl md:text-4xl text-[#5b4c2f] font-medium leading-tight mb-4">
-              Visit Our <span className="text-stone-400">Showroom</span>
-            </h2>
-            <p className="text-sm md:text-base text-stone-500 leading-relaxed font-sans max-w-lg mx-auto">
-              Experience our premium fabrics in person. Our experts are ready to guide you through our extensive collection.
-            </p>
-          </div>
-
-          <div className="relative overflow-hidden border border-stone-200 shadow-sm" style={{ height: '420px' }}>
-            {/* accent corner marks */}
-            <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-primary z-10" />
-            <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-primary z-10" />
-            <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-primary z-10" />
-            <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary z-10" />
-            <iframe
-              title="Kaira Fabrics Showroom Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3719.6327015757183!2d75.8008345!3d11.242464499999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba6599c1ce3f4c1%3A0x5b25cf64b86cbd96!2sKaira%20Fabrics%20%26%20Leather!5e1!3m2!1sen!2sin!4v1780297424266!5m2!1sen!2sin"
-              width="100%"
-              height="100%"
-              style={{ border: 0, filter: 'grayscale(20%) contrast(1.05)' }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
-          <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-stone-500 text-sm flex items-center gap-2">
-              <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              Lulu Mall Exit Gate, Near, Mini Bypass Rd, Mankave, Kozhikode, Kerala 673007
-            </p>
-            <a
-              href="https://maps.google.com/?q=Lulu+Mall+Exit+Gate+Mini+Bypass+Rd+Mankave+Kozhikode+Kerala+673007"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#5b4c2f] text-white hover:bg-primary hover:text-[#5b4c2f] transition-all duration-300 overflow-hidden"
-            >
-              <span className="text-xs font-bold uppercase tracking-widest relative z-10 w-max">Open in Maps</span>
-              <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* ── Google Maps ─────────────────────────────────────────────── */}
+      <MapSection />
 
     </div>
   )

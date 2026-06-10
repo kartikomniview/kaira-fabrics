@@ -1149,8 +1149,15 @@ const CollectionsPage = () => {
   const [collectionSearch, setCollectionSearch] = useState('')
   const [activeMaterialType, setActiveMaterialType] = useState('All')
 
+  const CATEGORY_ORDER = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
+  const normalizeType = (s: string) => s.toUpperCase().replace(/\s+/g, '')
+
   const materialTypeOptions = useMemo(
-    () => ['All', ...Array.from(new Set(collections.map((c) => c.category))).sort()],
+    () => ['All', ...Array.from(new Set(collections.map((c) => c.category))).sort((a, b) => {
+      const ai = CATEGORY_ORDER.indexOf(normalizeType(a))
+      const bi = CATEGORY_ORDER.indexOf(normalizeType(b))
+      return (ai === -1 ? CATEGORY_ORDER.length : ai) - (bi === -1 ? CATEGORY_ORDER.length : bi)
+    })],
     [collections]
   )
 

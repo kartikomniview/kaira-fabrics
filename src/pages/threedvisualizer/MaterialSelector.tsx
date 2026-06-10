@@ -115,9 +115,16 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
     }
   }
 
+  const TYPE_ORDER = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
+  const normalizeType = (s: string) => s.toUpperCase().replace(/\s+/g, '')
+
   const materialTypeOptions = useMemo(() => [
     'All',
-    ...Array.from(new Set(newMaterials.map(m => m.material_type).filter(Boolean))).sort(),
+    ...Array.from(new Set(newMaterials.map(m => m.material_type).filter(Boolean))).sort((a, b) => {
+      const ai = TYPE_ORDER.indexOf(normalizeType(a))
+      const bi = TYPE_ORDER.indexOf(normalizeType(b))
+      return (ai === -1 ? TYPE_ORDER.length : ai) - (bi === -1 ? TYPE_ORDER.length : bi)
+    }),
   ], [newMaterials])
 
   const allColorGroups = useMemo(() => [
