@@ -148,7 +148,7 @@ const HeroSection = () => {
           transition={{ duration: 0.9, delay: 0.15, ease: EXPO_OUT }}
         >
           <motion.img
-            src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
+            src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.svg"
             alt="Kaira Fabrics & Leather"
             className="h-20 sm:h-28 w-auto object-contain"
             initial={{ filter: 'blur(18px) drop-shadow(0 2px 12px rgba(0,0,0,0.3))', opacity: 0 }}

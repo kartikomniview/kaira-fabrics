@@ -94,7 +94,7 @@ export const kairaProducts: KairaProduct[] = [
     id: 9,
     product_name: 'Aura',
     model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Aura.webp',
-    image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Aura.glb',
+    image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v2/Aura.glb',
   },
   {
     id: 10,
