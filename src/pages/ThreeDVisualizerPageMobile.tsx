@@ -40,7 +40,8 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const [applyNormalMap] = useState(true)
   const [applySheenMap] = useState(true)
 
-  const modelUrl = currentProduct.image_url
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  const modelUrl = isIOS ? currentProduct.ios_model_url : currentProduct.image_url
 
   const applyTexture = async (mat: SelectedMaterial) => {
     const mv = mvRef.current as any
