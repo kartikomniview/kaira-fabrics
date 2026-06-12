@@ -29,12 +29,21 @@ const VisualizerOptions = () => {
   const [isClosing, setIsClosing] = useState(false)
   const engineTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+  const checkIsMobile = () => {
+    const isTouch = navigator.maxTouchPoints > 0
+    const isPortrait = window.innerHeight > window.innerWidth
+    return window.innerWidth < 1024 || (isTouch && isPortrait)
+  }
+
+  const [isMobile, setIsMobile] = useState(checkIsMobile)
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)')
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
+    const handler = () => setIsMobile(checkIsMobile())
+    window.addEventListener('resize', handler)
+    window.addEventListener('orientationchange', handler)
+    return () => {
+      window.removeEventListener('resize', handler)
+      window.removeEventListener('orientationchange', handler)
+    }
   }, [])
 
   const handleOpen = useCallback((selected: Mode, e: React.MouseEvent) => {
