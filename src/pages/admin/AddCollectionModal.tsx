@@ -11,6 +11,7 @@ const MATERIAL_TYPES = [
   'Leatherite',
   'SuedeFabric',
   'SuedeLeather',
+  'ArtificialLeather',
 ]
 
 // ─── Types ────────────────────────────────────────────────────────────────────

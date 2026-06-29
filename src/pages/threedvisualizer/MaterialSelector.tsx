@@ -133,7 +133,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   ], [newMaterials])
 
   const filtered = useMemo(() => {
-    const base = newMaterials.filter(m => !m.material_code?.includes('Normal'))
+    const base = newMaterials.filter(m => !m.material_code?.includes('Normal') || !m.material_code?.includes('Roughness'))
     if (search.trim()) {
       const q = search.trim().toLowerCase()
       return base.filter(m =>
