@@ -255,7 +255,7 @@ export default function AddCollectionModal({ onClose, onSuccess }: Props) {
         'export const newMaterials = ' + JSON.stringify(updated, null, 4) + ';\n'
 
       // Get a presigned URL for the data file
-      const { uploadUrl: dataUrl } = await getPresignedUrl(token, 'materials/newmaterials.ts', 'data')
+      const { uploadUrl: dataUrl } = await getPresignedUrl(token, 'materials/v1/newmaterials.ts', 'data')
       // PUT as text/plain (the bucket serves it as-is)
       const dataBlob = new Blob([tsContent], { type: 'text/plain' })
       const dataFile = new File([dataBlob], 'newmaterials.ts', { type: 'text/plain' })
