@@ -25,6 +25,8 @@ function getUvValue(collectionName: string): number {
     collectionName === 'Ibiza' || collectionName === 'Intense'
   ) return 8
   if (collectionName.includes('DigitalPrint') || collectionName === 'Kadillac') return 8
+  if (collectionName.includes('Kelma')) return 4  
+  if (collectionName.includes('Kosmic')) return 8  
   if (collectionName === 'Impression') return 14
   return 16
 }
