@@ -28,14 +28,18 @@ export function getSheenMapUrl(materialType: string): string {
   return ''
 }
 
-export function getUvValue(collectionName: string): number {
+export function getUvValue(collectionName: string,materialCode:string = ""): number {
   if (
     collectionName === 'Florious' || collectionName === 'Indigo' ||
     collectionName === 'Aboone' || collectionName === 'Perth' ||
     collectionName === 'Ibiza' || collectionName === 'Intense'
   ) return 8
   if (collectionName.includes('DigitalPrint') || collectionName === 'Kadillac') return 8
+  if (collectionName.includes('Kelma') ) return 4  
+  if (collectionName.includes('Kosmic')) return 8  
   if (collectionName === 'Impression') return 14
+  if (collectionName === 'Rome' && materialCode?.includes("A")) return 8
+  if (collectionName === 'Retro' && materialCode?.includes("A")) return 8
   return 16
 }
 

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import { kairaProducts } from '../../data/products'
 import type { KairaProduct } from '../../data/products'
-import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL } from '../../utils/textureUtils'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL, getUvValue } from '../../utils/textureUtils'
 import * as THREE from 'three'
 import '@google/model-viewer'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB } from './MaterialSelector'
@@ -16,19 +16,6 @@ function getSheenMapUrl(materialType: string) {
     return `${S3_BASE}/textures/Common/SheenColorMap.webp`
   }
   return ''
-}
-
-function getUvValue(collectionName: string): number {
-  if (
-    collectionName === 'Florious' || collectionName === 'Indigo' ||
-    collectionName === 'Aboone' || collectionName === 'Perth' ||
-    collectionName === 'Ibiza' || collectionName === 'Intense' || collectionName === 'Retro'
-  ) return 8
-  if (collectionName.includes('DigitalPrint') || collectionName === 'Kadillac') return 8
-  if (collectionName.includes('Kelma') ) return 4  
-  if (collectionName.includes('Kosmic')) return 8  
-  if (collectionName === 'Impression') return 14
-  return 16
 }
 
 function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
@@ -97,7 +84,7 @@ const ThreeDVisualizerEngine = ({
       applyNormalMap ? fetchBlobUrl(getNormalMapURL(mat.collectionName, newMaterials, mat.materialCode)) : Promise.resolve(null),
       applySheenMap ? (() => { const u = getSheenMapUrl(mat.materialType); return u ? fetchBlobUrl(u) : Promise.resolve(null) })() : Promise.resolve(null),
     ])
-    const uvScale = getUvValue(mat.collectionName)
+    const uvScale = getUvValue(mat.collectionName,mat.materialCode)
     const roughness = getRoughnessValue(mat.materialType, mat.collectionName, mat.roughness)
     console.log(roughness)
     await applyTextureToModel(mv, {

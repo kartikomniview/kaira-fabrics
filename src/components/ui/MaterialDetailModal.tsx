@@ -129,7 +129,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
           baseBlobUrl,
           roughness: getRoughnessValue(materialType, collectionName, material.roughness),
           metalness: material.metalness,
-          uvScale: getUvValue(collectionName),
+          uvScale: getUvValue(collectionName,material.material_code),
           skipParts: NO_FABRIC_PARTS,
           roughnessBlobUrl,
           normalBlobUrl,

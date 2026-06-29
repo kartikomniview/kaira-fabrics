@@ -53,7 +53,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       applyNormalMap ? fetchBlobUrl(getNormalMapURL(mat.collectionName, newMaterials, mat.materialCode)) : Promise.resolve(null),
       applySheenMap ? (() => { const u = getSheenMapUrl(mat.materialType); return u ? fetchBlobUrl(u) : Promise.resolve(null) })() : Promise.resolve(null),
     ])
-    const uvScale = getUvValue(mat.collectionName)
+    const uvScale = getUvValue(mat.collectionName,mat.materialCode)
     const roughness = getRoughnessValue(mat.materialType, mat.collectionName, mat.roughness)
     await applyTextureToModel(mv, {
       baseBlobUrl,

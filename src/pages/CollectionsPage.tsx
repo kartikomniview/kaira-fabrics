@@ -4,7 +4,7 @@ import { type Collection } from '../data/collections'
 import type { NewMaterial } from '../data/newmaterials'
 import { useMaterials } from '../contexts/MaterialsContext'
 import InlineLoader from '../components/ui/InlineLoader'
-import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL } from '../utils/textureUtils'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL, getUvValue } from '../utils/textureUtils'
 import * as THREE from 'three'
 import '@google/model-viewer'
 
@@ -19,17 +19,6 @@ function getSheenMapUrl(materialType: string) {
     return `${S3_BASE}/textures/Common/SheenColorMap.webp`
   }
   return ''
-}
-
-function getUvValue(collectionName: string): number {
-  if (
-    collectionName === 'Florious' || collectionName === 'Indigo' ||
-    collectionName === 'Aboone' || collectionName === 'Perth' ||
-    collectionName === 'Ibiza' || collectionName === 'Intense'
-  ) return 8
-  if (collectionName.includes('DigitalPrint') || collectionName === 'Kadillac') return 8
-  if (collectionName === 'Impression') return 14
-  return 16
 }
 
 function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
@@ -498,7 +487,7 @@ function CollectionModal({
       setIsModelLoading(false)
       setIsTextureLoading(true)
       try {
-        const uvScale = getUvValue(m.collection_name)
+        const uvScale = getUvValue(m.collection_name,m.material_code)
         const roughness = getRoughnessValue(m.material_type ?? '', m.collection_name, (m as any).roughness ?? 0.8)
         const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
           fetchBlobUrl(textureUrl),
