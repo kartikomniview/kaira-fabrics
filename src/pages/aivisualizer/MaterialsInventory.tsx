@@ -82,19 +82,24 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
 
     // Global search — ignores all filters, searches across every material
     const filteredMaterials = useMemo(() => {
+        const isVisible = (m: typeof newMaterials[number]) =>
+            !/normal|roughness/i.test(m.material_code ?? '')
+
         if (search.trim()) {
             const q = search.trim().toLowerCase()
             return newMaterials.filter((m) =>
+                isVisible(m) && (
                 m.material_name?.toLowerCase().includes(q) ||
                 m.collection_name?.toLowerCase().includes(q) ||
                 m.material_code?.toLowerCase().includes(q) ||
                 m.material_type?.toLowerCase().includes(q) ||
                 m.color_group?.toLowerCase().includes(q) ||
-                m.pattern?.toLowerCase().includes(q)
+                m.pattern?.toLowerCase().includes(q))
             )
         }
         // When not searching, apply all filters normally
         return newMaterials.filter((m) => {
+            if (!isVisible(m)) return false
             if (activeMaterialType !== 'All' && m.material_type !== activeMaterialType) return false
             if (activeCollection !== 'All' && m.collection_name !== activeCollection) return false
             if (activeColorGroup !== 'All' && m.color_group !== activeColorGroup) return false

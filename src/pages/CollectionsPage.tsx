@@ -662,16 +662,17 @@ function CollectionModal({
               )}
             </div>
             <span className="ml-auto text-[9px] font-bold bg-stone-100 text-color-secondary-dark px-2 py-0.5 tracking-[0.1em] uppercase shrink-0">
-              {materialSearch ? `${materials.filter(m => m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) || m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) || m.color_group?.toLowerCase().includes(materialSearch.toLowerCase())).length} results` : `${materials.length} items`}
+              {materialSearch ? `${materials.filter(m => !/normal|roughness/i.test(m.material_code ?? '') && (m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) || m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) || m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))).length} results` : `${materials.filter(m => !/normal|roughness/i.test(m.material_code ?? '')).length} items`}
             </span>
           </div>
           <div className="md:overflow-y-auto flex-1 p-3 sm:p-5">
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
               {materials.filter(m =>
-                !materialSearch ||
+                !/normal|roughness/i.test(m.material_code ?? '') &&
+                (!materialSearch ||
                 m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) ||
                 m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) ||
-                m.color_group?.toLowerCase().includes(materialSearch.toLowerCase())
+                m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))
               ).map((m, idx) => (
                 <MaterialThumb
                   key={idx}
