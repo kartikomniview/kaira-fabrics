@@ -133,9 +133,10 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   ], [newMaterials])
 
   const filtered = useMemo(() => {
+    const base = newMaterials.filter(m => !m.material_code?.includes('Normal'))
     if (search.trim()) {
       const q = search.trim().toLowerCase()
-      return newMaterials.filter(m =>
+      return base.filter(m =>
         m.material_name?.toLowerCase().includes(q) ||
         m.collection_name?.toLowerCase().includes(q) ||
         m.material_code?.toLowerCase().includes(q) ||
@@ -144,7 +145,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
         (m as any).pattern?.toLowerCase().includes(q)
       )
     }
-    return newMaterials.filter(m => {
+    return base.filter(m => {
       if (activeMaterialType !== 'All' && m.material_type !== activeMaterialType) return false
       if (activeCollection !== 'All' && m.collection_name !== activeCollection) return false
       if (activeColorGroup !== 'All' && m.color_group !== activeColorGroup) return false

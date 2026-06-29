@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import { kairaProducts } from '../../data/products'
 import type { KairaProduct } from '../../data/products'
-import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../../utils/textureUtils'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL } from '../../utils/textureUtils'
 import * as THREE from 'three'
 import '@google/model-viewer'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB } from './MaterialSelector'
@@ -10,15 +10,6 @@ import MaterialSelector, { type SelectedMaterial, S3_THUMB } from './MaterialSel
 export type { SelectedMaterial } from './MaterialSelector'
 
 const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
-const COMPANY = 'KairaFabrics'
-
-function getRoughnessMapURL(collectionName: string) {
-  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
-}
-
-function getNormalMapURL(collectionName: string) {
-  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
-}
 
 function getSheenMapUrl(materialType: string) {
   if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
@@ -101,7 +92,7 @@ const ThreeDVisualizerEngine = ({
     const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
       fetchBlobUrl(mat.textureUrl),
       applyRoughnessMap ? fetchBlobUrl(getRoughnessMapURL(mat.collectionName)) : Promise.resolve(null),
-      applyNormalMap ? fetchBlobUrl(getNormalMapURL(mat.collectionName)) : Promise.resolve(null),
+      applyNormalMap ? fetchBlobUrl(getNormalMapURL(mat.collectionName, newMaterials, mat.materialCode)) : Promise.resolve(null),
       applySheenMap ? (() => { const u = getSheenMapUrl(mat.materialType); return u ? fetchBlobUrl(u) : Promise.resolve(null) })() : Promise.resolve(null),
     ])
     const uvScale = getUvValue(mat.collectionName)

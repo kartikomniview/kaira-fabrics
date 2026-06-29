@@ -6,11 +6,11 @@ const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 const MAX_MATERIALS = 100
 
 const MATERIAL_TYPES = [
-  'CHENILLE',
-  'DIGITALPRINT',
-  'LEATHERITE',
-  'SUEDEFABRIC',
-  'SUEDELEATHER',
+  'Chenille',
+  'DigitalPrint',
+  'Leatherite',
+  'SuedeFabric',
+  'SuedeLeather',
 ]
 
 // ─── Types ────────────────────────────────────────────────────────────────────

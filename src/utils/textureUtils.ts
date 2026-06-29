@@ -3,6 +3,7 @@
  * and MaterialDetailModal.
  */
 import * as THREE from 'three'
+import type { NewMaterial } from '../data/newmaterials'
 
 const S3_KAIRA_ORIGIN = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 const COMPANY = 'KairaFabrics'
@@ -11,7 +12,11 @@ export function getRoughnessMapURL(collectionName: string): string {
   return `${S3_KAIRA_ORIGIN}/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
 }
 
-export function getNormalMapURL(collectionName: string): string {
+export function getNormalMapURL(collectionName: string, materials: NewMaterial[], materialCode: string): string {
+  const hasSpecific = materials.some(m => m.collection_name === collectionName && m.material_code === `${collectionName}_Normal_${materialCode}`)
+  if (hasSpecific) {
+    return `${S3_KAIRA_ORIGIN}/textures/${COMPANY}/${collectionName}/${collectionName}_Normal_${materialCode}.webp`
+  }
   return `${S3_KAIRA_ORIGIN}/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
 }
 

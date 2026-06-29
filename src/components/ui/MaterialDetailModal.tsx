@@ -77,7 +77,7 @@ interface MaterialDetailModalProps {
 }
 
 const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) => {
-  const { collections } = useMaterials()
+  const { collections, newMaterials } = useMaterials()
   const [show3D, setShow3D] = useState(false)
   const [isTextureLoading, setIsTextureLoading] = useState(false)
   const [zoomPos, setZoomPos] = useState<{ x: number; y: number } | null>(null)
@@ -122,7 +122,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
         const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
           fetchBlobUrl(textureUrl),
           fetchBlobUrl(getRoughnessMapURL(collectionName)),
-          fetchBlobUrl(getNormalMapURL(collectionName)),
+          fetchBlobUrl(getNormalMapURL(collectionName, newMaterials, material.material_code)),
           sheenUrl ? fetchBlobUrl(sheenUrl) : Promise.resolve(null),
         ])
         await applyTextureToModel(mv, {

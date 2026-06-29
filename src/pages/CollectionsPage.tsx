@@ -4,7 +4,7 @@ import { type Collection } from '../data/collections'
 import type { NewMaterial } from '../data/newmaterials'
 import { useMaterials } from '../contexts/MaterialsContext'
 import InlineLoader from '../components/ui/InlineLoader'
-import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS } from '../utils/textureUtils'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL } from '../utils/textureUtils'
 import * as THREE from 'three'
 import '@google/model-viewer'
 
@@ -14,14 +14,6 @@ const COMPANY = 'KairaFabrics'
 const MODEL_URL = /iPad|iPhone|iPod/.test(navigator.userAgent)
   ? 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Nova.glb'
   : 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Nova.glb'
-
-function getRoughnessMapURL(collectionName: string) {
-  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Roughness.webp`
-}
-
-function getNormalMapURL(collectionName: string) {
-  return `${S3_BASE}/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
-}
 
 function getSheenMapUrl(materialType: string) {
   if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
@@ -512,7 +504,7 @@ function CollectionModal({
         const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
           fetchBlobUrl(textureUrl),
           fetchBlobUrl(getRoughnessMapURL(m.collection_name)),
-          fetchBlobUrl(getNormalMapURL(m.collection_name)),
+          fetchBlobUrl(getNormalMapURL(m.collection_name, newMaterials, m.material_code)),
           (() => { const u = getSheenMapUrl(m.material_type ?? ''); return u ? fetchBlobUrl(u) : Promise.resolve(null) })(),
         ])
         await applyTextureToModel(mv, {
