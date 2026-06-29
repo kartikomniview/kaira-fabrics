@@ -10,7 +10,6 @@ import '@google/model-viewer'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
-const COMPANY = 'KairaFabrics'
 const MODEL_URL = /iPad|iPhone|iPod/.test(navigator.userAgent)
   ? 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Nova.glb'
   : 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Nova.glb'
