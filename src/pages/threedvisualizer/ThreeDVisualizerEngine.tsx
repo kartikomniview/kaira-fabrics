@@ -262,8 +262,9 @@ const ThreeDVisualizerEngine = ({
               alt={`${currentProduct.product_name} 3D model`}
               camera-controls
               disable-pan
-              tone-mapping="neutral"
-              exposure="0.5"
+              tone-mapping="commerce"
+              exposure="0.4"
+              environment-image="neutral"
               shadow-intensity="0.6"
               shadow-softness="1"
               max-camera-orbit="Infinity 90deg auto"

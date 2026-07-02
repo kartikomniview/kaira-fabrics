@@ -10,16 +10,20 @@ const categoryImages: Record<string, string> = {
   'LEATHERITE':   'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Armani.webp',
   'SUEDEFABRIC':  'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Impression.webp',
   'SUEDELEATHER': 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Inspira.webp',
+  'ARTIFICIALLEATHER': 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Alaska.webp',
   'DEFAULT':      'https://placehold.co/400x500/e7e5e4/a8a29e?text=Fabric',
 }
 
-const categoryMeta: Record<string, { label: string; desc: string; features: string[]; usedFor: string }> = {
+export const categoryMeta: Record<string, { label: string; desc: string; features: string[]; usedFor: string }> = {
   'CHENILLE':     { label: 'Chenille',           desc: 'Soft, richly textured weaves for lasting comfort',      features: ['Velvety pile texture', 'Highly durable', 'Fade resistant'],    usedFor: 'Sofas & cushions' },
   'DIGITALPRINT': { label: 'Digital Print',      desc: 'Vibrant, bespoke patterns with razor-sharp clarity',    features: ['Custom artwork prints', 'Colorfast & sharp', 'Light & airy'],   usedFor: 'Drapes & accent chairs' },
   'LEATHERITE':   { label: 'Artificial Leather', desc: 'Premium vegan upholstery with a supple finish',         features: ['Easy to clean', 'Water resistant', 'Animal-free'],               usedFor: 'Office & dining chairs' },
   'SUEDEFABRIC':  { label: 'Suede Fabric',       desc: 'Plush matte finish with an ultra-soft hand feel',       features: ['Buttery soft touch', 'Rich color depth', 'Breathable weave'],   usedFor: 'Lounge & bedroom' },
   'SUEDELEATHER': { label: 'Suede Leather',      desc: 'Buttery smooth leather that ages beautifully',          features: ['100% genuine leather', 'Develops patina', 'Luxurious grip'],    usedFor: 'Luxury upholstery' },
+  'ARTIFICIALLEATHER': { label: 'Artificial Leather', desc: 'Premium vegan upholstery with a supple finish',         features: ['Easy to clean', 'Water resistant', 'Animal-free'],               usedFor: 'Office & dining chairs' },
 }
+
+export const normalizeType = (s: string) => s.toUpperCase().replace(/\s+/g, '')
 
 const SHOW_HOVER_OVERLAY = false // set to true to re-enable features + ideal-for overlay
 

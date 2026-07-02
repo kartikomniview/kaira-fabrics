@@ -7,7 +7,7 @@ const mapLocations = [
   {
     id: 'showroom',
     label: 'Kaira Showroom',
-    address: 'Near Lulu Mall Exit Gate, Mini Bypass Road, Kommeri Post, Mankavu, Calicut, Kerala – 673007',
+    address: 'Near Lulu Mall Exit Gate, Mini Bypass Road, Kommeri Post, Mankavu, Calicut, Kerala 673007',
     mapsUrl: 'https://maps.google.com/?q=Kaira+Fabrics+Leather+Calicut',
     src: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3719.6327015757183!2d75.8008345!3d11.242464499999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba6599c1ce3f4c1%3A0x5b25cf64b86cbd96!2sKaira%20Fabrics%20%26%20Leather!5e1!3m2!1sen!2sin!4v1780297424266!5m2!1sen!2sin',
   },
@@ -348,7 +348,7 @@ const ContactPage = () => {
                         <p className="text-stone-100 text-sm leading-relaxed">
                           Near Lulu Mall Exit Gate,<br />
                           Mini Bypass Road, Kommeri Post,<br />
-                          Mankavu, Calicut, Kerala – 673007
+                          Mankavu, Calicut, Kerala 673007
                         </p>
                       </div>
                     </div>

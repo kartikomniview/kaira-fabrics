@@ -110,7 +110,7 @@ export async function generateRender({
       language: navigator.language,
     })
 
-    const logoUrl = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/KairaFabrics.png'
+    const logoUrl = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp'
 
     const response = await fetch('https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage/ai-visualize', {
       method: 'POST',

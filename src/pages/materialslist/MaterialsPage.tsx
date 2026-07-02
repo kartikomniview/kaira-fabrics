@@ -339,7 +339,7 @@ const MaterialsPage = () => {
                 <span className="text-[11px] md:text-xs text-stone-500 uppercase tracking-widest font-bold">AI Powered</span>
               </div>
               <p className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
-                Visualize any fabric on real products — <span className="text-primary">instantly</span>
+                Visualize any fabric on real products <span className="text-primary">instantly</span>
               </p>
             </div>
           </div>

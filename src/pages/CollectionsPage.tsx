@@ -5,6 +5,7 @@ import type { NewMaterial } from '../data/newmaterials'
 import { useMaterials } from '../contexts/MaterialsContext'
 import InlineLoader from '../components/ui/InlineLoader'
 import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL, getUvValue } from '../utils/textureUtils'
+import { categoryMeta, normalizeType } from '../components/sections/FabricCategoriesSection'
 import * as THREE from 'three'
 import '@google/model-viewer'
 
@@ -424,7 +425,12 @@ function CollectionModal({
   const [zoomedIndex, setZoomedIndex] = useState<number | null>(null)
   const [materialSearch, setMaterialSearch] = useState('')
   const materials = useMemo(
-    () => newMaterials.filter((m) => m.collection_name === collection.name),
+    () =>
+      newMaterials
+        .filter((m) => m.collection_name === collection.name)
+        .sort((a, b) =>
+          (a.material_code ?? '').localeCompare(b.material_code ?? '', undefined, { numeric: true, sensitivity: 'base' })
+        ),
     [newMaterials, collection.name]
   )
 
@@ -740,7 +746,7 @@ function CollectionModal({
                       auto-rotate
                       disable-pan
                       tone-mapping="neutral"
-                      exposure="0.5"
+                      exposure="0.4"
                       shadow-intensity="0.6"
                       shadow-softness="1"
                       style={{ width: '100%', height: '100%', background: '#fafaf9' }}
@@ -1116,7 +1122,7 @@ function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => 
       <div className="p-2 md:p-3 border-t border-stone-200 bg-white flex-1 flex flex-col justify-center">
         <p className="text-[12px] md:text-[11px] font-bold text-color-secondary-dark group-hover:text-secondary transition-colors uppercase tracking-tight leading-tight truncate">{col.name}</p>
         <div className="flex items-center justify-between mt-1 md:mt-1.5">
-          <span className="text-[10px] md:text-[10px] text-color-secondary-dark truncate max-w-[60%] font-semibold tracking-wider uppercase">{col.category}</span>
+          <span className="text-[10px] md:text-[10px] text-color-secondary-dark truncate max-w-[60%] font-semibold tracking-wider uppercase">{categoryMeta[normalizeType(col.category)]?.label ?? col.category}</span>
           <span className="text-[10px] md:text-[10px] text-secondary font-bold tracking-widest">{col.itemCount} var.</span>
         </div>
       </div>
@@ -1133,7 +1139,7 @@ const CollectionsPage = () => {
   const [activeMaterialType, setActiveMaterialType] = useState('All')
 
   const CATEGORY_ORDER = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
-  const normalizeType = (s: string) => s.toUpperCase().replace(/\s+/g, '')
+  const getTypeLabel = (type: string) => type === 'All' ? 'All' : (categoryMeta[normalizeType(type)]?.label ?? type)
 
   const materialTypeOptions = useMemo(
     () => ['All', ...Array.from(new Set(collections.map((c) => c.category))).sort((a, b) => {
@@ -1253,7 +1259,7 @@ const CollectionsPage = () => {
             Fabric Collections
           </h1>
           <p className="mt-3 text-xs md:text-sm text-white/60 font-light max-w-md leading-relaxed">
-            Explore our handpicked range of premium fabrics — from luxurious upholstery to delicate sheers, crafted for every space.
+            Explore our handpicked range of premium fabrics from luxurious upholstery to delicate sheers, crafted for every space.
           </p>
         </div>
       </div>
@@ -1296,7 +1302,7 @@ const CollectionsPage = () => {
                             : 'bg-white border border-stone-200 text-color-secondary-dark hover:border-primary/40 hover:text-color-secondary-dark'
                             }`}
                         >
-                          {type}
+                          {getTypeLabel(type)}
                           <span className={`text-[8px] md:text-[9px] px-1.5 py-0.5  ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-color-secondary-dark'}`}>
                             {count}
                           </span>
@@ -1428,12 +1434,12 @@ const CollectionsPage = () => {
           <div className="flex items-center gap-5">
             <div className="w-14 h-14  bg-secondary-dark border flex items-center justify-center shrink-0">
               <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
               </svg>
             </div>
             <div>
               <p className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
-                Visualize any fabric on real products — <span className="text-primary">instantly</span>
+                Visualize any fabric on real products <span className="text-primary">instantly</span>
               </p>
             </div>
           </div>

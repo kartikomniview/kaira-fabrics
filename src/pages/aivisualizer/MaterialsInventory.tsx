@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { NewMaterial } from '../../data/newmaterials'
 import { useMaterials } from '../../contexts/MaterialsContext'
+import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
 
 export const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const COLOR_SWATCH: Record<string, string> = {
@@ -64,7 +65,6 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
     }, [activeMaterialType, collections])
 
     const MATERIAL_TYPE_ORDER = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
-    const normalizeType = (s: string) => s.toUpperCase().replace(/\s+/g, '')
 
     const materialTypeOptions = useMemo(() => [
         'All',
@@ -85,6 +85,9 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
         const isVisible = (m: typeof newMaterials[number]) =>
             !/normal|roughness/i.test(m.material_code ?? '')
 
+        const byMaterialCode = (a: typeof newMaterials[number], b: typeof newMaterials[number]) =>
+            (a.material_code ?? '').localeCompare(b.material_code ?? '', undefined, { numeric: true, sensitivity: 'base' })
+
         if (search.trim()) {
             const q = search.trim().toLowerCase()
             return newMaterials.filter((m) =>
@@ -95,7 +98,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                 m.material_type?.toLowerCase().includes(q) ||
                 m.color_group?.toLowerCase().includes(q) ||
                 m.pattern?.toLowerCase().includes(q))
-            )
+            ).sort(byMaterialCode)
         }
         // When not searching, apply all filters normally
         return newMaterials.filter((m) => {
@@ -105,7 +108,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
             if (activeColorGroup !== 'All' && m.color_group !== activeColorGroup) return false
             if (activePattern !== 'All' && m.pattern !== activePattern) return false
             return true
-        })
+        }).sort(byMaterialCode)
     }, [activeMaterialType, activeCollection, activeColorGroup, activePattern, search])
 
     const activeFilterCount = [activeMaterialType, activeCollection, activeColorGroup, activePattern].filter((v) => v !== 'All').length
@@ -214,7 +217,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                             >
                                 <option value="All">All</option>
                                 {materialTypeOptions.filter(t => t !== 'All').map(t => (
-                                    <option key={t} value={t}>{t}</option>
+                                    <option key={t} value={t}>{categoryMeta[normalizeType(t)]?.label ?? t}</option>
                                 ))}
                             </select>
                         </div>
@@ -314,7 +317,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                     <div className="flex flex-wrap gap-2">
                         {activeMaterialType !== 'All' && (
                             <span className="inline-flex items-center gap-1.5 bg-color-secondary-dark text-white text-xs font-bold uppercase tracking-wider pl-3 pr-2 py-1.5 shadow-sm">
-                                <span className="text-stone-400 mr-0.5">Type:</span>{activeMaterialType}
+                                <span className="text-stone-400 mr-0.5">Type:</span>{categoryMeta[normalizeType(activeMaterialType)]?.label ?? activeMaterialType}
                                 <button
                                     onClick={() => setActiveMaterialType('All')}
                                     className="ml-0.5 w-4 h-4 flex items-center justify-center bg-stone-700 hover:bg-stone-500 transition-colors shrink-0"

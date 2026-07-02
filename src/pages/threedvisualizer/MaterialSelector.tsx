@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import type { NewMaterial } from '../../data/newmaterials'
 import { useMaterials } from '../../contexts/MaterialsContext'
+import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
 
 export const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
@@ -136,7 +137,6 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   }
 
   const TYPE_ORDER = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
-  const normalizeType = (s: string) => s.toUpperCase().replace(/\s+/g, '')
 
   const materialTypeOptions = useMemo(() => [
     'All',
@@ -160,7 +160,9 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
       if (activeColorGroup !== 'All' && m.color_group !== activeColorGroup) return false
       if (activePattern !== 'All' && (m as any).pattern !== activePattern) return false
       return true
-    })
+    }).sort((a, b) =>
+      (a.material_code ?? '').localeCompare(b.material_code ?? '', undefined, { numeric: true, sensitivity: 'base' })
+    )
   }, [newMaterials, activeMaterialType, activeCollection, activeColorGroup, activePattern])
 
   const visibleMaterials = filtered.slice(0, visibleCount)
@@ -339,7 +341,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
                       : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-700'
                   }`}
                 >
-                  {t}
+                  {t === 'All' ? t : categoryMeta[normalizeType(t)]?.label ?? t}
                 </button>
               )
             })}
@@ -354,12 +356,13 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
 
         {/* Collection dropdown + color swatches */}
         <div className="flex items-center gap-2">
-          <div className="relative shrink-0 w-[120px]" data-col-dropdown>
+          <div className="relative shrink-0 w-[160px]" data-col-dropdown>
+            <span className="absolute -top-1 left-2 z-10 bg-stone-50 px-1 text-[8px] font-bold text-primary uppercase tracking-wider leading-none">Collections</span>
             <button
               onClick={() => setShowColDropdown(!showColDropdown)}
-              className="w-full bg-white border border-stone-200 text-[11px] px-2.5 py-1 h-7 rounded-none flex items-center justify-between hover:border-stone-300"
+              className="w-full bg-white border border-primary text-[11px] px-2.5 py-1 h-7 rounded-none flex items-center justify-between hover:border-primary/70"
             >
-              <span className="font-semibold color-secondary-dark uppercase tracking-wider truncate">
+              <span className="font-semibold text-primary uppercase tracking-wider truncate">
                 {activeCollection === 'All' ? 'Collections' : activeCollection}
               </span>
               <svg className={`w-3 h-3 text-stone-500 shrink-0 transition-transform ${showColDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>

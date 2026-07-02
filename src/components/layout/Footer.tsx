@@ -51,7 +51,7 @@ const Footer = () => {
               <p className="leading-relaxed">
                 Near Lulu Mall Exit Gate,<br />
                 Mini Bypass Road, Kommeri Post,<br />
-                Mankavu, Calicut, Kerala – 673007
+                Mankavu, Calicut, Kerala 673007
               </p>
               <div className="space-y-1.5">
                 <p><a href="tel:+918589925222" className="hover:text-white transition-colors duration-200">+91 8589925222</a></p>

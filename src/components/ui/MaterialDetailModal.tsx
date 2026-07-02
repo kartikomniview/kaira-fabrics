@@ -210,7 +210,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
                   camera-controls
                   auto-rotate
                   tone-mapping="commerce"
-                  exposure="0.7"
+                  exposure="0.4"
                   shadow-intensity="0.6"
                   shadow-softness="1"
                   environment-image="neutral"

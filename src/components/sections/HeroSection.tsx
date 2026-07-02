@@ -151,9 +151,10 @@ const HeroSection = () => {
             src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
             alt="Kaira Fabrics & Leather"
             className="h-20 sm:h-28 w-auto object-contain"
-            initial={{ filter: 'blur(18px) drop-shadow(0 2px 12px rgba(0,0,0,0.3))', opacity: 0 }}
-            animate={{ filter: 'blur(0px) drop-shadow(0 2px 12px rgba(0,0,0,0.3))', opacity: 1 }}
-            transition={{ duration: 1.1, delay: 0.25, ease: EXPO_OUT }}
+            style={{ filter: 'drop-shadow(0 2px 12px rgba(0,0,0,0.3))' }}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.25, ease: EXPO_OUT }}
           />
         </motion.div>
 
