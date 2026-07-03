@@ -10,8 +10,7 @@ const LOADING_MESSAGES = [
   "Just a few more seconds...",
 ]
 import { BeforeAfterSlider } from '../../components/ui/BeforeAfterSlider'
-import type { NewMaterial } from '../../data/newmaterials'
-import { MaterialsInventory, S3_THUMB } from './MaterialsInventory'
+import MaterialSelector from '../threedvisualizer/MaterialSelector'
 import { generateRender } from './generateRender'
 import type { SelectedMaterial, SelectedProduct } from './generateRender'
 
@@ -83,12 +82,12 @@ const AiVisualizerEngine = () => {
     e.target.value = ''
   }
 
-  const handleSelectMaterial = (m: NewMaterial) => {
+  const handleSelectMaterial = (m: { id: number; fabricName: string; textureUrl: string; collectionName: string }) => {
     setSelectedMaterial({
       id: m.id,
-      fabricName: `${m.collection_name} ${m.material_name}`,
-      textureUrl: `${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`,
-      collectionName: m.collection_name,
+      fabricName: m.fabricName,
+      textureUrl: m.textureUrl,
+      collectionName: m.collectionName,
       isCustom: false,
     })
     setCurrentStep(1.5)
@@ -505,13 +504,15 @@ const AiVisualizerEngine = () => {
           <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => setIsInventoryModalOpen(false)} />
           <div className="relative w-full max-w-2xl h-[85vh] sm:h-[80vh] bg-white shadow-2xl overflow-hidden flex flex-col uppercase">
             <div className="flex-1 overflow-hidden flex flex-col relative bg-white">
-              <MaterialsInventory
-                onBack={() => setIsInventoryModalOpen(false)}
-                onSelectMaterial={(m) => {
+              <MaterialSelector
+                selectedId={typeof selectedMaterial?.id === 'number' ? selectedMaterial.id : null}
+                onSelect={(m) => {
                   handleSelectMaterial(m)
                   setIsInventoryModalOpen(false)
                 }}
-                selectedMaterialId={selectedMaterial?.id}
+                showPartFilter={false}
+                onClose={() => setIsInventoryModalOpen(false)}
+                className="w-full h-full flex flex-col overflow-hidden bg-white"
               />
             </div>
           </div>

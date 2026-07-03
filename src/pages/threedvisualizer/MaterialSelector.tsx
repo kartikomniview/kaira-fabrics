@@ -43,17 +43,19 @@ const PART_OPTIONS = ['All', 'Pillow', 'Base', 'Back', 'Seat']
 interface MaterialSelectorProps {
   selectedId: number | null
   onSelect: (mat: SelectedMaterial) => void
-  selectedPart: string
-  onPartChange: (part: string) => void
+  selectedPart?: string
+  onPartChange?: (part: string) => void
   availableMeshNames?: string[]
   onToast?: (msg: string, type: 'success' | 'error') => void
   className?: string
+  showPartFilter?: boolean
+  onClose?: () => void
 }
 
 const PAGE_SIZE = 24
 
-const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className }: MaterialSelectorProps) => {
-  const { newMaterials, collections } = useMaterials()
+const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = true, onClose }: MaterialSelectorProps) => {
+  const { newMaterials, collections, isLoading: materialsLoading, error: materialsError } = useMaterials()
   const colorScrollRef = useRef<HTMLDivElement>(null)
   const typeScrollRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -66,12 +68,6 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [showColDropdown, setShowColDropdown] = useState(false)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 700)
-    return () => clearTimeout(t)
-  }, [])
 
   useEffect(() => {
     if (!showColDropdown) return
@@ -182,14 +178,14 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   }
 
   const handlePartClick = (part: string) => {
-    if (part === 'All') { onPartChange(part); return }
+    if (part === 'All') { onPartChange?.(part); return }
     const exists = availableMeshNames.length === 0 ||
       availableMeshNames.some(n => n.toLowerCase().includes(part.toLowerCase()))
     if (!exists) {
       showToast(`${part} not available`, 'error')
       return
     }
-    onPartChange(part)
+    onPartChange?.(part)
     showToast(`${part} selected`, 'success')
   }
 
@@ -221,12 +217,23 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
       <div className="shrink-0 bg-stone-50 border-b border-stone-200/80 px-4 pt-3 pb-3 space-y-2.5">
 
         {/* Title row */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className={`items-center gap-2 ${onClose ? 'flex' : 'hidden md:flex'}`}>
           <h2 className="text-[12px] font-bold color-secondary-dark uppercase tracking-widest flex-1">Kaira Inventory</h2>
           <span className="text-[11px] color-secondary-dark/60">{filtered.length} fabrics</span>
           {activeFilterCount > 0 && (
             <button onClick={clearFilters} className="text-[11px] uppercase tracking-widest text-primary hover:underline ml-2 font-semibold">
               Clear ({activeFilterCount})
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="ml-1 p-1 color-secondary-dark/50 hover:color-secondary-dark transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           )}
         </div>
@@ -296,25 +303,27 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
         </div>
 
         {/* Part chips */}
-        <div className="flex items-center gap-1.5">
-          <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest color-secondary-dark/50 pr-0.5">Part</span>
-          {PART_OPTIONS.map(p => {
-            const isActive = selectedPart === p
-            return (
-              <button
-                key={p}
-                onClick={() => handlePartClick(p)}
-                className={`shrink-0 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-none border transition-all ${
-                  isActive
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-700'
-                }`}
-              >
-                {p}
-              </button>
-            )
-          })}
-        </div>
+        {showPartFilter && (
+          <div className="flex items-center gap-1.5">
+            <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest color-secondary-dark/50 pr-0.5">Part</span>
+            {PART_OPTIONS.map(p => {
+              const isActive = selectedPart === p
+              return (
+                <button
+                  key={p}
+                  onClick={() => handlePartClick(p)}
+                  className={`shrink-0 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-none border transition-all ${
+                    isActive
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-700'
+                  }`}
+                >
+                  {p}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* Type chips */}
         <div className="flex items-center gap-1 overflow-hidden">
@@ -442,7 +451,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
 
       {/* Materials grid */}
       <div className="flex-1 overflow-y-auto p-3 bg-stone-50">
-        {isLoading ? (
+        {materialsLoading ? (
           <div className="grid grid-cols-4 md:grid-cols-3 xl:grid-cols-4 gap-2">
             {Array.from({ length: 16 }, (_, i) => (
               <div key={i} className="relative aspect-square rounded-none bg-stone-100 overflow-hidden border border-stone-200" aria-hidden="true">
@@ -455,6 +464,11 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
                 />
               </div>
             ))}
+          </div>
+        ) : materialsError ? (
+          <div className="h-full flex flex-col items-center justify-center gap-2 text-center px-4 py-10">
+            <svg className="w-8 h-8 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+            <p className="text-[11px] text-stone-400 uppercase tracking-widest">Failed to load materials</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center gap-2 text-center px-4 py-10">
