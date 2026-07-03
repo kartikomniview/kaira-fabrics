@@ -180,6 +180,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
           <model-viewer
             ref={mvRef as any}
             src={modelUrl}
+            ios-src={currentProduct.ios_model_url}
             alt={`${currentProduct.product_name} 3D model`}
             camera-controls
             disable-pan
