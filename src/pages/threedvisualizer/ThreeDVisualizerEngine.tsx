@@ -270,7 +270,7 @@ const ThreeDVisualizerEngine = ({
               max-camera-orbit="Infinity 90deg auto"
               camera-orbit="auto auto 4m"
               ar
-              ar-modes="scene-viewer quick-look"
+              ar-modes="scene-viewer webxr"
               style={{ width: '100%', height: '100%', background: '#fafaf9' }}
             />
 
