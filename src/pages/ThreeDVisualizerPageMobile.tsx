@@ -191,7 +191,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             max-camera-orbit="Infinity 90deg auto"
             camera-orbit="auto auto 4m"
             ar
-            ar-modes="webxr scene-viewer"
+            ar-modes="webxr"
             style={{ width: '100%', height: '100%', background: '#ffffff', touchAction: 'manipulation' }}
           >
             <button
