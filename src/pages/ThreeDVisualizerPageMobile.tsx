@@ -180,7 +180,6 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
           <model-viewer
             ref={mvRef as any}
             src={modelUrl}
-            ios-src={currentProduct.ios_model_url}
             alt={`${currentProduct.product_name} 3D model`}
             camera-controls
             disable-pan
@@ -191,7 +190,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             max-camera-orbit="Infinity 90deg auto"
             camera-orbit="auto auto 4m"
             ar
-            ar-modes="webxr"
+            ar-modes="webxr scene-viewer quick-look"
             style={{ width: '100%', height: '100%', background: '#ffffff', touchAction: 'manipulation' }}
           >
             <button
