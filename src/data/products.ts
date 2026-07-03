@@ -41,7 +41,7 @@ export const kairaProducts: KairaProduct[] = [
     product_name: 'Hygge',
     model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Hygge.webp',
     image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Hygge.glb',
-    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Hygge.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v2/Hygge.usdz',
   },
   {
     id: 7,
