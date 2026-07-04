@@ -25,7 +25,8 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [toastVisible, setToastVisible] = useState(false)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [urlCopied, setUrlCopied] = useState(false)
+  const [arHintVisible, setArHintVisible] = useState(false)
+  const arHintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const showToast = (msg: string, type: 'success' | 'error') => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
@@ -43,22 +44,8 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  const isAndroid = /Android/.test(navigator.userAgent)
   const modelUrl = isIOS ? currentProduct.ios_model_url : currentProduct.image_url
-
-  const copyModelUrl = async () => {
-    try {
-      await navigator.clipboard.writeText(modelUrl ?? '')
-    } catch {
-      const ta = document.createElement('textarea')
-      ta.value = modelUrl ?? ''
-      document.body.appendChild(ta)
-      ta.select()
-      document.execCommand('copy')
-      document.body.removeChild(ta)
-    }
-    setUrlCopied(true)
-    setTimeout(() => setUrlCopied(false), 1500)
-  }
 
   const applyTexture = async (mat: SelectedMaterial) => {
     const mv = mvRef.current as any
@@ -123,7 +110,23 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       setModelLoaded(true)
     }
     mv.addEventListener('load', onLoad)
-    return () => mv.removeEventListener('load', onLoad)
+
+    const onArStatus = (e: any) => {
+      if (arHintTimerRef.current) clearTimeout(arHintTimerRef.current)
+      if (e.detail?.status === 'session-started' && isAndroid) {
+        setArHintVisible(true)
+        arHintTimerRef.current = setTimeout(() => setArHintVisible(false), 5000)
+      } else {
+        setArHintVisible(false)
+      }
+    }
+    mv.addEventListener('ar-status', onArStatus)
+
+    return () => {
+      mv.removeEventListener('load', onLoad)
+      mv.removeEventListener('ar-status', onArStatus)
+      if (arHintTimerRef.current) clearTimeout(arHintTimerRef.current)
+    }
   }, [])
 
   useEffect(() => {
@@ -220,35 +223,16 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
               </svg>
               View in your space
             </button>
+            {arHintVisible && (
+              <div
+                style={{ position: 'fixed', left: '50%', bottom: '10%', transform: 'translateX(-50%)', touchAction: 'none' }}
+                className="z-10 flex items-center gap-2 px-3.5 py-2 bg-stone-900/90 text-white shadow-2xl whitespace-nowrap"
+              >
+                <span className="text-sm">📸</span>
+                <span className="text-[11px] font-medium tracking-wide">Use your phone's screenshot shortcut to save this view</span>
+              </div>
+            )}
           </model-viewer>
-
-          {/* TEMP DEBUG: shows the model URL currently loading — remove before shipping */}
-          <div className="absolute bottom-0 left-0 right-0 z-30 flex items-center gap-2 bg-black/80 px-2 py-1.5">
-            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider text-emerald-400">
-              {isIOS ? 'iOS URL' : 'Model URL'}
-            </span>
-            <span className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap text-[10px] text-white/90 font-mono">
-              {modelUrl || '(none)'}
-            </span>
-            <button
-              type="button"
-              onClick={copyModelUrl}
-              style={{ touchAction: 'manipulation' }}
-              className="shrink-0 flex items-center gap-1 px-2 py-1 bg-secondary hover:bg-[#b8943f] text-white text-[9px] font-semibold uppercase tracking-wide transition-all active:scale-95"
-            >
-              {urlCopied ? (
-                <>
-                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
-                  Copied
-                </>
-              ) : (
-                <>
-                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                  Copy
-                </>
-              )}
-            </button>
-          </div>
 
           {/* Change Product button */}
           <button
