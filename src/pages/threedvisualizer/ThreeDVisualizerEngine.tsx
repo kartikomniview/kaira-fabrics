@@ -71,7 +71,8 @@ const ThreeDVisualizerEngine = ({
   const [applySheenMap] = useState(true)
   const [currSelectedPartForFinish, setCurrSelectedPartForFinish] = useState('All')
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   const modelUrl = isIOS ? currentProduct.ios_model_url : currentProduct.image_url
 
   const applyTexture = async (mat: SelectedMaterial) => {
