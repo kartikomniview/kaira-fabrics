@@ -123,7 +123,7 @@ const AboutPage = () => {
         <div className="absolute inset-0 bg-stone-950/50" />
 
         {/* Home button */}
-        <div className="absolute top-25 left-6 z-20">
+        <div className="absolute top-25 left-6 z-20 hidden md:block">
           <Link
             to="/"
             className="group flex items-center gap-2 px-4 py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all text-[11px] font-medium tracking-wide"
