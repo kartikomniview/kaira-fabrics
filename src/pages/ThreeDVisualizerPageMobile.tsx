@@ -115,7 +115,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       if (arHintTimerRef.current) clearTimeout(arHintTimerRef.current)
       if (e.detail?.status === 'session-started' && isAndroid) {
         setArHintVisible(true)
-        arHintTimerRef.current = setTimeout(() => setArHintVisible(false), 5000)
+        arHintTimerRef.current = setTimeout(() => setArHintVisible(false), 10000)
       } else {
         setArHintVisible(false)
       }
