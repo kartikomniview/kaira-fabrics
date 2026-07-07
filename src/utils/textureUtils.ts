@@ -87,16 +87,13 @@ export function setupModelMeshes(mv: any): any[] {
 }
 
 /**
- * Fetches a remote S3 asset through the /s3proxy or /s3kaira rewrite and returns a blob URL.
- * The caller is responsible for calling URL.revokeObjectURL() when done.
+ * Fetches a remote S3 asset directly (the bucket has CORS enabled for this site's
+ * origin) and returns a blob URL. The caller is responsible for calling
+ * URL.revokeObjectURL() when done.
  */
 export async function fetchBlobUrl(url: string): Promise<string | null> {
   try {
-    let proxyUrl = url
-    if (url.startsWith(S3_KAIRA_ORIGIN)) {
-      proxyUrl = url.replace(S3_KAIRA_ORIGIN, '/s3kaira')
-    }
-    const res = await fetch(proxyUrl)
+    const res = await fetch(url)
     if (!res.ok) return null
     const blob = await res.blob()
     return URL.createObjectURL(blob)
