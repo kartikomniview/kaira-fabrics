@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import * as THREE from 'three'
 import { categoryMeta, normalizeType } from '../components/sections/FabricCategoriesSection'
 import InlineLoader from '../components/ui/InlineLoader'
+import Seo, { pageTitle } from '../components/seo/Seo'
 import { useMaterials } from '../contexts/MaterialsContext'
 import { type Collection } from '../data/collections'
 import { applyTextureToModel, fetchBlobUrl, getNormalMapURL, getRoughnessMapURL, getUvValue, NO_FABRIC_PARTS } from '../utils/textureUtils'
@@ -1042,6 +1043,10 @@ const CollectionsPage = () => {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
+      <Seo
+        title={pageTitle('Collections')}
+        description="Browse KAIRA's curated collections of premium fabrics and leathers — filter by material and texture to find the perfect fit for your interior project."
+      />
 
       {/* ── Page Header ──────────────────────────────────── */}
       <div

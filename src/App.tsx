@@ -5,6 +5,7 @@ import Layout from './components/layout/Layout'
 import PageLoader from './components/ui/PageLoader'
 import { WhatsAppIcon } from './components/ui/WhatsAppIcon'
 import { MaterialsProvider } from './contexts/MaterialsContext'
+import Seo, { pageTitle } from './components/seo/Seo'
 
 // Route-level code splitting — each page loads its own JS chunk on first visit
 const HomePage             = lazy(() => import('./pages/HomePage'))
@@ -95,7 +96,15 @@ function App() {
               <Route path="contact" element={<ContactPage />} />
             </Route>
             {/* Admin — rendered outside Layout (no header/footer) */}
-            <Route path="/admin" element={<AdminPage />} />
+            <Route
+              path="/admin"
+              element={
+                <>
+                  <Seo title={pageTitle('Admin')} description="KAIRA Fabrics internal admin dashboard." noindex />
+                  <AdminPage />
+                </>
+              }
+            />
           </Routes>
         </Suspense>
           {/* WhatsApp icon for mobile view */}

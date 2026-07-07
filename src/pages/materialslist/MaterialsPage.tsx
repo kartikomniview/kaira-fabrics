@@ -3,6 +3,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import type { Material } from '../../data/materials'
 import MaterialDetailModal from '../../components/ui/MaterialDetailModal'
 import { useMaterials } from '../../contexts/MaterialsContext'
+import Seo, { pageTitle } from '../../components/seo/Seo'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
@@ -66,6 +67,10 @@ const MaterialsPage = () => {
 
   return (
     <>
+      <Seo
+        title={pageTitle('Materials')}
+        description="Browse KAIRA's full library of premium fabric and leather materials, filterable by pattern and collection, with detailed views for every texture."
+      />
       <div className="min-h-screen relative" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
         <div className="absolute inset-0 pointer-events-none opacity-[0.18]" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 

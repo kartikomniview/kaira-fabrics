@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Seo, { pageTitle } from '../components/seo/Seo'
 
 /* ── Fabric weave pattern as inline SVG data-URI ── */
 const weaveBg = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2397c41e' stroke-width='0.4' opacity='0.18'%3E%3Cpath d='M0 10h40M0 20h40M0 30h40M10 0v40M20 0v40M30 0v40'/%3E%3C/g%3E%3C/svg%3E")`
@@ -144,6 +145,10 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <Seo
+        title={pageTitle('Contact Us')}
+        description="Get in touch with KAIRA Fabrics. Visit our Calicut showroom, call, WhatsApp, or send an enquiry — our team responds within 24 business hours."
+      />
 
       {/* ── Page Header ──────────────────────────────────────────── */}
       <div

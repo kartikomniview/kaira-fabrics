@@ -1,3 +1,4 @@
+import Seo from '../components/seo/Seo'
 import AboutSection from '../components/sections/AboutSection'
 import CaptionStrip from '../components/sections/CaptionStrip'
 import CTASection from '../components/sections/CTASection'
@@ -21,6 +22,10 @@ const HomePage = () => {
 
   return (
     <>
+      <Seo
+        title="KAIRA – DESIGNED FOR LIFE"
+        description="Explore 500+ premium fabrics and leathers at KAIRA. Browse collections, visualize textures in 3D, and find the perfect material for your luxury interior project."
+      />
       {/* Quick Connect — fixed left strip */}
       <div className="hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-50 flex-col items-start">
         {/* Call */}

@@ -1,5 +1,6 @@
 ﻿import { useEffect } from 'react'
 import VisualizerOptions from './aivisualizer/VisualizerOptions'
+import Seo, { pageTitle } from '../components/seo/Seo'
 
 const AIVisualizerPage = () => {
   useEffect(() => {
@@ -7,7 +8,13 @@ const AIVisualizerPage = () => {
   }, [])
 
   return (
-       <VisualizerOptions />
+    <>
+      <Seo
+        title={pageTitle('AI Visualizer')}
+        description="Use KAIRA's AI Visualizer to preview fabrics and leathers on your own furniture photos before you buy."
+      />
+      <VisualizerOptions />
+    </>
   )
 }
 

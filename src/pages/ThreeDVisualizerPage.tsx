@@ -4,6 +4,10 @@ import ThreeDVisualizerPageMobile from './ThreeDVisualizerPageMobile'
 import ThreeDVisualizerEngine, { type SelectedMaterial } from './threedvisualizer/ThreeDVisualizerEngine'
 import { kairaProducts } from '../data/products'
 import type { KairaProduct } from '../data/products'
+import Seo, { pageTitle } from '../components/seo/Seo'
+
+const THREE_D_VISUALIZER_DESCRIPTION =
+  "Visualize KAIRA fabrics and leathers on real furniture models in 3D — rotate, zoom, and swap materials before you buy."
 
 const ThreeDVisualizerPage = () => {
   const navigate = useNavigate()
@@ -26,13 +30,19 @@ const ThreeDVisualizerPage = () => {
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
 
-  if (isMobile) return <ThreeDVisualizerPageMobile />
+  if (isMobile) return (
+    <>
+      <Seo title={pageTitle('3D Fabric Visualizer')} description={THREE_D_VISUALIZER_DESCRIPTION} />
+      <ThreeDVisualizerPageMobile />
+    </>
+  )
 
   return (
     <div
       className="flex flex-col overflow-hidden bg-stone-50 font-sans"
       style={{ height: 'calc(100vh - 78px)', marginTop: '78px' }}
     >
+      <Seo title={pageTitle('3D Fabric Visualizer')} description={THREE_D_VISUALIZER_DESCRIPTION} />
       {/* ── Exit overlay ── */}
       {isExiting && (
         <div

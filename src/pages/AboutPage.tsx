@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import Seo, { pageTitle } from '../components/seo/Seo'
 
 const pillars = [
   {
@@ -111,6 +112,10 @@ const AboutPage = () => {
 
   return (
     <>
+      <Seo
+        title={pageTitle('About Us')}
+        description="Learn about KAIRA Fabrics — our story, quality standards, and the team behind Calicut's trusted source for premium upholstery fabrics and leathers."
+      />
       {/* ── Page Header ──────────────────────────────────────── */}
       <div
         className="relative flex items-center justify-center py-36 md:py-46 overflow-hidden"
