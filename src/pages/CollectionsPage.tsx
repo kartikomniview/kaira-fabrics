@@ -1,13 +1,12 @@
-import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { type Collection } from '../data/collections'
-import type { NewMaterial } from '../data/newmaterials'
-import { useMaterials } from '../contexts/MaterialsContext'
-import InlineLoader from '../components/ui/InlineLoader'
-import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL, getUvValue } from '../utils/textureUtils'
-import { categoryMeta, normalizeType } from '../components/sections/FabricCategoriesSection'
-import * as THREE from 'three'
 import '@google/model-viewer'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import * as THREE from 'three'
+import { categoryMeta, normalizeType } from '../components/sections/FabricCategoriesSection'
+import InlineLoader from '../components/ui/InlineLoader'
+import { useMaterials } from '../contexts/MaterialsContext'
+import { type Collection } from '../data/collections'
+import { applyTextureToModel, fetchBlobUrl, getNormalMapURL, getRoughnessMapURL, getUvValue, NO_FABRIC_PARTS } from '../utils/textureUtils'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
@@ -29,314 +28,6 @@ function getRoughnessValue(materialType: string, collectionName: string, baseRou
   if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
   if (materialType.toLowerCase().includes('leather')) return 0.6
   return baseRoughness
-}
-
-/* ── Catalog Preview Modal ───────────────────────────────────────── */
-function CatalogPreviewModal({
-  collection,
-  materials,
-  onClose,
-}: {
-  collection: Collection
-  materials: NewMaterial[]
-  onClose: () => void
-}) {
-  const [showContactForm, setShowContactForm] = useState(false)
-  const [contactSubmitted, setContactSubmitted] = useState(false)
-  const [contactData, setContactData] = useState({ name: '', email: '', company: '', message: '' })
-  const [contactLoading, setContactLoading] = useState(false)
-  const [contactError, setContactError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
-
-  return (
-    <div
-      className="fixed inset-0 z-[60] flex flex-col items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)' }}
-      onClick={onClose}
-    >
-      <div
-        className="relative w-full max-w-3xl flex flex-col shadow-2xl overflow-hidden"
-        style={{ maxHeight: '90vh' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-secondary-dark flex-shrink-0 border-b border-white/5">
-          <div className="flex items-center gap-2.5 md:gap-3.5">
-            <svg className="w-4 h-4 md:w-5 md:h-5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
-            <span className="text-[10px] md:text-[13px] uppercase tracking-[0.2em] font-bold text-white/90 truncate max-w-[120px] md:max-w-none">
-              {collection.name} &mdash; Catalog Preview
-            </span>
-          </div>
-          <div className="flex items-center gap-3 md:gap-5">
-            <button
-              onClick={() => setShowContactForm(true)}
-              className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[10px] md:text-xs uppercase font-bold tracking-[0.2em] bg-primary text-color-secondary-dark hover:bg-white transition-all shadow-lg hover:scale-[1.02] active:scale-95"
-            >
-              <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Get Full Catalog
-            </button>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-color-secondary-dark hover:text-white hover:bg-white/10 transition-all"
-            >
-              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Scrollable PDF area */}
-        <div className="overflow-y-auto flex-1 bg-stone-300 p-3 md:p-5">
-          {/* Document */}
-          <div className="bg-white w-full shadow-xl mx-auto">
-
-            {/* ── Cover ───────────────────────────────── */}
-            <div className="relative overflow-hidden bg-stone-900 min-h-[140px] md:min-h-[180px]">
-              <img
-                src={collection.image}
-                alt={collection.name}
-                className="w-full object-contain opacity-35 block"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-between p-4 md:p-8">
-                <div className="flex items-center justify-between">
-                  <span className="text-[7px] md:text-[9px] tracking-[0.35em] text-primary uppercase font-medium">KAIRA FABRICS</span>
-                  <span className="text-[6px] md:text-[8px] tracking-[0.2em] text-color-secondary-dark uppercase">Product Catalog</span>
-                </div>
-                <div>
-                  <p className="text-[7px] md:text-[9px] tracking-[0.3em] text-primary/80 uppercase mb-1 md:mb-2">{collection.category}</p>
-                  <h1 className="font-serif text-[20px] md:text-[32px] text-white leading-tight mb-1 md:mb-2">{collection.name}</h1>
-                  <p className="text-[9px] md:text-[11px] text-color-secondary-dark leading-relaxed max-w-md" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {collection.description}
-                  </p>
-                </div>
-              </div>
-              <div className="absolute bottom-0 inset-x-0 h-0.5 bg-primary" />
-            </div>
-
-            {/* ── Collection Info ──────────────────────── */}
-            <div className="px-4 md:px-8 py-5 md:py-8 border-b border-stone-100 flex items-start gap-4 md:gap-12">
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] md:text-[11px] tracking-[0.3em] uppercase font-bold text-primary mb-2 md:mb-3">About this Collection</p>
-                <p className="text-[13px] md:text-[15px] text-color-secondary-dark leading-relaxed font-medium">{collection.description}</p>
-                {collection.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-3 md:mt-5">
-                    {collection.tags.map((tag) => (
-                      <span key={tag} className="text-[9px] md:text-[10px] px-2.5 md:px-3 py-1 border border-stone-200 text-color-secondary-dark tracking-wider uppercase font-bold">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="flex-shrink-0 text-right border-l border-stone-100 pl-4 md:pl-8">
-                <p className="text-[10px] md:text-[11px] tracking-[0.2em] uppercase font-bold text-color-secondary-dark mb-1 md:mb-2 text-right">Variants</p>
-                <p className="font-serif text-4xl md:text-5xl text-gold leading-none">{collection.itemCount}</p>
-                <p className="text-[10px] md:text-[11px] text-color-secondary-dark mt-1 md:mt-2 tracking-widest font-bold text-right">SKUs</p>
-              </div>
-            </div>
-
-            {/* ── Materials Grid ───────────────────────── */}
-            <div className="px-4 md:px-8 py-6 md:py-10">
-              <div className="flex items-center justify-between mb-5 md:mb-8 border-b border-stone-50 pb-3">
-                <p className="text-[10px] md:text-[12px] tracking-[0.3em] uppercase font-bold text-color-secondary-dark/40">Materials &amp; Swatches</p>
-                <span className="text-[10px] md:text-[12px] text-color-secondary-dark font-bold tracking-widest">{materials.length} items</span>
-              </div>
-              {materials.length === 0 ? (
-                <p className="text-xs md:text-sm text-color-secondary-dark text-center py-12 md:py-16">No materials listed for this collection.</p>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-                  {materials.map((m) => (
-                    <div key={m.id} className="border border-stone-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                      <div className="aspect-square overflow-hidden bg-stone-50">
-                        <img
-                          src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
-                          alt={m.material_name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                        />
-                      </div>
-                      <div className="px-2 py-2 md:px-3 md:py-2.5 bg-white border-t border-stone-50">
-                        <p className="text-[9px] md:text-[11px] font-bold text-charcoal uppercase truncate leading-tight tracking-wide">{m.material_name}</p>
-                        <p className="text-[8px] md:text-[9px] text-gold font-bold truncate mt-1 tracking-widest">{m.material_code}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* ── Document Footer ──────────────────────── */}
-            <div className="flex items-center justify-between px-4 md:px-8 py-2 md:py-3 bg-secondary-dark border-t border-stone-800">
-              <span className="text-[7px] md:text-[8px] tracking-[0.3em] font-bold text-primary uppercase">KAIRA FABRICS</span>
-              <span className="text-[6px] md:text-[7px] font-medium text-color-secondary-dark tracking-wide uppercase">Trade Use Only</span>
-              <span className="text-[6px] md:text-[7px] font-medium text-color-secondary-dark uppercase">kairafabrics.com</span>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      {showContactForm && (
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm"
-          onClick={() => setShowContactForm(false)}
-        >
-          <div
-            className="bg-white w-full max-w-md shadow-2xl overflow-hidden  border border-stone-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="px-6 py-5 bg-secondary-dark flex items-center justify-between">
-              <div>
-                <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-primary mb-1">Request Catalog</p>
-                <h3 className="font-serif text-xl text-white leading-tight">{collection.name}</h3>
-              </div>
-              <button
-                onClick={() => { setShowContactForm(false); setContactSubmitted(false); setContactError(null) }}
-                className="w-8 h-8 flex items-center justify-center text-color-secondary-dark hover:text-white transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {contactSubmitted ? (
-              <div className="px-6 py-12 text-center bg-stone-50">
-                <div className="w-12 h-12 mx-auto mb-5 flex items-center justify-center bg-primary/10 border border-primary/20 text-primary">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                  </svg>
-                </div>
-                <h4 className="font-serif text-2xl text-color-secondary-dark mb-2">Request Sent</h4>
-                <p className="text-xs text-color-secondary-dark leading-relaxed max-w-xs mx-auto">
-                  Thank you! We'll get back to you with the catalog shortly.
-                </p>
-                <button
-                  onClick={() => { setShowContactForm(false); setContactSubmitted(false) }}
-                  className="mt-8 px-8 py-3 bg-secondary-dark text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-colors w-full sm:w-auto "
-                >
-                  Close
-                </button>
-              </div>
-            ) : (
-              <form
-                className="px-6 py-5 flex flex-col gap-4 bg-white"
-                onSubmit={async (e) => {
-                  e.preventDefault()
-                  setContactLoading(true)
-                  setContactError(null)
-                  try {
-                    const messageBody = [
-                      `Catalog Request: ${collection.name}`,
-                      contactData.company ? `Company: ${contactData.company}` : '',
-                      contactData.message ? contactData.message : '',
-                    ].filter(Boolean).join(' | ')
-                    const res = await fetch('https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage/contact', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        name: contactData.name,
-                        mobile: 'not provided',
-                        email: contactData.email,
-                        message: messageBody,
-                      }),
-                    })
-                    if (!res.ok) throw new Error('Failed to send request. Please try again.')
-                    setContactSubmitted(true)
-                  } catch (err) {
-                    setContactError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
-                  } finally {
-                    setContactLoading(false)
-                  }
-                }}
-              >
-                <p className="text-[10px] text-color-secondary-dark leading-relaxed -mt-1">
-                  Fill in your details and we'll send the full catalog for <span className="text-color-secondary-dark font-semibold">{collection.name}</span>.
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Name <span className="text-primary">*</span></label>
-                    <input
-                      required
-                      type="text"
-                      value={contactData.name}
-                      onChange={(e) => setContactData((d) => ({ ...d, name: e.target.value }))}
-                      placeholder="Your name"
-                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Email <span className="text-primary">*</span></label>
-                    <input
-                      required
-                      type="email"
-                      value={contactData.email}
-                      onChange={(e) => setContactData((d) => ({ ...d, email: e.target.value }))}
-                      placeholder="you@company.com"
-                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Company</label>
-                  <input
-                    type="text"
-                    value={contactData.company}
-                    onChange={(e) => setContactData((d) => ({ ...d, company: e.target.value }))}
-                    placeholder="Your company (optional)"
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Message</label>
-                  <textarea
-                    rows={3}
-                    value={contactData.message}
-                    onChange={(e) => setContactData((d) => ({ ...d, message: e.target.value }))}
-                    placeholder="Any specific requirements..."
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all resize-none "
-                  />
-                </div>
-                {contactError && (
-                  <p className="text-red-600 text-[11px] font-medium border border-red-200 bg-red-50 px-3 py-2 shadow-sm">{contactError}</p>
-                )}
-                <div className="flex items-center justify-between pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setShowContactForm(false)}
-                    disabled={contactLoading}
-                    className="text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark hover:text-color-secondary-dark transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={contactLoading}
-                    className="px-5 py-2.5 bg-secondary-dark text-white text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-stone-800 transition-all shadow-sm disabled:opacity-70 disabled:cursor-not-allowed min-w-[110px] flex items-center justify-center"
-                  >
-                    {contactLoading ? 'Sending...' : 'Send Request'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )
 }
 
 /* ── Material Thumbnail (lazy + per-image skeleton) ─────────────── */
@@ -499,7 +190,7 @@ function CollectionModal({
       setIsModelLoading(false)
       setIsTextureLoading(true)
       try {
-        const uvScale = getUvValue(m.collection_name,m.material_code)
+        const uvScale = getUvValue(m.collection_name, m.material_code)
         const roughness = getRoughnessValue(m.material_type ?? '', m.collection_name, (m as any).roughness ?? 0.8)
         const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
           fetchBlobUrl(textureUrl),
@@ -682,9 +373,9 @@ function CollectionModal({
               {materials.filter(m =>
                 !/normal|roughness/i.test(m.material_code ?? '') &&
                 (!materialSearch ||
-                m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) ||
-                m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) ||
-                m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))
+                  m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) ||
+                  m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) ||
+                  m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))
               ).map((m, idx) => (
                 <MaterialThumb
                   key={idx}
