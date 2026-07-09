@@ -6,9 +6,11 @@ import * as THREE from 'three'
 import type { NewMaterial } from '../data/newmaterials'
 
 const S3_KAIRA_ORIGIN = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
-// Same-origin proxy (see vite.config.ts / vercel.json) — the S3 bucket's CORS
-// policy rejects direct cross-origin fetch()/OPTIONS requests from this site,
-// so texture fetches must go through this path instead of S3_KAIRA_ORIGIN directly.
+// Same-origin proxy, wired up in vite.config.ts for local dev only. The S3
+// bucket's CORS policy allowlists the production origins (kairafabrics.in) but
+// not arbitrary dev hosts/ports/LAN IPs, so dev fetches are routed through this
+// proxy to bypass CORS entirely. Production (served as a static site behind
+// CloudFront, not Vercel) has no such rewrite, so it must hit S3 directly.
 const S3_PROXY_ORIGIN = '/s3kaira'
 const COMPANY = 'KairaFabrics'
 
@@ -91,13 +93,14 @@ export function setupModelMeshes(mv: any): any[] {
 }
 
 /**
- * Fetches an S3 asset (routed through the /s3kaira same-origin proxy, since the
- * bucket's CORS policy blocks direct cross-origin fetch()) and returns a blob URL.
- * The caller is responsible for calling URL.revokeObjectURL() when done.
+ * Fetches an S3 asset and returns a blob URL. In dev, routed through the
+ * /s3kaira same-origin proxy since the bucket's CORS policy only allowlists
+ * production origins. The caller is responsible for calling
+ * URL.revokeObjectURL() when done.
  */
 export async function fetchBlobUrl(url: string): Promise<string | null> {
   try {
-    const proxiedUrl = url.startsWith(S3_KAIRA_ORIGIN)
+    const proxiedUrl = import.meta.env.DEV && url.startsWith(S3_KAIRA_ORIGIN)
       ? url.replace(S3_KAIRA_ORIGIN, S3_PROXY_ORIGIN)
       : url
     const res = await fetch(proxiedUrl)
