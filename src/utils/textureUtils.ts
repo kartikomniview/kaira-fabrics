@@ -103,7 +103,11 @@ export async function fetchBlobUrl(url: string): Promise<string | null> {
     const proxiedUrl = import.meta.env.DEV && url.startsWith(S3_KAIRA_ORIGIN)
       ? url.replace(S3_KAIRA_ORIGIN, S3_PROXY_ORIGIN)
       : url
-    const res = await fetch(proxiedUrl)
+    // no-store: these S3 objects have no Cache-Control header, so the browser
+    // applies heuristic caching and can keep serving a response cached from
+    // before the bucket's CORS policy allowed this origin, causing spurious
+    // "No Access-Control-Allow-Origin" failures on an otherwise-fine object.
+    const res = await fetch(proxiedUrl, { cache: 'no-store' })
     if (!res.ok) return null
     const blob = await res.blob()
     return URL.createObjectURL(blob)
