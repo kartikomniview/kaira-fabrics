@@ -6,6 +6,10 @@ import * as THREE from 'three'
 import type { NewMaterial } from '../data/newmaterials'
 
 const S3_KAIRA_ORIGIN = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
+// Same-origin proxy (see vite.config.ts / vercel.json) — the S3 bucket's CORS
+// policy rejects direct cross-origin fetch()/OPTIONS requests from this site,
+// so texture fetches must go through this path instead of S3_KAIRA_ORIGIN directly.
+const S3_PROXY_ORIGIN = '/s3kaira'
 const COMPANY = 'KairaFabrics'
 
 export function getRoughnessMapURL(collectionName: string): string {
@@ -87,13 +91,16 @@ export function setupModelMeshes(mv: any): any[] {
 }
 
 /**
- * Fetches a remote S3 asset directly (the bucket has CORS enabled for this site's
- * origin) and returns a blob URL. The caller is responsible for calling
- * URL.revokeObjectURL() when done.
+ * Fetches an S3 asset (routed through the /s3kaira same-origin proxy, since the
+ * bucket's CORS policy blocks direct cross-origin fetch()) and returns a blob URL.
+ * The caller is responsible for calling URL.revokeObjectURL() when done.
  */
 export async function fetchBlobUrl(url: string): Promise<string | null> {
   try {
-    const res = await fetch(url)
+    const proxiedUrl = url.startsWith(S3_KAIRA_ORIGIN)
+      ? url.replace(S3_KAIRA_ORIGIN, S3_PROXY_ORIGIN)
+      : url
+    const res = await fetch(proxiedUrl)
     if (!res.ok) return null
     const blob = await res.blob()
     return URL.createObjectURL(blob)
