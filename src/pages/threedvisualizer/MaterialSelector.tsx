@@ -364,7 +364,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
         </div>
 
         {/* Collection dropdown + color swatches */}
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${showColDropdown ? 'pb-72 md:pb-0' : ''}`}>
           <div className="relative shrink-0 w-[160px]" data-col-dropdown>
             <span className="absolute -top-1 left-2 z-10 bg-stone-50 px-1 text-[8px] font-bold text-primary uppercase tracking-wider leading-none">Collections</span>
             <button
