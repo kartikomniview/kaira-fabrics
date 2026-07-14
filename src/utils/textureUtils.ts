@@ -38,14 +38,15 @@ export function getUvValue(collectionName: string,materialCode:string = ""): num
   if (
     collectionName === 'Florious' || collectionName === 'Indigo' ||
     collectionName === 'Aboone' || collectionName === 'Perth' ||
-    collectionName === 'Ibiza' || collectionName === 'Intense'
+    collectionName === 'Ibiza' || collectionName === 'Intense' || 
+    collectionName === 'DiaroFusion'
   ) return 8
   if (collectionName.includes('DigitalPrint') || collectionName === 'Kadillac') return 8
   if (collectionName.includes('Kelma') ) return 4  
   if (collectionName.includes('Kosmic')) return 8  
   if (collectionName === 'Impression') return 14
   if (collectionName === 'Rome' && materialCode?.includes("A")) return 8
-  if (collectionName === 'Retro' && materialCode?.includes("A")) return 8
+  if (collectionName === 'Retro' && materialCode?.includes("A")) return 12
   return 16
 }
 

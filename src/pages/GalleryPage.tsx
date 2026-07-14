@@ -1,33 +1,116 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { motion, useInView } from 'framer-motion'
 import Seo, { pageTitle } from '../components/seo/Seo'
+import { finalProducts, inaugurations, getVideoThumbnail, type GalleryItem } from '../data/galleryItems'
 
-const weaveBg = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2397c41e' stroke-width='0.4' opacity='0.18'%3E%3Cpath d='M0 10h40M0 20h40M0 30h40M10 0v40M20 0v40M30 0v40'/%3E%3C/g%3E%3C/svg%3E")`
+const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 
-const galleryItems = [
-  { id: 1, src: 'https://placehold.co/800x600/3B2A1A/C5A552?text=Living+Room+I', alt: 'Elegant living room with Royal Velvet sofa', category: 'Living Room', fabric: 'Royal Velvet' },
-  { id: 2, src: 'https://placehold.co/600x800/1A2F4A/C5A552?text=Bedroom+I', alt: 'Luxury master bedroom', category: 'Bedroom', fabric: 'Cashmere Touch' },
-  { id: 3, src: 'https://placehold.co/800x600/2C3E50/FAF8F5?text=Dining+Room+I', alt: 'Formal dining room with linen chairs', category: 'Dining Room', fabric: 'Linen Masters' },
-  { id: 4, src: 'https://placehold.co/600x600/4A1942/C5A552?text=Study+I', alt: 'Private home library with leather chairs', category: 'Study', fabric: 'Italian Leather' },
-  { id: 5, src: 'https://placehold.co/800x500/3D5A47/FAF8F5?text=Outdoor+I', alt: 'Luxury outdoor terrace', category: 'Outdoor', fabric: 'Outdoor Luxe' },
-  { id: 6, src: 'https://placehold.co/700x500/1C1917/C5A552?text=Lounge+I', alt: 'Contemporary lounge area', category: 'Living Room', fabric: 'Contemporary Weave' },
-  { id: 7, src: 'https://placehold.co/600x800/6B3A2A/FAF8F5?text=Bedroom+II', alt: 'Classic bedroom with silk drapery', category: 'Bedroom', fabric: 'Silk Heritage' },
-  { id: 8, src: 'https://placehold.co/800x600/2A3020/C5A552?text=Living+Room+II', alt: 'Refined living room setting', category: 'Living Room', fabric: 'Belgian Linen' },
-  { id: 9, src: 'https://placehold.co/600x600/5A3A2A/FAF8F5?text=Dining+Room+II', alt: 'Modern dining with velvet chairs', category: 'Dining Room', fabric: 'Royal Velvet' },
-  { id: 10, src: 'https://placehold.co/800x500/1A1A3A/C5A552?text=Study+II', alt: 'Minimalist home office', category: 'Study', fabric: 'Merino Wool' },
-  { id: 11, src: 'https://placehold.co/600x800/3A2A1A/C5A552?text=Bedroom+III', alt: 'Penthouse bedroom suite', category: 'Bedroom', fabric: 'Cashmere Touch' },
-  { id: 12, src: 'https://placehold.co/800x600/4A3A2A/FAF8F5?text=Outdoor+II', alt: 'Resort-style outdoor lounge', category: 'Outdoor', fabric: 'Outdoor Luxe' },
+type Category = 'Fabric Stories' | 'Inaugurations & Exhibitions'
+
+interface DisplayItem extends GalleryItem {
+  category: Category
+}
+
+const rows: Array<{ label: string; title: string; items: DisplayItem[] }> = [
+  {
+    label: 'From Our Studio',
+    title: 'Fabric Stories',
+    items: finalProducts.map((item) => ({ ...item, category: 'Fabric Stories' as Category })),
+  },
+  {
+    label: 'Milestones & Moments',
+    title: 'Inaugurations & Exhibitions',
+    items: inaugurations.map((item) => ({ ...item, category: 'Inaugurations & Exhibitions' as Category })),
+  },
 ]
 
-const categories = ['All', 'Living Room', 'Bedroom', 'Dining Room', 'Study', 'Outdoor']
+interface GalleryRowProps {
+  label: string
+  title: string
+  items: DisplayItem[]
+  onPreview: (item: DisplayItem) => void
+}
+
+const GalleryRow = ({ label, title, items, onPreview }: GalleryRowProps) => {
+  const rowRef = useRef<HTMLDivElement>(null)
+  const rowInView = useInView(rowRef, { once: true, margin: '-60px' })
+
+  return (
+    <div ref={rowRef} className="mb-16 last:mb-0">
+      <motion.div
+        className="flex items-center gap-4 mb-6"
+        initial={{ opacity: 0, x: -20 }}
+        animate={rowInView ? { opacity: 1, x: 0 } : {}}
+        transition={{ duration: 0.7, ease: EXPO_OUT }}
+      >
+        <div className="flex flex-col">
+          <span className="text-[10px] uppercase tracking-[0.35em] text-gold font-bold mb-1">{label}</span>
+          <h2 className="font-serif text-2xl sm:text-3xl text-charcoal leading-tight">{title}</h2>
+        </div>
+        <motion.div
+          className="flex-1 h-px bg-gradient-to-r from-gold/40 to-transparent ml-2"
+          initial={{ scaleX: 0, originX: 0 }}
+          animate={rowInView ? { scaleX: 1 } : {}}
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+        />
+      </motion.div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        {items.map((item) => {
+          const isVideo = item.type === 'video'
+          return (
+            <div
+              key={item.id}
+              className="group relative overflow-hidden cursor-pointer border border-stone-200 hover:border-gold/50 transition-all duration-500 shadow-sm hover:shadow-xl hover:-translate-y-1 rounded-xl aspect-[3/4]"
+              onClick={() => onPreview(item)}
+            >
+              {/* gold accent bar on hover */}
+              <span className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gold z-20 transition-all duration-300" />
+
+              {isVideo ? (
+                <img
+                  src={getVideoThumbnail(item.asset_url)}
+                  alt={item.title ?? 'Video thumbnail'}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+              ) : (
+                <img
+                  src={item.asset_url}
+                  alt={item.title ?? 'Gallery image'}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+              )}
+
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/65 transition-all duration-300 flex flex-col justify-end p-5 opacity-0 group-hover:opacity-100 z-10">
+                <span className="text-gold text-xs tracking-widest uppercase font-medium">{item.category}</span>
+                <p className="text-stone-400 text-xs mt-0.5">Tap to view</p>
+              </div>
+
+              {/* Video Badge (Visible when not hovered) */}
+              {isVideo && (
+                <div className="absolute top-3 right-3 opacity-100 group-hover:opacity-0 transition-opacity z-10">
+                  <div className="p-2 rounded-full bg-stone-900/50 backdrop-blur-sm border border-white/20">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 const GalleryPage = () => {
-  const [activeCategory, setActiveCategory] = useState('All')
-  const [lightbox, setLightbox] = useState<typeof galleryItems[0] | null>(null)
-
-  const filtered =
-    activeCategory === 'All'
-      ? galleryItems
-      : galleryItems.filter((g) => g.category === activeCategory)
+  const [lightbox, setLightbox] = useState<DisplayItem | null>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
 
   return (
     <div className="min-h-screen bg-cream">
@@ -40,100 +123,64 @@ const GalleryPage = () => {
       <div className="pt-28 pb-14 lg:pb-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
-          {/* Section label */}
-          <div className="flex items-center gap-3 mb-8">
-            <span className="h-px flex-1 bg-stone-200" />
-            <p className="text-xs tracking-[0.3em] uppercase text-gold font-medium whitespace-nowrap">Browse By Space</p>
-            <span className="h-px flex-1 bg-stone-200" />
-          </div>
+          {/* Section header */}
+          <div ref={headerRef} className="text-center mb-14">
+            <motion.div
+              className="inline-flex items-center justify-center gap-2 mb-4"
+              initial={{ opacity: 0, y: -16 }}
+              animate={headerInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: EXPO_OUT }}
+            >
+              <span className="text-[11px] uppercase tracking-[0.35em] text-gold font-bold font-serif">Woven Stories</span>
+            </motion.div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-2 mb-10 justify-center">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-5 py-2 text-xs tracking-widest uppercase transition-all duration-200 ${
-                  activeCategory === cat
-                    ? 'bg-charcoal text-cream'
-                    : 'border border-stone-200 text-stone-400 hover:border-gold hover:text-charcoal'
-                }`}
+            <div className="overflow-hidden">
+              <motion.h1
+                className="font-serif text-4xl sm:text-5xl md:text-[3.2rem] text-charcoal leading-tight"
+                initial={{ y: '115%', skewY: 2 }}
+                animate={headerInView ? { y: '0%', skewY: 0 } : {}}
+                transition={{ duration: 1.0, delay: 0.18, ease: EXPO_OUT }}
               >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Masonry grid */}
-          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
-            {filtered.map((item) => {
-              const isVideo = /\.(mp4|webm|mov|ogg)(\?|$)/i.test(item.src)
-              return (
-                <div
-                  key={item.id}
-                  className="group relative overflow-hidden cursor-pointer border border-stone-200 hover:border-gold/50 transition-all duration-500 break-inside-avoid shadow-sm hover:shadow-xl hover:-translate-y-1 rounded-xl"
-                  onClick={() => setLightbox(item)}
-                >
-                  {/* gold accent bar on hover */}
-                  <span className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gold z-20 transition-all duration-300" />
-                  
-                  {isVideo ? (
-                    <video
-                      src={item.src + '#t=0.001'}
-                      muted
-                      playsInline
-                      preload="metadata"
-                      className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-                      onLoadedMetadata={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.001 }}
-                      onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
-                      onMouseLeave={e => {
-                        const v = e.currentTarget as HTMLVideoElement
-                        v.pause()
-                        v.currentTime = 0.001
-                      }}
-                    />
-                  ) : (
-                    <img
-                      src={item.src}
-                      alt={item.alt}
-                      className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  )}
-
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/65 transition-all duration-300 flex flex-col justify-end p-5 opacity-0 group-hover:opacity-100 z-10">
-                    <span className="text-gold text-xs tracking-widest uppercase font-medium">{item.category}</span>
-                    <p className="text-cream text-sm font-medium mt-1">{item.fabric}</p>
-                    <p className="text-stone-400 text-xs mt-0.5">Tap to view</p>
-                  </div>
-
-                  {/* Video Badge (Visible when not hovered) */}
-                  {isVideo && (
-                    <div className="absolute top-3 right-3 opacity-100 group-hover:opacity-0 transition-opacity z-10">
-                      <div className="p-2 rounded-full bg-stone-900/50 backdrop-blur-sm border border-white/20">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-
-          {filtered.length === 0 && (
-            <div className="text-center py-20 border border-dashed border-stone-200">
-              <p className="font-serif text-2xl text-charcoal mb-3">No images in this category</p>
-              <button
-                onClick={() => setActiveCategory('All')}
-                className="text-xs uppercase tracking-widest text-gold border border-gold/40 px-5 py-2 hover:bg-charcoal hover:text-cream transition-colors"
-              >
-                View All
-              </button>
+                Our <span className="text-gold">Gallery</span>
+              </motion.h1>
             </div>
-          )}
+
+            <motion.p
+              className="mt-5 text-stone-500 text-sm leading-relaxed max-w-lg mx-auto font-sans"
+              initial={{ opacity: 0, y: 12 }}
+              animate={headerInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.35, ease: EXPO_OUT }}
+            >
+              Every thread tells a story. A glimpse into the spaces, celebrations, and craftsmanship that define the KAIRA journey.
+            </motion.p>
+          </div>
+
+          {/* ROW 1 — Fabric Stories */}
+          <GalleryRow
+            label={rows[0].label}
+            title={rows[0].title}
+            items={rows[0].items}
+            onPreview={setLightbox}
+          />
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 my-12">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent" />
+            <div className="flex gap-1.5 items-center">
+              <div className="w-1 h-1 rounded-full bg-gold/40" />
+              <div className="w-2 h-2 rounded-full bg-gold/60" />
+              <div className="w-1 h-1 rounded-full bg-gold/40" />
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent" />
+          </div>
+
+          {/* ROW 2 — Inaugurations & Exhibitions */}
+          <GalleryRow
+            label={rows[1].label}
+            title={rows[1].title}
+            items={rows[1].items}
+            onPreview={setLightbox}
+          />
         </div>
       </div>
 
@@ -154,9 +201,9 @@ const GalleryPage = () => {
             className="max-w-4xl w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            {/\.(mp4|webm|mov|ogg)(\?|$)/i.test(lightbox.src) ? (
+            {lightbox.type === 'video' ? (
               <video
-                src={lightbox.src}
+                src={lightbox.asset_url}
                 autoPlay
                 controls
                 playsInline
@@ -164,25 +211,11 @@ const GalleryPage = () => {
               />
             ) : (
               <img
-                src={lightbox.src}
-                alt={lightbox.alt}
+                src={lightbox.asset_url}
+                alt={lightbox.title ?? 'Gallery image'}
                 className="w-full max-h-[78vh] object-contain rounded-t-xl"
               />
             )}
-            <div
-              className="relative p-5 flex justify-between items-center overflow-hidden"
-              style={{ backgroundImage: weaveBg, backgroundColor: 'rgb(116,98,60)' }}
-            >
-              <span className="absolute top-0 left-0 w-full h-0.5 bg-gold" />
-              <div>
-                <p className="text-gold text-xs tracking-widest uppercase font-medium">{lightbox.category}</p>
-                <p className="text-cream text-sm mt-1 font-medium">{lightbox.alt}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-gold/70 text-xs tracking-widest uppercase">Fabric</p>
-                <p className="text-cream/80 text-sm mt-0.5">{lightbox.fabric}</p>
-              </div>
-            </div>
           </div>
         </div>
       )}

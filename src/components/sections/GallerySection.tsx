@@ -1,35 +1,9 @@
 ﻿import { useRef, useState } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
-
-interface GalleryItem {
-  id: string
-  asset_url: string
-  type: 'image' | 'video'
-  title?: string
-  description?: string
-}
+import { finalProducts, inaugurations, getVideoThumbnail, type GalleryItem } from '../../data/galleryItems'
 
 const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
-
-const finalProducts: GalleryItem[] = [
-  { id: 'fp1', asset_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/gallery/Gallery/1774621465753-BOUCLE%203D%20VIDEO.mp4', type: 'video' },
-  { id: 'fp2', asset_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/Gallery/Other/compressed_teak%20age%20video.mp4', type: 'video' },
-  { id: 'fp3', asset_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/gallery/Gallery/1774621503852-COMPLETED%20PROJECT.mp4', type: 'video' },
-  { id: 'fp4', asset_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/gallery/Gallery/1774621483840-PRINTED%20FABRIC%20VIDEO.mp4', type: 'video' },
-]
-
-const inaugurations: GalleryItem[] = [
-  { id: 'in1', asset_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/gallery/Gallery/1774621478129-KFK%20NILAMBUR.mp4', type: 'video' },
-  { id: 'in2', asset_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/Gallery/Other/ex2.mp4', type: 'video' },
-  { id: 'in3', asset_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/Gallery/Other/ex1.mp4', type: 'video' },
-  { id: 'in4', asset_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/Gallery/Other/ex3.mp4', type: 'video' },
-]
-
-const getVideoThumbnail = (videoUrl: string): string => {
-  const fileName = videoUrl.split('/').pop()?.replace(/\.[^.]+$/, '') ?? ''
-  return `https://kairafabrics.s3.ap-south-1.amazonaws.com/thumbnails/Other/${fileName}.webp`
-}
 
 // Card entrance variants
 const cardVariants = {

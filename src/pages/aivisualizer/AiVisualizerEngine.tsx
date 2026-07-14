@@ -11,8 +11,12 @@ const LOADING_MESSAGES = [
 ]
 import { BeforeAfterSlider } from '../../components/ui/BeforeAfterSlider'
 import MaterialSelector from '../threedvisualizer/MaterialSelector'
+import LeadFormModal from './LeadFormModal'
 import { generateRender } from './generateRender'
 import type { SelectedMaterial, SelectedProduct } from './generateRender'
+import { createRecaptchaVerifier, sendOtp, confirmOtp } from '../../lib/phoneAuth'
+import { isVerified, getRemainingGenerations, markVerified, recordGeneration, DAILY_GENERATION_LIMIT } from '../../lib/renderLimit'
+import type { ConfirmationResult, RecaptchaVerifier } from 'firebase/auth'
 
 const products = [
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Alden.webp', productName: 'Alden' },
@@ -38,13 +42,34 @@ const AiVisualizerEngine = () => {
   const productUploadRef = useRef<HTMLInputElement>(null)
 
   const [showLeadForm, setShowLeadForm] = useState(false)
-  const [fullName, setFullName] = useState(() => localStorage.getItem('kaira_lead_name') ?? '')
   const [mobileNumber, setMobileNumber] = useState(() => localStorage.getItem('kaira_lead_mobile') ?? '')
   const [mobileError, setMobileError] = useState('')
+  const [otpCode, setOtpCode] = useState('')
+  const [leadStep, setLeadStep] = useState<'mobile' | 'otp' | 'verified' | 'limit'>('mobile')
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
+  const [sendingOtp, setSendingOtp] = useState(false)
+  const [verifyingOtp, setVerifyingOtp] = useState(false)
+  const [otpError, setOtpError] = useState('')
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [generateError, setGenerateError] = useState<string | null>(null)
   const [cyclingMsg, setCyclingMsg] = useState(LOADING_MESSAGES[0])
+
+  const refreshRecaptchaVerifier = () => {
+    recaptchaVerifierRef.current?.clear()
+    recaptchaVerifierRef.current = createRecaptchaVerifier('recaptcha-container')
+  }
+
+  useEffect(() => {
+    if (showLeadForm) {
+      refreshRecaptchaVerifier()
+    } else if (recaptchaVerifierRef.current) {
+      recaptchaVerifierRef.current.clear()
+      recaptchaVerifierRef.current = null
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showLeadForm])
 
   useEffect(() => {
     if (!isGenerating) { setCyclingMsg(LOADING_MESSAGES[0]); return }
@@ -129,6 +154,7 @@ const AiVisualizerEngine = () => {
       onGeneratingChange: setIsGenerating,
       onShowOTPChange: setShowLeadForm,
       onResult: (imageUrl) => {
+        recordGeneration(mobile)
         setGeneratedImage(imageUrl)
         setCurrentStep(3)
         setShowImageModal(true)
@@ -140,20 +166,93 @@ const AiVisualizerEngine = () => {
   const handleGenerateClick = () => {
     if (!selectedProduct) return
     setGenerateError(null)
+    setOtpCode('')
+    setOtpError('')
+    setConfirmationResult(null)
+    const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
+    if (cleaned.length === 10 && isVerified(cleaned)) {
+      setLeadStep(getRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
+    } else {
+      setLeadStep('mobile')
+    }
     setShowLeadForm(true)
   }
 
-  const handleLeadSubmit = () => {
-    if (!fullName.trim()) return
+  const closeLeadForm = () => {
+    setShowLeadForm(false)
+    setConfirmationResult(null)
+    setOtpCode('')
+    setOtpError('')
+    setMobileError('')
+  }
+
+  const handleSendOtp = async () => {
     const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
     if (cleaned.length !== 10) {
       setMobileError('Please enter a valid 10-digit mobile number')
       return
     }
     setMobileError('')
-    localStorage.setItem('kaira_lead_name', fullName.trim())
-    localStorage.setItem('kaira_lead_mobile', cleaned)
-    handleGenerate(cleaned, fullName.trim())
+    setOtpError('')
+
+    if (isVerified(cleaned)) {
+      localStorage.setItem('kaira_lead_mobile', cleaned)
+      setLeadStep(getRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
+      return
+    }
+
+    if (!recaptchaVerifierRef.current) refreshRecaptchaVerifier()
+    setSendingOtp(true)
+    try {
+      const result = await sendOtp(`+91${cleaned}`, recaptchaVerifierRef.current!)
+      setConfirmationResult(result)
+      localStorage.setItem('kaira_lead_mobile', cleaned)
+      setLeadStep('otp')
+    } catch (err) {
+      setOtpError(err instanceof Error ? err.message : 'Failed to send OTP')
+      refreshRecaptchaVerifier()
+    } finally {
+      setSendingOtp(false)
+    }
+  }
+
+  const handleVerifyOtp = async () => {
+    if (!confirmationResult) return
+    setOtpError('')
+    setVerifyingOtp(true)
+    try {
+      await confirmOtp(confirmationResult, otpCode)
+      const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
+      markVerified(cleaned)
+      setVerifyingOtp(false)
+      handleGenerate(cleaned, 'NA')
+    } catch (err) {
+      setOtpError(err instanceof Error ? err.message : 'Invalid code')
+      setVerifyingOtp(false)
+    }
+  }
+
+  const handleChangeMobile = () => {
+    setConfirmationResult(null)
+    setOtpCode('')
+    setOtpError('')
+    setLeadStep('mobile')
+    refreshRecaptchaVerifier()
+  }
+
+  const handleGenerateVerified = () => {
+    const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
+    handleGenerate(cleaned, 'NA')
+  }
+
+  const handleUseAnotherNumber = () => {
+    setMobileNumber('')
+    setMobileError('')
+    setOtpError('')
+    setConfirmationResult(null)
+    setOtpCode('')
+    setLeadStep('mobile')
+    localStorage.removeItem('kaira_lead_mobile')
   }
 
   const handleDownload = async () => {
@@ -179,7 +278,7 @@ const AiVisualizerEngine = () => {
     setSelectedMaterial(null)
     setSelectedProduct(null)
     setGeneratedImage(null)
-    setShowLeadForm(false)
+    closeLeadForm()
     setShowImageModal(false)
   }
 
@@ -521,100 +620,30 @@ const AiVisualizerEngine = () => {
 
       {/* ── Lead Form / Generating Modal ── */}
       {showLeadForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => !isGenerating && setShowLeadForm(false)} />
-          <div className="relative w-full max-w-[340px] sm:max-w-[380px] bg-white shadow-2xl border border-stone-200 overflow-hidden flex flex-col">
-
-            {isGenerating ? (
-              <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12">
-                <div className="w-10 h-10 rounded-full sm:w-12 sm:h-12 border-4 border-stone-100 border-t-primary animate-spin mb-4 sm:mb-6" />
-                <h3 className="text-xs sm:text-sm font-bold color-secondary-dark tracking-wide uppercase mb-2">Creating Your Preview...</h3>
-                <p
-                  key={cyclingMsg}
-                  className="text-[11px] sm:text-xs color-secondary-dark text-center transition-opacity duration-500 animate-[fadeInUp_0.5s_ease_forwards]"
-                >
-                  {cyclingMsg}
-                </p>
-              </div>
-            ) : generateError ? (
-              <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12 gap-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-50 border border-red-200 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-xs sm:text-sm font-bold color-secondary-dark tracking-wide uppercase mb-1">Preview Failed</h3>
-                  <p className="text-[11px] sm:text-xs text-red-500">{generateError}</p>
-                </div>
-                <button
-                  onClick={() => { setGenerateError(null); setShowLeadForm(false) }}
-                  className="px-6 py-2 bg-primary color-secondary-dark text-[11px] uppercase font-bold tracking-widest hover:bg-primary/90 transition-colors"
-                >
-                  Try Again
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-[#faf7f2]">
-                  <div>
-                    <h3 className="text-[12px] font-bold text-primary uppercase tracking-widest">Almost There</h3>
-                    <p className="text-[10px] color-secondary-dark mt-0.5">Enter your details to get the preview</p>
-                  </div>
-                  <button onClick={() => setShowLeadForm(false)} className="color-secondary-dark hover:color-secondary-dark">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
-                </div>
-
-                <div className="p-6 flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] uppercase font-bold tracking-widest color-secondary-dark">
-                      Full Name <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Your full name"
-                      className="w-full bg-stone-50 border border-stone-200 px-4 py-3 text-sm focus:outline-none focus:border-stone-400 focus:bg-white transition-all font-medium"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] uppercase font-bold tracking-widest color-secondary-dark">
-                      Mobile Number <span className="text-red-400">*</span>
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold color-secondary-dark">+91</span>
-                      <input
-                        type="tel"
-                        value={mobileNumber}
-                        onChange={(e) => {
-                          setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))
-                          setMobileError('')
-                        }}
-                        placeholder="00000 00000"
-                        className={`w-full bg-stone-50 border pl-10 pr-4 py-3 text-sm focus:outline-none focus:bg-white transition-all font-medium tracking-widest ${mobileError ? 'border-red-400 focus:border-red-400' : 'border-stone-200 focus:border-stone-400'
-                          }`}
-                      />
-                    </div>
-                    {mobileError && (
-                      <p className="text-[10px] text-red-500 font-medium">{mobileError}</p>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={handleLeadSubmit}
-                    disabled={!fullName.trim() || mobileNumber.length < 10}
-                    className="w-full h-12 bg-primary color-secondary-dark font-bold uppercase tracking-widest text-[11px] shadow-md hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-1 flex items-center justify-center gap-2 group"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    Generate My Preview
-                    <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <LeadFormModal
+          isGenerating={isGenerating}
+          generateError={generateError}
+          cyclingMsg={cyclingMsg}
+          mobileNumber={mobileNumber}
+          setMobileNumber={setMobileNumber}
+          mobileError={mobileError}
+          otpCode={otpCode}
+          setOtpCode={setOtpCode}
+          leadStep={leadStep}
+          remainingGenerations={getRemainingGenerations(mobileNumber.replace(/\D/g, '').slice(0, 10))}
+          dailyLimit={DAILY_GENERATION_LIMIT}
+          isKnownVerifiedNumber={mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))}
+          sendingOtp={sendingOtp}
+          verifyingOtp={verifyingOtp}
+          otpError={otpError}
+          onClose={closeLeadForm}
+          onDismissError={() => { setGenerateError(null); closeLeadForm() }}
+          onSendOtp={handleSendOtp}
+          onVerifyOtp={handleVerifyOtp}
+          onChangeMobile={handleChangeMobile}
+          onGenerateVerified={handleGenerateVerified}
+          onUseAnotherNumber={handleUseAnotherNumber}
+        />
       )}
 
       {/* ── Generated Image Modal ── */}

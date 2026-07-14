@@ -1,4 +1,5 @@
 import * as UAParser from 'ua-parser-js'
+import { getUvValue } from '../../utils/textureUtils'
 
 // ── Dev toggle: set to true to skip OTP and go directly to result ─────────────
 export const BYPASS_OTP = false
@@ -91,12 +92,15 @@ export async function generateRender({
       ? extractFromDataUrl(selectedProduct.imageUrl)
       : selectedProduct.imageUrl
 
+    const uvScale = getUvValue(selectedMaterial.collectionName)
+
     // The API uses only `prompt` for Gemini generateImages, so embed context in prompt.
     const prompt = [
       `You are a photorealistic furniture renderer.`,
       `Your task: apply the fabric texture (first image) onto the furniture product (second image) and produce a complete lifestyle render.`,
       `CRITICAL — do not alter the product in any way: preserve its exact silhouette, structure, leg style, arm style, back height, cushion count, and all design details. Only the upholstery fabric changes.`,
       `The fabric texture (color, weave, and pattern) must be replicated exactly as shown in the first image.`,
+      `Use the correct UV mapping and tiling scale for the fabric: repeat the texture pattern approximately ${uvScale} times across the full upholstered surface, matching real-world fabric scale — do not stretch, shrink, or distort the weave/pattern to fit the surface.`,
       `Study the product's style, scale, and design language, then build the ideal lifestyle scene around it — the room era, mood, color palette, lighting quality, and decor props must all be chosen to best complement this specific product.`,
       `The product should be prominently placed and the natural focal point of the fully rendered scene.`,
     ].join(' ')
