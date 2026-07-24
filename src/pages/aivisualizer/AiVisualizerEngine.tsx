@@ -12,8 +12,9 @@ const LOADING_MESSAGES = [
 import { BeforeAfterSlider } from '../../components/ui/BeforeAfterSlider'
 import MaterialSelector from '../threedvisualizer/MaterialSelector'
 import LeadFormModal from './LeadFormModal'
-import { generateRender } from './generateRender'
+import { generateRender, overlayLogo } from './generateRender'
 import type { SelectedMaterial, SelectedProduct } from './generateRender'
+import { findCachedRender } from './renderCache'
 import { createRecaptchaVerifier, sendOtp, confirmOtp } from '../../lib/phoneAuth'
 import { isVerified, getRemainingGenerations, markVerified, recordGeneration, DAILY_GENERATION_LIMIT } from '../../lib/renderLimit'
 import type { ConfirmationResult, RecaptchaVerifier } from 'firebase/auth'
@@ -30,6 +31,12 @@ const products = [
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Arlo.webp', productName: 'Arlo' },
 
 ]
+
+// ── Feature flag: set to true to re-enable actual SMS OTP verification via Firebase ─────────
+const OTP_VALIDATION_ENABLED = false
+
+// ── Feature flag: set to true to re-enable the daily generation limit per mobile number ─────
+const IS_GENERATE_LIMITED = false
 
 const AiVisualizerEngine = () => {
   const [currentStep, setCurrentStep] = useState(1)
@@ -61,7 +68,11 @@ const AiVisualizerEngine = () => {
     recaptchaVerifierRef.current = createRecaptchaVerifier('recaptcha-container')
   }
 
+  const getEffectiveRemainingGenerations = (mobile: string): number =>
+    IS_GENERATE_LIMITED ? getRemainingGenerations(mobile) : DAILY_GENERATION_LIMIT
+
   useEffect(() => {
+    if (!OTP_VALIDATION_ENABLED) return
     if (showLeadForm) {
       refreshRecaptchaVerifier()
     } else if (recaptchaVerifierRef.current) {
@@ -107,12 +118,14 @@ const AiVisualizerEngine = () => {
     e.target.value = ''
   }
 
-  const handleSelectMaterial = (m: { id: number; fabricName: string; textureUrl: string; collectionName: string }) => {
+  const handleSelectMaterial = (m: { id: number; fabricName: string; textureUrl: string; collectionName: string; materialCode?: string; materialType?: string }) => {
     setSelectedMaterial({
       id: m.id,
       fabricName: m.fabricName,
       textureUrl: m.textureUrl,
       collectionName: m.collectionName,
+      materialCode: m.materialCode,
+      materialType: m.materialType,
       isCustom: false,
     })
     setCurrentStep(1.5)
@@ -143,9 +156,29 @@ const AiVisualizerEngine = () => {
     })
   }
 
-  const handleGenerate = (mobile: string, name: string) => {
+  const handleGenerate = async (mobile: string, name: string) => {
     if (!selectedMaterial || !selectedProduct) return
     setGenerateError(null)
+
+    const cacheEligible = !selectedMaterial.isCustom && !selectedProduct.isCustom && !!selectedMaterial.materialCode
+
+    if (cacheEligible) {
+      setIsGenerating(true)
+      const cachedUrl = await findCachedRender(selectedMaterial.collectionName, selectedMaterial.materialCode!, selectedProduct.productName)
+      if (cachedUrl) {
+        const watermarked = await overlayLogo(cachedUrl, '/images/kaira.webp')
+        recordGeneration(mobile)
+        setGeneratedImage(watermarked)
+        setCurrentStep(3)
+        setShowImageModal(true)
+        setIsGenerating(false)
+        setShowLeadForm(false)
+        return
+      }
+      setIsGenerating(false)
+    }
+
+
     generateRender({
       selectedMaterial,
       selectedProduct,
@@ -171,7 +204,7 @@ const AiVisualizerEngine = () => {
     setConfirmationResult(null)
     const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
     if (cleaned.length === 10 && isVerified(cleaned)) {
-      setLeadStep(getRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
+      setLeadStep(getEffectiveRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
     } else {
       setLeadStep('mobile')
     }
@@ -195,9 +228,16 @@ const AiVisualizerEngine = () => {
     setMobileError('')
     setOtpError('')
 
+    if (!OTP_VALIDATION_ENABLED) {
+      localStorage.setItem('kaira_lead_mobile', cleaned)
+      markVerified(cleaned)
+      setLeadStep(getEffectiveRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
+      return
+    }
+
     if (isVerified(cleaned)) {
       localStorage.setItem('kaira_lead_mobile', cleaned)
-      setLeadStep(getRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
+      setLeadStep(getEffectiveRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
       return
     }
 
@@ -630,9 +670,10 @@ const AiVisualizerEngine = () => {
           otpCode={otpCode}
           setOtpCode={setOtpCode}
           leadStep={leadStep}
-          remainingGenerations={getRemainingGenerations(mobileNumber.replace(/\D/g, '').slice(0, 10))}
+          remainingGenerations={getEffectiveRemainingGenerations(mobileNumber.replace(/\D/g, '').slice(0, 10))}
           dailyLimit={DAILY_GENERATION_LIMIT}
           isKnownVerifiedNumber={mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))}
+          otpValidationEnabled={OTP_VALIDATION_ENABLED}
           sendingOtp={sendingOtp}
           verifyingOtp={verifyingOtp}
           otpError={otpError}

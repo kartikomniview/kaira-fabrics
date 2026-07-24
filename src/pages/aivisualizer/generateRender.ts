@@ -1,5 +1,6 @@
 import * as UAParser from 'ua-parser-js'
 import { getUvValue } from '../../utils/textureUtils'
+import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
 
 // ── Dev toggle: set to true to skip OTP and go directly to result ─────────────
 export const BYPASS_OTP = false
@@ -21,7 +22,7 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   })
 }
 
-async function overlayLogo(imageUrl: string, logoUrl: string): Promise<string> {
+export async function overlayLogo(imageUrl: string, logoUrl: string): Promise<string> {
   const [mainImg, logoImg] = await Promise.all([loadImage(imageUrl), loadImage(logoUrl)])
 
   const canvas = document.createElement('canvas')
@@ -47,6 +48,8 @@ export interface SelectedMaterial {
   fabricName: string
   textureUrl: string
   collectionName: string
+  materialCode?: string
+  materialType?: string
   isCustom?: boolean
 }
 
@@ -94,16 +97,23 @@ export async function generateRender({
 
     const uvScale = getUvValue(selectedMaterial.collectionName)
 
+    const materialTypeLabel = selectedMaterial.materialType
+      ? (categoryMeta[normalizeType(selectedMaterial.materialType)]?.label ?? selectedMaterial.materialType)
+      : null
+
     // The API uses only `prompt` for Gemini generateImages, so embed context in prompt.
     const prompt = [
       `You are a photorealistic furniture renderer.`,
       `Your task: apply the fabric texture (first image) onto the furniture product (second image) and produce a complete lifestyle render.`,
       `CRITICAL — do not alter the product in any way: preserve its exact silhouette, structure, leg style, arm style, back height, cushion count, and all design details. Only the upholstery fabric changes.`,
       `The fabric texture (color, weave, and pattern) must be replicated exactly as shown in the first image.`,
+      materialTypeLabel
+        ? `This fabric is a ${materialTypeLabel} material — render its surface properties (sheen, texture depth, and light response) true to that material type.`
+        : ``,
       `Use the correct UV mapping and tiling scale for the fabric: repeat the texture pattern approximately ${uvScale} times across the full upholstered surface, matching real-world fabric scale — do not stretch, shrink, or distort the weave/pattern to fit the surface.`,
       `Study the product's style, scale, and design language, then build the ideal lifestyle scene around it — the room era, mood, color palette, lighting quality, and decor props must all be chosen to best complement this specific product.`,
       `The product should be prominently placed and the natural focal point of the fully rendered scene.`,
-    ].join(' ')
+    ].filter(Boolean).join(' ')
 
     const ua = new UAParser.UAParser().getResult()
     const device_info = JSON.stringify({
@@ -113,6 +123,8 @@ export async function generateRender({
       screen: { width: window.screen.width, height: window.screen.height },
       language: navigator.language,
     })
+
+    console.log(prompt)
 
     const logoUrl = '/images/kaira.webp'
 
@@ -125,6 +137,9 @@ export async function generateRender({
         mobile_number: mobileNumber,
         name,
         device_info,
+        collection_name: selectedMaterial.collectionName,
+        material_code: selectedMaterial.materialCode,
+        product_name: selectedProduct.productName,
       }),
     })
 
@@ -133,7 +148,9 @@ export async function generateRender({
       throw new Error(errBody.message || `API error: ${response.status}`)
     }
 
+
     const data = await response.json()
+    console.log(data)
 
     if (!data.imageUrl) {
       throw new Error('API returned no image URL')

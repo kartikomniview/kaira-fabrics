@@ -14,6 +14,9 @@ interface VisualizerLog {
   mobile_number?: string
   output_url?: string
   device_info?: string
+  collection_name?: string
+  material_code?: string
+  product_name?: string
   status?: string
   created_at?: string
   [key: string]: unknown
@@ -294,6 +297,9 @@ const VisualizerLogsPanel = () => {
                   <th className="px-5 py-3 font-medium">#</th>
                   <th className="px-5 py-3 font-medium">Name</th>
                   <th className="px-5 py-3 font-medium">Mobile</th>
+                  <th className="px-5 py-3 font-medium">Collection</th>
+                  <th className="px-5 py-3 font-medium">Material Code</th>
+                  <th className="px-5 py-3 font-medium">Product</th>
                   <th className="px-5 py-3 font-medium">Output</th>
                   <th className="px-5 py-3 font-medium">Status</th>
                   <th className="px-5 py-3 font-medium">Date</th>
@@ -312,6 +318,9 @@ const VisualizerLogsPanel = () => {
                         <a href={`tel:${l.mobile_number}`} className="hover:text-amber-700 transition-colors">{l.mobile_number}</a>
                       ) : '—'}
                     </td>
+                    <td className="px-5 py-3 color-secondary-dark">{l.collection_name || <span className="text-stone-300">NA</span>}</td>
+                    <td className="px-5 py-3 color-secondary-dark">{l.material_code || <span className="text-stone-300">NA</span>}</td>
+                    <td className="px-5 py-3 color-secondary-dark">{l.product_name || <span className="text-stone-300">NA</span>}</td>
                     <td className="px-5 py-3">
                       {l.output_url ? (
                         <button
@@ -376,6 +385,15 @@ const VisualizerLogsPanel = () => {
                   <div className="shrink-0 pt-0.5">
                     <StatusBadge status={l.status} />
                   </div>
+                </div>
+
+                {/* Collection / Material Code */}
+                <div className="flex items-center gap-2 pl-1 text-[11px] text-stone-500">
+                  <span><span className="text-stone-400">Collection:</span> {l.collection_name || 'NA'}</span>
+                  <span className="text-stone-300">·</span>
+                  <span><span className="text-stone-400">Code:</span> {l.material_code || 'NA'}</span>
+                  <span className="text-stone-300">·</span>
+                  <span><span className="text-stone-400">Product:</span> {l.product_name || 'NA'}</span>
                 </div>
 
                 {/* Output Image / Link */}

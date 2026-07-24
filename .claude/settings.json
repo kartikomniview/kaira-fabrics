@@ -6,7 +6,13 @@
       "Bash(curl -sI \"https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics/Koral/103.webp\")",
       "Bash(curl -sI \"https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics/Retro/1B.webp\")",
       "Bash(curl -s \"https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics/Retro/1B.webp\")",
-      "Bash(curl -sI \"https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics/Retro/1A.webp\")"
+      "Bash(curl -sI \"https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics/Retro/1A.webp\")",
+      "Read(//d/KairaSite/Kaira-Api/**)",
+      "Bash(ls -la \"d:/KairaSite/Kaira-Api\" 2>&1 | head -50)",
+      "Bash(node --check index.mjs)"
+    ],
+    "additionalDirectories": [
+      "d:\\KairaSite\\Kaira-Api"
     ]
   }
 }

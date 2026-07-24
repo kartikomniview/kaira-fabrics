@@ -1,7 +1,7 @@
 import React from 'react'
 
 // ── Feature flag: set to false to re-enable the OTP / generation flow ─────────
-const isComingSoon = true
+const isComingSoon = false
 
 interface LeadFormModalProps {
   isGenerating: boolean
@@ -16,6 +16,7 @@ interface LeadFormModalProps {
   remainingGenerations: number
   dailyLimit: number
   isKnownVerifiedNumber: boolean
+  otpValidationEnabled: boolean
   sendingOtp: boolean
   verifyingOtp: boolean
   otpError: string
@@ -41,6 +42,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
   remainingGenerations,
   dailyLimit,
   isKnownVerifiedNumber,
+  otpValidationEnabled,
   sendingOtp,
   verifyingOtp,
   otpError,
@@ -149,7 +151,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
                     <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
                   ) : (
                     <>
-                      {isKnownVerifiedNumber ? 'Continue' : 'Send OTP'}
+                      {isKnownVerifiedNumber ? 'Continue' : otpValidationEnabled ? 'Send OTP' : 'Validate'}
                       <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                     </>
                   )}
