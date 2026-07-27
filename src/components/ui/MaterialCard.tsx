@@ -1,12 +1,14 @@
 import type { Material } from '../../data/materials'
 import { getMaterialImageUrl } from '../../data/materials'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 interface MaterialCardProps {
   material: Material
 }
 
 const MaterialCard = ({ material }: MaterialCardProps) => {
-  const imageUrl = getMaterialImageUrl(material)
+  const rawImageUrl = getMaterialImageUrl(material)
+  const imageUrl = useCachedMedia(rawImageUrl || undefined)
 
   return (
     <div className="group bg-white overflow-hidden border border-stone-200 hover:border-stone-400 transition-colors duration-300">

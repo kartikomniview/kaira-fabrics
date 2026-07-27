@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 const S3_BG = 'https://supoassets.s3.ap-south-1.amazonaws.com/public/roomBackgrounds/thumbnails/realisticBackgrounds'
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
@@ -36,6 +37,7 @@ const previewRooms = [
 
 const AIVisualizerSection = () => {
   const [activeRoom, setActiveRoom] = useState(0)
+  const cachedFabricChipSrc = useCachedMedia(`${S3_THUMB}/APEX/APEX-B001.webp`)
 
   return (
     <section className="bg-stone-950 text-white py-10 lg:py-20 overflow-hidden border-y border-stone-800">
@@ -174,12 +176,14 @@ const AIVisualizerSection = () => {
                 {/* Fabric chip */}
                 <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-sm border border-stone-700/60 px-3 py-2 rounded-lg shadow-xl flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-md overflow-hidden border border-stone-600/50 shrink-0 bg-stone-700">
-                    <img
-                      src={`${S3_THUMB}/APEX/APEX-B001.webp`}
-                      alt=""
-                      className="w-full h-full object-cover"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                    />
+                    {cachedFabricChipSrc && (
+                      <img
+                        src={cachedFabricChipSrc}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                      />
+                    )}
                   </div>
                   <div>
                     <p className="text-[9px] font-bold text-white uppercase tracking-wider">Royal Velvet</p>

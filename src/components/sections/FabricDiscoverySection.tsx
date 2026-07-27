@@ -3,8 +3,21 @@ import { Link } from 'react-router-dom'
 import type { Material } from '../../data/materials'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import MaterialDetailModal from '../ui/MaterialDetailModal'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
+
+/** Thin wrapper that resolves `src` through the shared media cache before mounting the <img>. */
+function CachedThumbImg({ src, alt, className, onError }: {
+  src: string
+  alt: string
+  className?: string
+  onError?: (e: React.SyntheticEvent<HTMLImageElement>) => void
+}) {
+  const cachedSrc = useCachedMedia(src)
+  if (!cachedSrc) return null
+  return <img src={cachedSrc} alt={alt} className={className} onError={onError} />
+}
 
 const COLOR_SWATCH: Record<string, string> = {
   Whites: '#f5f0eb', Creams: '#f2e9d0', Beiges: '#c9b49a', Browns: '#8b5a2b',
@@ -160,11 +173,10 @@ const FabricDiscoverySection = () => {
                 onClick={() => setSelected(m as Material)}
                 className="group relative aspect-square bg-stone-100 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 cursor-pointer"
               >
-                <img
+                <CachedThumbImg
                   src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
                   alt={`${m.collection_name} ${m.material_name}`}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0' }}
                 />
 

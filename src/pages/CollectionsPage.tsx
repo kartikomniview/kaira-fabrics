@@ -8,6 +8,7 @@ import Seo, { pageTitle } from '../components/seo/Seo'
 import { useMaterials } from '../contexts/MaterialsContext'
 import { type Collection } from '../data/collections'
 import { applyTextureToModel, fetchBlobUrl, getNormalMapURL, getRoughnessMapURL, getUvValue, NO_FABRIC_PARTS } from '../utils/textureUtils'
+import { useCachedMedia } from '../hooks/useCachedMedia'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
@@ -49,6 +50,7 @@ function MaterialThumb({
   const [error, setError] = useState(false)
   const [inView, setInView] = useState(false)
   const thumbRef = useRef<HTMLDivElement>(null)
+  const cachedSrc = useCachedMedia(inView ? src : undefined)
 
   useEffect(() => {
     const el = thumbRef.current
@@ -75,9 +77,9 @@ function MaterialThumb({
             />
           </div>
         )}
-        {inView && !error && (
+        {inView && cachedSrc && !error && (
           <img
-            src={src}
+            src={cachedSrc}
             alt={alt}
             decoding="async"
             className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${loaded ? 'opacity-100' : 'opacity-0'}`}
@@ -143,6 +145,11 @@ function CollectionModal({
   const [isModelLoading, setIsModelLoading] = useState(false)
   const mvRef = useRef<HTMLElement>(null)
   const fabricMeshesRef = useRef<any[]>([])
+
+  const cachedCoverSrc = useCachedMedia(collection.image)
+  const zoomedMaterial = zoomedIndex !== null ? materials[zoomedIndex] : null
+  const zoomedTextureUrl = zoomedMaterial ? `${S3_THUMB}/${zoomedMaterial.collection_name}/${zoomedMaterial.material_code}.webp` : undefined
+  const cachedZoomedUrl = useCachedMedia(zoomedTextureUrl)
 
   useEffect(() => {
     setImgScale(1)
@@ -298,16 +305,18 @@ function CollectionModal({
         {/* ── Left: Cover + Info ─────────────────────── */}
         <div className="md:w-72 lg:w-80 flex-shrink-0 bg-stone-900 flex flex-col">
           <div className="relative flex-1 min-h-52 md:min-h-0 overflow-hidden bg-stone-900 flex items-center justify-center">
-            <img
-              src={collection.image}
-              alt={collection.name}
-              className="max-w-full max-h-full object-contain"
-              onError={(e) => {
-                const el = e.currentTarget as HTMLImageElement
-                el.style.display = 'none'
-                el.parentElement!.style.background = '#1c1917'
-              }}
-            />
+            {cachedCoverSrc && (
+              <img
+                src={cachedCoverSrc}
+                alt={collection.name}
+                className="max-w-full max-h-full object-contain"
+                onError={(e) => {
+                  const el = e.currentTarget as HTMLImageElement
+                  el.style.display = 'none'
+                  el.parentElement!.style.background = '#1c1917'
+                }}
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" />
           </div>
           <div className="p-6 flex flex-col gap-3">
@@ -590,10 +599,10 @@ function CollectionModal({
                       style={{ width: '100%', height: '100%', background: '#fafaf9' }}
                     />
                   </>
-                ) : (
+                ) : cachedZoomedUrl ? (
                   <img
                     key={m.id}
-                    src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
+                    src={cachedZoomedUrl}
                     alt={m.material_name}
                     className="w-full h-full object-cover select-none"
                     style={{
@@ -604,6 +613,8 @@ function CollectionModal({
                     onDoubleClick={handleImgDblClick}
                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0' }}
                   />
+                ) : (
+                  <InlineLoader color="secondary" />
                 )}
                 {/* Zoom controls — hidden in 3D mode */}
                 {!show3D && (
@@ -895,6 +906,7 @@ function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => 
   const [imgError, setImgError] = useState(false)
   const [inView, setInView] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+  const cachedSrc = useCachedMedia(inView ? col.image : undefined)
 
   useEffect(() => {
     const el = cardRef.current
@@ -931,9 +943,9 @@ function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => 
           </div>
         )}
         {/* Only mount the <img> once the card is near the viewport */}
-        {inView && !imgError && (
+        {inView && cachedSrc && !imgError && (
           <img
-            src={col.image}
+            src={cachedSrc}
             alt={col.name}
             decoding="async"
             className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}

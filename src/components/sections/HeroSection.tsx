@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Button from '../ui/Button'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 const VIDEOS = [
   'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/HeroV1.mp4',
@@ -13,11 +14,20 @@ const HERO_IMAGES = [
   'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/hero/v1/h3.webp',
 ]
 
+const LOGO_URL = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp'
+
 const IMAGE_INTERVAL = 4000
 
 // Easing curves
 const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
+
+/** Resolves `src` through the shared media cache; renders nothing until it's ready. */
+function CachedHeroImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const cachedSrc = useCachedMedia(src)
+  if (!cachedSrc) return null
+  return <img src={cachedSrc} alt={alt} className={className} />
+}
 
 // ─────────────────────────────────────────────────────────────
 const HeroSection = () => {
@@ -26,11 +36,22 @@ const HeroSection = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
   const videoIndexRef = useRef(0)
-  const prefetchedRef = useRef(false)
 
   const { scrollY } = useScroll()
   const contentOpacity = useTransform(scrollY, [0, 380], [1, 0])
   const contentY = useTransform(scrollY, [0, 380], [0, -60])
+
+  const cachedLogoSrc = useCachedMedia(LOGO_URL)
+
+  // Cache both hero videos in the background (second one only once the first
+  // is playable, mirroring the old prefetch-on-canplay timing). Playback
+  // itself always uses the cached blob URL once it's ready, but falls back
+  // to streaming the raw S3 URL directly so first-time visitors never wait
+  // on a full video download before anything plays.
+  const cachedVideo0 = useCachedMedia(VIDEOS[0])
+  const cachedVideo1 = useCachedMedia(videoReady ? VIDEOS[1] : undefined)
+  const cachedVideosRef = useRef<(string | undefined)[]>([])
+  cachedVideosRef.current = [cachedVideo0, cachedVideo1]
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
@@ -38,7 +59,7 @@ const HeroSection = () => {
     const startVideo = () => {
       const video = videoRef.current
       if (!video) return
-      video.src = VIDEOS[0]
+      video.src = cachedVideosRef.current[0] ?? VIDEOS[0]
       video.load()
       video.play().catch(() => { /* autoplay blocked — image stays */ })
     }
@@ -59,14 +80,6 @@ const HeroSection = () => {
 
   const handleCanPlay = () => {
     setVideoReady(true)
-    if (!prefetchedRef.current && videoIndexRef.current === 0) {
-      prefetchedRef.current = true
-      const link = document.createElement('link')
-      link.rel = 'prefetch'
-      link.href = VIDEOS[1]
-      link.as = 'video'
-      document.head.appendChild(link)
-    }
   }
 
   const handleEnded = () => {
@@ -75,7 +88,7 @@ const HeroSection = () => {
       videoIndexRef.current = nextIndex
       const video = videoRef.current
       if (video) {
-        video.src = VIDEOS[nextIndex]
+        video.src = cachedVideosRef.current[nextIndex] ?? VIDEOS[nextIndex]
         video.load()
         video.play().catch(() => { })
       }
@@ -115,7 +128,7 @@ const HeroSection = () => {
           className="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-1000"
           style={{ opacity: allVideosEnded && activeImageIndex === i ? 1 : 0 }}
         >
-          <img src={src} alt="" className="w-full h-full object-cover" />
+          <CachedHeroImage src={src} alt="" className="w-full h-full object-cover" />
         </div>
       ))}
 
@@ -147,15 +160,17 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.15, ease: EXPO_OUT }}
         >
-          <motion.img
-            src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
-            alt="Kaira Fabrics & Leather"
-            className="h-20 sm:h-28 w-auto object-contain"
-            style={{ filter: 'drop-shadow(0 2px 12px rgba(0,0,0,0.3))' }}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.25, ease: EXPO_OUT }}
-          />
+          {cachedLogoSrc && (
+            <motion.img
+              src={cachedLogoSrc}
+              alt="Kaira Fabrics & Leather"
+              className="h-20 sm:h-28 w-auto object-contain"
+              style={{ filter: 'drop-shadow(0 2px 12px rgba(0,0,0,0.3))' }}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.25, ease: EXPO_OUT }}
+            />
+          )}
         </motion.div>
 
         {/* ── Heading ── */}

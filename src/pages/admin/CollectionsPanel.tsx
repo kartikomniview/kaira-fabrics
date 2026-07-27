@@ -2,10 +2,23 @@ import { useState, useMemo } from 'react'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import { loadNewMaterials } from '../../data/newmaterials'
 import AddCollectionModal from './AddCollectionModal'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const S3_COVER = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics'
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
+
+/** Thin wrapper that resolves `src` through the shared media cache before mounting the <img>. */
+function CachedThumbImg({ src, alt, className, onError }: {
+  src: string
+  alt: string
+  className?: string
+  onError?: (e: React.SyntheticEvent<HTMLImageElement>) => void
+}) {
+  const cachedSrc = useCachedMedia(src)
+  if (!cachedSrc) return null
+  return <img src={cachedSrc} alt={alt} className={className} onError={onError} />
+}
 
 // ─── Materials drawer ────────────────────────────────────────────────────────
 
@@ -193,7 +206,7 @@ function MaterialsDrawer({
               {filtered.map((m) => (
                 <div key={m.id} className="group flex flex-col rounded border border-stone-200 overflow-hidden hover:border-stone-400 hover:shadow-md transition-all">
                   <div className="aspect-square bg-stone-100 overflow-hidden">
-                    <img
+                    <CachedThumbImg
                       src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
                       alt={m.material_name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -324,7 +337,7 @@ const CollectionsPanel = () => {
             >
               {/* Cover image */}
               <div className="aspect-[4/3] bg-stone-100 overflow-hidden w-full">
-                <img
+                <CachedThumbImg
                   src={`${S3_COVER}/${col.name}.webp`}
                   alt={col.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

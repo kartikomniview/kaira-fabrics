@@ -5,7 +5,8 @@ import type { KairaProduct } from '../../data/products'
 import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL, getUvValue } from '../../utils/textureUtils'
 import * as THREE from 'three'
 import '@google/model-viewer'
-import MaterialSelector, { type SelectedMaterial, S3_THUMB } from './MaterialSelector'
+import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './MaterialSelector'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 export type { SelectedMaterial } from './MaterialSelector'
 
@@ -47,6 +48,7 @@ const ThreeDVisualizerEngine = ({
   setModelLoaded,
 }: EngineProps) => {
   const { newMaterials } = useMaterials()
+  const cachedSelectedThumb = useCachedMedia(selected?.textureUrl)
   const mvRef = useRef<HTMLElement>(null)
   const fabricMeshesRef = useRef<any[]>([])
   const autoAppliedRef = useRef(false)
@@ -309,7 +311,7 @@ const ThreeDVisualizerEngine = ({
                         }`}
                     >
                       <div className="w-20 h-20 p-1 shrink-0 rounded-none overflow-hidden border border-stone-200 bg-white">
-                        <img
+                        <CachedThumbImg
                           src={p.model_url}
                           alt={p.product_name}
                           className="w-full h-full object-contain"
@@ -363,7 +365,7 @@ const ThreeDVisualizerEngine = ({
             {selected && modelLoaded && !isApplying && (
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-stone-200 shadow-xl px-5 py-3 pointer-events-none flex items-center gap-4 rounded-none">
                 <img
-                  src={selected.textureUrl}
+                  src={cachedSelectedThumb}
                   alt=""
                   className="w-8 h-8 rounded-none object-cover border border-stone-200"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}

@@ -2,8 +2,21 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { NewMaterial } from '../../data/newmaterials'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 export const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
+
+/** Thin wrapper that resolves `src` through the shared media cache before mounting the <img>. */
+function CachedThumbImg({ src, alt, className, onError }: {
+    src: string
+    alt: string
+    className?: string
+    onError?: (e: React.SyntheticEvent<HTMLImageElement>) => void
+}) {
+    const cachedSrc = useCachedMedia(src)
+    if (!cachedSrc) return null
+    return <img src={cachedSrc} alt={alt} className={className} onError={onError} />
+}
 const COLOR_SWATCH: Record<string, string> = {
     Whites: '#f5f0eb', Creams: '#f2e9d0', Beiges: '#c9b49a', Browns: '#8b5a2b',
     Tans: '#d2b48c', Grays: '#8a8a8a', 'Light Grays': '#c4c4c4', 'Dark Grays': '#555555',
@@ -256,7 +269,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                                                     onClick={() => { setActiveCollection(c.name); setShowColDropdown(false) }}
                                                 >
                                                     <div className={`w-full aspect-square overflow-hidden border transition-all ${isActive ? 'border-secondary ring-1 ring-secondary shadow-sm' : 'border-stone-200 group-hover:border-stone-300'}`}>
-                                                        <img src={c.thumb} alt={c.name} className="w-full h-full object-cover" />
+                                                        <CachedThumbImg src={c.thumb} alt={c.name} className="w-full h-full object-cover" />
                                                     </div>
                                                     <span className="text-[9px] sm:text-[10px] font-semibold color-secondary-dark uppercase tracking-wider text-center w-full truncate">{c.name}</span>
                                                 </div>
@@ -332,7 +345,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                                 {(() => {
                                     const col = collections.find(c => c.name === activeCollection)
                                     return col ? (
-                                        <img src={col.image} className="w-5.5 h-5.5 object-cover border border-white/30" alt="" />
+                                        <CachedThumbImg src={col.image} className="w-5.5 h-5.5 object-cover border border-white/30" alt="" />
                                     ) : (
                                         <span className="text-stone-400 ml-1.5 mr-0.5">Col:</span>
                                     )
@@ -412,11 +425,10 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
                                             } ${isActive ? 'border-secondary shadow-md scale-[1.03]' : 'border-transparent hover:border-stone-300'
                                             }`}
                                     >
-                                        <img
+                                        <CachedThumbImg
                                             src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
                                             alt={`${m.collection_name} ${m.material_name}`}
                                             className="w-full h-full object-cover"
-                                            loading="lazy"
                                         />
                                         {/* In search mode, always show label at bottom */}
                                         {isSearchMode ? (

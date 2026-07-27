@@ -35,8 +35,14 @@ const products = [
 // ── Feature flag: set to true to re-enable actual SMS OTP verification via Firebase ─────────
 const OTP_VALIDATION_ENABLED = false
 
+// Indian mobile numbers: 10 digits, first digit 6-9
+const INDIAN_MOBILE_REGEX = /^[6-9]\d{9}$/
+
 // ── Feature flag: set to true to re-enable the daily generation limit per mobile number ─────
-const IS_GENERATE_LIMITED = false
+const IS_GENERATE_LIMITED = true
+
+// ── Minimum time the loader stays visible for a cached (instant) render, so it doesn't flash ─
+const MIN_CACHED_LOADER_MS = 10000
 
 const AiVisualizerEngine = () => {
   const [currentStep, setCurrentStep] = useState(1)
@@ -163,10 +169,16 @@ const AiVisualizerEngine = () => {
     const cacheEligible = !selectedMaterial.isCustom && !selectedProduct.isCustom && !!selectedMaterial.materialCode
 
     if (cacheEligible) {
+      const startedAt = Date.now()
       setIsGenerating(true)
       const cachedUrl = await findCachedRender(selectedMaterial.collectionName, selectedMaterial.materialCode!, selectedProduct.productName)
       if (cachedUrl) {
         const watermarked = await overlayLogo(cachedUrl, '/images/kaira.webp')
+        const elapsed = Date.now() - startedAt
+        const remaining = MIN_CACHED_LOADER_MS - elapsed
+        if (remaining > 0) {
+          await new Promise((resolve) => setTimeout(resolve, remaining))
+        }
         recordGeneration(mobile)
         setGeneratedImage(watermarked)
         setCurrentStep(3)
@@ -221,7 +233,7 @@ const AiVisualizerEngine = () => {
 
   const handleSendOtp = async () => {
     const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
-    if (cleaned.length !== 10) {
+    if (!INDIAN_MOBILE_REGEX.test(cleaned)) {
       setMobileError('Please enter a valid 10-digit mobile number')
       return
     }

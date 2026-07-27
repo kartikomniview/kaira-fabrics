@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo } from 'react'
 import type { NewMaterial } from '../../data/newmaterials'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 export const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
@@ -11,6 +12,18 @@ const COLOR_MAP: Record<string, string> = {
   Blacks: '#1c1c1c', Blues: '#3b6ea5', Navys: '#1b2f6b', Teals: '#19787d',
   Greens: '#2e7d32', Reds: '#c0392b', Oranges: '#e07020', Yellows: '#d4a017',
   Pinks: '#d4607a', Purples: '#7b3fa0', Mauves: '#9e7b9b', Coals: '#3c3c3c',
+}
+
+/** Thin wrapper that resolves `src` through the shared media cache before mounting the <img>. */
+export function CachedThumbImg({ src, alt, className, onError }: {
+  src: string
+  alt: string
+  className?: string
+  onError?: (e: React.SyntheticEvent<HTMLImageElement>) => void
+}) {
+  const cachedSrc = useCachedMedia(src)
+  if (!cachedSrc) return null
+  return <img src={cachedSrc} alt={alt} className={className} onError={onError} />
 }
 
 function highlight(text: string, query: string) {
@@ -284,7 +297,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
                   onClick={() => handleCollectionSearch(c)}
                   className="w-full flex items-center gap-3 px-3 py-2 hover:bg-stone-50 text-left transition-colors border-b border-stone-100 last:border-b-0"
                 >
-                  <img src={c.image} alt={c.name} className="w-8 h-8 object-cover border border-stone-200 shrink-0" />
+                  <CachedThumbImg src={c.image} alt={c.name} className="w-8 h-8 object-cover border border-stone-200 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-bold uppercase tracking-wider color-secondary-dark truncate">
                       {highlight(c.name, search.trim())}
@@ -398,7 +411,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
                         onClick={() => { setActiveCollection(c.name); setShowColDropdown(false) }}
                       >
                         <div className={`w-full aspect-square rounded-none overflow-hidden border transition-all ${isActive ? 'border-primary ring-1 ring-primary shadow-sm' : 'border-stone-200 group-hover:border-stone-300'}`}>
-                          <img src={c.thumb} alt={c.name} className="w-full h-full object-cover" />
+                          <CachedThumbImg src={c.thumb} alt={c.name} className="w-full h-full object-cover" />
                         </div>
                         <span className="text-[10px] font-semibold color-secondary-dark uppercase tracking-wider text-center w-full truncate">{c.name}</span>
                       </div>
@@ -488,11 +501,10 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
                     onClick={() => handleSelect(m)}
                     className={`overflow-hidden rounded-none border-2 relative aspect-square transition-all ${isActive ? 'border-primary shadow-md scale-[1.03]' : 'border-transparent hover:border-stone-300'}`}
                   >
-                    <img
+                    <CachedThumbImg
                       src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
                       alt={`${m.collection_name} ${m.material_name}`}
                       className="w-full h-full object-cover"
-                      loading="lazy"
                       onError={(e) => {
                         const el = e.currentTarget as HTMLImageElement
                         el.style.display = 'none'

@@ -7,7 +7,8 @@ import {
   getRoughnessMapURL, getNormalMapURL, getSheenMapUrl, getUvValue, getRoughnessValue,
 } from '../utils/textureUtils'
 import * as THREE from 'three'
-import MaterialSelector, { type SelectedMaterial, S3_THUMB } from './threedvisualizer/MaterialSelector'
+import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './threedvisualizer/MaterialSelector'
+import { useCachedMedia } from '../hooks/useCachedMedia'
 
 const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }) => {
   const { newMaterials } = useMaterials()
@@ -15,6 +16,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const fabricMeshesRef = useRef<any[]>([])
   const autoAppliedRef = useRef(false)
   const [selected, setSelected] = useState<SelectedMaterial | null>(null)
+  const cachedSelectedThumb = useCachedMedia(selected?.textureUrl)
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
   const [currentProduct, setCurrentProduct] = useState<KairaProduct>(kairaProducts[0])
@@ -301,7 +303,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
                     className={`w-full flex items-center gap-3 px-3 py-3 transition-all border-l-2 active:bg-stone-100 ${isActive ? 'bg-secondary/10 border-l-secondary' : 'hover:bg-stone-50 border-l-transparent'}`}
                   >
                     <div className="w-14 h-14 p-1 shrink-0 overflow-hidden border border-stone-200 bg-stone-100">
-                      <img
+                      <CachedThumbImg
                         src={p.model_url}
                         alt={p.product_name}
                         className="w-full h-full object-contain"
@@ -391,7 +393,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             {selected && (
               <div className="px-4 py-2.5 bg-secondary/5 border-b border-secondary/15 flex items-center gap-3">
                 <img
-                  src={selected.textureUrl}
+                  src={cachedSelectedThumb}
                   alt={selected.fabricName}
                   className="w-9 h-9 object-cover border border-stone-200 shrink-0"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
@@ -422,7 +424,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
                   <label className="block text-[10px] text-stone-500 font-medium mb-1.5 uppercase tracking-wide">Phone</label>
                   <input
                     type="tel"
-                    placeholder="+91 00000 00000"
+                    placeholder="722390XXXX"
                     autoComplete="tel"
                     className="w-full bg-stone-50 border border-stone-200 text-stone-700 text-[12px] px-3 py-2.5 focus:outline-none focus:border-secondary/60 transition-colors placeholder-stone-300"
                   />

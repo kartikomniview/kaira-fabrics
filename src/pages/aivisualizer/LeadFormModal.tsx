@@ -3,6 +3,12 @@ import React from 'react'
 // ── Feature flag: set to false to re-enable the OTP / generation flow ─────────
 const isComingSoon = false
 
+/** Masks a 10-digit mobile number for display, e.g. "9876543210" -> "98••• •••10". */
+const maskMobileNumber = (mobile: string) => {
+  if (mobile.length !== 10) return mobile
+  return `${mobile.slice(0, 2)}${'•'.repeat(3)} ${'•'.repeat(3)}${mobile.slice(-2)}`
+}
+
 interface LeadFormModalProps {
   isGenerating: boolean
   generateError: string | null
@@ -132,7 +138,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
                       type="tel"
                       value={mobileNumber}
                       onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      placeholder="00000 00000"
+                      placeholder="999396XXXX"
                       className={`w-full bg-stone-50 border pl-10 pr-4 py-3 text-sm focus:outline-none focus:bg-white transition-all font-medium tracking-widest ${mobileError || otpError ? 'border-red-400 focus:border-red-400' : 'border-stone-200 focus:border-stone-400'
                         }`}
                     />
@@ -161,7 +167,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
               <div className="p-6 flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5 text-center">
                   <label className="text-[10px] uppercase font-bold tracking-widest color-secondary-dark">Enter Code</label>
-                  <p className="text-[11px] color-secondary-dark mb-1">Sent to +91 {mobileNumber}</p>
+                  <p className="text-[11px] color-secondary-dark mb-1">Sent to +91 {maskMobileNumber(mobileNumber)}</p>
                   <input
                     type="text"
                     value={otpCode}
@@ -203,7 +209,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-bold color-secondary-dark tracking-wide uppercase mb-1">Number Verified</h3>
-                  <p className="text-[11px] color-secondary-dark">+91 {mobileNumber}</p>
+                  <p className="text-[11px] color-secondary-dark">+91 {maskMobileNumber(mobileNumber)}</p>
                   <p className="text-[11px] color-secondary-dark mt-2">
                     <span className="font-bold text-primary">{remainingGenerations}</span> of {dailyLimit} previews remaining today
                   </p>
@@ -230,7 +236,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-bold color-secondary-dark tracking-wide uppercase mb-1">Daily Limit Reached</h3>
-                  <p className="text-[11px] color-secondary-dark">You've used all {dailyLimit} previews today with +91 {mobileNumber}.</p>
+                  <p className="text-[11px] color-secondary-dark">You've used all {dailyLimit} previews today with +91 {maskMobileNumber(mobileNumber)}.</p>
                   <p className="text-[11px] color-secondary-dark mt-1">Try a different mobile number, or come back tomorrow.</p>
                 </div>
 

@@ -4,8 +4,21 @@ import type { Material } from '../../data/materials'
 import MaterialDetailModal from '../../components/ui/MaterialDetailModal'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import Seo, { pageTitle } from '../../components/seo/Seo'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
+
+/** Thin wrapper that resolves `src` through the shared media cache before mounting the <img>. */
+function CachedThumbImg({ src, alt, className, onError }: {
+  src: string
+  alt: string
+  className?: string
+  onError?: (e: React.SyntheticEvent<HTMLImageElement>) => void
+}) {
+  const cachedSrc = useCachedMedia(src)
+  if (!cachedSrc) return null
+  return <img src={cachedSrc} alt={alt} className={className} onError={onError} />
+}
 
 const MaterialsPage = () => {
   const navigate = useNavigate()
@@ -140,7 +153,7 @@ const MaterialsPage = () => {
                     <div className="flex items-center gap-3 min-w-0">
                       {/* Collection Thumbnail */}
                       <div className={`w-10 h-10 rounded-sm overflow-hidden shrink-0 border ${isActive ? 'border-stone-700' : 'border-stone-100'}`}>
-                        <img
+                        <CachedThumbImg
                           src={c.image}
                           alt={c.name}
                           className="w-full h-full object-cover"
@@ -194,7 +207,7 @@ const MaterialsPage = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-sm overflow-hidden shrink-0 border border-stone-100">
-                        <img
+                        <CachedThumbImg
                           src={c.image}
                           alt={c.name}
                           className="w-full h-full object-cover"
@@ -272,7 +285,7 @@ const MaterialsPage = () => {
                     onClick={() => setSelectedMaterial(m as Material)}
                     className="group relative aspect-square bg-stone-100 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 cursor-pointer"
                   >
-                    <img
+                    <CachedThumbImg
                       src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
                       alt={`${m.collection_name} ${m.material_name}`}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"

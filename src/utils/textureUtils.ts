@@ -4,14 +4,9 @@
  */
 import * as THREE from 'three'
 import type { NewMaterial } from '../data/newmaterials'
+import { getCachedMediaUrl } from '../lib/mediaCache'
 
 const S3_KAIRA_ORIGIN = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
-// Same-origin proxy, wired up in vite.config.ts for local dev only. The S3
-// bucket's CORS policy allowlists the production origins (kairafabrics.in) but
-// not arbitrary dev hosts/ports/LAN IPs, so dev fetches are routed through this
-// proxy to bypass CORS entirely. Production (served as a static site behind
-// CloudFront, not Vercel) has no such rewrite, so it must hit S3 directly.
-const S3_PROXY_ORIGIN = '/s3kaira'
 const COMPANY = 'KairaFabrics'
 
 export function getRoughnessMapURL(collectionName: string): string {
@@ -94,27 +89,13 @@ export function setupModelMeshes(mv: any): any[] {
 }
 
 /**
- * Fetches an S3 asset and returns a blob URL. In dev, routed through the
- * /s3kaira same-origin proxy since the bucket's CORS policy only allowlists
- * production origins. The caller is responsible for calling
- * URL.revokeObjectURL() when done.
+ * Resolves an S3 asset through the shared persistent media cache and returns
+ * a blob URL (see src/lib/mediaCache.ts). The caller is responsible for
+ * calling URL.revokeObjectURL() when done — the underlying blob stays cached
+ * on disk regardless, so the next call for the same URL is still free.
  */
 export async function fetchBlobUrl(url: string): Promise<string | null> {
-  try {
-    const proxiedUrl = import.meta.env.DEV && url.startsWith(S3_KAIRA_ORIGIN)
-      ? url.replace(S3_KAIRA_ORIGIN, S3_PROXY_ORIGIN)
-      : url
-    // no-store: these S3 objects have no Cache-Control header, so the browser
-    // applies heuristic caching and can keep serving a response cached from
-    // before the bucket's CORS policy allowed this origin, causing spurious
-    // "No Access-Control-Allow-Origin" failures on an otherwise-fine object.
-    const res = await fetch(proxiedUrl, { cache: 'no-store' })
-    if (!res.ok) return null
-    const blob = await res.blob()
-    return URL.createObjectURL(blob)
-  } catch {
-    return null
-  }
+  return getCachedMediaUrl(url)
 }
 
 /**

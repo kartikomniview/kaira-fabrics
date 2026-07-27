@@ -10,6 +10,7 @@ import {
   getRoughnessMapURL, getNormalMapURL, getSheenMapUrl,
   getUvValue, getRoughnessValue, setupModelMeshes,
 } from '../../utils/textureUtils'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 const MODEL_URL =
   'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Nova.glb'
@@ -97,6 +98,8 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
   const coverUrl = getCollectionImageUrl(material.collection_name)
   const stats = getCollectionStats(material.collection_name, collections)
   const colorSwatch = COLOR_MAP[material.color_group ?? ''] ?? '#d0c8c0'
+  const cachedTextureUrl = useCachedMedia(textureUrl)
+  const cachedCoverUrl = useCachedMedia(coverUrl || undefined)
 
   // ESC to close
   useEffect(() => {
@@ -219,19 +222,21 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
               </>
             ) : (
               <>
-                <img
-                  src={textureUrl}
-                  alt={material.material_name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.opacity = '0.2'
-                  }}
-                />
-                {zoomPos ? (
+                {cachedTextureUrl && (
+                  <img
+                    src={cachedTextureUrl}
+                    alt={material.material_name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.opacity = '0.2'
+                    }}
+                  />
+                )}
+                {zoomPos && cachedTextureUrl ? (
                   <div
                     className="absolute inset-0 z-[5]"
                     style={{
-                      backgroundImage: `url(${textureUrl})`,
+                      backgroundImage: `url(${cachedTextureUrl})`,
                       backgroundSize: '260%',
                       backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
                       backgroundRepeat: 'no-repeat',
@@ -295,7 +300,7 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
               </p>
               <div className="flex gap-5 items-start">
                 <img
-                  src={coverUrl}
+                  src={cachedCoverUrl}
                   alt={material.collection_name}
                   className="w-20 h-20 md:w-28 md:h-28 object-cover border border-stone-200 shrink-0"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0' }}
