@@ -18,6 +18,7 @@ import { findCachedRender } from './renderCache'
 import { createRecaptchaVerifier, sendOtp, confirmOtp } from '../../lib/phoneAuth'
 import { isVerified, getRemainingGenerations, markVerified, recordGeneration, DAILY_GENERATION_LIMIT } from '../../lib/renderLimit'
 import type { ConfirmationResult, RecaptchaVerifier } from 'firebase/auth'
+import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
 
 const products = [
   { productImageUrl: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/products/Alden.webp', productName: 'Alden' },
@@ -35,8 +36,10 @@ const products = [
 // ── Feature flag: set to true to re-enable actual SMS OTP verification via Firebase ─────────
 const OTP_VALIDATION_ENABLED = false
 
-// Indian mobile numbers: 10 digits, first digit 6-9
-const INDIAN_MOBILE_REGEX = /^[6-9]\d{9}$/
+const isValidIndianMobile = (num: string) => {
+  const phone = parsePhoneNumberFromString(num, 'IN')
+  return !!phone && phone.isValid() && phone.getType() === 'MOBILE'
+}
 
 // ── Feature flag: set to true to re-enable the daily generation limit per mobile number ─────
 const IS_GENERATE_LIMITED = true
@@ -172,6 +175,7 @@ const AiVisualizerEngine = () => {
       const startedAt = Date.now()
       setIsGenerating(true)
       const cachedUrl = await findCachedRender(selectedMaterial.collectionName, selectedMaterial.materialCode!, selectedProduct.productName)
+      console.log(cachedUrl)
       if (cachedUrl) {
         const watermarked = await overlayLogo(cachedUrl, '/images/kaira.webp')
         const elapsed = Date.now() - startedAt
@@ -233,7 +237,7 @@ const AiVisualizerEngine = () => {
 
   const handleSendOtp = async () => {
     const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
-    if (!INDIAN_MOBILE_REGEX.test(cleaned)) {
+    if (!isValidIndianMobile(cleaned)) {
       setMobileError('Please enter a valid 10-digit mobile number')
       return
     }
