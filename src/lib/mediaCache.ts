@@ -38,7 +38,10 @@ async function resolve(url: string): Promise<string | null> {
         return URL.createObjectURL(blob)
       }
 
-      const res = await fetch(toFetchableUrl(url))
+      // `no-store`: these S3 objects have no Cache-Control header, so the
+      // browser's heuristic HTTP cache can otherwise keep serving a stale,
+      // pre-CORS response (missing Access-Control-Allow-Origin) indefinitely.
+      const res = await fetch(toFetchableUrl(url), { cache: 'no-store' })
       if (!res.ok) return null
       await cache.put(url, res.clone())
       const blob = await res.blob()
@@ -47,7 +50,7 @@ async function resolve(url: string): Promise<string | null> {
 
     // Cache Storage unavailable (very old browser, insecure context) — fall
     // back to a plain fetch with no persistence.
-    const res = await fetch(toFetchableUrl(url))
+    const res = await fetch(toFetchableUrl(url), { cache: 'no-store' })
     if (!res.ok) return null
     const blob = await res.blob()
     return URL.createObjectURL(blob)
