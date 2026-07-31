@@ -1,4 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
+import GeneratedImageModal from './GeneratedImageModal'
+import { overlayLogo, type MaterialBadgeInfo } from '../aivisualizer/generateRender'
 
 // interface DeviceInfo {
 //   browser?: { name?: string; version?: string }
@@ -23,14 +26,45 @@ interface VisualizerLog {
 }
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
+const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
 // function parseDeviceInfo(raw?: string): DeviceInfo | null {
 //   if (!raw) return null
 //   try { return JSON.parse(raw) } catch { return null }
 // }
 
-function StatusBadge({ status }: { status?: string }) {
+/** Thin wrapper that resolves `src` through the shared media cache before mounting the <img>. */
+function CachedThumbImg({ src, alt, className, onError }: {
+  src: string
+  alt: string
+  className?: string
+  onError?: (e: React.SyntheticEvent<HTMLImageElement>) => void
+}) {
+  const cachedSrc = useCachedMedia(src)
+  if (!cachedSrc) return <div className={`${className ?? ''} bg-stone-100 animate-pulse`} />
+  return <img src={cachedSrc} alt={alt} className={className} onError={onError} />
+}
+
+function StatusBadge({ status, compact = false }: { status?: string; compact?: boolean }) {
   const s = status?.toLowerCase() ?? ''
+  const dotColor =
+    s === 'success' || s === 'completed'
+      ? 'bg-emerald-500'
+      : s === 'failed' || s === 'error'
+        ? 'bg-red-500'
+        : s === 'pending' || s === 'processing'
+          ? 'bg-amber-500'
+          : 'bg-stone-300'
+
+  if (compact) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wide text-stone-400">
+        <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+        {status ?? '—'}
+      </span>
+    )
+  }
+
   const styles =
     s === 'success' || s === 'completed'
       ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
@@ -43,6 +77,113 @@ function StatusBadge({ status }: { status?: string }) {
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${styles}`}>
       {status ?? '—'}
     </span>
+  )
+}
+
+const compactFormatter = new Intl.NumberFormat('en-IN', { notation: 'compact', maximumFractionDigits: 1 })
+const formatCount = (n: number) => compactFormatter.format(n)
+
+const TILE_TINTS = {
+  stone: 'bg-stone-100 text-stone-600',
+  amber: 'bg-amber-50 text-amber-600',
+  sky: 'bg-sky-50 text-sky-600',
+  violet: 'bg-violet-50 text-violet-600',
+  emerald: 'bg-emerald-50 text-emerald-600',
+  rose: 'bg-rose-50 text-rose-600',
+  teal: 'bg-teal-50 text-teal-600',
+} as const
+
+function StatTile({ label, value, sub, icon, tint, onExpand, onToggle, active }: {
+  label: string
+  value: string
+  sub?: string
+  icon: React.ReactNode
+  tint: keyof typeof TILE_TINTS
+  onExpand?: () => void
+  onToggle?: () => void
+  active?: boolean
+}) {
+  return (
+    <div
+      onClick={onToggle}
+      onKeyDown={onToggle ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() } } : undefined}
+      role={onToggle ? 'button' : undefined}
+      tabIndex={onToggle ? 0 : undefined}
+      className={`flex items-start gap-2 sm:gap-3 min-w-0 -m-2 p-2 rounded-lg transition-colors ${onToggle ? 'cursor-pointer' : ''} ${active ? 'bg-primary/10 ring-1 ring-primary' : onToggle ? 'hover:bg-stone-50' : ''}`}
+    >
+      <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 ${TILE_TINTS[tint]}`}>
+        {icon}
+      </div>
+      <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+        <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-stone-400">
+          {label}
+          {onExpand && (
+            <span
+              onClick={(e) => { e.stopPropagation(); onExpand() }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onExpand() } }}
+              role="button"
+              tabIndex={0}
+              className="text-black hover:text-stone-600 cursor-pointer transition-colors p-1.5 -m-1.5"
+              aria-label={`View all — ${label}`}
+              title={`View all — ${label}`}
+            >
+              <svg className="w-3 h-3" viewBox="0 0 20 20">
+                <circle cx="10" cy="10" r="10" fill="currentColor" />
+                <rect x="8.5" y="8.5" width="3" height="6.5" rx="1" fill="white" />
+                <rect x="8.5" y="4" width="3" height="3" rx="1" fill="white" />
+              </svg>
+            </span>
+          )}
+        </span>
+        <span className="text-base sm:text-lg font-semibold color-secondary-dark truncate" title={value}>{value}</span>
+        {sub && <span className="text-[11px] text-stone-400 truncate">{sub}</span>}
+      </div>
+    </div>
+  )
+}
+
+function BreakdownPanel({ title, subtitle, rows, onClose, renderLabel }: {
+  title: string
+  subtitle: string
+  rows: { value: string; count: number }[]
+  onClose: () => void
+  renderLabel?: (value: string) => React.ReactNode
+}) {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-secondary-dark/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-stone-100 shrink-0">
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold color-secondary-dark truncate">{title}</h3>
+            <p className="text-xs text-stone-400 mt-0.5">{subtitle}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center text-stone-400 hover:color-secondary-dark hover:bg-stone-100 rounded-full transition-colors shrink-0"
+            aria-label="Close"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="overflow-y-auto flex-1 divide-y divide-stone-100">
+          {rows.length === 0 ? (
+            <p className="text-sm text-stone-400 text-center py-10">No data yet.</p>
+          ) : (
+            rows.map((r) => (
+              <div key={r.value} className="flex items-center justify-between gap-3 px-5 py-3">
+                <span className="text-sm color-secondary-dark truncate min-w-0">
+                  {renderLabel ? renderLabel(r.value) : r.value}
+                </span>
+                <span className="text-sm font-semibold text-stone-500 shrink-0">{formatCount(r.count)}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -98,65 +239,58 @@ const VisualizerLogsPanel = () => {
   const [cachedImageUrl, setCachedImageUrl] = useState<string | null>(null)
   const [isWatermarking, setIsWatermarking] = useState(false)
   const [stampSuccess, setStampSuccess] = useState(false)
+  const [viewMaterialInfo, setViewMaterialInfo] = useState<MaterialBadgeInfo | null>(null)
 
-  const handleViewOutput = async (url: string) => {
+  const [deleteLogId, setDeleteLogId] = useState<string | null>(null)
+  const [showToast, setShowToast] = useState(false)
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [showUsersPanel, setShowUsersPanel] = useState(false)
+  const [userFilter, setUserFilter] = useState<string | null>(null)
+  const [collectionFilter, setCollectionFilter] = useState<string | null>(null)
+  const [materialFilter, setMaterialFilter] = useState<string | null>(null)
+  const [showCollectionsPanel, setShowCollectionsPanel] = useState(false)
+
+  const deleteLog = useCallback(async (id: string) => {
+    try {
+      const token = localStorage.getItem('adminToken') ?? ''
+      const res = await fetch(`${API}/visualizer-logs/delete`, {
+        method: 'POST',
+        headers: { 'admin-token': token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!res.ok) throw new Error(`Delete failed — ${res.status} ${res.statusText}`)
+      setLogs((prev) => prev.filter((l) => l.id !== id))
+      setShowToast(true)
+      setTimeout(() => setShowToast(false), 3000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete log.')
+    }
+  }, [])
+
+  const handleViewOutput = async (log: VisualizerLog) => {
+    const url = log.output_url
+    if (!url) return
+
     setShowImageModal(true)
     setIsWatermarking(true)
     setCachedImageUrl(null)
     setStampSuccess(false)
     setImgZoom(1)
 
+    const materialInfo: MaterialBadgeInfo | null = log.collection_name
+      ? {
+          collectionName: log.collection_name,
+          materialCode: log.material_code,
+          thumbnailUrl: `${S3_THUMB}/${log.collection_name}/${log.material_code ?? ''}.webp`,
+        }
+      : null
+    setViewMaterialInfo(materialInfo)
+
     try {
-      const mainImg = new Image()
-      mainImg.crossOrigin = 'anonymous'
-
-      const logoImg = new Image()
-      logoImg.crossOrigin = 'anonymous'
-
-      await Promise.all([
-        new Promise((resolve, reject) => {
-          mainImg.onload = resolve;
-          mainImg.onerror = reject;
-          mainImg.src = url.includes('?') ? `${url}&v=${Date.now()}` : `${url}?v=${Date.now()}`
-        }),
-        new Promise((resolve, reject) => {
-          logoImg.onload = resolve;
-          logoImg.onerror = reject;
-          logoImg.src = `https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp?v=${Date.now()}`
-        })
-      ])
-
-      const canvas = document.createElement('canvas')
-      canvas.width = mainImg.width
-      canvas.height = mainImg.height
-      const ctx = canvas.getContext('2d')
-      if (ctx) {
-        ctx.drawImage(mainImg, 0, 0)
-
-        // Increase logo size (30% of canvas width)
-        const logoWidth = canvas.width * 0.20
-        const logoRatio = logoImg.height / logoImg.width
-        const logoHeight = logoWidth * logoRatio
-
-        // Bottom right positioning
-        const padding = canvas.width * 0.02
-        const x = canvas.width - logoWidth - padding
-        const y = canvas.height - logoHeight - padding
-
-        ctx.drawImage(logoImg, x, y, logoWidth, logoHeight)
-
-        await new Promise<void>((resolve, reject) => {
-          canvas.toBlob((blob) => {
-            if (blob) {
-              setCachedImageUrl(URL.createObjectURL(blob))
-              setStampSuccess(true)
-              resolve()
-            } else {
-              reject(new Error('Canvas toBlob failed'))
-            }
-          }, 'image/jpeg', 0.95)
-        })
-      }
+      const bustedUrl = url.includes('?') ? `${url}&v=${Date.now()}` : `${url}?v=${Date.now()}`
+      const composited = await overlayLogo(bustedUrl, '/images/kaira.webp', materialInfo ?? undefined)
+      setCachedImageUrl(composited)
+      setStampSuccess(true)
     } catch (err) {
       console.error('Failed to stamp image to cache:', err)
       // Fallback to raw hotlink
@@ -193,13 +327,11 @@ const VisualizerLogsPanel = () => {
       const res = await fetch(`${API}/visualizer-logs`, {
         headers: { 'admin-token': token },
       })
-      console.log(token, `${API}/visualizer-logs`)
       if (!res.ok) throw new Error(`Request failed — ${res.status} ${res.statusText}`)
       const json = await res.json()
       const rows: VisualizerLog[] = Array.isArray(json)
         ? json
         : (json.data ?? json.items ?? json.logs ?? [])
-        console.log('Fetched logs:', rows)
       setLogs(rows)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load logs.')
@@ -210,7 +342,52 @@ const VisualizerLogsPanel = () => {
 
   useEffect(() => { fetchLogs() }, [fetchLogs])
 
+  const analytics = useMemo(() => {
+    const DAY_MS = 24 * 60 * 60 * 1000
+    const now = Date.now()
+    const startOfToday = new Date()
+    startOfToday.setHours(0, 0, 0, 0)
+    const weekAgo = now - 7 * DAY_MS
+    const monthAgo = now - 30 * DAY_MS
+
+    const generated = logs.filter((l) => l.output_url)
+
+    const countSince = (ts: number) =>
+      generated.filter((l) => l.created_at && new Date(l.created_at).getTime() >= ts).length
+
+    type Key = 'mobile_number' | 'collection_name' | 'material_code'
+    const breakdownBy = (key: Key, since?: number) => {
+      const counts = new Map<string, number>()
+      for (const l of generated) {
+        const value = l[key]
+        if (!value) continue
+        if (since && (!l.created_at || new Date(l.created_at).getTime() < since)) continue
+        counts.set(value, (counts.get(value) ?? 0) + 1)
+      }
+      return Array.from(counts, ([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count)
+    }
+
+    const usersBreakdown = breakdownBy('mobile_number')
+    const collectionsBreakdown = breakdownBy('collection_name')
+    const materialsThisMonth = breakdownBy('material_code', monthAgo)
+
+    return {
+      total: generated.length,
+      today: countSince(startOfToday.getTime()),
+      week: countSince(weekAgo),
+      month: countSince(monthAgo),
+      topUser: usersBreakdown[0] ?? null,
+      topCollection: collectionsBreakdown[0] ?? null,
+      trendingMaterial: materialsThisMonth[0] ?? breakdownBy('material_code')[0] ?? null,
+      usersBreakdown,
+      collectionsBreakdown,
+    }
+  }, [logs])
+
   const filtered = logs
+    .filter((l) => !userFilter || l.mobile_number === userFilter)
+    .filter((l) => !collectionFilter || l.collection_name === collectionFilter)
+    .filter((l) => !materialFilter || l.material_code === materialFilter)
     .filter((l) => {
       const q = search.toLowerCase()
       return !q || l.mobile_number?.toLowerCase().includes(q) || l.name?.toLowerCase().includes(q) || l.status?.toLowerCase().includes(q) || l.id?.toLowerCase().includes(q)
@@ -227,10 +404,10 @@ const VisualizerLogsPanel = () => {
     <div>
       {/* Panel heading */}
       <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div className="hidden sm:block">
-          <h1 className="font-serif text-2xl color-secondary-dark">Visualizer Logs</h1>
-          <p className="text-stone-400 text-sm mt-1">
-            {loading ? 'Loading…' : `${visible.length} of ${filtered.length} record${filtered.length !== 1 ? 's' : ''}${search ? ' found' : ' total'}`}
+        <div>
+          <h1 className="hidden sm:block font-serif text-2xl color-secondary-dark">Visualizer Logs</h1>
+          <p className="text-stone-400 text-xs sm:text-sm sm:mt-1">
+            {loading ? 'Loading…' : `${visible.length} of ${filtered.length} record${filtered.length !== 1 ? 's' : ''}${search || userFilter || collectionFilter || materialFilter ? ' found' : ' total'}`}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
@@ -254,6 +431,45 @@ const VisualizerLogsPanel = () => {
         </div>
       </div>
 
+      {/* Active tile filters */}
+      {(userFilter || collectionFilter || materialFilter) && (
+        <div className="mb-6 -mt-2 flex flex-wrap gap-2">
+          {userFilter && (
+            <button
+              onClick={() => { setUserFilter(null); setVisibleCount(PAGE_SIZE) }}
+              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full pl-3 pr-2 py-1 hover:bg-emerald-100 transition-colors"
+            >
+              User: {userFilter}
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+          {collectionFilter && (
+            <button
+              onClick={() => { setCollectionFilter(null); setVisibleCount(PAGE_SIZE) }}
+              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-full pl-3 pr-2 py-1 hover:bg-rose-100 transition-colors"
+            >
+              Collection: {collectionFilter}
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+          {materialFilter && (
+            <button
+              onClick={() => { setMaterialFilter(null); setVisibleCount(PAGE_SIZE) }}
+              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-full pl-3 pr-2 py-1 hover:bg-teal-100 transition-colors"
+            >
+              Material: {materialFilter}
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Error */}
       {error && (
         <div className="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 rounded p-4">
@@ -267,11 +483,124 @@ const VisualizerLogsPanel = () => {
         </div>
       )}
 
+      {/* Analytics */}
+      {!error && logs.length > 0 && (
+        <div className="mb-6 bg-white border border-stone-200 rounded-lg shadow-sm p-4 sm:p-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-x-3 gap-y-4 sm:gap-x-6">
+            <StatTile
+              label="Total generated"
+              value={formatCount(analytics.total)}
+              tint="stone"
+              icon={
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 8h.01M4 4h16v16H4V4z" />
+                </svg>
+              }
+            />
+            <StatTile
+              label="Today"
+              value={formatCount(analytics.today)}
+              tint="amber"
+              icon={
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              }
+            />
+            <StatTile
+              label="Last 7 days"
+              value={formatCount(analytics.week)}
+              tint="sky"
+              icon={
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              }
+            />
+            <StatTile
+              label="Last 30 days"
+              value={formatCount(analytics.month)}
+              tint="violet"
+              icon={
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              }
+            />
+            <StatTile
+              label="Top user"
+              value={analytics.topUser?.value ?? '—'}
+              sub={analytics.topUser ? `${formatCount(analytics.topUser.count)} renders` : undefined}
+              tint="emerald"
+              onExpand={() => setShowUsersPanel(true)}
+              onToggle={analytics.topUser ? () => {
+                const mobile = analytics.topUser!.value
+                setUserFilter((f) => (f === mobile ? null : mobile))
+                setCollectionFilter(null)
+                setMaterialFilter(null)
+                setVisibleCount(PAGE_SIZE)
+              } : undefined}
+              active={!!analytics.topUser && userFilter === analytics.topUser.value}
+              icon={
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              }
+            />
+            <StatTile
+              label="Top collection"
+              value={analytics.topCollection?.value ?? '—'}
+              sub={analytics.topCollection ? `${formatCount(analytics.topCollection.count)} renders` : undefined}
+              tint="rose"
+              onExpand={() => setShowCollectionsPanel(true)}
+              onToggle={analytics.topCollection ? () => {
+                const collection = analytics.topCollection!.value
+                setCollectionFilter((f) => (f === collection ? null : collection))
+                setUserFilter(null)
+                setMaterialFilter(null)
+                setVisibleCount(PAGE_SIZE)
+              } : undefined}
+              active={!!analytics.topCollection && collectionFilter === analytics.topCollection.value}
+              icon={
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                </svg>
+              }
+            />
+            <StatTile
+              label="Trending material"
+              value={analytics.trendingMaterial?.value ?? '—'}
+              sub={analytics.trendingMaterial ? `${formatCount(analytics.trendingMaterial.count)} renders` : undefined}
+              tint="teal"
+              onToggle={analytics.trendingMaterial ? () => {
+                const material = analytics.trendingMaterial!.value
+                setMaterialFilter((f) => (f === material ? null : material))
+                setUserFilter(null)
+                setCollectionFilter(null)
+                setVisibleCount(PAGE_SIZE)
+              } : undefined}
+              active={!!analytics.trendingMaterial && materialFilter === analytics.trendingMaterial.value}
+              icon={
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              }
+            />
+          </div>
+        </div>
+      )}
+
       {/* Loading skeleton */}
       {loading && !error && (
-        <div className="space-y-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-14 bg-white rounded border border-stone-200 animate-pulse" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="rounded-lg border border-stone-200 overflow-hidden bg-white">
+              <div className="aspect-square bg-stone-100 animate-pulse" />
+              <div className="p-3 space-y-2">
+                <div className="h-3.5 bg-stone-100 rounded animate-pulse w-2/3" />
+                <div className="h-2.5 bg-stone-100 rounded animate-pulse w-1/2" />
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -286,143 +615,111 @@ const VisualizerLogsPanel = () => {
         </div>
       )}
 
-      {/* Data Display */}
+      {/* Data Display — Gallery Grid */}
       {!loading && !error && filtered.length > 0 && (
-        <>
-          {/* Desktop Table View */}
-          <div className="hidden lg:block overflow-x-auto rounded-lg border border-stone-200 shadow-sm">
-            <table className="w-full text-sm text-left">
-              <thead>
-                <tr className="bg-secondary-dark text-stone-300 uppercase text-[10px] tracking-widest">
-                  <th className="px-5 py-3 font-medium">#</th>
-                  <th className="px-5 py-3 font-medium">Name</th>
-                  <th className="px-5 py-3 font-medium">Mobile</th>
-                  <th className="px-5 py-3 font-medium">Collection</th>
-                  <th className="px-5 py-3 font-medium">Material Code</th>
-                  <th className="px-5 py-3 font-medium">Product</th>
-                  <th className="px-5 py-3 font-medium">Output</th>
-                  <th className="px-5 py-3 font-medium">Status</th>
-                  <th className="px-5 py-3 font-medium">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visible.map((l, idx) => (
-                  <tr
-                    key={l.id ?? idx}
-                    className="bg-white even:bg-stone-50 border-t border-stone-100 hover:bg-amber-50/40 transition-colors align-top"
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {visible.map((l, idx) => (
+            <div
+              key={l.id ?? idx}
+              className="group bg-white border border-stone-200 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200"
+            >
+              {/* Image — main focus */}
+              <div className="relative aspect-square bg-stone-100">
+                {l.output_url ? (
+                  <button
+                    onClick={() => handleViewOutput(l)}
+                    className="absolute inset-0 w-full h-full"
+                    aria-label="View output"
                   >
-                    <td className="px-5 py-3 text-stone-400">{idx + 1}</td>
-                    <td className="px-5 py-3 color-secondary-dark">{l.name || <span className="text-stone-300">—</span>}</td>
-                    <td className="px-5 py-3 font-medium color-secondary-dark">
-                      {l.mobile_number ? (
-                        <a href={`tel:${l.mobile_number}`} className="hover:text-amber-700 transition-colors">{l.mobile_number}</a>
-                      ) : '—'}
-                    </td>
-                    <td className="px-5 py-3 color-secondary-dark">{l.collection_name || <span className="text-stone-300">NA</span>}</td>
-                    <td className="px-5 py-3 color-secondary-dark">{l.material_code || <span className="text-stone-300">NA</span>}</td>
-                    <td className="px-5 py-3 color-secondary-dark">{l.product_name || <span className="text-stone-300">NA</span>}</td>
-                    <td className="px-5 py-3">
-                      {l.output_url ? (
-                        <button
-                          onClick={() => handleViewOutput(l.output_url as string)}
-                          className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 transition-colors text-xs"
-                        >
-                          <img
-                            src={l.output_url}
-                            alt="output"
-                            className="w-10 h-10 rounded object-cover border border-stone-200 shrink-0"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                          />
-                          <span className="underline underline-offset-2">View</span>
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </button>
-                      ) : <span className="text-stone-300">—</span>}
-                    </td>
-                    <td className="px-5 py-3">
-                      <StatusBadge status={l.status} />
-                    </td>
-                    <td className="px-5 py-3 text-stone-400 whitespace-nowrap text-xs">
-                      {l.created_at
-                        ? new Date(l.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
-                        : '—'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Cards View */}
-          <div className="flex flex-col gap-3 lg:hidden mt-2">
-            {visible.map((l, idx) => (
-              <div
-                key={l.id ?? idx}
-                className="bg-white border border-stone-200 rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 flex flex-col gap-2.5 relative overflow-hidden"
-              >
-                {/* Accent border left */}
-                <div className="absolute top-0 left-0 w-1 h-full bg-secondary-dark opacity-[0.03]" />
-
-                {/* Header: Avatar, Mobile, Date, Actions */}
-                <div className="flex items-start justify-between gap-2 pl-1">
-                  <div className="flex items-center gap-2.5 truncate">
-                    <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-600 shrink-0">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex flex-col truncate">
-                      {l.name && <span className="text-xs text-stone-500 truncate">{l.name}</span>}
-                      <span className="font-semibold color-secondary-dark text-sm truncate">{l.mobile_number || 'Unknown Mobile'}</span>
-                      <span className="text-[10px] text-stone-400 mt-0.5">
-                        {l.created_at ? new Date(l.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '—'}
+                    <CachedThumbImg
+                      src={l.output_url}
+                      alt="Generated output"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
+                    <div className="absolute inset-0 bg-secondary-dark/0 group-hover:bg-secondary-dark/30 transition-colors flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 text-white text-[10px] uppercase tracking-widest font-semibold bg-secondary-dark/70 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        View
                       </span>
                     </div>
-                  </div>
-
-                  {/* Top Right: Status */}
-                  <div className="shrink-0 pt-0.5">
-                    <StatusBadge status={l.status} />
-                  </div>
-                </div>
-
-                {/* Collection / Material Code */}
-                <div className="flex items-center gap-2 pl-1 text-[11px] text-stone-500">
-                  <span><span className="text-stone-400">Collection:</span> {l.collection_name || 'NA'}</span>
-                  <span className="text-stone-300">·</span>
-                  <span><span className="text-stone-400">Code:</span> {l.material_code || 'NA'}</span>
-                  <span className="text-stone-300">·</span>
-                  <span><span className="text-stone-400">Product:</span> {l.product_name || 'NA'}</span>
-                </div>
-
-                {/* Output Image / Link */}
-                {l.output_url && (
-                  <div className="bg-stone-50 rounded-lg p-2.5 ml-1 mt-1 border border-stone-100 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={l.output_url}
-                        alt="output"
-                        className="w-10 h-10 rounded object-cover border border-stone-200 shrink-0"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                      />
-                      <span className="text-xs text-stone-600 font-medium">Output Generated</span>
-                    </div>
-                    <button
-                      onClick={() => handleViewOutput(l.output_url as string)}
-                      className="flex items-center justify-center w-7 h-7 bg-secondary-dark text-stone-100 hover:bg-secondary-dark rounded-md transition-colors shrink-0"
-                      aria-label="View Output"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </button>
+                  </button>
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-stone-300">
+                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 8h.01M4 4h16v16H4V4z" />
+                    </svg>
                   </div>
                 )}
+
+                {/* Collection / Material Code */}
+                <div className="absolute top-2 left-2 max-w-[75%] pointer-events-none">
+                  <div className="bg-white/90 backdrop-blur px-2 py-1 rounded-md shadow-sm max-w-full">
+                    <div className="text-[11px] font-semibold color-secondary-dark truncate">{l.collection_name || 'NA'}</div>
+                    <div className="text-[10px] text-stone-500 truncate">{l.material_code || 'NA'}</div>
+                  </div>
+                </div>
+
+                {/* Overflow menu */}
+                <div className="absolute top-2 right-2">
+                  <button
+                    onClick={() => setOpenMenuId(m => m === (l.id ?? String(idx)) ? null : (l.id ?? String(idx)))}
+                    className="flex items-center justify-center w-8 h-8 bg-white/90 backdrop-blur text-stone-600 hover:bg-white rounded-full shadow-sm transition-colors"
+                    aria-label="More options"
+                    title="More options"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                      <circle cx="12" cy="5" r="1.75" />
+                      <circle cx="12" cy="12" r="1.75" />
+                      <circle cx="12" cy="19" r="1.75" />
+                    </svg>
+                  </button>
+
+                  {openMenuId === (l.id ?? String(idx)) && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                      <div className="absolute right-0 top-8 z-20 bg-white border border-stone-200 rounded-lg shadow-lg py-1 min-w-[110px]">
+                        <button
+                          onClick={() => { if (l.id) setDeleteLogId(l.id); setOpenMenuId(null) }}
+                          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            ))}
-          </div>
-        </>
+
+              {/* Info footer */}
+              <div className="p-3 flex flex-col gap-1">
+                {l.mobile_number ? (
+                  <a href={`tel:${l.mobile_number}`} className="text-sm font-semibold color-secondary-dark hover:text-amber-700 transition-colors truncate">
+                    {l.mobile_number}
+                  </a>
+                ) : (
+                  <span className="text-sm text-stone-300">—</span>
+                )}
+                {l.product_name && (
+                  <div className="text-[11px] text-stone-400 truncate">{l.product_name}</div>
+                )}
+                <div className="flex items-center justify-between gap-2 mt-1">
+                  <span className="text-[10px] text-stone-400 truncate">
+                    {l.created_at
+                      ? new Date(l.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                      : '—'}
+                  </span>
+                  <StatusBadge status={l.status} compact />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Load More */}
@@ -438,103 +735,92 @@ const VisualizerLogsPanel = () => {
       )}
 
       {/* ── Generated Image Modal ── */}
-      {showImageModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-8">
-          <div className="absolute inset-0 bg-secondary-dark/90 backdrop-blur-md" onClick={() => { setShowImageModal(false); setImgZoom(1) }} />
-          <div className="relative w-full max-w-4xl flex flex-col">
-            <button
-              onClick={() => { setShowImageModal(false); setImgZoom(1) }}
-              className="absolute -top-3 -right-3 z-10 w-9 h-9 bg-white shadow-xl flex items-center justify-center hover:bg-stone-100 transition-colors"
-            >
-              <svg className="w-5 h-5 color-secondary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
+      <GeneratedImageModal
+        open={showImageModal}
+        imgZoom={imgZoom}
+        setImgZoom={setImgZoom}
+        cachedImageUrl={cachedImageUrl}
+        isWatermarking={isWatermarking}
+        stampSuccess={stampSuccess}
+        materialInfo={viewMaterialInfo}
+        onClose={() => { setShowImageModal(false); setImgZoom(1) }}
+        onDownload={handleDownload}
+      />
 
-            <div
-              className="overflow-hidden shadow-2xl border border-white/10 bg-secondary-dark flex items-center justify-center relative min-h-[300px]"
-              style={{ maxHeight: '75vh' }}
-              onWheel={(e) => {
-                e.preventDefault()
-                if (cachedImageUrl) setImgZoom(z => Math.min(4, Math.max(1, z - e.deltaY * 0.001)))
-              }}
-            >
-              {isWatermarking ? (
-                <div className="flex flex-col items-center justify-center gap-3">
-                  <div className="w-8 h-8 rounded-full border-2 border-stone-600 border-t-white animate-spin" />
-                  <span className="text-white text-xs uppercase tracking-widest">Loading Image...</span>
-                </div>
-              ) : cachedImageUrl ? (
-                <div
-                  className="relative transition-transform duration-150 flex items-center justify-center"
-                  style={{
-                    maxHeight: '75vh',
-                    width: '100%',
-                    transform: `scale(${imgZoom})`,
-                    transformOrigin: 'center center',
-                    cursor: imgZoom > 1 ? 'zoom-out' : 'zoom-in',
-                  }}
-                  onClick={() => setImgZoom(z => z > 1 ? 1 : 2)}
-                >
-                  <img
-                    src={cachedImageUrl}
-                    alt="Generated render"
-                    className="object-contain h-full w-full max-h-[75vh]"
-                  />
-                  {/* Kaira Logo Overlay (Fallback if canvas stamping fails) */}
-                  {!stampSuccess && (
-                    <div className="absolute bottom-[4%] right-[4%] pointer-events-none opacity-90">
-                      <img
-                        src="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/logos/kaira.webp"
-                        alt="Kaira Logo"
-                        className="w-28 sm:w-40"
-                      />
-                    </div>
-                  )}
-                </div>
-              ) : null}
+      {/* Delete Confirmation Modal */}
+      {deleteLogId && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-secondary-dark/60 backdrop-blur-sm" onClick={() => setDeleteLogId(null)} />
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-sm p-6 overflow-hidden">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold color-secondary-dark">Delete Log</h3>
+                <p className="text-sm text-stone-500 mt-1">
+                  Are you sure you want to delete this visualizer log? This action cannot be undone.
+                </p>
+              </div>
             </div>
-
-            {cachedImageUrl && !isWatermarking && (
-              <>
-                <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-secondary-dark/80 backdrop-blur p-1 border border-white/10">
-                  <button
-                    onClick={() => setImgZoom(z => Math.max(1, +(z - 0.5).toFixed(1)))}
-                    disabled={imgZoom <= 1}
-                    className="w-7 h-7 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 transition-colors text-lg leading-none"
-                    title="Zoom out"
-                  >−</button>
-                  <span className="text-[11px] font-mono w-10 text-center select-none text-white">{Math.round(imgZoom * 100)}%</span>
-                  <button
-                    onClick={() => setImgZoom(z => Math.min(4, +(z + 0.5).toFixed(1)))}
-                    disabled={imgZoom >= 4}
-                    className="w-7 h-7 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 transition-colors text-lg leading-none"
-                    title="Zoom in"
-                  >+</button>
-                  {imgZoom > 1 && (
-                    <button
-                      onClick={() => setImgZoom(1)}
-                      className="w-7 h-7 flex items-center justify-center hover:text-white hover:bg-white/10 transition-colors ml-0.5 text-stone-400"
-                      title="Reset zoom"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4l16 16M4 20L20 4" /></svg>
-                    </button>
-                  )}
-                </div>
-
-                <div className="mt-4 flex items-center justify-end gap-4">
-                  <button
-                    onClick={handleDownload}
-                    className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-stone-100 color-secondary-dark text-[11px] uppercase font-bold tracking-widest hover:bg-white transition-colors shadow-lg rounded"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                    Download
-                  </button>
-                </div>
-              </>
-            )}
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setDeleteLogId(null)}
+                className="px-4 py-2 text-sm font-medium text-stone-600 hover:color-secondary-dark transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  deleteLog(deleteLogId)
+                  setDeleteLogId(null)
+                }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded transition-colors"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
 
+      {/* Users Overview Panel */}
+      {showUsersPanel && (
+        <BreakdownPanel
+          title="Users Overview"
+          subtitle={`${analytics.usersBreakdown.length} user${analytics.usersBreakdown.length !== 1 ? 's' : ''} · ${formatCount(analytics.total)} renders total`}
+          rows={analytics.usersBreakdown}
+          onClose={() => setShowUsersPanel(false)}
+          renderLabel={(value) => (
+            <a href={`tel:${value}`} className="hover:text-amber-700 transition-colors">{value}</a>
+          )}
+        />
+      )}
+
+      {/* Collections Overview Panel */}
+      {showCollectionsPanel && (
+        <BreakdownPanel
+          title="Collections Overview"
+          subtitle={`${analytics.collectionsBreakdown.length} collection${analytics.collectionsBreakdown.length !== 1 ? 's' : ''} · ${formatCount(analytics.total)} renders total`}
+          rows={analytics.collectionsBreakdown}
+          onClose={() => setShowCollectionsPanel(false)}
+        />
+      )}
+
+      {/* Success Toast Notification */}
+      <div className={`fixed bottom-8 inset-x-0 z-[60] flex justify-center px-4 transition-all duration-300 transform ${showToast ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'
+        }`}>
+        <div className="bg-emerald-600 text-white px-5 sm:px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 max-w-full">
+          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="text-sm font-semibold tracking-wide">
+            Log deleted successfully.
+          </span>
+        </div>
+      </div>
     </div>
   )
 }

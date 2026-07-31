@@ -66,6 +66,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       roughness,
       metalness: mat.metalness,
       uvScale,
+      rotation: currentProduct.uvRotation ?? 0,
       skipParts: NO_FABRIC_PARTS,
       onlyParts: currSelectedPartForFinish !== 'All' ? [currSelectedPartForFinish] : [],
       roughnessBlobUrl,

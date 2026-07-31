@@ -239,6 +239,7 @@ const CollectionsPanel = () => {
   const [visibleCount, setVisibleCount] = useState(10)
   const [activeDrawer, setActiveDrawer] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const isLocalhost = window.location.hostname === 'localhost'
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -282,15 +283,17 @@ const CollectionsPanel = () => {
 
         <div className="flex items-center gap-3">
           {/* Add Collection */}
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-900 text-xs font-bold uppercase tracking-[0.15em] rounded transition-colors"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Add Collection
-          </button>
+          {isLocalhost && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-900 text-xs font-bold uppercase tracking-[0.15em] rounded transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Collection
+            </button>
+          )}
 
           {/* Sort */}
           <select

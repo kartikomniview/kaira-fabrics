@@ -18,8 +18,7 @@ interface LeadFormModalProps {
   mobileError: string
   otpCode: string
   setOtpCode: (val: string) => void
-  leadStep: 'mobile' | 'otp' | 'verified' | 'limit'
-  remainingGenerations: number
+  leadStep: 'mobile' | 'otp' | 'limit'
   dailyLimit: number
   isKnownVerifiedNumber: boolean
   otpValidationEnabled: boolean
@@ -31,8 +30,6 @@ interface LeadFormModalProps {
   onSendOtp: () => void
   onVerifyOtp: () => void
   onChangeMobile: () => void
-  onGenerateVerified: () => void
-  onUseAnotherNumber: () => void
 }
 
 const LeadFormModal: React.FC<LeadFormModalProps> = ({
@@ -45,7 +42,6 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
   otpCode,
   setOtpCode,
   leadStep,
-  remainingGenerations,
   dailyLimit,
   isKnownVerifiedNumber,
   otpValidationEnabled,
@@ -57,8 +53,6 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
   onSendOtp,
   onVerifyOtp,
   onChangeMobile,
-  onGenerateVerified,
-  onUseAnotherNumber,
 }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -117,7 +111,6 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
                 <p className="text-[10px] color-secondary-dark mt-0.5">
                   {leadStep === 'mobile' && 'Verify your mobile number to get the preview'}
                   {leadStep === 'otp' && 'Enter the code sent to your mobile'}
-                  {leadStep === 'verified' && 'You are already verified'}
                   {leadStep === 'limit' && 'Daily preview limit reached'}
                 </p>
               </div>
@@ -157,7 +150,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
                     <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
                   ) : (
                     <>
-                      {isKnownVerifiedNumber ? 'Continue' : otpValidationEnabled ? 'Send OTP' : 'Validate'}
+                      {isKnownVerifiedNumber ? 'Continue' : otpValidationEnabled ? 'Send OTP' : 'Generate'}
                       <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                     </>
                   )}
@@ -202,33 +195,6 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
                   Wrong number?
                 </button>
               </div>
-            ) : leadStep === 'verified' ? (
-              <div className="p-6 flex flex-col gap-4 items-center text-center">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-50 border border-green-200 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                </div>
-                <div>
-                  <h3 className="text-xs sm:text-sm font-bold color-secondary-dark tracking-wide uppercase mb-1">Number Verified</h3>
-                  <p className="text-[11px] color-secondary-dark">+91 {maskMobileNumber(mobileNumber)}</p>
-                  <p className="text-[11px] color-secondary-dark mt-2">
-                    <span className="font-bold text-primary">{remainingGenerations}</span> of {dailyLimit} previews remaining today
-                  </p>
-                </div>
-
-                <button
-                  onClick={onGenerateVerified}
-                  className="w-full h-12 bg-primary color-secondary-dark font-bold uppercase tracking-widest text-[11px] shadow-md hover:bg-primary/90 transition-all mt-1 flex items-center justify-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                  Generate Preview
-                </button>
-                <button
-                  onClick={onUseAnotherNumber}
-                  className="text-[10px] font-bold uppercase tracking-[0.2em] color-secondary-dark hover:text-primary transition-colors"
-                >
-                  Not you? Use a different number
-                </button>
-              </div>
             ) : (
               <div className="p-6 flex flex-col gap-4 items-center text-center">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-50 border border-amber-200 flex items-center justify-center">
@@ -240,12 +206,14 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
                   <p className="text-[11px] color-secondary-dark mt-1">Try a different mobile number, or come back tomorrow.</p>
                 </div>
 
-                <button
-                  onClick={onUseAnotherNumber}
-                  className="w-full h-12 bg-primary color-secondary-dark font-bold uppercase tracking-widest text-[11px] shadow-md hover:bg-primary/90 transition-all mt-1"
+                <a
+                  href="https://wa.me/918589925666"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full h-12 bg-primary color-secondary-dark font-bold uppercase tracking-widest text-[11px] shadow-md hover:bg-primary/90 transition-all mt-1 flex items-center justify-center"
                 >
-                  Use Another Number
-                </button>
+                  Contact Us
+                </a>
               </div>
             )}
           </>

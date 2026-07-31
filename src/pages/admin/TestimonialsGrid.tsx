@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 export interface GalleryItem {
   id: string
@@ -17,6 +18,7 @@ interface Props {
   loading: boolean
   error: string | null
   onRefresh: () => void
+  isViewMode?: boolean
 }
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
@@ -31,13 +33,15 @@ interface TestimonialCardProps {
   onToggle: () => void
   onEdit: () => void
   onPreview: () => void
+  isViewMode?: boolean
 }
 
-const TestimonialCard = ({ item, featured, toggleState, onToggle, onEdit, onPreview }: TestimonialCardProps) => {
+const TestimonialCard = ({ item, featured, toggleState, onToggle, onEdit, onPreview, isViewMode }: TestimonialCardProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [inView, setInView] = useState(false)
   const [playing, setPlaying] = useState(false)
+  const cachedVideoUrl = useCachedMedia(inView ? item.asset_url : undefined)
 
   useEffect(() => {
     const el = ref.current
@@ -81,7 +85,7 @@ const TestimonialCard = ({ item, featured, toggleState, onToggle, onEdit, onPrev
       {inView && (
         <video
           ref={videoRef}
-          src={item.asset_url + '#t=0.001'}
+          src={(cachedVideoUrl ?? item.asset_url) + '#t=0.001'}
           muted
           playsInline
           preload="metadata"
@@ -111,48 +115,54 @@ const TestimonialCard = ({ item, featured, toggleState, onToggle, onEdit, onPrev
       </div>
 
       {/* Edit button */}
-      <button
-        onClick={e => { e.stopPropagation(); onEdit() }}
-        className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-white/90 text-stone-700 shadow z-10"
-      >
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-        </svg>
-      </button>
+      {!isViewMode && (
+        <button
+          onClick={e => { e.stopPropagation(); onEdit() }}
+          className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-white/90 text-stone-700 shadow z-10"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </button>
+      )}
 
       {/* Homepage toggle */}
       <div className="absolute bottom-0 inset-x-0 pt-6 pb-2 px-2.5 bg-white/10 backdrop-blur-sm">
         {item.title && (
           <p className="text-[11px] text-white/80 font-medium truncate mb-1.5">{item.title}</p>
         )}
-        {toggleState && (
-          <div className="flex items-center gap-2 mb-1">
-            <svg className="w-3 h-3 text-white animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-            <span className="text-[10px] text-white font-medium italic">{toggleState}</span>
-          </div>
+        {!isViewMode && (
+          <>
+            {toggleState && (
+              <div className="flex items-center gap-2 mb-1">
+                <svg className="w-3 h-3 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                <span className="text-[10px] text-white font-medium italic">{toggleState}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-white/90 font-medium">Show on homepage</span>
+              <button
+                onClick={e => { e.stopPropagation(); onToggle() }}
+                disabled={!!toggleState}
+                aria-pressed={featured}
+                className={`relative w-9 h-5 rounded-full transition-colors duration-200 disabled:cursor-wait ${featured ? 'bg-amber-500' : 'bg-stone-500'
+                  }`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${featured ? 'translate-x-4' : 'translate-x-0'
+                  }`} />
+              </button>
+            </div>
+          </>
         )}
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] text-white/90 font-medium">Show on homepage</span>
-          <button
-            onClick={e => { e.stopPropagation(); onToggle() }}
-            disabled={!!toggleState}
-            aria-pressed={featured}
-            className={`relative w-9 h-5 rounded-full transition-colors duration-200 disabled:cursor-wait ${featured ? 'bg-amber-500' : 'bg-stone-500'
-              }`}
-          >
-            <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${featured ? 'translate-x-4' : 'translate-x-0'
-              }`} />
-          </button>
-        </div>
       </div>
     </div>
   )
 }
 
-const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
+const TestimonialsGrid = ({ items, loading, error, onRefresh, isViewMode }: Props) => {
   const [featuredMap, setFeaturedMap] = useState<Partial<Record<string, boolean>>>(() =>
     Object.fromEntries(items.map(i => [i.id, i.isfeatured]))
   )
@@ -165,6 +175,7 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [limitError, setLimitError] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const cachedPreviewUrl = useCachedMedia(previewUrl ?? undefined)
   const [copied, setCopied] = useState(false)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
@@ -390,6 +401,7 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
                 onToggle={() => handleToggle(item.id)}
                 onEdit={() => openEdit(item)}
                 onPreview={() => setPreviewUrl(item.asset_url)}
+                isViewMode={isViewMode}
               />
             ))}
           </div>
@@ -426,7 +438,7 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
               </button>
             </div>
             <video
-              src={previewUrl}
+              src={cachedPreviewUrl ?? previewUrl}
               autoPlay
               controls
               playsInline
@@ -438,7 +450,7 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh }: Props) => {
       )}
 
       {/* Edit modal */}
-      {editItem && (
+      {editItem && !isViewMode && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           onClick={e => { if (e.target === e.currentTarget) setEditItem(null) }}

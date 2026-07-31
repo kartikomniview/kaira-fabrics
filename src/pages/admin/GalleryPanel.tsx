@@ -12,6 +12,7 @@ const GalleryPanel = () => {
   const [listLoading, setListLoading] = useState(false)
   const [listError, setListError]     = useState<string | null>(null)
   const isShowAddButton             = true
+  const IS_VIEW_MODE                = true
 
   const fetchGallery = useCallback(async () => {
     setListLoading(true)
@@ -111,6 +112,7 @@ const GalleryPanel = () => {
           loading={listLoading}
           error={listError}
           onRefresh={fetchGallery}
+          isViewMode={IS_VIEW_MODE}
         />
       ) : (
         <OtherGrid
@@ -118,6 +120,7 @@ const GalleryPanel = () => {
           loading={listLoading}
           error={listError}
           onRefresh={fetchGallery}
+          isViewMode={IS_VIEW_MODE}
         />
       )}
     </div>

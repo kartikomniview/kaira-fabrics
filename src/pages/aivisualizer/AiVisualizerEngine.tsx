@@ -12,11 +12,12 @@ const LOADING_MESSAGES = [
 import { BeforeAfterSlider } from '../../components/ui/BeforeAfterSlider'
 import MaterialSelector from '../threedvisualizer/MaterialSelector'
 import LeadFormModal from './LeadFormModal'
-import { generateRender, overlayLogo } from './generateRender'
-import type { SelectedMaterial, SelectedProduct } from './generateRender'
+import MyGalleryPanel from './MyGalleryPanel'
+import { generateRender, overlayLogo, logCachedRender, fetchGenerationLimit } from './generateRender'
+import type { SelectedMaterial, SelectedProduct, GenerationLimitInfo } from './generateRender'
 import { findCachedRender } from './renderCache'
 import { createRecaptchaVerifier, sendOtp, confirmOtp } from '../../lib/phoneAuth'
-import { isVerified, getRemainingGenerations, markVerified, recordGeneration, DAILY_GENERATION_LIMIT } from '../../lib/renderLimit'
+import { isVerified, markVerified } from '../../lib/renderLimit'
 import type { ConfirmationResult, RecaptchaVerifier } from 'firebase/auth'
 import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
 
@@ -44,6 +45,9 @@ const isValidIndianMobile = (num: string) => {
 // ── Feature flag: set to true to re-enable the daily generation limit per mobile number ─────
 const IS_GENERATE_LIMITED = true
 
+// ── UI fallback while the server-reported limit hasn't loaded yet / on fetch failure ────────
+const DEFAULT_GENERATION_LIMIT = 4
+
 // ── Minimum time the loader stays visible for a cached (instant) render, so it doesn't flash ─
 const MIN_CACHED_LOADER_MS = 10000
 
@@ -61,7 +65,7 @@ const AiVisualizerEngine = () => {
   const [mobileNumber, setMobileNumber] = useState(() => localStorage.getItem('kaira_lead_mobile') ?? '')
   const [mobileError, setMobileError] = useState('')
   const [otpCode, setOtpCode] = useState('')
-  const [leadStep, setLeadStep] = useState<'mobile' | 'otp' | 'verified' | 'limit'>('mobile')
+  const [leadStep, setLeadStep] = useState<'mobile' | 'otp' | 'limit'>('mobile')
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
   const [sendingOtp, setSendingOtp] = useState(false)
   const [verifyingOtp, setVerifyingOtp] = useState(false)
@@ -77,8 +81,33 @@ const AiVisualizerEngine = () => {
     recaptchaVerifierRef.current = createRecaptchaVerifier('recaptcha-container')
   }
 
-  const getEffectiveRemainingGenerations = (mobile: string): number =>
-    IS_GENERATE_LIMITED ? getRemainingGenerations(mobile) : DAILY_GENERATION_LIMIT
+  const [limitInfo, setLimitInfo] = useState<GenerationLimitInfo | null>(null)
+
+  const checkGenerationLimit = async (mobile: string): Promise<GenerationLimitInfo> => {
+    if (!IS_GENERATE_LIMITED) {
+      const info = { limit: DEFAULT_GENERATION_LIMIT, used: 0, remaining: DEFAULT_GENERATION_LIMIT }
+      setLimitInfo(info)
+      return info
+    }
+    try {
+      const info = await fetchGenerationLimit(mobile)
+      setLimitInfo(info)
+      return info
+    } catch {
+      // fail-open: don't block a real customer over a network blip
+      const info = { limit: DEFAULT_GENERATION_LIMIT, used: 0, remaining: DEFAULT_GENERATION_LIMIT }
+      setLimitInfo(info)
+      return info
+    }
+  }
+
+  useEffect(() => {
+    const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
+    if (cleaned.length === 10 && isVerified(cleaned)) {
+      checkGenerationLimit(cleaned)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileNumber])
 
   useEffect(() => {
     if (!OTP_VALIDATION_ENABLED) return
@@ -106,6 +135,7 @@ const AiVisualizerEngine = () => {
   const [showImageModal, setShowImageModal] = useState(false)
   const [imgZoom, setImgZoom] = useState(1)
   const [showFabricModal, setShowFabricModal] = useState(false)
+  const [showGalleryPanel, setShowGalleryPanel] = useState(false)
 
   // -- Handlers ---------------------------------------------------------------
 
@@ -175,15 +205,19 @@ const AiVisualizerEngine = () => {
       const startedAt = Date.now()
       setIsGenerating(true)
       const cachedUrl = await findCachedRender(selectedMaterial.collectionName, selectedMaterial.materialCode!, selectedProduct.productName)
-      console.log(cachedUrl)
       if (cachedUrl) {
-        const watermarked = await overlayLogo(cachedUrl, '/images/kaira.webp')
+        const watermarked = await overlayLogo(cachedUrl, '/images/kaira.webp', {
+          collectionName: selectedMaterial.collectionName,
+          materialCode: selectedMaterial.materialCode,
+          thumbnailUrl: selectedMaterial.textureUrl,
+        })
         const elapsed = Date.now() - startedAt
         const remaining = MIN_CACHED_LOADER_MS - elapsed
         if (remaining > 0) {
           await new Promise((resolve) => setTimeout(resolve, remaining))
         }
-        recordGeneration(mobile)
+        await logCachedRender({ selectedMaterial, selectedProduct, mobileNumber: mobile, name, outputUrl: cachedUrl })
+        checkGenerationLimit(mobile)
         setGeneratedImage(watermarked)
         setCurrentStep(3)
         setShowImageModal(true)
@@ -203,7 +237,7 @@ const AiVisualizerEngine = () => {
       onGeneratingChange: setIsGenerating,
       onShowOTPChange: setShowLeadForm,
       onResult: (imageUrl) => {
-        recordGeneration(mobile)
+        checkGenerationLimit(mobile)
         setGeneratedImage(imageUrl)
         setCurrentStep(3)
         setShowImageModal(true)
@@ -212,7 +246,7 @@ const AiVisualizerEngine = () => {
     })
   }
 
-  const handleGenerateClick = () => {
+  const handleGenerateClick = async () => {
     if (!selectedProduct) return
     setGenerateError(null)
     setOtpCode('')
@@ -220,7 +254,13 @@ const AiVisualizerEngine = () => {
     setConfirmationResult(null)
     const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
     if (cleaned.length === 10 && isVerified(cleaned)) {
-      setLeadStep(getEffectiveRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
+      const info = await checkGenerationLimit(cleaned)
+      if (info.remaining > 0) {
+        setShowLeadForm(true)
+        handleGenerate(cleaned, 'NA')
+        return
+      }
+      setLeadStep('limit')
     } else {
       setLeadStep('mobile')
     }
@@ -247,13 +287,23 @@ const AiVisualizerEngine = () => {
     if (!OTP_VALIDATION_ENABLED) {
       localStorage.setItem('kaira_lead_mobile', cleaned)
       markVerified(cleaned)
-      setLeadStep(getEffectiveRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
+      const info = await checkGenerationLimit(cleaned)
+      if (info.remaining > 0) {
+        handleGenerate(cleaned, 'NA')
+      } else {
+        setLeadStep('limit')
+      }
       return
     }
 
     if (isVerified(cleaned)) {
       localStorage.setItem('kaira_lead_mobile', cleaned)
-      setLeadStep(getEffectiveRemainingGenerations(cleaned) > 0 ? 'verified' : 'limit')
+      const info = await checkGenerationLimit(cleaned)
+      if (info.remaining > 0) {
+        handleGenerate(cleaned, 'NA')
+      } else {
+        setLeadStep('limit')
+      }
       return
     }
 
@@ -281,7 +331,12 @@ const AiVisualizerEngine = () => {
       const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
       markVerified(cleaned)
       setVerifyingOtp(false)
-      handleGenerate(cleaned, 'NA')
+      const info = await checkGenerationLimit(cleaned)
+      if (info.remaining > 0) {
+        handleGenerate(cleaned, 'NA')
+      } else {
+        setLeadStep('limit')
+      }
     } catch (err) {
       setOtpError(err instanceof Error ? err.message : 'Invalid code')
       setVerifyingOtp(false)
@@ -294,11 +349,6 @@ const AiVisualizerEngine = () => {
     setOtpError('')
     setLeadStep('mobile')
     refreshRecaptchaVerifier()
-  }
-
-  const handleGenerateVerified = () => {
-    const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
-    handleGenerate(cleaned, 'NA')
   }
 
   const handleUseAnotherNumber = () => {
@@ -398,10 +448,25 @@ const AiVisualizerEngine = () => {
                 <h1 className="text-base sm:text-base font-bold tracking-widest uppercase text-secondary">AI Studio Workspace</h1>
                 <p className="text-[11px] color-secondary-dark uppercase tracking-widest mt-0.5">Step {Math.floor(currentStep)} of 3</p>
               </div>
-              <div className="flex gap-1.5">
-                <div className={`h-1.5 w-6 transition-colors ${currentStep >= 1 ? 'bg-primary' : 'bg-stone-200'}`} />
-                <div className={`h-1.5 w-6 transition-colors ${currentStep >= 2 ? 'bg-primary' : 'bg-stone-200'}`} />
-                <div className={`h-1.5 w-6 transition-colors ${currentStep >= 3 ? 'bg-primary' : 'bg-stone-200'}`} />
+              <div className="flex items-center gap-3">
+                {mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10)) && (
+                  <button
+                    onClick={() => setShowGalleryPanel(true)}
+                    className="flex items-center gap-1.5 p-1.5 sm:p-2 border border-primary text-primary shadow-md hover:bg-stone-50 text-xs transition-colors"
+                    title="My Gallery"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 16l5-5a2 2 0 012.83 0L16 16m-2-2l1.17-1.17a2 2 0 012.83 0L21 16M8.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                    </svg>
+                    <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-widest">{mobileNumber}</span>
+                  </button>
+                )}
+                <div className="flex gap-1.5">
+                  <div className={`h-1.5 w-6 transition-colors ${currentStep >= 1 ? 'bg-primary' : 'bg-stone-200'}`} />
+                  <div className={`h-1.5 w-6 transition-colors ${currentStep >= 2 ? 'bg-primary' : 'bg-stone-200'}`} />
+                  <div className={`h-1.5 w-6 transition-colors ${currentStep >= 3 ? 'bg-primary' : 'bg-stone-200'}`} />
+                </div>
               </div>
             </div>
 
@@ -568,6 +633,22 @@ const AiVisualizerEngine = () => {
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                     Generate Render
                   </button>
+                  {mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10)) && limitInfo && (
+                    <div className="flex items-center gap-1.5 -mt-1 sm:-mt-2">
+                      <p className="text-[10px] sm:text-[11px] color-secondary-dark uppercase tracking-widest">
+                        {limitInfo.used} of {limitInfo.limit} daily previews used
+                      </p>
+                      <div className="relative group/info">
+                        <svg className="w-3.5 h-3.5 color-secondary-dark cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <circle cx="12" cy="12" r="9" strokeWidth="2" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01" />
+                        </svg>
+                        <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-secondary-dark text-white text-[10px] normal-case tracking-normal leading-snug p-2.5 shadow-lg opacity-0 group-hover/info:opacity-100 transition-opacity z-10">
+                          Each mobile number gets {limitInfo.limit} free AI previews per day. The count resets 24 hours after your first generation.
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -686,8 +767,7 @@ const AiVisualizerEngine = () => {
           otpCode={otpCode}
           setOtpCode={setOtpCode}
           leadStep={leadStep}
-          remainingGenerations={getEffectiveRemainingGenerations(mobileNumber.replace(/\D/g, '').slice(0, 10))}
-          dailyLimit={DAILY_GENERATION_LIMIT}
+          dailyLimit={limitInfo?.limit ?? DEFAULT_GENERATION_LIMIT}
           isKnownVerifiedNumber={mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))}
           otpValidationEnabled={OTP_VALIDATION_ENABLED}
           sendingOtp={sendingOtp}
@@ -698,8 +778,6 @@ const AiVisualizerEngine = () => {
           onSendOtp={handleSendOtp}
           onVerifyOtp={handleVerifyOtp}
           onChangeMobile={handleChangeMobile}
-          onGenerateVerified={handleGenerateVerified}
-          onUseAnotherNumber={handleUseAnotherNumber}
         />
       )}
 
@@ -812,6 +890,14 @@ const AiVisualizerEngine = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── My Gallery Panel ── */}
+      {showGalleryPanel && (
+        <MyGalleryPanel
+          mobileNumber={mobileNumber.replace(/\D/g, '').slice(0, 10)}
+          onClose={() => setShowGalleryPanel(false)}
+        />
       )}
     </>
   )

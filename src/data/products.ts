@@ -33,6 +33,8 @@ export interface KairaProduct {
   image_url: string
   /** iOS-optimised 3D model asset (.glb) */
   ios_model_url: string
+  /** Degrees to rotate applied fabric textures, for models whose UVs are laid out rotated relative to the fabric's natural orientation. */
+  uvRotation?: number
 }
 
 export const kairaProducts: KairaProduct[] = [
@@ -49,6 +51,7 @@ export const kairaProducts: KairaProduct[] = [
     model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Marcellus.webp',
     image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Marcellus.glb',
     ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Marcellus.glb',
+    uvRotation: -90,
   },
   {
     id: 11,

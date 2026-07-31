@@ -89,12 +89,12 @@ const ThreeDVisualizerEngine = ({
     ])
     const uvScale = getUvValue(mat.collectionName,mat.materialCode)
     const roughness = getRoughnessValue(mat.materialType, mat.collectionName, mat.roughness)
-    console.log(roughness)
     await applyTextureToModel(mv, {
       baseBlobUrl,
       roughness,
       metalness: mat.metalness,
       uvScale,
+      rotation: currentProduct.uvRotation ?? 0,
       skipParts: NO_FABRIC_PARTS,
       onlyParts: currSelectedPartForFinish !== 'All' ? [currSelectedPartForFinish] : [],
       roughnessBlobUrl,

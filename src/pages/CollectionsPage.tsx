@@ -9,6 +9,12 @@ import { useMaterials } from '../contexts/MaterialsContext'
 import { type Collection } from '../data/collections'
 import { applyTextureToModel, fetchBlobUrl, getNormalMapURL, getRoughnessMapURL, getUvValue, NO_FABRIC_PARTS } from '../utils/textureUtils'
 import { useCachedMedia } from '../hooks/useCachedMedia'
+import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
+
+const isValidIndianMobile = (num: string) => {
+  const phone = parsePhoneNumberFromString(num, 'IN')
+  return !!phone && phone.isValid() && phone.getType() === 'MOBILE'
+}
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
@@ -119,7 +125,7 @@ function CollectionModal({
   const { newMaterials } = useMaterials()
   const [showContactForm, setShowContactForm] = useState(false)
   const [contactSubmitted, setContactSubmitted] = useState(false)
-  const [contactData, setContactData] = useState({ name: '', email: '', company: '', message: '' })
+  const [contactData, setContactData] = useState({ name: '', mobile: '', email: '', company: '', message: '' })
   const [contactLoading, setContactLoading] = useState(false)
   const [contactError, setContactError] = useState<string | null>(null)
   const [zoomedIndex, setZoomedIndex] = useState<number | null>(null)
@@ -448,6 +454,10 @@ function CollectionModal({
                 className="px-6 py-5 flex flex-col gap-4 bg-white"
                 onSubmit={async (e) => {
                   e.preventDefault()
+                  if (!isValidIndianMobile(contactData.mobile)) {
+                    setContactError('Please enter a valid mobile number')
+                    return
+                  }
                   setContactLoading(true)
                   setContactError(null)
                   try {
@@ -461,8 +471,8 @@ function CollectionModal({
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         name: contactData.name,
-                        mobile: 'not provided',
-                        email: contactData.email,
+                        mobile: contactData.mobile,
+                        email: contactData.email || 'not provided',
                         message: messageBody,
                       }),
                     })
@@ -491,16 +501,28 @@ function CollectionModal({
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Email <span className="text-primary">*</span></label>
+                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Mobile <span className="text-primary">*</span></label>
                     <input
                       required
-                      type="email"
-                      value={contactData.email}
-                      onChange={(e) => setContactData((d) => ({ ...d, email: e.target.value }))}
-                      placeholder="you@company.com"
+                      type="tel"
+                      pattern="^[0-9\-\+\s]{10,15}$"
+                      title="Please enter a valid mobile number (10-15 digits)"
+                      value={contactData.mobile}
+                      onChange={(e) => setContactData((d) => ({ ...d, mobile: e.target.value }))}
+                      placeholder="+91 XXXXX XXXXX"
                       className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
                     />
                   </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Email <span className="normal-case tracking-normal font-normal text-color-secondary-dark/60 text-[9px] ml-1">(Optional)</span></label>
+                  <input
+                    type="email"
+                    value={contactData.email}
+                    onChange={(e) => setContactData((d) => ({ ...d, email: e.target.value }))}
+                    placeholder="you@company.com"
+                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Company</label>
@@ -758,6 +780,10 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isValidIndianMobile(formData.mobile)) {
+      setError('Please enter a valid mobile number')
+      return
+    }
     setLoading(true)
     setError(null)
     try {

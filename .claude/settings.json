@@ -13,7 +13,8 @@
       "Bash(node -e ' *)"
     ],
     "additionalDirectories": [
-      "d:\\KairaSite\\Kaira-Api"
+      "d:\\KairaSite\\Kaira-Api",
+      "D:\\KairaSite\\Kaira-Api"
     ]
   }
 }

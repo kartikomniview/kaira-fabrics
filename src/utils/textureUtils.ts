@@ -103,16 +103,23 @@ export async function fetchBlobUrl(url: string): Promise<string | null> {
  * transform symbol. Safe to call even if the texture is shared across materials
  * because the transform lives on the per-material texture info object.
  */
-export function applyTiling(texture: any, uvScale: number): void {
-  if (!texture) return
+/**
+ * Sets UV repeat tiling and rotation on a model-viewer TextureInfo via its
+ * internal transform symbol. Must be called BEFORE setTexture() — scale/offset
+ * are shared Vector2 objects so mutating them after setTexture() still works,
+ * but rotation is a plain number that setTexture() copies by value, so it only
+ * takes effect if set beforehand.
+ */
+export function applyTiling(textureInfo: any, uvScale: number, rotationDeg = 0): void {
+  if (!textureInfo) return
   try {
-    const symbols = Object.getOwnPropertySymbols(texture)
+    const symbols = Object.getOwnPropertySymbols(textureInfo)
     const transformSymbol = symbols.find((s) => s.toString().includes('transform'))
     if (transformSymbol) {
-      const transform = (texture as any)[transformSymbol]
+      const transform = (textureInfo as any)[transformSymbol]
       transform.scale['x'] = uvScale
       transform.scale['y'] = uvScale
-      texture.applyTextureTransform()
+      transform.rotation = THREE.MathUtils.degToRad(rotationDeg)
     }
   } catch {
     // silent
@@ -188,6 +195,8 @@ export interface ApplyTextureOptions {
   metalness: number
   /** UV repeat scale applied to every map. Defaults to 1 (no tiling). */
   uvScale?: number
+  /** Degrees to rotate every applied map, for models whose UVs are laid out rotated. Defaults to 0. */
+  rotation?: number
   /** Material name fragments to skip (e.g. legs, frame). */
   skipParts?: string[]
   /** When provided, only meshes whose name contains one of these strings are updated. 'All' or empty = all eligible parts. */
@@ -217,6 +226,7 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
     roughness,
     metalness,
     uvScale = 1,
+    rotation = 0,
     skipParts = [],
     onlyParts = [],
     roughnessBlobUrl = null,
@@ -256,10 +266,12 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
     }
 
 
+    const rotationRad = THREE.MathUtils.degToRad(rotation)
     for (const tex of [baseTex, roughTex, normalTex, sheenTex]) {
       if (!tex) continue
       tex.wrapS = tex.wrapT = THREE.RepeatWrapping
       if (uvScale !== 1) tex.repeat.set(uvScale, uvScale)
+      if (rotationRad !== 0) tex.rotation = rotationRad
       tex.needsUpdate = true
     }
 
@@ -336,16 +348,16 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
       m.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1])
 
       if (baseTexture) {
+        if (uvScale !== 1 || rotation !== 0) applyTiling(m.pbrMetallicRoughness.baseColorTexture, uvScale, rotation)
         await m.pbrMetallicRoughness.baseColorTexture.setTexture(baseTexture)
-        if (uvScale !== 1) applyTiling(m.pbrMetallicRoughness.baseColorTexture, uvScale)
       }
       if (roughnessTexture) {
+        if (uvScale !== 1 || rotation !== 0) applyTiling(m.pbrMetallicRoughness.metallicRoughnessTexture, uvScale, rotation)
         await m.pbrMetallicRoughness.metallicRoughnessTexture.setTexture(roughnessTexture)
-        if (uvScale !== 1) applyTiling(m.pbrMetallicRoughness.metallicRoughnessTexture, uvScale)
       }
       if (normalTexture) {
+        if (uvScale !== 1 || rotation !== 0) applyTiling(m.normalTexture, uvScale, rotation)
         await m.normalTexture.setTexture(normalTexture)
-        if (uvScale !== 1) applyTiling(m.normalTexture, uvScale)
       }
 
       if (sheenTexture && false) {
