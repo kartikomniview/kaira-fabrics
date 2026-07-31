@@ -351,15 +351,15 @@ const AiVisualizerEngine = () => {
     refreshRecaptchaVerifier()
   }
 
-  const handleUseAnotherNumber = () => {
-    setMobileNumber('')
-    setMobileError('')
-    setOtpError('')
-    setConfirmationResult(null)
-    setOtpCode('')
-    setLeadStep('mobile')
-    localStorage.removeItem('kaira_lead_mobile')
-  }
+  // const handleUseAnotherNumber = () => {
+  //   setMobileNumber('')
+  //   setMobileError('')
+  //   setOtpError('')
+  //   setConfirmationResult(null)
+  //   setOtpCode('')
+  //   setLeadStep('mobile')
+  //   localStorage.removeItem('kaira_lead_mobile')
+  // }
 
   const handleDownload = async () => {
     if (!generatedImage) return
