@@ -73,3 +73,48 @@ export function getCachedMediaUrl(url: string): Promise<string | null> {
   }
   return pending
 }
+
+/**
+ * Cache-only lookup: returns a blob URL if `url` is already in the
+ * persistent cache, or `null` immediately if not — never triggers a network
+ * fetch. Lets large-asset callers (e.g. hero videos) prefer an already-cached
+ * copy without paying for a full download just to check.
+ */
+export async function getCachedMediaUrlIfPresent(url: string): Promise<string | null> {
+  if (typeof caches === 'undefined') return null
+  try {
+    const cache = await caches.open(CACHE_NAME)
+    const cached = await cache.match(url)
+    if (!cached) return null
+    const blob = await cached.blob()
+    return URL.createObjectURL(blob)
+  } catch {
+    return null
+  }
+}
+
+const warming = new Set<string>()
+
+/**
+ * Fetches `url` and stores it in the persistent cache for a future visit,
+ * without creating a blob/object URL. For large assets like video, callers
+ * should invoke this well after the asset was already used via a direct
+ * streamed URL, so the download never competes with initial load or
+ * playback memory.
+ */
+export async function warmMediaCache(url: string): Promise<void> {
+  if (typeof caches === 'undefined' || warming.has(url)) return
+  warming.add(url)
+  try {
+    const cache = await caches.open(CACHE_NAME)
+    if (await cache.match(url)) return
+    const res = await fetch(toFetchableUrl(url), { cache: 'no-store' })
+    if (!res.ok) return
+    await cache.put(url, res)
+  } catch {
+    // Best-effort background warm — a failed prefetch just means the next
+    // visit streams the raw URL again, same as today.
+  } finally {
+    warming.delete(url)
+  }
+}

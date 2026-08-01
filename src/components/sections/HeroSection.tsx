@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Button from '../ui/Button'
-import { useCachedMedia } from '../../hooks/useCachedMedia'
+import { useCachedMedia, useCachedMediaIfPresent } from '../../hooks/useCachedMedia'
+import { warmMediaCache } from '../../lib/mediaCache'
 
 const VIDEOS = [
   'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/landing/HeroV1.mp4',
@@ -44,15 +45,35 @@ const HeroSection = () => {
 
   const cachedLogoSrc = useCachedMedia(LOGO_URL)
 
-  // Cache both hero videos in the background (second one only once the first
-  // is playable, mirroring the old prefetch-on-canplay timing). Playback
-  // itself always uses the cached blob URL once it's ready, but falls back
-  // to streaming the raw S3 URL directly so first-time visitors never wait
-  // on a full video download before anything plays.
-  const cachedVideo0 = useCachedMedia(pageLoaded ? VIDEOS[0] : undefined)
-  const cachedVideo1 = useCachedMedia(videoReady ? VIDEOS[1] : undefined)
+  // Prefer an already-cached video (from a previous visit) when available,
+  // but never force a fresh download just to check. First-time visitors
+  // always play the raw streamed S3 URL directly — never a full video
+  // downloaded into memory as a blob — so we're never holding two complete
+  // videos in memory at once.
+  const cachedVideo0 = useCachedMediaIfPresent(pageLoaded ? VIDEOS[0] : undefined)
+  const cachedVideo1 = useCachedMediaIfPresent(videoReady ? VIDEOS[1] : undefined)
   const cachedVideosRef = useRef<(string | undefined)[]>([])
   cachedVideosRef.current = [cachedVideo0, cachedVideo1]
+
+  // Populate the persistent cache in the background, well after the page has
+  // loaded and the user has had a chance to actually see the hero — one
+  // video at a time, so we never download both at once. This only speeds up
+  // a *future* visit; the current session always plays from the raw
+  // streamed URL above.
+  useEffect(() => {
+    if (!pageLoaded) return
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      for (const src of VIDEOS) {
+        if (cancelled) return
+        await warmMediaCache(src)
+      }
+    }, 15000)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [pageLoaded])
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
