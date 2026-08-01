@@ -13,7 +13,8 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
 
 const isValidIndianMobile = (num: string) => {
   const phone = parsePhoneNumberFromString(num, 'IN')
-  return !!phone && phone.isValid() && phone.getType() === 'MOBILE'
+  return !!phone && phone.isValid() &&
+    (phone.getType() === 'MOBILE' || phone.getType() === 'FIXED_LINE_OR_MOBILE')
 }
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'

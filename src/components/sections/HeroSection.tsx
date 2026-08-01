@@ -22,9 +22,9 @@ const IMAGE_INTERVAL = 4000
 const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 const SMOOTH_OUT = [0.25, 0.46, 0.45, 0.94] as const
 
-/** Resolves `src` through the shared media cache; renders nothing until it's ready. */
-function CachedHeroImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
-  const cachedSrc = useCachedMedia(src)
+/** Resolves `src` through the shared media cache once `ready`; renders nothing until then. */
+function CachedHeroImage({ src, alt, className, ready }: { src: string; alt: string; className?: string; ready: boolean }) {
+  const cachedSrc = useCachedMedia(ready ? src : undefined)
   if (!cachedSrc) return null
   return <img src={cachedSrc} alt={alt} className={className} />
 }
@@ -34,6 +34,7 @@ const HeroSection = () => {
   const [videoReady, setVideoReady] = useState(false)
   const [allVideosEnded, setAllVideosEnded] = useState(false)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [pageLoaded, setPageLoaded] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const videoIndexRef = useRef(0)
 
@@ -48,7 +49,7 @@ const HeroSection = () => {
   // itself always uses the cached blob URL once it's ready, but falls back
   // to streaming the raw S3 URL directly so first-time visitors never wait
   // on a full video download before anything plays.
-  const cachedVideo0 = useCachedMedia(VIDEOS[0])
+  const cachedVideo0 = useCachedMedia(pageLoaded ? VIDEOS[0] : undefined)
   const cachedVideo1 = useCachedMedia(videoReady ? VIDEOS[1] : undefined)
   const cachedVideosRef = useRef<(string | undefined)[]>([])
   cachedVideosRef.current = [cachedVideo0, cachedVideo1]
@@ -64,7 +65,10 @@ const HeroSection = () => {
       video.play().catch(() => { /* autoplay blocked — image stays */ })
     }
 
-    const setup = () => { timer = setTimeout(startVideo, 1500) }
+    const setup = () => {
+      setPageLoaded(true)
+      timer = setTimeout(startVideo, 1500)
+    }
 
     if (document.readyState === 'complete') {
       setup()
@@ -128,7 +132,7 @@ const HeroSection = () => {
           className="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-1000"
           style={{ opacity: allVideosEnded && activeImageIndex === i ? 1 : 0 }}
         >
-          <CachedHeroImage src={src} alt="" className="w-full h-full object-cover" />
+          <CachedHeroImage src={src} alt="" className="w-full h-full object-cover" ready={videoReady} />
         </div>
       ))}
 

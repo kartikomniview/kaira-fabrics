@@ -39,7 +39,8 @@ const OTP_VALIDATION_ENABLED = false
 
 const isValidIndianMobile = (num: string) => {
   const phone = parsePhoneNumberFromString(num, 'IN')
-  return !!phone && phone.isValid() && phone.getType() === 'MOBILE'
+  return !!phone && phone.isValid() &&
+    (phone.getType() === 'MOBILE' || phone.getType() === 'FIXED_LINE_OR_MOBILE')
 }
 
 // ── Feature flag: set to true to re-enable the daily generation limit per mobile number ─────
@@ -49,7 +50,7 @@ const IS_GENERATE_LIMITED = true
 const DEFAULT_GENERATION_LIMIT = 4
 
 // ── Minimum time the loader stays visible for a cached (instant) render, so it doesn't flash ─
-const MIN_CACHED_LOADER_MS = 10000
+const MIN_CACHED_LOADER_MS = 8000
 
 const AiVisualizerEngine = () => {
   const [currentStep, setCurrentStep] = useState(1)

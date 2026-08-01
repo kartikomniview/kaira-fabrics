@@ -142,12 +142,13 @@ function StatTile({ label, value, sub, icon, tint, onExpand, onToggle, active }:
   )
 }
 
-function BreakdownPanel({ title, subtitle, rows, onClose, renderLabel }: {
+function BreakdownPanel({ title, subtitle, rows, onClose, renderLabel, onRowClick }: {
   title: string
   subtitle: string
   rows: { value: string; count: number }[]
   onClose: () => void
   renderLabel?: (value: string) => React.ReactNode
+  onRowClick?: (value: string) => void
 }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
@@ -173,7 +174,11 @@ function BreakdownPanel({ title, subtitle, rows, onClose, renderLabel }: {
             <p className="text-sm text-stone-400 text-center py-10">No data yet.</p>
           ) : (
             rows.map((r) => (
-              <div key={r.value} className="flex items-center justify-between gap-3 px-5 py-3">
+              <div
+                key={r.value}
+                onClick={onRowClick ? () => onRowClick(r.value) : undefined}
+                className={`flex items-center justify-between gap-3 px-5 py-3 ${onRowClick ? 'cursor-pointer hover:bg-stone-50 transition-colors' : ''}`}
+              >
                 <span className="text-sm color-secondary-dark truncate min-w-0">
                   {renderLabel ? renderLabel(r.value) : r.value}
                 </span>
@@ -431,45 +436,6 @@ const VisualizerLogsPanel = () => {
         </div>
       </div>
 
-      {/* Active tile filters */}
-      {(userFilter || collectionFilter || materialFilter) && (
-        <div className="mb-6 -mt-2 flex flex-wrap gap-2">
-          {userFilter && (
-            <button
-              onClick={() => { setUserFilter(null); setVisibleCount(PAGE_SIZE) }}
-              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full pl-3 pr-2 py-1 hover:bg-emerald-100 transition-colors"
-            >
-              User: {userFilter}
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-          {collectionFilter && (
-            <button
-              onClick={() => { setCollectionFilter(null); setVisibleCount(PAGE_SIZE) }}
-              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-full pl-3 pr-2 py-1 hover:bg-rose-100 transition-colors"
-            >
-              Collection: {collectionFilter}
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-          {materialFilter && (
-            <button
-              onClick={() => { setMaterialFilter(null); setVisibleCount(PAGE_SIZE) }}
-              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-full pl-3 pr-2 py-1 hover:bg-teal-100 transition-colors"
-            >
-              Material: {materialFilter}
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-        </div>
-      )}
-
       {/* Error */}
       {error && (
         <div className="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 rounded p-4">
@@ -540,7 +506,7 @@ const VisualizerLogsPanel = () => {
                 setMaterialFilter(null)
                 setVisibleCount(PAGE_SIZE)
               } : undefined}
-              active={!!analytics.topUser && userFilter === analytics.topUser.value}
+              active={!!userFilter}
               icon={
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -587,6 +553,46 @@ const VisualizerLogsPanel = () => {
               }
             />
           </div>
+        </div>
+      )}
+
+      {/* Active tile filters */}
+      {(userFilter || collectionFilter || materialFilter) && (
+        <div className="mb-6 -mt-2 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-medium text-stone-400 uppercase tracking-wider">Active filters:</span>
+          {userFilter && (
+            <button
+              onClick={() => { setUserFilter(null); setVisibleCount(PAGE_SIZE) }}
+              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full pl-3 pr-2 py-1 hover:bg-emerald-100 transition-colors"
+            >
+              User: {userFilter}
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+          {collectionFilter && (
+            <button
+              onClick={() => { setCollectionFilter(null); setVisibleCount(PAGE_SIZE) }}
+              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-full pl-3 pr-2 py-1 hover:bg-rose-100 transition-colors"
+            >
+              Collection: {collectionFilter}
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+          {materialFilter && (
+            <button
+              onClick={() => { setMaterialFilter(null); setVisibleCount(PAGE_SIZE) }}
+              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-full pl-3 pr-2 py-1 hover:bg-teal-100 transition-colors"
+            >
+              Material: {materialFilter}
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
         </div>
       )}
 
@@ -793,9 +799,13 @@ const VisualizerLogsPanel = () => {
           subtitle={`${analytics.usersBreakdown.length} user${analytics.usersBreakdown.length !== 1 ? 's' : ''} · ${formatCount(analytics.total)} renders total`}
           rows={analytics.usersBreakdown}
           onClose={() => setShowUsersPanel(false)}
-          renderLabel={(value) => (
-            <a href={`tel:${value}`} className="hover:text-amber-700 transition-colors">{value}</a>
-          )}
+          onRowClick={(value) => {
+            setUserFilter((f) => (f === value ? null : value))
+            setCollectionFilter(null)
+            setMaterialFilter(null)
+            setVisibleCount(PAGE_SIZE)
+            setShowUsersPanel(false)
+          }}
         />
       )}
 

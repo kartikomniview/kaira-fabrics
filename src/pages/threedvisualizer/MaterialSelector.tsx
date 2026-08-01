@@ -14,16 +14,62 @@ const COLOR_MAP: Record<string, string> = {
   Pinks: '#d4607a', Purples: '#7b3fa0', Mauves: '#9e7b9b', Coals: '#3c3c3c',
 }
 
-/** Thin wrapper that resolves `src` through the shared media cache before mounting the <img>. */
+/** Thin wrapper that lazy-loads `src` through the shared media cache once the
+ *  element scrolls near the viewport, instead of fetching on mount. */
 export function CachedThumbImg({ src, alt, className, onError }: {
   src: string
   alt: string
   className?: string
   onError?: (e: React.SyntheticEvent<HTMLImageElement>) => void
 }) {
-  const cachedSrc = useCachedMedia(src)
-  if (!cachedSrc) return null
-  return <img src={cachedSrc} alt={alt} className={className} onError={onError} />
+  const [inView, setInView] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+  const [error, setError] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const cachedSrc = useCachedMedia(inView ? src : undefined)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect() } },
+      { rootMargin: '150px' }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  // Caller-supplied className moves to the wrapper div so it exists (and is
+  // correctly sized) before inView flips true — it's both the IO target and
+  // what reserves layout space, avoiding pop-in. object-fit tokens on a div
+  // are harmless no-ops; the inner <img> re-applies the real one.
+  const objectFit = className?.includes('object-contain') ? 'object-contain' : 'object-cover'
+
+  return (
+    <div ref={ref} className={`relative overflow-hidden ${className ?? ''}`}>
+      {(!inView || !loaded) && !error && (
+        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div
+            className="absolute inset-0 -translate-x-full"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
+              animation: 'kaira-shimmer 1.6s ease-in-out infinite',
+            }}
+          />
+        </div>
+      )}
+      {inView && cachedSrc && !error && (
+        <img
+          src={cachedSrc}
+          alt={alt}
+          decoding="async"
+          className={`absolute inset-0 w-full h-full ${objectFit} transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={() => setLoaded(true)}
+          onError={(e) => { setError(true); onError?.(e) }}
+        />
+      )}
+    </div>
+  )
 }
 
 function highlight(text: string, query: string) {
