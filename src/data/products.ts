@@ -49,9 +49,8 @@ export const kairaProducts: KairaProduct[] = [
     id: 7,
     product_name: 'Marcellus',
     model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Marcellus.webp',
-    image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v4/Marcellus.glb',
+    image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v3/Marcellus.glb',
     ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v3/Marcellus.glb',
-    uvRotation: -90,
   },
   {
     id: 11,
