@@ -6,7 +6,14 @@ import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, ge
 import * as THREE from 'three'
 import '@google/model-viewer'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './MaterialSelector'
-import { useCachedMedia } from '../../hooks/useCachedMedia'
+import { AI_VISUALIZER_PRODUCTS } from '../aivisualizer/AiVisualizerEngine'
+import { useAiGenerationFlow, OTP_VALIDATION_ENABLED, DEFAULT_GENERATION_LIMIT } from '../aivisualizer/useAiGenerationFlow'
+import type { SelectedProduct as AiSelectedProduct } from '../aivisualizer/generateRender'
+import LeadFormModal from '../aivisualizer/LeadFormModal'
+import MyGalleryPanel from '../aivisualizer/MyGalleryPanel'
+import GeneratedImageModal from '../admin/GeneratedImageModal'
+import { isVerified } from '../../lib/renderLimit'
+import TourGuide, { type TourStep } from '../../components/ui/TourGuide'
 
 export type { SelectedMaterial } from './MaterialSelector'
 
@@ -25,6 +32,13 @@ function getRoughnessValue(materialType: string, collectionName: string, baseRou
   if (materialType.toLowerCase().includes('leather')) return 0.6
   return baseRoughness
 }
+
+const TOUR_STEPS: TourStep[] = [
+  { id: 'tour-material-selector', title: 'Pick a Fabric', subtitle: 'Browse Kaira\'s collection here and tap any swatch to apply it to the product.' },
+  { id: 'tour-change-product', title: 'Change Product', subtitle: 'Switch to a different sofa or chair to preview your fabric on.' },
+  { id: 'tour-3d-canvas', title: 'Explore in 3D', subtitle: 'Drag to orbit around the model and scroll to zoom in for a closer look.' },
+  { id: 'tour-visualize-ai', title: 'Visualize with AI', subtitle: 'Generate a realistic AI render of your product with the selected fabric.' },
+]
 
 interface EngineProps {
   currentProduct: KairaProduct
@@ -48,11 +62,12 @@ const ThreeDVisualizerEngine = ({
   setModelLoaded,
 }: EngineProps) => {
   const { newMaterials } = useMaterials()
-  const cachedSelectedThumb = useCachedMedia(selected?.textureUrl)
   const mvRef = useRef<HTMLElement>(null)
   const fabricMeshesRef = useRef<any[]>([])
   const autoAppliedRef = useRef(false)
   const [productPanelOpen, setProductPanelOpen] = useState(false)
+  const [showGalleryPanel, setShowGalleryPanel] = useState(false)
+  const [showTour, setShowTour] = useState(true)
   const [meshNames, setMeshNames] = useState<string[]>([])
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [toastVisible, setToastVisible] = useState(false)
@@ -72,6 +87,29 @@ const ThreeDVisualizerEngine = ({
   const [applyNormalMap] = useState(true)
   const [applySheenMap] = useState(true)
   const [currSelectedPartForFinish, setCurrSelectedPartForFinish] = useState('All')
+
+  // Whole-product fabric, plus any per-part overrides layered on top of it
+  const [baseMaterial, setBaseMaterial] = useState<SelectedMaterial | null>(null)
+  const [partOverrides, setPartOverrides] = useState<Record<string, SelectedMaterial>>({})
+
+  const {
+    showLeadForm, mobileNumber, setMobileNumber, mobileError,
+    otpCode, setOtpCode, leadStep,
+    sendingOtp, verifyingOtp, otpError,
+    isGenerating, generatedImage, generateError, setGenerateError, cyclingMsg,
+    limitInfo,
+    showImageModal, setShowImageModal, imgZoom, setImgZoom,
+    handleGenerateClick, closeLeadForm, handleSendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
+  } = useAiGenerationFlow()
+
+  const handleVisualizeWithAI = () => {
+    if (!selected) return
+    const match = AI_VISUALIZER_PRODUCTS.find((p) => p.productName === currentProduct.product_name)
+    const product: AiSelectedProduct = match
+      ? { id: match.productName, productName: match.productName, imageUrl: match.productImageUrl }
+      : { id: currentProduct.id, productName: currentProduct.product_name, imageUrl: currentProduct.model_url }
+    handleGenerateClick({ material: selected, product })
+  }
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
@@ -106,6 +144,13 @@ const ThreeDVisualizerEngine = ({
     if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
     if (normalBlobUrl) URL.revokeObjectURL(normalBlobUrl)
     if (sheenBlobUrl) URL.revokeObjectURL(sheenBlobUrl)
+    // Applying to "All" repaints every fabric mesh, so it supersedes any earlier part overrides
+    if (currSelectedPartForFinish === 'All') {
+      setBaseMaterial(mat)
+      setPartOverrides({})
+    } else {
+      setPartOverrides((prev) => ({ ...prev, [currSelectedPartForFinish]: mat }))
+    }
     setIsApplying(false)
   }
 
@@ -180,6 +225,8 @@ const ThreeDVisualizerEngine = ({
     setModelLoaded(false)
     fabricMeshesRef.current = []
     setMeshNames([])
+    setBaseMaterial(null)
+    setPartOverrides({})
   }, [currentProduct])
 
   useEffect(() => {
@@ -214,12 +261,14 @@ const ThreeDVisualizerEngine = ({
 
         {/* ── LEFT: Material Selector ── */}
         <MaterialSelector
+          id="tour-material-selector"
           selectedId={selected?.id ?? null}
           onSelect={(mat) => { setSelected(mat); if (modelLoaded) applyTexture(mat) }}
           selectedPart={currSelectedPartForFinish}
           onPartChange={setCurrSelectedPartForFinish}
           availableMeshNames={meshNames}
           onToast={showToast}
+          disabled={isApplying}
         />
 
         {/* ── RIGHT: 3D Viewport ── */}
@@ -228,6 +277,7 @@ const ThreeDVisualizerEngine = ({
           {/* Viewport title bar */}
           <div className="h-12 shrink-0 bg-white border-b border-stone-200/80 flex items-center px-4 gap-4 z-10 relative">
             <button
+              id="tour-change-product"
               onClick={() => setProductPanelOpen(true)}
               className="flex items-center gap-2 h-8 px-4 bg-secondary-dark hover:bg-stone-800 text-white transition-all rounded-none shrink-0 shadow-sm"
             >
@@ -238,12 +288,26 @@ const ThreeDVisualizerEngine = ({
             </button>
 
             <div className="w-px h-5 bg-stone-200" />
+
             <div className="flex-1" />
-            <span className="text-[11px] color-secondary-dark/40 tracking-wider select-none font-medium">Drag to orbit · Scroll to zoom</span>
+
+            {mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10)) && (
+              <button
+                onClick={() => setShowGalleryPanel(true)}
+                className="flex items-center gap-2 h-8 px-4 border border-primary text-primary hover:bg-stone-50 transition-all rounded-none shrink-0 shadow-sm"
+                title="My Gallery"
+              >
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 16l5-5a2 2 0 012.83 0L16 16m-2-2l1.17-1.17a2 2 0 012.83 0L21 16M8.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                </svg>
+                <span className="hidden lg:inline text-[11px] tracking-[0.1em] uppercase font-bold">My Gallery</span>
+              </button>
+            )}
           </div>
 
           {/* model-viewer fills remaining space */}
-          <div className="flex-1 relative bg-stone-50">
+          <div id="tour-3d-canvas" className="flex-1 relative bg-stone-50">
 
             {/* Toast */}
             <div className={`absolute top-4 right-4 z-20 pointer-events-none transition-all duration-300 ease-out ${toastVisible ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'}`}>
@@ -361,23 +425,121 @@ const ThreeDVisualizerEngine = ({
               </div>
             )}
 
-            {/* Bottom info bar */}
-            {selected && modelLoaded && !isApplying && (
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-stone-200 shadow-xl px-5 py-3 pointer-events-none flex items-center gap-4 rounded-none">
-                <img
-                  src={cachedSelectedThumb}
-                  alt=""
-                  className="w-8 h-8 rounded-none object-cover border border-stone-200"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                />
-                <div>
-                  <span className="text-[12px] font-bold color-secondary-dark tracking-[0.2em] uppercase block mb-0.5">{selected.fabricName}</span>
-                </div>
+            {/* Selected fabric info */}
+            {modelLoaded && !isApplying && (baseMaterial || Object.keys(partOverrides).length > 0) && (
+              <div className="absolute top-5 left-5 bg-white/85 backdrop-blur-sm border border-stone-200 shadow-sm px-2.5 py-2 pointer-events-none flex flex-col gap-1 rounded-none max-w-[180px]">
+                {baseMaterial && (
+                  <div className="flex items-center gap-1.5">
+                    <img
+                      src={baseMaterial.textureUrl}
+                      alt=""
+                      className="w-4 h-4 rounded-none object-cover border border-stone-200 shrink-0"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                    />
+                    <span className="text-[9px] color-secondary-dark/70 tracking-wide truncate">
+                      {Object.keys(partOverrides).length > 0 ? `All · ${baseMaterial.fabricName}` : baseMaterial.fabricName}
+                    </span>
+                  </div>
+                )}
+                {Object.entries(partOverrides).map(([part, mat]) => (
+                  <div key={part} className="flex items-center gap-1.5">
+                    <img
+                      src={mat.textureUrl}
+                      alt=""
+                      className="w-4 h-4 rounded-none object-cover border border-stone-200 shrink-0"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                    />
+                    <span className="text-[9px] color-secondary-dark/70 tracking-wide truncate">{part} · {mat.fabricName}</span>
+                  </div>
+                ))}
               </div>
             )}
+
+            {/* Disclaimer */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none">
+              <span className="text-[10px] color-secondary-dark/40 tracking-wider select-none font-medium">
+                For visualization only · Actual product may vary
+              </span>
+            </div>
+
+            {/* Visualize with AI */}
+            <button
+              id="tour-visualize-ai"
+              onClick={handleVisualizeWithAI}
+              disabled={!selected || !modelLoaded || isApplying}
+              className="absolute bottom-6 right-6 z-20 flex items-center gap-2 h-9 px-4 bg-primary hover:bg-primary/90 color-secondary-dark transition-all rounded-none shadow-xl disabled:opacity-40 disabled:pointer-events-none"
+            >
+              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span className="text-[11px] tracking-[0.1em] uppercase font-bold">Visualize with AI</span>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* ── AI Visualize: Lead Form / Generating Modal ── */}
+      {showLeadForm && (
+        <LeadFormModal
+          isGenerating={isGenerating}
+          generateError={generateError}
+          cyclingMsg={cyclingMsg}
+          mobileNumber={mobileNumber}
+          setMobileNumber={setMobileNumber}
+          mobileError={mobileError}
+          otpCode={otpCode}
+          setOtpCode={setOtpCode}
+          leadStep={leadStep}
+          dailyLimit={limitInfo?.limit ?? DEFAULT_GENERATION_LIMIT}
+          isKnownVerifiedNumber={mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))}
+          otpValidationEnabled={OTP_VALIDATION_ENABLED}
+          sendingOtp={sendingOtp}
+          verifyingOtp={verifyingOtp}
+          otpError={otpError}
+          onClose={closeLeadForm}
+          onDismissError={() => { setGenerateError(null); closeLeadForm() }}
+          onSendOtp={handleSendOtp}
+          onVerifyOtp={handleVerifyOtp}
+          onChangeMobile={handleChangeMobile}
+        />
+      )}
+
+      {/* ── AI Visualize: Result ── */}
+      <GeneratedImageModal
+        open={showImageModal && !!generatedImage}
+        imgZoom={imgZoom}
+        setImgZoom={setImgZoom}
+        cachedImageUrl={generatedImage}
+        isWatermarking={false}
+        stampSuccess
+        infoSlot={selected && (
+          <div className="flex items-center gap-3">
+            <img src={selected.textureUrl} className="w-9 h-9 object-cover border border-white/20 shadow-sm" alt="" />
+            <div>
+              <p className="text-[10px] color-secondary-dark uppercase tracking-widest">Fabric Applied</p>
+              <p className="text-xs font-bold text-white truncate max-w-[180px]">{selected.fabricName}</p>
+            </div>
+          </div>
+        )}
+        onClose={() => { setShowImageModal(false); setImgZoom(1) }}
+        onDownload={handleDownload}
+      />
+
+      {/* ── My Gallery Panel ── */}
+      {showGalleryPanel && (
+        <MyGalleryPanel
+          mobileNumber={mobileNumber.replace(/\D/g, '').slice(0, 10)}
+          onClose={() => setShowGalleryPanel(false)}
+        />
+      )}
+
+      {/* ── Onboarding Tour ── */}
+      <TourGuide
+        tourId="3d-visualizer"
+        steps={TOUR_STEPS}
+        active={showTour}
+        onFinish={() => setShowTour(false)}
+      />
     </>
   )
 }

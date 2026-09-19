@@ -109,11 +109,13 @@ interface MaterialSelectorProps {
   className?: string
   showPartFilter?: boolean
   onClose?: () => void
+  disabled?: boolean
+  id?: string
 }
 
 const PAGE_SIZE = 24
 
-const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = true, onClose }: MaterialSelectorProps) => {
+const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = true, onClose, disabled = false, id }: MaterialSelectorProps) => {
   const { newMaterials, collections, isLoading: materialsLoading, error: materialsError } = useMaterials()
   const colorScrollRef = useRef<HTMLDivElement>(null)
   const typeScrollRef = useRef<HTMLDivElement>(null)
@@ -270,7 +272,12 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   }
 
   return (
-    <div className={className ?? "w-[430px] xl:w-[490px] shrink-0 flex flex-col overflow-hidden bg-white rounded-none shadow-sm border border-stone-200/80"}>
+    <div id={id} className={`relative ${className ?? "w-[430px] xl:w-[490px] shrink-0 flex flex-col overflow-hidden bg-white rounded-none shadow-sm border border-stone-200/80"}`}>
+
+      {/* Disabled overlay — blocks interaction while a texture is being applied */}
+      {disabled && (
+        <div className="absolute inset-0 z-40 bg-white/50 backdrop-blur-[1px] cursor-not-allowed" />
+      )}
 
       {/* Top bar */}
       <div className="shrink-0 bg-stone-50 border-b border-stone-200/80 px-4 pt-3 pb-3 space-y-2.5">

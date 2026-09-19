@@ -10,6 +10,7 @@ import Seo, { pageTitle } from './components/seo/Seo'
 // Route-level code splitting — each page loads its own JS chunk on first visit
 const HomePage             = lazy(() => import('./pages/HomePage'))
 const CollectionsPage      = lazy(() => import('./pages/CollectionsPage'))
+const CollectionDetailPage = lazy(() => import('./pages/CollectionDetailPage'))
 const AboutPage            = lazy(() => import('./pages/AboutPage'))
 const MaterialsPage        = lazy(() => import('./pages/materialslist/MaterialsPage'))
 const GalleryPage          = lazy(() => import('./pages/GalleryPage'))
@@ -89,6 +90,7 @@ function App() {
               <Route index element={<HomePage />} />
               <Route path="about" element={<AboutPage />} />
               <Route path="collections" element={<CollectionsPage />} />
+              <Route path="collections/:slug" element={<CollectionDetailPage />} />
               <Route path="materials" element={<MaterialsPage />} />
               <Route path="gallery" element={<GalleryPage />} />
               <Route path="3d-visualizer" element={<ThreeDVisualizerPage />} />

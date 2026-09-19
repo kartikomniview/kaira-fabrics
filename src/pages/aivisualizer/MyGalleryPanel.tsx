@@ -31,10 +31,14 @@ function formatDate(iso: string): string {
   }
 }
 
+const INITIAL_VISIBLE = 6
+const LOAD_MORE_STEP = 9
+
 const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
   const [logs, setLogs] = useState<VisualizerLogRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE)
 
   const [brandedImages, setBrandedImages] = useState<Record<string, string>>({})
   const [brandingFailed, setBrandingFailed] = useState<Record<string, true>>({})
@@ -45,6 +49,7 @@ const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
   const fetchLogs = useCallback(async () => {
     setLoading(true)
     setError(null)
+    setVisibleCount(INITIAL_VISIBLE)
     try {
       const res = await fetch(`${API}/visualizer-logs?mobile=${encodeURIComponent(mobileNumber)}`, {
         headers: { 'admin-token': import.meta.env.VITE_ADMIN_TOKEN },
@@ -66,10 +71,10 @@ const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
   useEffect(() => { fetchLogs() }, [fetchLogs])
 
   // Brand each raw output_url (logo + collection/material badge + AI-generated
-  // watermark) once, lazily.
+  // watermark) once, lazily — only for logs currently visible on screen.
   useEffect(() => {
     let cancelled = false
-    logs.forEach((log) => {
+    logs.slice(0, visibleCount).forEach((log) => {
       if (!log.output_url || brandedImages[log.id] || brandingFailed[log.id]) return
       const materialInfo: MaterialBadgeInfo | undefined = log.collection_name
         ? {
@@ -84,7 +89,7 @@ const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
     })
     return () => { cancelled = true }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [logs])
+  }, [logs, visibleCount])
 
   const lightboxLog = logs.find(l => l.id === lightboxId) ?? null
   const lightboxSrc = lightboxLog ? (brandedImages[lightboxLog.id] ?? lightboxLog.output_url ?? null) : null
@@ -170,35 +175,48 @@ const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
           )}
 
           {!loading && !error && logs.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-              {logs.map((log) => {
-                const thumbSrc = brandedImages[log.id] ?? log.output_url
-                return (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                {logs.slice(0, visibleCount).map((log) => {
+                  const thumbSrc = brandedImages[log.id] ?? log.output_url
+                  return (
+                    <button
+                      key={log.id}
+                      onClick={() => { setLightboxId(log.id); setImgZoom(1) }}
+                      className="group relative aspect-square overflow-hidden border border-stone-200 bg-stone-50 text-left"
+                    >
+                      {thumbSrc && (
+                        <img
+                          src={thumbSrc}
+                          alt={log.product_name ?? 'Generated render'}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-stone-950/80 to-transparent p-2 pt-6">
+                        <p className="text-[10px] font-bold text-white uppercase tracking-widest truncate">
+                          {log.product_name ?? 'NA'}
+                        </p>
+                        <p className="text-[9px] text-white/70 uppercase tracking-widest truncate">
+                          {[log.collection_name, log.material_code].filter(Boolean).join(' · ') || 'NA'}
+                        </p>
+                        <p className="text-[9px] text-white/50 mt-0.5">{formatDate(log.created_at)}</p>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {logs.length > visibleCount && (
+                <div className="flex justify-center mt-5 sm:mt-6">
                   <button
-                    key={log.id}
-                    onClick={() => { setLightboxId(log.id); setImgZoom(1) }}
-                    className="group relative aspect-square overflow-hidden border border-stone-200 bg-stone-50 text-left"
+                    onClick={() => setVisibleCount(c => c + LOAD_MORE_STEP)}
+                    className="px-6 py-2.5 border border-stone-300 color-secondary-dark text-[10px] font-bold uppercase tracking-widest hover:bg-stone-50 transition-colors"
                   >
-                    {thumbSrc && (
-                      <img
-                        src={thumbSrc}
-                        alt={log.product_name ?? 'Generated render'}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    )}
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-stone-950/80 to-transparent p-2 pt-6">
-                      <p className="text-[10px] font-bold text-white uppercase tracking-widest truncate">
-                        {log.product_name ?? 'NA'}
-                      </p>
-                      <p className="text-[9px] text-white/70 uppercase tracking-widest truncate">
-                        {[log.collection_name, log.material_code].filter(Boolean).join(' · ') || 'NA'}
-                      </p>
-                      <p className="text-[9px] text-white/50 mt-0.5">{formatDate(log.created_at)}</p>
-                    </div>
+                    Load More
                   </button>
-                )
-              })}
-            </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

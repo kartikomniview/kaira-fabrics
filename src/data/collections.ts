@@ -30,7 +30,7 @@ export function buildCollections(mats: NewMaterial[]): Collection[] {
   }
 
   return Array.from(collectionMap.entries()).map(([name, data]) => ({
-    id: name.toLowerCase(),
+    id: name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
     name,
     description: `Premium ${data.materialType} collection featuring ${data.count} unique fabric variants.`,
     category: data.materialType,

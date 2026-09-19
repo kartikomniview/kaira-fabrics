@@ -19,7 +19,9 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const cachedSelectedThumb = useCachedMedia(selected?.textureUrl)
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
-  const [currentProduct, setCurrentProduct] = useState<KairaProduct>(kairaProducts[0])
+  const [currentProduct, setCurrentProduct] = useState<KairaProduct>(
+    kairaProducts.find((p) => p.product_name === 'Luna') ?? kairaProducts[0]
+  )
   const [productPanelOpen, setProductPanelOpen] = useState(false)
   const [quotationOpen, setQuotationOpen] = useState(false)
   const [currSelectedPartForFinish, setCurrSelectedPartForFinish] = useState('All')

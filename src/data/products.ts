@@ -39,6 +39,44 @@ export interface KairaProduct {
 
 export const kairaProducts: KairaProduct[] = [
   {
+    id: 1,
+    product_name: 'Alden',
+    model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Alden.webp',
+    image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v2/Alden.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Alden.glb',
+  },
+  {
+    id: 2,
+    product_name: 'Petal',
+    model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Petal.webp',
+    image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Petal.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Petal.glb',
+  },
+  {
+    id: 3,
+    product_name: 'Luna',
+    model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Luna.webp',
+    image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v2/Luna.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v2/Luna.glb',
+  },
+  {
+    id: 4,
+    product_name: 'Solstice',
+    model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Solstice.webp',
+    image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v3/Solstice.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Solstice.glb',
+  },
+  {
+    id: 5,
+    product_name: 'Hudson',
+    model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Hudson.webp',
+    image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Hudson.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Hudson.glb',
+  },
+]
+
+export const kairaProductsOld: KairaProduct[] = [
+  {
     id: 4,
     product_name: 'Hygge',
     model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Hygge.webp',

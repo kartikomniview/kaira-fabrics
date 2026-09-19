@@ -1,13 +1,9 @@
-import '@google/model-viewer'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import * as THREE from 'three'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { categoryMeta, normalizeType } from '../components/sections/FabricCategoriesSection'
-import InlineLoader from '../components/ui/InlineLoader'
 import Seo, { pageTitle } from '../components/seo/Seo'
 import { useMaterials } from '../contexts/MaterialsContext'
 import { type Collection } from '../data/collections'
-import { applyTextureToModel, fetchBlobUrl, getNormalMapURL, getRoughnessMapURL, getUvValue, NO_FABRIC_PARTS } from '../utils/textureUtils'
 import { useCachedMedia } from '../hooks/useCachedMedia'
 import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
 
@@ -15,755 +11,6 @@ const isValidIndianMobile = (num: string) => {
   const phone = parsePhoneNumberFromString(num, 'IN')
   return !!phone && phone.isValid() &&
     (phone.getType() === 'MOBILE' || phone.getType() === 'FIXED_LINE_OR_MOBILE')
-}
-
-const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
-const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
-const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-const MODEL_URL = isIOSDevice
-  ? 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Nova.glb'
-  : 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Nova.glb'
-
-function getSheenMapUrl(materialType: string) {
-  if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
-    return `${S3_BASE}/textures/Common/SheenColorMap.webp`
-  }
-  return ''
-}
-
-function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
-  if (materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8
-  if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
-  if (materialType.toLowerCase().includes('leather')) return 0.6
-  return baseRoughness
-}
-
-/* ── Material Thumbnail (lazy + per-image skeleton) ─────────────── */
-function MaterialThumb({
-  src,
-  alt,
-  onClick,
-  label,
-  subLabel,
-}: {
-  src: string
-  alt: string
-  onClick: () => void
-  label: string
-  subLabel?: string
-}) {
-  const [loaded, setLoaded] = useState(false)
-  const [error, setError] = useState(false)
-  const [inView, setInView] = useState(false)
-  const thumbRef = useRef<HTMLDivElement>(null)
-  const cachedSrc = useCachedMedia(inView ? src : undefined)
-
-  useEffect(() => {
-    const el = thumbRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect() } },
-      { rootMargin: '150px' }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
-
-  return (
-    <div className="group flex flex-col cursor-pointer" onClick={onClick}>
-      <div ref={thumbRef} className="aspect-square overflow-hidden bg-stone-100 border border-stone-200  shadow-sm hover:shadow-md transition-all group-hover:border-primary/40 relative">
-        {(!inView || !loaded) && !error && (
-          <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-            <div
-              className="absolute inset-0 -translate-x-full"
-              style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.72) 50%, transparent 100%)',
-                animation: 'kaira-shimmer 1.6s ease-in-out infinite',
-              }}
-            />
-          </div>
-        )}
-        {inView && cachedSrc && !error && (
-          <img
-            src={cachedSrc}
-            alt={alt}
-            decoding="async"
-            className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-            onLoad={() => setLoaded(true)}
-            onError={() => setError(true)}
-          />
-        )}
-        {error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-stone-200">
-            <svg className="w-5 h-5 text-color-secondary-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-        )}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-stone-900/30">
-          <svg className="w-5 h-5 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0zm-2 0h-4m2-2v4" />
-          </svg>
-        </div>
-      </div>
-      <div className="mt-1.5 px-0.5">
-        <p className="text-[10px] font-semibold text-charcoal uppercase truncate leading-tight">{label}</p>
-        {subLabel && <p className="text-[9px] text-color-secondary-dark truncate">{subLabel}</p>}
-      </div>
-    </div>
-  )
-}
-
-/* ── Collection Detail Modal ──────────────────────────────────────── */
-function CollectionModal({
-  collection,
-  onClose,
-}: {
-  collection: Collection
-  onClose: () => void
-}) {
-  const { newMaterials } = useMaterials()
-  const [showContactForm, setShowContactForm] = useState(false)
-  const [contactSubmitted, setContactSubmitted] = useState(false)
-  const [contactData, setContactData] = useState({ name: '', mobile: '', email: '', company: '', message: '' })
-  const [contactLoading, setContactLoading] = useState(false)
-  const [contactError, setContactError] = useState<string | null>(null)
-  const [zoomedIndex, setZoomedIndex] = useState<number | null>(null)
-  const [materialSearch, setMaterialSearch] = useState('')
-  const materials = useMemo(
-    () =>
-      newMaterials
-        .filter((m) => m.collection_name === collection.name)
-        .sort((a, b) =>
-          (a.material_code ?? '').localeCompare(b.material_code ?? '', undefined, { numeric: true, sensitivity: 'base' })
-        ),
-    [newMaterials, collection.name]
-  )
-
-  // ── Image zoom / pan state ──────────────────────────────────
-  const [imgScale, setImgScale] = useState(1)
-  const [imgOffset, setImgOffset] = useState({ x: 0, y: 0 })
-  const dragStart = useRef<{ mx: number; my: number; ox: number; oy: number } | null>(null)
-
-  // ── 3D viewer state ──────────────────────────────────────────
-  const [show3D, setShow3D] = useState(false)
-  const [isTextureLoading, setIsTextureLoading] = useState(false)
-  const [isModelLoading, setIsModelLoading] = useState(false)
-  const mvRef = useRef<HTMLElement>(null)
-  const fabricMeshesRef = useRef<any[]>([])
-
-  const cachedCoverSrc = useCachedMedia(collection.image)
-  const zoomedMaterial = zoomedIndex !== null ? materials[zoomedIndex] : null
-  const zoomedTextureUrl = zoomedMaterial ? `${S3_THUMB}/${zoomedMaterial.collection_name}/${zoomedMaterial.material_code}.webp` : undefined
-  const cachedZoomedUrl = useCachedMedia(zoomedTextureUrl)
-
-  useEffect(() => {
-    setImgScale(1)
-    setImgOffset({ x: 0, y: 0 })
-    setShow3D(false)
-  }, [zoomedIndex])
-
-  // Apply texture when model-viewer loads for the zoomed overlay
-  useEffect(() => {
-    if (!show3D || zoomedIndex === null) return
-    const mv = mvRef.current as any
-    if (!mv) return
-    const m = materials[zoomedIndex]
-    const textureUrl = `${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`
-    let applied = false
-    const apply = async () => {
-      if (applied) return
-      applied = true
-
-      // Setup meshes with MeshPhysicalMaterial — same as ThreeDVisualizerPage
-      fabricMeshesRef.current = []
-      const sceneSymbol: any = Object.getOwnPropertySymbols(mv).find((s: any) => s.description === 'scene')
-      const scene = mv[sceneSymbol]
-      scene.traverse((child: any) => {
-        if (child.isMesh && child.material) {
-          const oldMaterial = child.material
-          const newMaterial = new THREE.MeshPhysicalMaterial({
-            map: oldMaterial.map,
-            color: oldMaterial.color,
-            normalMap: oldMaterial.normalMap,
-            roughnessMap: oldMaterial.roughnessMap,
-            metalnessMap: oldMaterial.metalnessMap,
-            aoMap: oldMaterial.aoMap,
-            aoMapIntensity: oldMaterial.aoMapIntensity ?? 1,
-            roughness: oldMaterial.roughness ?? 0.5,
-            metalness: oldMaterial.metalness ?? 0.5,
-            transparent: oldMaterial.transparent,
-            opacity: oldMaterial.opacity,
-            side: oldMaterial.side,
-          })
-          child.material = newMaterial
-          fabricMeshesRef.current.push(child)
-        }
-      })
-
-      setIsModelLoading(false)
-      setIsTextureLoading(true)
-      try {
-        const uvScale = getUvValue(m.collection_name, m.material_code)
-        const roughness = getRoughnessValue(m.material_type ?? '', m.collection_name, (m as any).roughness ?? 0.8)
-        const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
-          fetchBlobUrl(textureUrl),
-          fetchBlobUrl(getRoughnessMapURL(m.collection_name)),
-          fetchBlobUrl(getNormalMapURL(m.collection_name, newMaterials, m.material_code)),
-          (() => { const u = getSheenMapUrl(m.material_type ?? ''); return u ? fetchBlobUrl(u) : Promise.resolve(null) })(),
-        ])
-        await applyTextureToModel(mv, {
-          baseBlobUrl,
-          roughness,
-          metalness: (m as any).metalness ?? 0.0,
-          uvScale,
-          skipParts: NO_FABRIC_PARTS,
-          roughnessBlobUrl,
-          normalBlobUrl,
-          sheenBlobUrl,
-          meshes: fabricMeshesRef.current,
-        })
-        if (baseBlobUrl) URL.revokeObjectURL(baseBlobUrl)
-        if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
-        if (normalBlobUrl) URL.revokeObjectURL(normalBlobUrl)
-        if (sheenBlobUrl) URL.revokeObjectURL(sheenBlobUrl)
-      } catch { /* silent */ } finally {
-        setIsTextureLoading(false)
-      }
-    }
-    if (!mv.model) setIsModelLoading(true)
-    mv.addEventListener('load', apply)
-    if (mv.model) apply()
-    return () => mv.removeEventListener('load', apply)
-  }, [show3D, zoomedIndex, materials])
-
-  const handleImgWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setImgScale((s) => {
-      const next = Math.min(4, Math.max(1, s - e.deltaY * 0.004))
-      if (next === 1) setImgOffset({ x: 0, y: 0 })
-      return next
-    })
-  }, [])
-
-  const handleImgMouseDown = useCallback((e: React.MouseEvent) => {
-    if (imgScale <= 1) return
-    e.preventDefault()
-    dragStart.current = { mx: e.clientX, my: e.clientY, ox: imgOffset.x, oy: imgOffset.y }
-  }, [imgScale, imgOffset])
-
-  const handleImgMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!dragStart.current) return
-    setImgOffset({
-      x: dragStart.current.ox + (e.clientX - dragStart.current.mx),
-      y: dragStart.current.oy + (e.clientY - dragStart.current.my),
-    })
-  }, [])
-
-  const handleImgMouseUp = useCallback(() => { dragStart.current = null }, [])
-
-  const handleImgDblClick = useCallback(() => {
-    setImgScale(1)
-    setImgOffset({ x: 0, y: 0 })
-  }, [])
-
-  // Close on Escape, arrow-key navigation for zoom
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (zoomedIndex !== null) {
-        if (e.key === 'Escape') { setZoomedIndex(null); return }
-        if (e.key === 'ArrowRight') { setZoomedIndex((i) => ((i ?? 0) + 1) % materials.length); return }
-        if (e.key === 'ArrowLeft') { setZoomedIndex((i) => ((i ?? 0) - 1 + materials.length) % materials.length); return }
-      } else {
-        if (e.key === 'Escape') onClose()
-      }
-    }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose, zoomedIndex, materials.length])
-
-  // Prevent body scroll
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
-  }, [])
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="relative bg-white w-full max-w-5xl max-h-[88vh] flex flex-col md:flex-row overflow-y-auto md:overflow-hidden shadow-2xl  border border-stone-200"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center bg-stone-900/80 text-white hover:bg-stone-900 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        {/* ── Left: Cover + Info ─────────────────────── */}
-        <div className="md:w-72 lg:w-80 flex-shrink-0 bg-stone-900 flex flex-col">
-          <div className="relative flex-1 min-h-52 md:min-h-0 overflow-hidden bg-stone-900 flex items-center justify-center">
-            {cachedCoverSrc && (
-              <img
-                src={cachedCoverSrc}
-                alt={collection.name}
-                className="max-w-full max-h-full object-contain"
-                onError={(e) => {
-                  const el = e.currentTarget as HTMLImageElement
-                  el.style.display = 'none'
-                  el.parentElement!.style.background = '#1c1917'
-                }}
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" />
-          </div>
-          <div className="p-6 flex flex-col gap-3">
-            <div>
-              <p className="text-[11px] md:text-[10px] tracking-[0.3em] font-bold uppercase text-primary mb-1">{collection.category}</p>
-              <h2 className="font-serif text-3xl md:text-2xl text-white leading-tight">{collection.name}</h2>
-            </div>
-            <p className="text-color-secondary-dark text-sm md:text-xs leading-relaxed">{collection.description}</p>
-            {collection.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {collection.tags.map((tag) => (
-                  <span key={tag} className="text-[10px] md:text-[9px] font-bold px-2 py-0.5 border border-stone-700 text-color-secondary-dark tracking-[0.2em] uppercase">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="flex items-center justify-between border-t border-stone-800 pt-4 mt-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Variants</span>
-              <span className="text-primary font-bold text-sm">{collection.itemCount}</span>
-            </div>
-            <button
-              onClick={() => setShowContactForm(true)}
-              className="mt-4 w-full py-3.5 bg-primary text-color-secondary-dark text-xs uppercase font-bold tracking-[0.2em] hover:bg-white hover:text-color-secondary-dark transition-all flex items-center justify-center gap-2.5  shadow-md"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-3-3v6" />
-              </svg>
-              Download Catalog
-            </button>
-          </div>
-        </div>
-
-        {/* ── Right: Materials List ──────────────────── */}
-        <div className="flex-1 flex flex-col md:min-h-0 bg-stone-50">
-          <div className="pl-6 pr-14 py-3 border-b border-stone-200 bg-white flex items-center gap-3">
-            <p className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark shrink-0">
-              Materials in this collection
-            </p>
-            <div className="flex items-center gap-2 border border-stone-200  bg-stone-50 px-2.5 py-1 flex-1 max-w-xs focus-within:border-stone-400 focus-within:bg-white transition-all">
-              <svg className="w-3 h-3 text-color-secondary-dark shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                value={materialSearch}
-                onChange={(e) => setMaterialSearch(e.target.value)}
-                placeholder="Search…"
-                className="flex-1 bg-transparent text-[12px] text-color-secondary-dark placeholder-stone-400 focus:outline-none min-w-0"
-              />
-              {materialSearch && (
-                <button onClick={() => setMaterialSearch('')} className="text-color-secondary-dark hover:text-color-secondary-dark transition-colors">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
-                </button>
-              )}
-            </div>
-            <span className="ml-auto text-[9px] font-bold bg-stone-100 text-color-secondary-dark px-2 py-0.5 tracking-[0.1em] uppercase shrink-0">
-              {materialSearch ? `${materials.filter(m => !/normal|roughness/i.test(m.material_code ?? '') && (m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) || m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) || m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))).length} results` : `${materials.filter(m => !/normal|roughness/i.test(m.material_code ?? '')).length} items`}
-            </span>
-          </div>
-          <div className="md:overflow-y-auto flex-1 p-3 sm:p-5">
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
-              {materials.filter(m =>
-                !/normal|roughness/i.test(m.material_code ?? '') &&
-                (!materialSearch ||
-                  m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) ||
-                  m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) ||
-                  m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))
-              ).map((m, idx) => (
-                <MaterialThumb
-                  key={idx}
-                  src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
-                  alt={m.material_name}
-                  onClick={() => setZoomedIndex(materials.indexOf(m))}
-                  label={m.material_name}
-                  subLabel={m.color_group ?? undefined}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-      {showContactForm && (
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm"
-          onClick={() => setShowContactForm(false)}
-        >
-          <div
-            className="bg-white w-full max-w-md shadow-2xl overflow-hidden  border border-stone-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="px-6 py-5 bg-secondary-dark flex items-center justify-between">
-              <div>
-                <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-primary mb-1">Request Catalog</p>
-                <h3 className="font-serif text-xl text-white leading-tight">{collection.name}</h3>
-              </div>
-              <button
-                onClick={() => { setShowContactForm(false); setContactSubmitted(false); setContactError(null) }}
-                className="w-8 h-8 flex items-center justify-center text-color-secondary-dark hover:text-white transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {contactSubmitted ? (
-              <div className="px-6 py-12 text-center bg-stone-50">
-                <div className="w-12 h-12 mx-auto mb-5 flex items-center justify-center bg-primary/10 border border-primary/20 text-primary">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                  </svg>
-                </div>
-                <h4 className="font-serif text-2xl text-color-secondary-dark mb-2">Request Sent</h4>
-                <p className="text-xs text-color-secondary-dark leading-relaxed max-w-xs mx-auto">
-                  Thank you! We'll get back to you with the catalog shortly.
-                </p>
-                <button
-                  onClick={() => { setShowContactForm(false); setContactSubmitted(false) }}
-                  className="mt-8 px-8 py-3 bg-secondary-dark text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-colors w-full sm:w-auto "
-                >
-                  Close
-                </button>
-              </div>
-            ) : (
-              <form
-                className="px-6 py-5 flex flex-col gap-4 bg-white"
-                onSubmit={async (e) => {
-                  e.preventDefault()
-                  if (!isValidIndianMobile(contactData.mobile)) {
-                    setContactError('Please enter a valid mobile number')
-                    return
-                  }
-                  setContactLoading(true)
-                  setContactError(null)
-                  try {
-                    const messageBody = [
-                      `Catalog Request: ${collection.name}`,
-                      contactData.company ? `Company: ${contactData.company}` : '',
-                      contactData.message ? contactData.message : '',
-                    ].filter(Boolean).join(' | ')
-                    const res = await fetch('https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage/contact', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        name: contactData.name,
-                        mobile: contactData.mobile,
-                        email: contactData.email || 'not provided',
-                        message: messageBody,
-                      }),
-                    })
-                    if (!res.ok) throw new Error('Failed to send request. Please try again.')
-                    setContactSubmitted(true)
-                  } catch (err) {
-                    setContactError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
-                  } finally {
-                    setContactLoading(false)
-                  }
-                }}
-              >
-                <p className="text-[10px] text-color-secondary-dark leading-relaxed -mt-1">
-                  Fill in your details and we'll send the full catalog for <span className="text-color-secondary-dark font-semibold">{collection.name}</span>.
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Name <span className="text-primary">*</span></label>
-                    <input
-                      required
-                      type="text"
-                      value={contactData.name}
-                      onChange={(e) => setContactData((d) => ({ ...d, name: e.target.value }))}
-                      placeholder="Your name"
-                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Mobile <span className="text-primary">*</span></label>
-                    <input
-                      required
-                      type="tel"
-                      pattern="^[0-9\-\+\s]{10,15}$"
-                      title="Please enter a valid mobile number (10-15 digits)"
-                      value={contactData.mobile}
-                      onChange={(e) => setContactData((d) => ({ ...d, mobile: e.target.value }))}
-                      placeholder="+91 XXXXX XXXXX"
-                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Email <span className="normal-case tracking-normal font-normal text-color-secondary-dark/60 text-[9px] ml-1">(Optional)</span></label>
-                  <input
-                    type="email"
-                    value={contactData.email}
-                    onChange={(e) => setContactData((d) => ({ ...d, email: e.target.value }))}
-                    placeholder="you@company.com"
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Company</label>
-                  <input
-                    type="text"
-                    value={contactData.company}
-                    onChange={(e) => setContactData((d) => ({ ...d, company: e.target.value }))}
-                    placeholder="Your company (optional)"
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Message</label>
-                  <textarea
-                    rows={3}
-                    value={contactData.message}
-                    onChange={(e) => setContactData((d) => ({ ...d, message: e.target.value }))}
-                    placeholder="Any specific requirements..."
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all resize-none "
-                  />
-                </div>
-                {contactError && (
-                  <p className="text-red-600 text-[11px] font-medium border border-red-200 bg-red-50 px-3 py-2 shadow-sm">{contactError}</p>
-                )}
-                <div className="flex items-center justify-between pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setShowContactForm(false)}
-                    disabled={contactLoading}
-                    className="text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark hover:text-color-secondary-dark transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={contactLoading}
-                    className="px-5 py-2.5 bg-secondary-dark text-white text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-stone-800 transition-all shadow-sm disabled:opacity-70 disabled:cursor-not-allowed min-w-[110px] flex items-center justify-center"
-                  >
-                    {contactLoading ? 'Sending...' : 'Send Request'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Material Zoom Overlay ────────────────────────────────── */}
-      {zoomedIndex !== null && (() => {
-        const m = materials[zoomedIndex]
-        return (
-          <div
-            className="fixed inset-0 z-[70] flex items-center justify-center p-4"
-            style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)' }}
-            onClick={(e) => { e.stopPropagation(); setZoomedIndex(null) }}
-          >
-            <div
-              className="relative flex flex-col items-stretch w-full max-w-lg overflow-hidden  shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Image pane — big, on top */}
-              <div
-                className="relative w-full aspect-square bg-stone-900 flex items-center justify-center flex-shrink-0 overflow-hidden"
-                style={{ cursor: show3D ? 'default' : imgScale > 1 ? (dragStart.current ? 'grabbing' : 'grab') : 'zoom-in' }}
-                onWheel={!show3D ? handleImgWheel : undefined}
-                onMouseDown={!show3D ? handleImgMouseDown : undefined}
-                onMouseMove={!show3D ? handleImgMouseMove : undefined}
-                onMouseUp={!show3D ? handleImgMouseUp : undefined}
-                onMouseLeave={!show3D ? handleImgMouseUp : undefined}
-              >
-                {show3D ? (
-                  <>
-                    {isModelLoading && (
-                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
-                        <InlineLoader color="secondary" />
-                        <p className="mt-2 text-[10px] uppercase tracking-widest text-white/60 animate-pulse">Loading 3D Model…</p>
-                      </div>
-                    )}
-                    {!isModelLoading && isTextureLoading && (
-                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm">
-                        <InlineLoader color="secondary" />
-                        <p className="mt-2 text-[10px] uppercase tracking-widest text-white/60 animate-pulse">Applying Texture…</p>
-                      </div>
-                    )}
-                    <model-viewer
-                      ref={mvRef as any}
-                      src={MODEL_URL}
-                      alt={`${m.material_name} on sofa`}
-                      camera-controls
-                      auto-rotate
-                      disable-pan
-                      tone-mapping="neutral"
-                      exposure="0.4"
-                      shadow-intensity="0.6"
-                      shadow-softness="1"
-                      style={{ width: '100%', height: '100%', background: '#fafaf9' }}
-                    />
-                  </>
-                ) : cachedZoomedUrl ? (
-                  <img
-                    key={m.id}
-                    src={cachedZoomedUrl}
-                    alt={m.material_name}
-                    className="w-full h-full object-cover select-none"
-                    style={{
-                      transform: `scale(${imgScale}) translate(${imgOffset.x / imgScale}px, ${imgOffset.y / imgScale}px)`,
-                      transition: dragStart.current ? 'none' : 'transform 0.15s ease',
-                    }}
-                    draggable={false}
-                    onDoubleClick={handleImgDblClick}
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0' }}
-                  />
-                ) : (
-                  <InlineLoader color="secondary" />
-                )}
-                {/* Zoom controls — hidden in 3D mode */}
-                {!show3D && (
-                  <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setImgScale((s) => { const n = Math.min(4, s + 0.5); if (n === 1) setImgOffset({ x: 0, y: 0 }); return n }) }}
-                      className="w-7 h-7 bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow"
-                      aria-label="Zoom in"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setImgScale((s) => { const n = Math.max(1, s - 0.5); if (n === 1) setImgOffset({ x: 0, y: 0 }); return n }) }}
-                      className="w-7 h-7 bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow"
-                      aria-label="Zoom out"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16" />
-                      </svg>
-                    </button>
-                    {imgScale > 1 && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setImgScale(1); setImgOffset({ x: 0, y: 0 }) }}
-                        className="w-7 h-7 bg-stone-900/70 border border-stone-700 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shadow text-[9px] font-bold"
-                        aria-label="Reset zoom"
-                      >
-                        1:1
-                      </button>
-                    )}
-                  </div>
-                )}
-                {/* View in 3D button — bottom right */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShow3D((v) => !v) }}
-                  className="absolute bottom-3 right-3 z-10 flex items-center gap-2 bg-primary border border-primary text-color-secondary-dark font-bold px-4 py-2.5 text-[11px] uppercase tracking-widest hover:bg-white transition-colors shadow"
-                >
-                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
-                  </svg>
-                  {show3D ? 'Show Texture' : 'View in 3D'}
-                </button>
-                {/* Zoom level badge — hidden in 3D mode */}
-                {!show3D && imgScale > 1 && (
-                  <span className="absolute top-3 left-3 text-[9px] font-bold tabular-nums text-white/80 bg-stone-900/60 px-2 py-0.5 tracking-wider">
-                    {Math.round(imgScale * 100)}%
-                  </span>
-                )}
-                {!show3D && imgScale === 1 && (
-                  <span className="absolute top-3 left-3 text-[9px] text-white/40 bg-stone-900/40 px-2 py-0.5 tracking-wide">
-                    scroll to zoom
-                  </span>
-                )}
-                {/* Prev */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setZoomedIndex((zoomedIndex - 1 + materials.length) % materials.length) }}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-stone-900/70 text-white flex items-center justify-center hover:bg-stone-900 transition-colors"
-                  aria-label="Previous"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                {/* Next */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setZoomedIndex((zoomedIndex + 1) % materials.length) }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-stone-900/70 text-white flex items-center justify-center hover:bg-stone-900 transition-colors"
-                  aria-label="Next"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-                {/* Counter badge */}
-                <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] font-bold tabular-nums text-white/70 bg-stone-900/60 px-2.5 py-1 tracking-widest">
-                  {zoomedIndex + 1} / {materials.length}
-                </span>
-              </div>
-
-              {/* Info pane — compact, at bottom */}
-              <div className="w-full bg-white px-6 py-4 flex flex-col gap-2.5">
-                <div>
-                  <p className="text-[9px] tracking-[0.3em] uppercase font-bold text-primary mb-0.5">{m.collection_name}</p>
-                  <h3 className="font-serif text-xl text-color-secondary-dark leading-tight">{m.material_name}</h3>
-                </div>
-                <div className="flex flex-wrap gap-x-6 gap-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-color-secondary-dark">Code</span>
-                    <span className="text-[11px] font-bold text-color-secondary-dark tracking-wide">{m.material_code}</span>
-                  </div>
-                  {m.material_type && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-color-secondary-dark">Type</span>
-                      <span className="text-[11px] text-color-secondary-dark">{m.material_type}</span>
-                    </div>
-                  )}
-                  {m.color_group && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-color-secondary-dark">Colour</span>
-                      <span className="text-[11px] text-color-secondary-dark">{m.color_group}</span>
-                    </div>
-                  )}
-                  {m.pattern && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-color-secondary-dark">Pattern</span>
-                      <span className="text-[11px] text-color-secondary-dark">{m.pattern}</span>
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setZoomedIndex(null) }}
-                  className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-secondary-dark text-white transition-all text-[11px] font-bold uppercase tracking-widest "
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Go Back
-                </button>
-              </div>
-            </div>
-          </div>
-        )
-      })()}
-    </div>
-  )
 }
 
 /* ── Quote Modal ─────────────────────────────────────────────────── */
@@ -928,11 +175,11 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
 }
 
 /* ── Collection Grid Card (lazy image + per-image skeleton) ─────── */
-function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => void }) {
+function CollectionGridCard({ col }: { col: Collection }) {
   const [imgLoaded, setImgLoaded] = useState(false)
   const [imgError, setImgError] = useState(false)
   const [inView, setInView] = useState(false)
-  const cardRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLAnchorElement>(null)
   const cachedSrc = useCachedMedia(inView ? col.image : undefined)
 
   useEffect(() => {
@@ -947,9 +194,9 @@ function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => 
   }, [])
 
   return (
-    <div
+    <Link
       ref={cardRef}
-      onClick={onClick}
+      to={`/collections/${col.id}`}
       className="group cursor-pointer bg-white border border-stone-200 overflow-hidden hover:border-primary/40 hover:shadow-md transition-all duration-300  shadow-sm flex flex-col"
     >
       {/* Top accent bar */}
@@ -1003,7 +250,7 @@ function CollectionGridCard({ col, onClick }: { col: Collection; onClick: () => 
           <span className="text-[10px] md:text-[10px] text-secondary font-bold tracking-widest">{col.itemCount} var.</span>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -1049,7 +296,6 @@ const CollectionsPage = () => {
     window.scrollTo(0, 0)
   }, [])
 
-  const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null)
   const [minDelayDone, setMinDelayDone] = useState(false)
   useEffect(() => {
     const t = setTimeout(() => setMinDelayDone(true), 700)
@@ -1072,8 +318,6 @@ const CollectionsPage = () => {
   useEffect(() => { setVisibleCount(12) }, [activeMaterialType, collectionSearch])
 
   const navigate = useNavigate()
-  const openModal = useCallback((col: Collection) => setSelectedCollection(col), [])
-  const closeModal = useCallback(() => setSelectedCollection(null), [])
   const [showQuoteModal, setShowQuoteModal] = useState(false)
   const chipsRef = useRef<HTMLDivElement>(null)
   const scrollChips = (dir: 'left' | 'right') => {
@@ -1085,6 +329,7 @@ const CollectionsPage = () => {
       <Seo
         title={pageTitle('Collections')}
         description="Browse KAIRA's curated collections of premium fabrics and leathers — filter by material and texture to find the perfect fit for your interior project."
+        image="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner1.webp"
       />
 
       {/* ── Page Header ──────────────────────────────────── */}
@@ -1139,8 +384,11 @@ const CollectionsPage = () => {
           <h1 className="font-serif text-3xl md:text-5xl text-primary leading-tight">
             Fabric Collections
           </h1>
-          <p className="mt-3 text-xs md:text-sm text-white/60 font-light max-w-md leading-relaxed">
-            Explore our handpicked range of premium fabrics from luxurious upholstery to delicate sheers, crafted for every space.
+          <p className="mt-3 text-xs md:text-sm text-white/60 font-light max-w-2xl leading-relaxed">
+            Browse KAIRA's full range of upholstery fabrics and leathers — chenille, suede fabric, suede leather, artificial leather
+            and digital-print collections, each available in multiple colourways and patterns. Every collection below has its own
+            page with detailed swatches, a 3D sofa preview, and a downloadable catalog, so you can explore the exact material,
+            share it with your team, or request samples before you decide.
           </p>
         </div>
       </div>
@@ -1271,7 +519,7 @@ const CollectionsPage = () => {
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-5">
                 {filtered.slice(0, visibleCount).map((col) => (
-                  <CollectionGridCard key={col.name} col={col} onClick={() => openModal(col)} />
+                  <CollectionGridCard key={col.name} col={col} />
                 ))}
               </div>
               {visibleCount < filtered.length && (
@@ -1338,11 +586,6 @@ const CollectionsPage = () => {
 
         </div>
       </div>
-
-      {/* ── Collection Detail Modal ──────────────────────────────── */}
-      {selectedCollection && (
-        <CollectionModal collection={selectedCollection} onClose={closeModal} />
-      )}
 
       {/* ── Quote Modal ──────────────────────────────────────────── */}
       {showQuoteModal && (

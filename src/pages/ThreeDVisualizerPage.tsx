@@ -25,7 +25,9 @@ const ThreeDVisualizerPage = () => {
     setTimeout(() => navigate('/'), 600)
   }
 
-  const [currentProduct, setCurrentProduct] = useState<KairaProduct>(kairaProducts[0])
+  const [currentProduct, setCurrentProduct] = useState<KairaProduct>(
+    kairaProducts.find((p) => p.product_name === 'Luna') ?? kairaProducts[0]
+  )
   const [selected, setSelected] = useState<SelectedMaterial | null>(null)
   const [isApplying, setIsApplying] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
