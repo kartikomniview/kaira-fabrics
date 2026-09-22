@@ -186,7 +186,7 @@ export default function MaterialZoomOverlay({ material: m, newMaterials, initial
       onClick={(e) => { e.stopPropagation(); onClose() }}
     >
       <div
-        className="relative flex flex-col items-stretch w-full max-w-lg bg-white overflow-hidden shadow-2xl"
+        className="relative flex flex-col items-stretch w-full max-w-lg h-[85vh] sm:h-auto bg-white overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header — minimal: material code + other info, close button */}
@@ -214,7 +214,7 @@ export default function MaterialZoomOverlay({ material: m, newMaterials, initial
         </div>
 
         {/* Material image */}
-        <div className="relative w-full aspect-square bg-stone-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="relative w-full flex-1 sm:flex-none sm:aspect-square bg-stone-900 flex items-center justify-center overflow-hidden">
           {show3D ? (
             <>
               {isModelLoading && (

@@ -3,6 +3,7 @@ import type { NewMaterial } from '../../data/newmaterials'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
+import SectionLoader from '../../components/ui/SectionLoader'
 
 export const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
@@ -115,30 +116,33 @@ interface MaterialSelectorProps {
 
 const PAGE_SIZE = 24
 
-const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = true, onClose, disabled = false, id }: MaterialSelectorProps) => {
+const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = false, onClose, disabled = false, id }: MaterialSelectorProps) => {
   const { newMaterials, collections, isLoading: materialsLoading, error: materialsError } = useMaterials()
   const colorScrollRef = useRef<HTMLDivElement>(null)
   const typeScrollRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
+  const homeCollectionRef = useRef('Koral')
   const [activeMaterialType, setActiveMaterialType] = useState('All')
   const [activeCollection, setActiveCollection] = useState('Koral')
   const [activeColorGroup, setActiveColorGroup] = useState('All')
   const [activePattern, setActivePattern] = useState('All')
   const [search, setSearch] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
-  const [showColDropdown, setShowColDropdown] = useState(false)
+  const [view, setView] = useState<'collections' | 'materials'>('collections')
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
-    if (!showColDropdown) return
-    const handler = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      if (!target.closest('[data-col-dropdown]')) setShowColDropdown(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [showColDropdown])
+  const triggerTransition = () => {
+    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current)
+    setIsTransitioning(true)
+    transitionTimeoutRef.current = setTimeout(() => setIsTransitioning(false), 350)
+  }
+
+  useEffect(() => () => {
+    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current)
+  }, [])
 
   const showSearchDropdown = search.trim().length > 0
 
@@ -267,8 +271,39 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   const handleCollectionSearch = (c: { name: string; category: string; image: string }) => {
     setActiveMaterialType(c.category || 'All')
     setActiveCollection(c.name)
+    setActiveColorGroup('All')
+    homeCollectionRef.current = c.name
     setSearch('')
     setIsSearchFocused(false)
+    setView('materials')
+    triggerTransition()
+  }
+
+  const handleCollectionClick = (name: string) => {
+    setActiveCollection(name)
+    setActiveColorGroup('All')
+    homeCollectionRef.current = name
+    setView('materials')
+    triggerTransition()
+  }
+
+  const handleBackToCollections = () => {
+    setView('collections')
+    triggerTransition()
+  }
+
+  const handleMaterialTypeClick = (t: string) => {
+    setActiveMaterialType(t)
+    triggerTransition()
+  }
+
+  const handleColorGroupClick = (c: string) => {
+    setActiveColorGroup(c)
+    if (c === 'All') return
+    const home = homeCollectionRef.current
+    if (home === 'All') return
+    const existsInHomeCollection = newMaterials.some(m => m.collection_name === home && m.color_group === c)
+    setActiveCollection(existsInHomeCollection ? home : 'All')
   }
 
   return (
@@ -285,8 +320,10 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
         {/* Title row */}
         <div className={`items-center gap-2 ${onClose ? 'flex' : 'hidden md:flex'}`}>
           <h2 className="text-[12px] font-bold color-secondary-dark uppercase tracking-widest flex-1">Kaira Inventory</h2>
-          <span className="text-[11px] color-secondary-dark/60">{filtered.length} fabrics</span>
-          {activeFilterCount > 0 && (
+          <span className="text-[11px] color-secondary-dark/60">
+            {view === 'collections' ? `${collectionsWithThumbs.length} collections` : `${filtered.length} fabrics`}
+          </span>
+          {view === 'materials' && activeFilterCount > 0 && (
             <button onClick={clearFilters} className="text-[11px] uppercase tracking-widest text-primary hover:underline ml-2 font-semibold">
               Clear ({activeFilterCount})
             </button>
@@ -301,70 +338,6 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-          )}
-        </div>
-
-        {/* Search bar — collection search only */}
-        <div ref={searchContainerRef} className="relative hidden md:block">
-          <div
-            className={`flex items-center gap-2 rounded-none border transition-all duration-200 px-3 py-2 ${
-              isSearchFocused
-                ? 'border-primary/60 bg-white shadow-md ring-1 ring-primary/20'
-                : search.trim().length > 0
-                  ? 'border-primary/30 bg-primary/5'
-                  : 'border-stone-200 bg-white hover:border-stone-300'
-            }`}
-          >
-            <svg className={`w-3.5 h-3.5 shrink-0 transition-colors ${isSearchFocused || search.trim().length > 0 ? 'text-primary' : 'color-secondary-dark/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-              onKeyDown={(e) => { if (e.key === 'Escape') { setSearch(''); searchInputRef.current?.blur() } }}
-              placeholder="Search collections…"
-              className="flex-1 bg-transparent text-[11px] focus:outline-none placeholder-stone-400 color-secondary-dark min-w-0"
-            />
-            {search.trim().length > 0 && (
-              <button
-                onMouseDown={(e) => { e.preventDefault(); setSearch(''); searchInputRef.current?.focus() }}
-                className="shrink-0 color-secondary-dark/40 hover:color-secondary-dark transition-colors"
-              >
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
-              </button>
-            )}
-          </div>
-
-          {showSearchDropdown && (
-            <div
-              className="absolute z-30 top-full left-0 right-0 mt-0.5 bg-white border border-stone-200 shadow-xl rounded-none max-h-60 overflow-y-auto"
-              onMouseDown={(e) => e.preventDefault()}
-            >
-              {searchResults.length > 0 ? searchResults.map(c => (
-                <button
-                  key={c.name}
-                  onClick={() => handleCollectionSearch(c)}
-                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-stone-50 text-left transition-colors border-b border-stone-100 last:border-b-0"
-                >
-                  <CachedThumbImg src={c.image} alt={c.name} className="w-8 h-8 object-cover border border-stone-200 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-wider color-secondary-dark truncate">
-                      {highlight(c.name, search.trim())}
-                    </p>
-                    <p className="text-[9px] text-stone-400 uppercase tracking-widest">{c.category}</p>
-                  </div>
-                  <svg className="w-3 h-3 text-stone-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              )) : (
-                <div className="px-3 py-3 text-[11px] text-stone-400 text-center uppercase tracking-widest">No collections found</div>
-              )}
-            </div>
           )}
         </div>
 
@@ -391,133 +364,235 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
           </div>
         )}
 
-        {/* Type chips */}
-        <div className="flex items-center gap-1 overflow-hidden">
-          <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest color-secondary-dark/50 pr-0.5">Type</span>
-          <button
-            onClick={() => scrollTypes('left')}
-            className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
-          >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <div
-            ref={typeScrollRef}
-            className="flex-1 flex items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5"
-          >
-            {materialTypeOptions.map(t => {
-              const isActive = activeMaterialType === t
-              return (
-                <button
-                  key={t}
-                  onClick={() => setActiveMaterialType(t)}
-                  className={`shrink-0 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-none border transition-all ${
-                    isActive
-                      ? 'bg-secondary-dark text-white border-secondary-dark'
-                      : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-700'
-                  }`}
-                >
-                  {t === 'All' ? t : categoryMeta[normalizeType(t)]?.label ?? t}
-                </button>
-              )
-            })}
-          </div>
-          <button
-            onClick={() => scrollTypes('right')}
-            className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
-          >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
-          </button>
-        </div>
-
-        {/* Collection dropdown + color swatches */}
-        <div className={`flex items-center gap-2 ${showColDropdown ? 'pb-72 md:pb-0' : ''}`}>
-          <div className="relative shrink-0 w-[160px]" data-col-dropdown>
-            <span className="absolute -top-1 left-2 z-10 bg-stone-50 px-1 text-[8px] font-bold text-primary uppercase tracking-wider leading-none">Collections</span>
-            <button
-              onClick={() => setShowColDropdown(!showColDropdown)}
-              className="w-full bg-white border border-primary text-[11px] px-2.5 py-1 h-7 rounded-none flex items-center justify-between hover:border-primary/70"
-            >
-              <span className="font-semibold text-primary uppercase tracking-wider truncate">
-                {activeCollection === 'All' ? 'Collections' : activeCollection}
-              </span>
-              <svg className={`w-3 h-3 text-stone-500 shrink-0 transition-transform ${showColDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-            </button>
-
-            {showColDropdown && (
-              <div className="absolute z-20 top-full left-0 mt-1 bg-white border border-stone-200 rounded-none shadow-xl p-3 w-[300px] max-h-72 overflow-y-auto">
-                <div className="grid grid-cols-3 gap-3">
-                  <div
-                    className="flex flex-col items-center gap-1.5 cursor-pointer group"
-                    onClick={() => { setActiveCollection('All'); setShowColDropdown(false) }}
+        {view === 'collections' ? (
+          <>
+            {/* Search bar — collection search only */}
+            <div ref={searchContainerRef} className="relative hidden md:block">
+              <div
+                className={`flex items-center gap-2 rounded-none border transition-all duration-200 px-3 py-2 ${
+                  isSearchFocused
+                    ? 'border-primary/60 bg-white shadow-md ring-1 ring-primary/20'
+                    : search.trim().length > 0
+                      ? 'border-primary/30 bg-primary/5'
+                      : 'border-stone-200 bg-white hover:border-stone-300'
+                }`}
+              >
+                <svg className={`w-3.5 h-3.5 shrink-0 transition-colors ${isSearchFocused || search.trim().length > 0 ? 'text-primary' : 'color-secondary-dark/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  onKeyDown={(e) => { if (e.key === 'Escape') { setSearch(''); searchInputRef.current?.blur() } }}
+                  placeholder="Search collections…"
+                  className="flex-1 bg-transparent text-[11px] focus:outline-none placeholder-stone-400 color-secondary-dark min-w-0"
+                />
+                {search.trim().length > 0 && (
+                  <button
+                    onMouseDown={(e) => { e.preventDefault(); setSearch(''); searchInputRef.current?.focus() }}
+                    className="shrink-0 color-secondary-dark/40 hover:color-secondary-dark transition-colors"
                   >
-                    <div className={`w-full aspect-square rounded-none border flex items-center justify-center transition-all ${activeCollection === 'All' ? 'border-primary shadow-sm bg-primary/5' : 'border-stone-200 bg-stone-50 group-hover:border-stone-300'}`}>
-                      <span className="text-xs font-bold color-secondary-dark/50">ALL</span>
-                    </div>
-                    <span className="text-[10px] font-semibold color-secondary-dark uppercase tracking-wider text-center w-full truncate">All</span>
-                  </div>
-                  {collectionsWithThumbs.map(c => {
-                    const isActive = activeCollection === c.name
-                    return (
-                      <div
-                        key={c.name}
-                        className="flex flex-col items-center gap-1.5 cursor-pointer group"
-                        onClick={() => { setActiveCollection(c.name); setShowColDropdown(false) }}
-                      >
-                        <div className={`w-full aspect-square rounded-none overflow-hidden border transition-all ${isActive ? 'border-primary ring-1 ring-primary shadow-sm' : 'border-stone-200 group-hover:border-stone-300'}`}>
-                          <CachedThumbImg src={c.thumb} alt={c.name} className="w-full h-full object-cover" />
-                        </div>
-                        <span className="text-[10px] font-semibold color-secondary-dark uppercase tracking-wider text-center w-full truncate">{c.name}</span>
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
+                  </button>
+                )}
+              </div>
+
+              {showSearchDropdown && (
+                <div
+                  className="absolute z-30 top-full left-0 right-0 mt-0.5 bg-white border border-stone-200 shadow-xl rounded-none max-h-60 overflow-y-auto"
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  {searchResults.length > 0 ? searchResults.map(c => (
+                    <button
+                      key={c.name}
+                      onClick={() => handleCollectionSearch(c)}
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-stone-50 text-left transition-colors border-b border-stone-100 last:border-b-0"
+                    >
+                      <CachedThumbImg src={c.image} alt={c.name} className="w-8 h-8 object-cover border border-stone-200 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-bold uppercase tracking-wider color-secondary-dark truncate">
+                          {highlight(c.name, search.trim())}
+                        </p>
+                        <p className="text-[9px] text-stone-400 uppercase tracking-widest">{c.category}</p>
                       </div>
-                    )
-                  })}
+                      <svg className="w-3 h-3 text-stone-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )) : (
+                    <div className="px-3 py-3 text-[11px] text-stone-400 text-center uppercase tracking-widest">No collections found</div>
+                  )}
                 </div>
+              )}
+            </div>
+
+            {/* Type chips */}
+            <div className="flex items-center gap-1 overflow-hidden">
+              <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest color-secondary-dark/50 pr-0.5">Type</span>
+              <button
+                onClick={() => scrollTypes('left')}
+                className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <div
+                ref={typeScrollRef}
+                className="flex-1 flex items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5"
+              >
+                {materialTypeOptions.map(t => {
+                  const isActive = activeMaterialType === t
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => handleMaterialTypeClick(t)}
+                      className={`shrink-0 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-none border transition-all ${
+                        isActive
+                          ? 'bg-secondary-dark text-white border-secondary-dark'
+                          : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-700'
+                      }`}
+                    >
+                      {t === 'All' ? t : categoryMeta[normalizeType(t)]?.label ?? t}
+                    </button>
+                  )
+                })}
+              </div>
+              <button
+                onClick={() => scrollTypes('right')}
+                className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Back to collections + color group selector — one prominent row */}
+            <div className="flex items-center gap-2 py-1.5 border-b border-stone-200">
+              <button
+                onClick={handleBackToCollections}
+                className="shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-none bg-primary text-white border border-primary hover:bg-primary/90 transition-all"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+                Back to Collections
+              </button>
+              <span className="shrink-0 w-px h-4 bg-stone-200" />
+              <span className="shrink-0 max-w-[70px] text-[11px] font-bold uppercase tracking-wider text-primary truncate" title={activeCollection}>
+                {activeCollection === 'All' ? 'All' : activeCollection}
+              </span>
+              <button
+                onClick={() => scrollColors('left')}
+                className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <div
+                ref={colorScrollRef}
+                className="flex-1 flex items-center min-w-0 gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1"
+              >
+                {allColorGroups.map((c) => {
+                  const isActive = activeColorGroup === c
+                  return (
+                    <button
+                      key={c}
+                      onClick={() => handleColorGroupClick(c)}
+                      title={c}
+                      className={`relative shrink-0 flex items-center justify-center w-[18px] h-[18px] rounded-none transition-all ${isActive ? 'ring-2 ring-offset-1 ring-primary scale-110' : 'hover:scale-110 hover:ring-1 hover:ring-stone-300 ring-offset-1'}`}
+                    >
+                      <span
+                        className="absolute inset-0 rounded-none border border-stone-200 shadow-sm"
+                        style={{ background: c === 'All' ? 'linear-gradient(135deg,#f5f0eb,#8b5a2b,#1c1c1c)' : (COLOR_MAP[c] ?? '#d0c8c0') }}
+                      />
+                    </button>
+                  )
+                })}
+              </div>
+              <button
+                onClick={() => scrollColors('right')}
+                className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
+
+            {activeColorGroup !== 'All' && (
+              <div className="flex items-center justify-between gap-2 text-[10px] color-secondary-dark/60 uppercase tracking-wider">
+                <span>
+                  Showing <span className="font-bold text-primary">{activeColorGroup}</span> color options from {activeCollection === 'All' ? 'all collections' : activeCollection}
+                </span>
+                <button
+                  onClick={() => setActiveColorGroup('All')}
+                  className="shrink-0 font-bold text-primary hover:underline normal-case tracking-normal"
+                >
+                  Clear
+                </button>
               </div>
             )}
-          </div>
+          </>
+        )}
 
-          {/* Color swatches with scroll */}
-          <div className="flex-1 flex items-center min-w-0 gap-1 overflow-hidden">
-            <button
-              onClick={() => scrollColors('left')}
-              className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-            <div
-              ref={colorScrollRef}
-              className="flex-1 flex items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1"
-            >
-              {allColorGroups.map((c) => {
-                const isActive = activeColorGroup === c
+      </div>
+
+      {/* Collections / Materials window */}
+      <div className="flex-1 overflow-y-auto p-3 bg-stone-50 relative">
+        {isTransitioning && !materialsLoading && <SectionLoader overlay size="sm" />}
+        <div
+          key={`${view}-${activeMaterialType}-${activeCollection}`}
+          className={isTransitioning ? 'opacity-0' : ''}
+          style={!isTransitioning ? { animation: 'kaira-fade-scale-in 0.35s ease-out both' } : undefined}
+        >
+        {view === 'collections' ? (
+          materialsLoading ? (
+            <div className="grid grid-cols-3 gap-3">
+              {Array.from({ length: 9 }, (_, i) => (
+                <div key={i} className="relative aspect-square rounded-none bg-stone-100 overflow-hidden border border-stone-200" aria-hidden="true">
+                  <div
+                    className="absolute inset-0 -translate-x-full"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
+                      animation: `kaira-shimmer 1.6s ease-in-out ${i * 0.05}s infinite`,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : materialsError ? (
+            <div className="h-full flex flex-col items-center justify-center gap-2 text-center px-4 py-10">
+              <svg className="w-8 h-8 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+              <p className="text-[11px] text-stone-400 uppercase tracking-widest">Failed to load collections</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleCollectionClick('All')}
+                className="flex flex-col items-center gap-1.5 group"
+              >
+                <div className={`w-full aspect-square rounded-none border flex items-center justify-center transition-all ${activeCollection === 'All' ? 'border-primary shadow-sm bg-primary/5' : 'border-stone-200 bg-white group-hover:border-stone-300'}`}>
+                  <span className="text-xs font-bold color-secondary-dark/50">ALL</span>
+                </div>
+                <span className="text-[10px] font-semibold color-secondary-dark uppercase tracking-wider text-center w-full truncate">All Materials</span>
+              </button>
+              {collectionsWithThumbs.map(c => {
+                const isActive = activeCollection === c.name
                 return (
                   <button
-                    key={c}
-                    onClick={() => setActiveColorGroup(c)}
-                    title={c}
-                    className={`relative shrink-0 flex items-center justify-center w-[18px] h-[18px] rounded-none transition-all ${isActive ? 'ring-2 ring-offset-1 ring-primary scale-110' : 'hover:scale-110 hover:ring-1 hover:ring-stone-300 ring-offset-1'}`}
+                    key={c.name}
+                    onClick={() => handleCollectionClick(c.name)}
+                    className="flex flex-col items-center gap-1.5 group"
                   >
-                    <span
-                      className="absolute inset-0 rounded-none border border-stone-200 shadow-sm"
-                      style={{ background: c === 'All' ? 'linear-gradient(135deg,#f5f0eb,#8b5a2b,#1c1c1c)' : (COLOR_MAP[c] ?? '#d0c8c0') }}
-                    />
+                    <div className={`w-full aspect-square rounded-none overflow-hidden border transition-all ${isActive ? 'border-primary ring-1 ring-primary shadow-sm' : 'border-stone-200 group-hover:border-stone-300'}`}>
+                      <CachedThumbImg src={c.thumb} alt={c.name} className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-[10px] font-semibold color-secondary-dark uppercase tracking-wider text-center w-full truncate">{c.name}</span>
                   </button>
                 )
               })}
             </div>
-            <button
-              onClick={() => scrollColors('right')}
-              className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Materials grid */}
-      <div className="flex-1 overflow-y-auto p-3 bg-stone-50">
-        {materialsLoading ? (
+          )
+        ) : materialsLoading ? (
           <div className="grid grid-cols-4 md:grid-cols-3 xl:grid-cols-4 gap-2">
             {Array.from({ length: 16 }, (_, i) => (
               <div key={i} className="relative aspect-square rounded-none bg-stone-100 overflow-hidden border border-stone-200" aria-hidden="true">
@@ -587,6 +662,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
             )}
           </>
         )}
+        </div>
       </div>
 
     </div>

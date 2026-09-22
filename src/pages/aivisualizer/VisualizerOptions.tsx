@@ -189,7 +189,7 @@ const VisualizerOptions = () => {
 
           <button
             onClick={(e) => handleOpen('3d', e)}
-            className="group mt-4 sm:mt-5 w-full sm:w-fit flex items-center justify-center gap-2.5 px-7 sm:px-10 py-4 sm:py-5 bg-primary color-secondary-dark font-black uppercase tracking-wider text-xs sm:text-sm shadow-xl hover:bg-primary/90 active:scale-[0.98] transition-all"
+            className="group mt-4 sm:mt-5 w-full max-w-xs sm:max-w-none sm:w-fit flex items-center justify-center gap-2.5 px-7 sm:px-10 py-4 sm:py-5 bg-primary color-secondary-dark font-black uppercase tracking-wider text-xs sm:text-sm shadow-xl hover:bg-primary/90 active:scale-[0.98] transition-all"
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
