@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { categoryMeta, normalizeType } from '../components/sections/FabricCategoriesSection'
-import Seo, { pageTitle } from '../components/seo/Seo'
+import Seo, { pageTitle, SITE_URL } from '../components/seo/Seo'
 import { useMaterials } from '../contexts/MaterialsContext'
 import { type Collection } from '../data/collections'
 import { useCachedMedia } from '../hooks/useCachedMedia'
@@ -11,6 +11,53 @@ const isValidIndianMobile = (num: string) => {
   const phone = parsePhoneNumberFromString(num, 'IN')
   return !!phone && phone.isValid() &&
     (phone.getType() === 'MOBILE' || phone.getType() === 'FIXED_LINE_OR_MOBILE')
+}
+
+/* ── SEO content: FAQ (single source for markup + JSON-LD) ── */
+const FAQ_ITEMS: { q: string; a: string }[] = [
+  {
+    q: 'Can I request a physical fabric sample before I buy?',
+    a: "Yes. Use the Get a Quote button on this page or message us on WhatsApp with the fabric name and colour you're interested in, and our team will arrange physical swatches or a full catalog for you.",
+  },
+  {
+    q: "What's the difference between suede fabric and suede leather?",
+    a: 'Suede fabric is a woven textile engineered to have a soft, matte suede-like hand feel, while suede leather is genuine leather with a natural napped finish. Suede fabric is generally easier to clean and more budget-friendly; suede leather develops a natural patina over time and offers a more luxurious, long-lasting finish.',
+  },
+  {
+    q: 'What is digital print fabric and how is it different from a woven pattern?',
+    a: "Digital print fabric starts as a base textile onto which a design is printed with high-resolution, colorfast inks, allowing for sharp, bespoke patterns that aren't possible with traditional weaving. It's ideal for drapes, accent chairs and pieces where a distinctive pattern is the focus.",
+  },
+  {
+    q: 'How do I choose the right fabric for my project?',
+    a: 'Start with how the piece will be used — chenille and suede fabric suit everyday lounge seating, artificial leather (leatherite) is easiest to clean for dining and office chairs, and suede leather suits statement pieces. Filter collections by material type above, or use our AI Visualizer to preview a fabric on your own furniture before deciding.',
+  },
+  {
+    q: 'Do you offer bulk or trade catalogs for designers and businesses?',
+    a: "Yes, we supply bulk quantities and trade catalogs for interior designers, upholsterers and furniture manufacturers. Get in touch via the Get a Quote form or WhatsApp with your requirement and we'll share pricing and available stock.",
+  },
+  {
+    q: 'Can I see how a fabric will look on my own sofa before ordering?',
+    a: 'Yes — every collection includes a 3D sofa preview, and our AI Visualizer lets you upload a photo of your own furniture and see any KAIRA fabric applied to it instantly.',
+  },
+]
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+    { '@type': 'ListItem', position: 2, name: 'Collections', item: `${SITE_URL}/collections` },
+  ],
+}
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ_ITEMS.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
 }
 
 /* ── Quote Modal ─────────────────────────────────────────────────── */
@@ -254,6 +301,33 @@ function CollectionGridCard({ col }: { col: Collection }) {
   )
 }
 
+/* ── FAQ accordion item ──────────────────────────────────────────── */
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <div className="py-5">
+      <button
+        onClick={() => setIsOpen((v) => !v)}
+        aria-expanded={isOpen}
+        className="w-full flex items-center justify-between gap-4 text-left"
+      >
+        <h3 className="font-serif text-base md:text-lg text-color-secondary-dark">{q}</h3>
+        <svg
+          className={`w-4 h-4 shrink-0 text-primary transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0'}`}>
+        <div className="overflow-hidden">
+          <p className="text-xs md:text-sm text-color-secondary-dark/80 font-light leading-relaxed">{a}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ── Page ─────────────────────────────────────────────────────────── */
 const CollectionsPage = () => {
   const location = useLocation()
@@ -273,6 +347,8 @@ const CollectionsPage = () => {
     })],
     [collections]
   )
+
+  const totalVariants = useMemo(() => collections.reduce((sum, c) => sum + c.itemCount, 0), [collections])
 
   // Close modal and set selection when URL search changes
   useEffect(() => {
@@ -327,69 +403,78 @@ const CollectionsPage = () => {
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
       <Seo
-        title={pageTitle('Collections')}
-        description="Browse KAIRA's curated collections of premium fabrics and leathers — filter by material and texture to find the perfect fit for your interior project."
+        title={pageTitle('Fabric & Leather Collections')}
+        description="Browse KAIRA's chenille, suede fabric, suede leather, artificial leather and digital-print collections. Filter by material, request samples or a trade catalog."
         image="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner1.webp"
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}
       />
 
       {/* ── Page Header ──────────────────────────────────── */}
-      <div
-        className="relative pt-24 pb-12 overflow-hidden"
-        style={{
-          backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner1.webp)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-stone-950/50" />
+      <div className="pt-24 pb-8 max-w-7xl mx-auto px-6 lg:px-10">
+        <nav className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-color-secondary-dark/70" aria-label="Breadcrumb">
+          <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+          <span>/</span>
+          <span className="text-color-secondary-dark" aria-current="page">Collections</span>
+        </nav>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={() => window.history.back()}
-              className="group flex items-center gap-2 px-4 py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all text-[11px] font-medium tracking-wide"
-            >
-              <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back
-            </button>
+        <p className="mt-5 text-[11px] tracking-[0.3em] font-bold uppercase text-primary mb-1">
+          Upholstery Fabrics &amp; Leathers
+        </p>
+        <h1 className="font-serif text-3xl md:text-5xl text-color-secondary-dark leading-tight">
+          Fabric Collections
+        </h1>
+        <p className="mt-3 text-xs md:text-sm text-color-secondary-dark/80 font-light max-w-2xl leading-relaxed">
+          Browse KAIRA's full range of upholstery fabrics and leathers chenille, suede fabric, suede leather, artificial leather
+          and digital-print collections, each available in multiple colourways and patterns. Every collection below has its own
+          page with detailed swatches, a 3D sofa preview, and a downloadable catalog, so you can explore the exact material,
+          share it with your team, or request samples before you decide.
+        </p>
 
-            {/* CTA Buttons */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowQuoteModal(true)}
-                className="flex items-center gap-2 px-3 sm:px-5 py-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:border-white/60 hover:bg-white/20 transition-all text-[11px] font-medium tracking-wide"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="hidden sm:inline">Get a Quote</span>
-              </button>
-              <a
-                href="https://wa.me/918589925666"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 sm:px-5 py-2 bg-[#25D366]/90 backdrop-blur-sm text-white hover:bg-[#1ebe5d] transition-all text-[11px] font-medium tracking-wide shadow-md"
-              >
-                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                </svg>
-                <span className="hidden sm:inline">WhatsApp</span>
-              </a>
-            </div>
+        {/* Stats */}
+        <div className="mt-4 flex flex-wrap gap-x-6 sm:gap-x-8 gap-y-2">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark/60">Collections</p>
+            <p className="text-color-secondary-dark font-bold text-base">{collections.length}</p>
           </div>
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark/60">Fabric Variants</p>
+            <p className="text-color-secondary-dark font-bold text-base">{totalVariants}</p>
+          </div>
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark/60">Material Types</p>
+            <p className="text-color-secondary-dark font-bold text-base">{materialTypeOptions.length - 1}</p>
+          </div>
+        </div>
 
-          <h1 className="font-serif text-3xl md:text-5xl text-primary leading-tight">
-            Fabric Collections
-          </h1>
-          <p className="mt-3 text-xs md:text-sm text-white/60 font-light max-w-2xl leading-relaxed">
-            Browse KAIRA's full range of upholstery fabrics and leathers — chenille, suede fabric, suede leather, artificial leather
-            and digital-print collections, each available in multiple colourways and patterns. Every collection below has its own
-            page with detailed swatches, a 3D sofa preview, and a downloadable catalog, so you can explore the exact material,
-            share it with your team, or request samples before you decide.
-          </p>
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-5">
+          <button
+            onClick={() => setShowQuoteModal(true)}
+            className="flex items-center justify-center gap-2.5 px-8 py-3.5 bg-primary text-secondary-dark text-xs uppercase font-bold tracking-[0.2em] hover:bg-primary-dark transition-all shadow-md w-full sm:w-auto"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Get a Quote
+          </button>
+          <a
+            href="https://wa.me/918589925666"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2.5 px-6 py-3.5 border border-secondary text-secondary text-xs uppercase font-bold tracking-[0.2em] hover:bg-secondary hover:text-white transition-all w-full sm:w-auto"
+          >
+            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+            </svg>
+            WhatsApp Us
+          </a>
         </div>
       </div>
 
@@ -557,17 +642,17 @@ const CollectionsPage = () => {
       <div className="bg-secondary-dark border-t border-stone-800 relative overflow-hidden">
         {/* Subtle motion background */}
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] animate-[pulse_8s_ease-in-out_infinite]" />
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
 
           {/* Left */}
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14  bg-secondary-dark border flex items-center justify-center shrink-0">
-              <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-secondary-dark border flex items-center justify-center shrink-0">
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
               </svg>
             </div>
             <div>
-              <p className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight">
                 Visualize any fabric on real products <span className="text-primary">instantly</span>
               </p>
             </div>
@@ -576,7 +661,7 @@ const CollectionsPage = () => {
           {/* Right */}
           <button
             onClick={() => navigate('/ai-visualizer')}
-            className="shrink-0 flex items-center gap-3 px-10 py-4.5 md:px-12 md:py-5 bg-primary text-color-secondary-dark text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all  shadow-lg transform hover:-translate-y-0.5"
+            className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-3 px-8 py-4 md:px-12 md:py-5 bg-primary text-color-secondary-dark text-xs md:text-sm uppercase font-bold tracking-[0.2em] hover:bg-white transition-all  shadow-lg transform hover:-translate-y-0.5"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -584,6 +669,21 @@ const CollectionsPage = () => {
             Try AI Visualizer
           </button>
 
+        </div>
+      </div>
+
+      {/* ── FAQ ───────────────────────────────────────────────────── */}
+      <div className="py-10 md:py-14 bg-white">
+        <div className="max-w-4xl mx-auto px-6 lg:px-10">
+          <p className="text-[11px] tracking-[0.3em] font-bold uppercase text-primary mb-1">FAQ</p>
+          <h2 className="font-serif text-2xl md:text-3xl text-color-secondary-dark leading-tight mb-6">
+            Frequently Asked Questions
+          </h2>
+          <div className="divide-y divide-stone-200 border-t border-b border-stone-200">
+            {FAQ_ITEMS.map(({ q, a }) => (
+              <FaqItem key={q} q={q} a={a} />
+            ))}
+          </div>
         </div>
       </div>
 

@@ -81,8 +81,8 @@ async function main() {
   const collections = await loadCollections()
 
   await writePage('collections', renderPage(template, {
-    title: `Collections | ${SITE_NAME}`,
-    description: "Browse KAIRA's curated collections of premium fabrics and leathers — filter by material and texture to find the perfect fit for your interior project.",
+    title: `Fabric & Leather Collections | ${SITE_NAME}`,
+    description: "Browse KAIRA's chenille, suede fabric, suede leather, artificial leather and digital-print collections. Filter by material, request samples or a trade catalog.",
     image: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner1.webp',
     url: `${SITE_URL}/collections`,
   }))

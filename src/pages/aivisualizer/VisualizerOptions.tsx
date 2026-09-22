@@ -222,7 +222,7 @@ const VisualizerOptions = () => {
             {/* ── Overlay Header ── */}
             <div
               style={closeStyle}
-              className="h-12 shrink-0 bg-secondary-dark border-b border-stone-800 flex items-center px-5 gap-4"
+              className="h-12 shrink-0 bg-secondary-dark border-b border-stone-800 flex items-center px-3 sm:px-5 gap-2 sm:gap-4"
             >
               <button
                 onClick={handleGoBack}
@@ -236,9 +236,9 @@ const VisualizerOptions = () => {
 
               <div className="flex-1" />
 
-              <div className="flex items-center gap-2">
-                <div className={`w-1.5 h-1.5 rounded-full ${isEngineReady ? 'bg-emerald-500' : 'bg-primary animate-pulse'}`} />
-                <span className="text-[11px] text-white font-bold tracking-[0.2em] uppercase">
+              <div className="flex items-center gap-2 shrink-0">
+                <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isEngineReady ? 'bg-emerald-500' : 'bg-primary animate-pulse'}`} />
+                <span className="hidden sm:inline text-[11px] text-white font-bold tracking-[0.2em] uppercase">
                   {mode === 'ai' ? 'AI Visualizer' : '3D Fabric Studio'}
                 </span>
               </div>
@@ -247,7 +247,7 @@ const VisualizerOptions = () => {
             <div style={contentStyle}>
               {/* Loader — shown until engine is ready */}
               {!isEngineReady && (
-                <div className="flex flex-col items-center justify-center min-h-screen gap-5 bg-white">
+                <div className="flex flex-col items-center justify-center h-full gap-5 bg-white px-5 text-center">
                   <div className={`w-14 h-14 flex items-center justify-center mb-1 ${mode === '3d' ? 'bg-secondary-dark' : 'bg-primary/10 border border-primary/20'}`}>
                     {mode === 'ai' ? (
                       <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">

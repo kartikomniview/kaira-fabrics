@@ -114,7 +114,7 @@ const LatestCollectionsSection = () => {
             <span className="color-secondary-dark font-serif">Our </span><span className="text-primary font-serif">Collections</span>
           </h2>
           <p ref={subtitleRef} style={{ opacity: 0 }} className="text-stone-500 text-[15px] max-w-sm leading-relaxed">
-            Premium fabrics and leathers, curated for the finest interiors and upholstery.
+            Chenille, suede, leather and digital-print fabrics — curated for statement interiors and fine upholstery.
           </p>
         </div>
 

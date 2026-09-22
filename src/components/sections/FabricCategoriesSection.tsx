@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useMotionValue, animate } from 'framer-motion'
 import type { PanInfo } from 'framer-motion'
 import { useMaterials } from '../../contexts/MaterialsContext'
+import { SITE_URL } from '../seo/Seo'
 
 const categoryImages: Record<string, string> = {
   'CHENILLE':     'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Ripple.webp',
@@ -76,6 +77,17 @@ const FabricCategoriesSection = () => {
 
   const maxSteps = Math.max(0, categories.length - visibleCount)
 
+  const itemListJsonLd = useMemo(() => ({
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: categories.map(([name], i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: categoryMeta[name]?.label ?? name,
+      url: `${SITE_URL}/collections?category=${name}`,
+    })),
+  }), [categories])
+
   // Sync refs whenever state changes
   useEffect(() => { activeIndexRef.current = activeIndex }, [activeIndex])
   useEffect(() => { cardWidthRef.current = cardWidth }, [cardWidth])
@@ -144,6 +156,10 @@ const FabricCategoriesSection = () => {
 
   return (
     <div id="fabric-collections" ref={sectionRef} className="scroll-mt-24 select-none">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }}
+      />
 
       {/* Carousel track with side arrows */}
       <div className="relative">
@@ -204,7 +220,7 @@ const FabricCategoriesSection = () => {
                     {revealedIndices.has(cardIndex) ? (
                       <motion.img
                         src={imgUrl}
-                        alt={label}
+                        alt={`${label} upholstery fabric collection`}
                         loading="lazy"
                         decoding="async"
                         className="w-full h-full object-cover"

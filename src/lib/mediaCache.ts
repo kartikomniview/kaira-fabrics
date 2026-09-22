@@ -25,18 +25,19 @@ function toFetchableUrl(url: string): string {
 }
 
 // Dedupes concurrent requests for the same URL within this page session so
-// N components mounting at once trigger a single cache read / fetch.
-const inFlight = new Map<string, Promise<string | null>>()
+// N components mounting at once trigger a single cache read / fetch. This
+// must only share the underlying Blob, never a minted object URL — callers
+// (e.g. the 3D texture pipeline) revoke the object URLs they're handed once
+// done with them, and two unrelated callers holding the exact same `blob:`
+// string would have one revoke it out from under the other.
+const inFlight = new Map<string, Promise<Blob | null>>()
 
-async function resolve(url: string): Promise<string | null> {
+async function resolveBlob(url: string): Promise<Blob | null> {
   try {
     if (typeof caches !== 'undefined') {
       const cache = await caches.open(CACHE_NAME)
       const cached = await cache.match(url)
-      if (cached) {
-        const blob = await cached.blob()
-        return URL.createObjectURL(blob)
-      }
+      if (cached) return await cached.blob()
 
       // `no-store`: these S3 objects have no Cache-Control header, so the
       // browser's heuristic HTTP cache can otherwise keep serving a stale,
@@ -44,16 +45,14 @@ async function resolve(url: string): Promise<string | null> {
       const res = await fetch(toFetchableUrl(url), { cache: 'no-store' })
       if (!res.ok) return null
       await cache.put(url, res.clone())
-      const blob = await res.blob()
-      return URL.createObjectURL(blob)
+      return await res.blob()
     }
 
     // Cache Storage unavailable (very old browser, insecure context) — fall
     // back to a plain fetch with no persistence.
     const res = await fetch(toFetchableUrl(url), { cache: 'no-store' })
     if (!res.ok) return null
-    const blob = await res.blob()
-    return URL.createObjectURL(blob)
+    return await res.blob()
   } catch {
     return null
   }
@@ -61,17 +60,19 @@ async function resolve(url: string): Promise<string | null> {
 
 /**
  * Resolves `url` through the shared persistent media cache, returning a
- * `blob:` object URL. Fetches over the network only on the first-ever
- * request for a given URL (per browser); every later call — this session or
- * a future one — is served from Cache Storage.
+ * fresh `blob:` object URL every call. Fetches over the network only on the
+ * first-ever request for a given URL (per browser); every later call — this
+ * session or a future one — is served from Cache Storage. Each call gets its
+ * own object URL (safe to revoke independently) even when several callers
+ * request the same `url` concurrently and share the underlying fetch.
  */
 export function getCachedMediaUrl(url: string): Promise<string | null> {
   let pending = inFlight.get(url)
   if (!pending) {
-    pending = resolve(url).finally(() => inFlight.delete(url))
+    pending = resolveBlob(url).finally(() => inFlight.delete(url))
     inFlight.set(url, pending)
   }
-  return pending
+  return pending.then((blob) => (blob ? URL.createObjectURL(blob) : null))
 }
 
 /**
