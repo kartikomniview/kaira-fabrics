@@ -6,9 +6,7 @@ import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, ge
 import * as THREE from 'three'
 import '@google/model-viewer'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './MaterialSelector'
-import { AI_VISUALIZER_PRODUCTS } from '../aivisualizer/AiVisualizerEngine'
 import { useAiGenerationFlow, OTP_VALIDATION_ENABLED, DEFAULT_GENERATION_LIMIT } from '../aivisualizer/useAiGenerationFlow'
-import type { SelectedProduct as AiSelectedProduct } from '../aivisualizer/generateRender'
 import LeadFormModal from '../aivisualizer/LeadFormModal'
 import MyGalleryPanel from '../aivisualizer/MyGalleryPanel'
 import GeneratedImageModal from '../admin/GeneratedImageModal'
@@ -99,17 +97,8 @@ const ThreeDVisualizerEngine = ({
     isGenerating, generatedImage, generateError, setGenerateError, cyclingMsg,
     limitInfo,
     showImageModal, setShowImageModal, imgZoom, setImgZoom,
-    handleGenerateClick, closeLeadForm, handleSendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
+    closeLeadForm, handleSendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
   } = useAiGenerationFlow()
-
-  const handleVisualizeWithAI = () => {
-    if (!selected) return
-    const match = AI_VISUALIZER_PRODUCTS.find((p) => p.productName === currentProduct.product_name)
-    const product: AiSelectedProduct = match
-      ? { id: match.productName, productName: match.productName, imageUrl: match.productImageUrl }
-      : { id: currentProduct.id, productName: currentProduct.product_name, imageUrl: currentProduct.model_url }
-    handleGenerateClick({ material: selected, product })
-  }
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
@@ -465,7 +454,7 @@ const ThreeDVisualizerEngine = ({
             {/* Visualize with AI */}
             <button
               id="tour-visualize-ai"
-              onClick={handleVisualizeWithAI}
+              onClick={() => showToast('Coming soon', 'success')}
               disabled={!selected || !modelLoaded || isApplying}
               className="absolute bottom-6 right-6 z-20 flex items-center gap-2 h-9 px-4 bg-primary hover:bg-primary/90 color-secondary-dark transition-all rounded-none shadow-xl disabled:opacity-40 disabled:pointer-events-none"
             >
