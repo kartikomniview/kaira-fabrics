@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import type { NewMaterial } from '../../data/newmaterials'
 import { useMaterials } from '../../contexts/MaterialsContext'
-import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
+import { isTextureMapCode } from '../../data/collections'
+import { categoryMeta, normalizeType, compareMaterialTypes } from '../../components/sections/FabricCategoriesSection'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
 import SectionLoader from '../../components/ui/SectionLoader'
 
@@ -197,15 +198,9 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
     }
   }
 
-  const TYPE_ORDER = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
-
   const materialTypeOptions = useMemo(() => [
     'All',
-    ...Array.from(new Set(newMaterials.map(m => m.material_type).filter(Boolean))).sort((a, b) => {
-      const ai = TYPE_ORDER.indexOf(normalizeType(a))
-      const bi = TYPE_ORDER.indexOf(normalizeType(b))
-      return (ai === -1 ? TYPE_ORDER.length : ai) - (bi === -1 ? TYPE_ORDER.length : bi)
-    }),
+    ...Array.from(new Set(newMaterials.map(m => m.material_type).filter(Boolean))).sort(compareMaterialTypes),
   ], [newMaterials])
 
   const allColorGroups = useMemo(() => [
@@ -214,7 +209,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   ], [newMaterials])
 
   const filtered = useMemo(() => {
-    const base = newMaterials.filter(m => !m.material_code?.includes('Normal') && !m.material_code?.includes('Roughness'))
+    const base = newMaterials.filter(m => !isTextureMapCode(m.material_code))
     return base.filter(m => {
       if (activeMaterialType !== 'All' && m.material_type !== activeMaterialType) return false
       if (activeCollection !== 'All' && m.collection_name !== activeCollection) return false

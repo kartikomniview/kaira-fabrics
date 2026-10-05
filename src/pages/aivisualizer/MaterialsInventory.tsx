@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { NewMaterial } from '../../data/newmaterials'
 import { useMaterials } from '../../contexts/MaterialsContext'
-import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
+import { isTextureMapCode } from '../../data/collections'
+import { categoryMeta, normalizeType, compareMaterialTypes } from '../../components/sections/FabricCategoriesSection'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 export const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
@@ -77,15 +78,9 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
             .sort((a, b) => a.name.localeCompare(b.name))
     }, [activeMaterialType, collections])
 
-    const MATERIAL_TYPE_ORDER = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
-
     const materialTypeOptions = useMemo(() => [
         'All',
-        ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort((a, b) => {
-            const ai = MATERIAL_TYPE_ORDER.indexOf(normalizeType(a))
-            const bi = MATERIAL_TYPE_ORDER.indexOf(normalizeType(b))
-            return (ai === -1 ? MATERIAL_TYPE_ORDER.length : ai) - (bi === -1 ? MATERIAL_TYPE_ORDER.length : bi)
-        }),
+        ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort(compareMaterialTypes),
     ], [newMaterials])
 
     const allColorGroups = useMemo(() => [
@@ -96,7 +91,7 @@ export const MaterialsInventory = ({ onBack, onSelectMaterial, selectedMaterialI
     // Global search — ignores all filters, searches across every material
     const filteredMaterials = useMemo(() => {
         const isVisible = (m: typeof newMaterials[number]) =>
-            !/normal|roughness/i.test(m.material_code ?? '')
+            !isTextureMapCode(m.material_code)
 
         const byMaterialCode = (a: typeof newMaterials[number], b: typeof newMaterials[number]) =>
             (a.material_code ?? '').localeCompare(b.material_code ?? '', undefined, { numeric: true, sensitivity: 'base' })

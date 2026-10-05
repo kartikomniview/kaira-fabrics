@@ -5,7 +5,7 @@ import InlineLoader from '../components/ui/InlineLoader'
 import MaterialZoomOverlay from '../components/ui/MaterialZoomOverlay'
 import Seo, { pageTitle } from '../components/seo/Seo'
 import { useMaterials } from '../contexts/MaterialsContext'
-import { type Collection } from '../data/collections'
+import { type Collection, isTextureMapCode } from '../data/collections'
 import { type NewMaterial } from '../data/newmaterials'
 import { useCachedMedia } from '../hooks/useCachedMedia'
 import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
@@ -133,21 +133,38 @@ function RelatedCollectionCard({ col }: { col: Collection }) {
   )
 }
 
-/** Builds a unique, data-driven description paragraph for a collection's detail page. */
-function buildCollectionCopy(collection: Collection): string {
-  const meta = categoryMeta[normalizeType(collection.category)]
-  const label = meta?.label ?? collection.category
-  const desc = meta?.desc ?? 'premium craftsmanship and lasting quality'
-  const tags = collection.tags.filter(Boolean)
-  const plural = collection.itemCount === 1 ? '' : 's'
+/** Material-type description + key features shown on the collection detail page. */
+const SUEDE_FABRIC_COPY = {
+  description:
+    'Suede Fabric is a soft, smooth upholstery fabric with a fine, velvety surface that gives furniture a rich and luxurious look. It is ideal for sofas, lounge chairs, cushions, headboards, and other upholstered furniture. Each swatch below can be viewed up close, previewed on a 3D sofa model, or requested as a full physical catalog.',
+  features: ['Soft and velvety feel', 'Elegant appearance', 'Comfortable', 'Easy to style', 'Available in a wide range of colours'],
+}
 
-  let copy = `The ${collection.name} collection is part of KAIRA's ${label} range — ${desc.charAt(0).toLowerCase()}${desc.slice(1)}. `
-  copy += `It's available in ${collection.itemCount} fabric variant${plural}`
-  if (tags.length) copy += `, spanning tones such as ${tags.join(', ')}`
-  copy += '. '
-  if (meta?.usedFor) copy += `Well suited for ${meta.usedFor.toLowerCase()}, `
-  copy += 'each swatch below can be viewed up close, previewed on a 3D sofa model, or requested as a full physical catalog.'
-  return copy
+const ARTIFICIAL_LEATHER_COPY = {
+  description:
+    'Artificial Leather is a synthetic upholstery material designed to offer the look and feel of leather with a practical, versatile finish. It is ideal for sofas, chairs, dining seating, office furniture, and commercial interiors. Each swatch below can be viewed up close, previewed on a 3D sofa model, or requested as a full physical catalog.',
+  features: ['Leather-like appearance', 'Easy to maintain', 'Durable', 'Practical', 'Wide range of colours and finishes'],
+}
+
+const materialTypeCopy: Record<string, { description: string; features: string[] }> = {
+  SUEDEFABRIC: SUEDE_FABRIC_COPY,
+  ARTIFICIALLEATHER: ARTIFICIAL_LEATHER_COPY,
+  LEATHERITE: ARTIFICIAL_LEATHER_COPY,
+  SUEDELEATHER: {
+    description:
+      'Suede Leather is a type of suede fabric with a leather-like finish, offering the soft, smooth feel of suede with the sophisticated appearance of leather. It is ideal for sofas, lounge chairs, cushions, and premium upholstered furniture. Each swatch below can be viewed up close, previewed on a 3D sofa model, or requested as a full physical catalog.',
+    features: ['Soft and smooth texture', 'Leather-like appearance', 'Elegant finish', 'Comfortable', 'Easy to style'],
+  },
+  BOUCLE: {
+    description:
+      'Boucle is a textured upholstery fabric made with looped or curled yarns, creating its distinctive soft and tactile surface. Its rich texture adds warmth, depth, and a contemporary feel to furniture and interiors.',
+    features: ['Distinctive looped texture', 'Soft and cosy', 'Adds visual depth', 'Contemporary look', 'Comfortable'],
+  },
+  DIGITALPRINT: {
+    description:
+      'Digital Prints are upholstery fabrics with designs printed directly onto the surface using digital printing technology. They offer greater freedom to create detailed patterns, artistic designs, and vibrant visuals for distinctive furniture and interiors.',
+    features: ['Detailed designs', 'Wide design possibilities', 'Rich colours', 'Custom-look appearance', 'Creative and distinctive'],
+  },
 }
 
 function buildMetaDescription(collection: Collection): string {
@@ -176,7 +193,7 @@ export default function CollectionDetailPage() {
     () =>
       collection
         ? newMaterials
-          .filter((m) => m.collection_name === collection.name)
+          .filter((m) => m.collection_name === collection.name && !isTextureMapCode(m.material_code))
           .sort((a, b) =>
             (a.material_code ?? '').localeCompare(b.material_code ?? '', undefined, { numeric: true, sensitivity: 'base' })
           )
@@ -242,6 +259,7 @@ export default function CollectionDetailPage() {
 
   const meta = categoryMeta[normalizeType(collection.category)]
   const categoryLabel = meta?.label ?? collection.category
+  const typeCopy = materialTypeCopy[normalizeType(collection.category)]
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
@@ -289,9 +307,11 @@ export default function CollectionDetailPage() {
         <div className="flex-1 min-w-0">
           <p className="text-[11px] tracking-[0.3em] font-bold uppercase text-primary mb-1">{categoryLabel}</p>
           <h1 className="font-serif text-2xl md:text-4xl text-color-secondary-dark leading-tight">{collection.name}</h1>
-          <p className="mt-3 text-xs md:text-sm text-color-secondary-dark/80 font-light leading-relaxed">
-            {buildCollectionCopy(collection)}
-          </p>
+          {typeCopy && (
+            <p className="mt-3 text-xs md:text-sm text-color-secondary-dark/80 font-light leading-relaxed">
+              {typeCopy.description}
+            </p>
+          )}
 
           {/* Stats */}
           <div className="mt-4 flex flex-wrap gap-x-8 gap-y-2">
@@ -303,18 +323,12 @@ export default function CollectionDetailPage() {
               <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark/60">Category</p>
               <p className="text-color-secondary-dark font-bold text-base">{categoryLabel}</p>
             </div>
-            {meta?.usedFor && (
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark/60">Ideal For</p>
-                <p className="text-color-secondary-dark font-bold text-base">{meta.usedFor}</p>
-              </div>
-            )}
           </div>
 
-          {/* Features */}
-          {meta?.features && meta.features.length > 0 && (
+          {/* Key features */}
+          {typeCopy && (
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
-              {meta.features.map((f) => (
+              {typeCopy.features.map((f) => (
                 <span key={f} className="flex items-center gap-1.5 text-xs text-color-secondary-dark/80">
                   <svg className="w-3 h-3 text-primary shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -387,17 +401,16 @@ export default function CollectionDetailPage() {
               )}
             </div>
             <span className="ml-auto text-[9px] font-bold bg-stone-100 text-color-secondary-dark px-2 py-0.5 tracking-[0.1em] uppercase shrink-0">
-              {materialSearch ? `${materials.filter(m => !/normal|roughness/i.test(m.material_code ?? '') && (m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) || m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) || m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))).length} results` : `${materials.filter(m => !/normal|roughness/i.test(m.material_code ?? '')).length} items`}
+              {materialSearch ? `${materials.filter(m => (m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) || m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) || m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))).length} results` : `${materials.length} items`}
             </span>
           </div>
           <div className="p-4 md:p-6">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
               {materials.filter(m =>
-                !/normal|roughness/i.test(m.material_code ?? '') &&
-                (!materialSearch ||
-                  m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) ||
-                  m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) ||
-                  m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))
+                !materialSearch ||
+                m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) ||
+                m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) ||
+                m.color_group?.toLowerCase().includes(materialSearch.toLowerCase())
               ).map((m, idx) => (
                 <MaterialThumb
                   key={idx}
@@ -410,6 +423,14 @@ export default function CollectionDetailPage() {
                 />
               ))}
             </div>
+
+            {/* Colour disclaimer */}
+            <p className="flex items-start gap-2 mt-6 md:mt-8 px-3 py-2 bg-stone-50 border border-stone-200 text-[10px] md:text-[11px] text-color-secondary-dark/80 leading-relaxed">
+              <svg className="w-3.5 h-3.5 text-primary shrink-0 mt-px" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+              </svg>
+              <span>Colours shown are for reference only. Actual fabric colours may vary slightly due to screen settings, lighting and dye lots.</span>
+            </p>
           </div>
         </div>
       </div>

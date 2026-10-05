@@ -5,6 +5,9 @@ import ThreeDVisualizerPageMobile from '../ThreeDVisualizerPageMobile'
 import { kairaProducts } from '../../data/products'
 import type { KairaProduct } from '../../data/products'
 
+const BG_BEFORE_IMG = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/before_v2.webp'
+const BG_AFTER_IMG = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/after_v2.webp'
+
 type Mode = 'ai' | '3d' | null
 
 interface OriginRect {
@@ -133,12 +136,21 @@ const VisualizerOptions = () => {
       <div
         data-card
         className="relative overflow-hidden w-full min-h-screen flex items-center justify-center"
-        style={{
-          backgroundImage: 'url(https://kairafabrics.s3.ap-south-1.amazonaws.com/site/Visualizer/ThreeDEngine.webp)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
       >
+        {/* Background — before (left half) / after (right half) */}
+        {/* Blurred fill so the zoomed-out images have no empty edges */}
+        <img src={BG_AFTER_IMG} alt="" className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl" draggable={false} />
+        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-[85%]">
+          <img src={BG_AFTER_IMG} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+          <img
+            src={BG_BEFORE_IMG}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ clipPath: 'inset(0 50% 0 0)' }}
+            draggable={false}
+          />
+        </div>
+
         {/* Legibility overlay */}
         <div className="absolute inset-0 bg-secondary-dark/60" />
 

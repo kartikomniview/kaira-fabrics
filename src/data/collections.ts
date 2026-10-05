@@ -12,6 +12,10 @@ export interface Collection {
 
 const S3_COVER = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics'
 
+/** True for texture-map entries (roughness / normal / displacement) that aren't real fabric variants. */
+export const isTextureMapCode = (code: string | null | undefined) =>
+  /roughness|normal|displacement/i.test(code ?? '')
+
 /** Derives the collections list from a materials array.
  *  Called by MaterialsContext whenever the fetched data changes. */
 export function buildCollections(mats: NewMaterial[]): Collection[] {
@@ -21,6 +25,7 @@ export function buildCollections(mats: NewMaterial[]): Collection[] {
     if (!collectionMap.has(m.collection_name)) {
       collectionMap.set(m.collection_name, { count: 0, materialType: m.material_type, colorGroups: [] })
     }
+    if (isTextureMapCode(m.material_code)) continue
     const entry = collectionMap.get(m.collection_name)!
     entry.count++
     const cg = m.color_group

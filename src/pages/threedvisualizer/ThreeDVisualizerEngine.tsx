@@ -18,14 +18,14 @@ export type { SelectedMaterial } from './MaterialSelector'
 const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 
 function getSheenMapUrl(materialType: string) {
-  if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
+  if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('boucle') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
     return `${S3_BASE}/textures/Common/SheenColorMap.webp`
   }
   return ''
 }
 
 function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
-  if (materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8
+  if (materialType.toLowerCase().includes('boucle') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8
   if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
   if (materialType.toLowerCase().includes('leather')) return 0.6
   return baseRoughness

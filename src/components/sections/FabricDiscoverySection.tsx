@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import type { Material } from '../../data/materials'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import MaterialDetailModal from '../ui/MaterialDetailModal'
+import { compareMaterialTypes } from './FabricCategoriesSection'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
@@ -38,7 +39,7 @@ const FabricDiscoverySection = () => {
 
   const allColorGroups   = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.color_group).filter((v): v is string => v !== null))).sort()], [newMaterials])
   const allPatterns      = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.pattern).filter((v): v is string => v !== null))).sort()], [newMaterials])
-  const allMaterialTypes = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort()], [newMaterials])
+  const allMaterialTypes = useMemo(() => ['All', ...Array.from(new Set(newMaterials.map((m) => m.material_type).filter(Boolean))).sort(compareMaterialTypes)], [newMaterials])
 
   const filtered = useMemo(() => newMaterials.filter((m) => {
     if (activeColor    !== 'All' && m.color_group   !== activeColor)    return false

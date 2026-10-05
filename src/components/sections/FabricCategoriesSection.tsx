@@ -6,7 +6,7 @@ import { useMaterials } from '../../contexts/MaterialsContext'
 import { SITE_URL } from '../seo/Seo'
 
 const categoryImages: Record<string, string> = {
-  'CHENILLE':     'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Ripple.webp',
+  'BOUCLE':     'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Ripple.webp',
   'DIGITALPRINT': 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/DigitalPrints2.webp',
   'LEATHERITE':   'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Armani.webp',
   'SUEDEFABRIC':  'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics/Impression.webp',
@@ -16,7 +16,7 @@ const categoryImages: Record<string, string> = {
 }
 
 export const categoryMeta: Record<string, { label: string; desc: string; features: string[]; usedFor: string }> = {
-  'CHENILLE':     { label: 'Chenille',           desc: 'Soft, richly textured weaves for lasting comfort',      features: ['Velvety pile texture', 'Highly durable', 'Fade resistant'],    usedFor: 'Sofas & cushions' },
+  'BOUCLE':     { label: 'Boucle',           desc: 'Soft, richly textured weaves for lasting comfort',      features: ['Velvety pile texture', 'Highly durable', 'Fade resistant'],    usedFor: 'Sofas & cushions' },
   'DIGITALPRINT': { label: 'Digital Print',      desc: 'Vibrant, bespoke patterns with razor-sharp clarity',    features: ['Custom artwork prints', 'Colorfast & sharp', 'Light & airy'],   usedFor: 'Drapes & accent chairs' },
   'LEATHERITE':   { label: 'Artificial Leather', desc: 'Premium vegan upholstery with a supple finish',         features: ['Easy to clean', 'Water resistant', 'Animal-free'],               usedFor: 'Office & dining chairs' },
   'SUEDEFABRIC':  { label: 'Suede Fabric',       desc: 'Plush matte finish with an ultra-soft hand feel',       features: ['Buttery soft touch', 'Rich color depth', 'Breathable weave'],   usedFor: 'Lounge & bedroom' },
@@ -25,6 +25,18 @@ export const categoryMeta: Record<string, { label: string; desc: string; feature
 }
 
 export const normalizeType = (s: string) => s.toUpperCase().replace(/\s+/g, '')
+
+// Display order for material types: Suede Fabric, Artificial Leather, Suede Leather, Boucle, Digital Print
+const MATERIAL_TYPE_ORDER = ['SUEDEFABRIC', 'ARTIFICIALLEATHER', 'SUEDELEATHER', 'BOUCLE', 'DIGITALPRINT']
+const TYPE_ALIASES: Record<string, string> = { LEATHERITE: 'ARTIFICIALLEATHER' }
+
+export const materialTypeRank = (type: string) => {
+  const key = normalizeType(type)
+  const i = MATERIAL_TYPE_ORDER.indexOf(TYPE_ALIASES[key] ?? key)
+  return i === -1 ? MATERIAL_TYPE_ORDER.length : i
+}
+
+export const compareMaterialTypes = (a: string, b: string) => materialTypeRank(a) - materialTypeRank(b)
 
 const SHOW_HOVER_OVERLAY = false // set to true to re-enable features + ideal-for overlay
 
@@ -63,16 +75,9 @@ const FabricCategoriesSection = () => {
       acc[type].add(m.collection_name)
       return acc
     }, {} as Record<string, Set<string>>)
-    const order = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
     return Object.entries(
       Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, v.size]))
-    ).sort((a, b) => {
-      const ai = order.indexOf(a[0])
-      const bi = order.indexOf(b[0])
-      const aIdx = ai === -1 ? order.length : ai
-      const bIdx = bi === -1 ? order.length : bi
-      return aIdx - bIdx
-    })
+    ).sort((a, b) => compareMaterialTypes(a[0], b[0]))
   }, [materials])
 
   const maxSteps = Math.max(0, categories.length - visibleCount)

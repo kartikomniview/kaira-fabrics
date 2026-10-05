@@ -11,7 +11,7 @@ import path from 'node:path'
 
 const SITE_NAME = 'KAIRA'
 const SITE_URL = 'https://kairafabrics.com'
-const MATERIALS_URL = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/data/materials/v3/newmaterials.ts'
+const MATERIALS_URL = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/data/material/v5/newmaterials.ts'
 const S3_COVER = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics'
 const DIST_DIR = path.resolve(import.meta.dirname, '..', 'dist')
 
@@ -82,7 +82,7 @@ async function main() {
 
   await writePage('collections', renderPage(template, {
     title: `Fabric & Leather Collections | ${SITE_NAME}`,
-    description: "Browse KAIRA's chenille, suede fabric, suede leather, artificial leather and digital-print collections. Filter by material, request samples or a trade catalog.",
+    description: "Browse KAIRA's boucle, suede fabric, suede leather, artificial leather and digital-print collections. Filter by material, request samples or a trade catalog.",
     image: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner1.webp',
     url: `${SITE_URL}/collections`,
   }))

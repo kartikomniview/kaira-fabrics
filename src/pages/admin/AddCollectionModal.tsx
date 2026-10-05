@@ -6,12 +6,12 @@ const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 const MAX_MATERIALS = 100
 
 const MATERIAL_TYPES = [
-  'Chenille',
+  'SuedeFabric',
+  'ArtificialLeather',
+  'SuedeLeather',
+  'Boucle',
   'DigitalPrint',
   'Leatherite',
-  'SuedeFabric',
-  'SuedeLeather',
-  'ArtificialLeather',
 ]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -255,7 +255,7 @@ export default function AddCollectionModal({ onClose, onSuccess }: Props) {
         'export const newMaterials = ' + JSON.stringify(updated, null, 4) + ';\n'
 
       // Get a presigned URL for the data file
-      const { uploadUrl: dataUrl } = await getPresignedUrl(token, 'materials/v3/newmaterials.ts', 'data')
+      const { uploadUrl: dataUrl } = await getPresignedUrl(token, 'materials/v5/newmaterials.ts', 'data')
       // PUT as text/plain (the bucket serves it as-is)
       const dataBlob = new Blob([tsContent], { type: 'text/plain' })
       const dataFile = new File([dataBlob], 'newmaterials.ts', { type: 'text/plain' })

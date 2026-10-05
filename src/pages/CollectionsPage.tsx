@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { categoryMeta, normalizeType } from '../components/sections/FabricCategoriesSection'
+import { categoryMeta, normalizeType, compareMaterialTypes } from '../components/sections/FabricCategoriesSection'
 import Seo, { pageTitle, SITE_URL } from '../components/seo/Seo'
 import { useMaterials } from '../contexts/MaterialsContext'
 import { type Collection } from '../data/collections'
@@ -16,28 +16,36 @@ const isValidIndianMobile = (num: string) => {
 /* ── SEO content: FAQ (single source for markup + JSON-LD) ── */
 const FAQ_ITEMS: { q: string; a: string }[] = [
   {
-    q: 'Can I request a physical fabric sample before I buy?',
-    a: "Yes. Use the Get a Quote button on this page or message us on WhatsApp with the fabric name and colour you're interested in, and our team will arrange physical swatches or a full catalog for you.",
+    q: 'Which fabric is best for a sofa?',
+    a: 'There is no single fabric that is best for every sofa. Different materials offer different combinations of softness, durability, texture, appearance and maintenance. Kaira helps you choose based on how and where the sofa will be used.',
   },
   {
-    q: "What's the difference between suede fabric and suede leather?",
-    a: 'Suede fabric is a woven textile engineered to have a soft, matte suede-like hand feel, while suede leather is genuine leather with a natural napped finish. Suede fabric is generally easier to clean and more budget-friendly; suede leather develops a natural patina over time and offers a more luxurious, long-lasting finish.',
+    q: 'How can I know whether a fabric will look good on my sofa?',
+    a: 'Kaira’s smart visualization tools allow you to preview selected fabrics on sofa designs, helping you understand how the material may look before making your final choice.',
   },
   {
-    q: 'What is digital print fabric and how is it different from a woven pattern?',
-    a: "Digital print fabric starts as a base textile onto which a design is printed with high-resolution, colorfast inks, allowing for sharp, bespoke patterns that aren't possible with traditional weaving. It's ideal for drapes, accent chairs and pieces where a distinctive pattern is the focus.",
+    q: 'Do fabric colours look the same on screen and in real life?',
+    a: 'Screen settings and lighting can affect how colours appear digitally. For an accurate colour decision, we recommend viewing the actual fabric sample before placing your final order.',
   },
   {
-    q: 'How do I choose the right fabric for my project?',
-    a: 'Start with how the piece will be used — chenille and suede fabric suit everyday lounge seating, artificial leather (leatherite) is easiest to clean for dining and office chairs, and suede leather suits statement pieces. Filter collections by material type above, or use our AI Visualizer to preview a fabric on your own furniture before deciding.',
+    q: 'What is the difference between fabric and artificial leather?',
+    a: 'Fabric generally offers a wider range of textures, patterns and tactile finishes, while artificial leather provides a smooth leather-like appearance and can be easier to wipe and maintain. The right choice depends on your design, usage and maintenance preferences.',
   },
   {
-    q: 'Do you offer bulk or trade catalogs for designers and businesses?',
-    a: "Yes, we supply bulk quantities and trade catalogs for interior designers, upholsterers and furniture manufacturers. Get in touch via the Get a Quote form or WhatsApp with your requirement and we'll share pricing and available stock.",
+    q: 'What should I compare when choosing between two fabrics?',
+    a: 'Compare their look, feel, durability, maintenance, GSM, Martindale, colour fastness and suitability for your usage. The right fabric is the one that balances performance, comfort and appearance for your needs.',
   },
   {
-    q: 'Can I see how a fabric will look on my own sofa before ordering?',
-    a: 'Yes — every collection includes a 3D sofa preview, and our AI Visualizer lets you upload a photo of your own furniture and see any KAIRA fabric applied to it instantly.',
+    q: 'Does fabric thickness determine durability?',
+    a: 'Not by itself. Durability depends on several factors, including construction, fibre, weave and finishing. Thickness alone should not be used as the only measure of fabric performance.',
+  },
+  {
+    q: 'What are GSM and Martindale, and why are they important?',
+    a: 'GSM tells you the weight of a fabric, while Martindale indicates its resistance to rubbing and wear. Both help you understand a fabric’s characteristics and suitability for different uses.',
+  },
+  {
+    q: 'How long will my sofa fabric last?',
+    a: 'There is no fixed lifespan. It depends on the fabric, frequency of use, cleaning, sunlight, environment and how the sofa is maintained.',
   },
 ]
 
@@ -336,15 +344,10 @@ const CollectionsPage = () => {
   const [collectionSearch, setCollectionSearch] = useState('')
   const [activeMaterialType, setActiveMaterialType] = useState('All')
 
-  const CATEGORY_ORDER = ['SUEDEFABRIC', 'LEATHERITE', 'SUEDELEATHER', 'CHENILLE', 'DIGITALPRINT']
   const getTypeLabel = (type: string) => type === 'All' ? 'All' : (categoryMeta[normalizeType(type)]?.label ?? type)
 
   const materialTypeOptions = useMemo(
-    () => ['All', ...Array.from(new Set(collections.map((c) => c.category))).sort((a, b) => {
-      const ai = CATEGORY_ORDER.indexOf(normalizeType(a))
-      const bi = CATEGORY_ORDER.indexOf(normalizeType(b))
-      return (ai === -1 ? CATEGORY_ORDER.length : ai) - (bi === -1 ? CATEGORY_ORDER.length : bi)
-    })],
+    () => ['All', ...Array.from(new Set(collections.map((c) => c.category))).sort(compareMaterialTypes)],
     [collections]
   )
 
@@ -404,7 +407,7 @@ const CollectionsPage = () => {
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
       <Seo
         title={pageTitle('Fabric & Leather Collections')}
-        description="Browse KAIRA's chenille, suede fabric, suede leather, artificial leather and digital-print collections. Filter by material, request samples or a trade catalog."
+        description="Browse KAIRA's boucle, suede fabric, suede leather, artificial leather and digital-print collections. Filter by material, request samples or a trade catalog."
         image="https://kairafabrics.s3.ap-south-1.amazonaws.com/site/banner/v1/banner1.webp"
       />
       <script
@@ -431,10 +434,12 @@ const CollectionsPage = () => {
           Fabric Collections
         </h1>
         <p className="mt-3 text-xs md:text-sm text-color-secondary-dark/80 font-light max-w-2xl leading-relaxed">
-          Browse KAIRA's full range of upholstery fabrics and leathers chenille, suede fabric, suede leather, artificial leather
-          and digital-print collections, each available in multiple colourways and patterns. Every collection below has its own
-          page with detailed swatches, a 3D sofa preview, and a downloadable catalog, so you can explore the exact material,
-          share it with your team, or request samples before you decide.
+          Discover KAIRA’s collection of premium upholstery fabrics and leather, including suede 
+          fabrics, artificial leather, suede leather, boucle and digital prints. Available in a variety of 
+          colours, textures, patterns, and finishes, each collection is designed to help you find the 
+          right material for your space. 
+          Explore swatches, product details, 3D sofa previews, and downloadable catalogues to 
+          compare, visualize, and choose your upholstery with confidence. 
         </p>
 
         {/* Stats */}

@@ -21,10 +21,17 @@ const mapLocations = [
   },
   {
     id: 'kottakkal-warehouse',
-    label: 'Kottakkal Warehouse',
+    label: 'Kottakkal Regional Hub',
     address: 'Kurikkal Furnishing, Kottakkal',
     mapsUrl: 'https://maps.google.com/?q=Kurikkal+Furnishing+Kottakkal',
     src: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3722.6637762683013!2d76.0750578!3d11.005105!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba6356dcd2177bf%3A0x2894a948b4037c07!2sKurikkal%20Furnishing%20Kottakkal!5e1!3m2!1sen!2sin!4v1781075583677!5m2!1sen!2sin',
+  },
+  {
+    id: 'kochi-hub',
+    label: 'Kochi Regional Hub',
+    address: 'Kurikkal Furnishing Pvt. Ltd., Malayil Palli Compound, 16/644, Al Ameen College Rd, Edathala, Aluva, Kerala 683561',
+    mapsUrl: 'https://maps.app.goo.gl/rSb1QfDPvXts9sDDA',
+    src: 'https://maps.google.com/maps?q=Kurikkal+Furnishing+Pvt.+Ltd.+Kochi,+Al+Ameen+College+Rd,+Edathala,+Aluva,+Kerala+683561&t=k&z=16&output=embed',
   },
 ]
 
@@ -71,7 +78,7 @@ const MapCard = ({ loc, height }: { loc: typeof mapLocations[0]; height: number 
 )
 
 const MapSection = () => {
-  const [showroom, calicut, kottakkal] = mapLocations
+  const [showroom, calicut, kottakkal, kochi] = mapLocations
 
   return (
     <section className="bg-stone-50 py-16 md:py-24 border-b border-stone-200 relative overflow-hidden">
@@ -89,9 +96,10 @@ const MapSection = () => {
         <MapCard loc={showroom} height={420} />
 
         {/* Warehouses — side by side */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           <MapCard loc={calicut} height={280} />
           <MapCard loc={kottakkal} height={280} />
+          <MapCard loc={kochi} height={280} />
         </div>
       </div>
     </section>

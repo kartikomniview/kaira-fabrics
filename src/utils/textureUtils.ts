@@ -23,7 +23,7 @@ export function getNormalMapURL(collectionName: string, materials: NewMaterial[]
 
 export function getSheenMapUrl(materialType: string): string {
   const t = materialType.toLowerCase()
-  if (t.includes('fabric') || t.includes('chenille') || t.includes('velvet')) {
+  if (t.includes('fabric') || t.includes('boucle') || t.includes('chenille') || t.includes('velvet')) {
     return `${S3_KAIRA_ORIGIN}/textures/Common/SheenColorMap.webp`
   }
   return ''
@@ -47,7 +47,7 @@ export function getUvValue(collectionName: string,materialCode:string = ""): num
 
 export function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
   const t = materialType.toLowerCase()
-  if (t.includes('chenille') || t.includes('fabric') || t.includes('digitalprint')) return 0.8
+  if (t.includes('boucle') || t.includes('chenille') || t.includes('fabric') || t.includes('digitalprint')) return 0.8
   if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
   if (t.includes('leather')) return 0.5
   return baseRoughness
