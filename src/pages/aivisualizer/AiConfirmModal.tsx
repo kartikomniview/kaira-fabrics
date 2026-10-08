@@ -15,6 +15,10 @@ export interface AiConfirmRequest {
   partFabrics: PartFabric[]
 }
 
+/** True when the request has more fabrics than the AI render allows — the modal must then show its warning. */
+export const exceedsAiFabricLimit = (request: AiConfirmRequest) =>
+  countDistinctFabrics(request.material, request.partFabrics) > MAX_AI_FABRICS
+
 interface AiConfirmModalProps {
   request: AiConfirmRequest
   /** May return a promise; the Generate button shows progress until it settles */

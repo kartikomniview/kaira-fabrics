@@ -16,7 +16,7 @@ import { AI_VISUALIZER_PRODUCTS } from './aivisualizer/AiVisualizerEngine'
 import { useAiGenerationFlow, OTP_VALIDATION_ENABLED, DEFAULT_GENERATION_LIMIT } from './aivisualizer/useAiGenerationFlow'
 import type { SelectedProduct as AiSelectedProduct, PartFabric } from './aivisualizer/generateRender'
 import LeadFormModal from './aivisualizer/LeadFormModal'
-import AiConfirmModal, { type AiConfirmRequest } from './aivisualizer/AiConfirmModal'
+import AiConfirmModal, { exceedsAiFabricLimit, type AiConfirmRequest } from './aivisualizer/AiConfirmModal'
 import MyGalleryPanel from './aivisualizer/MyGalleryPanel'
 import GeneratedImageModal from './admin/GeneratedImageModal'
 import { isVerified } from '../lib/renderLimit'
@@ -102,7 +102,12 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
     const partFabrics: PartFabric[] = Object.entries(partOverrides)
       .filter(([, mat]) => mat.id !== base.id)
       .map(([part, mat]) => ({ part, partLabel: partLabel(part), material: mat }))
-    setAiConfirm({ material: base, product, partFabrics })
+    const request: AiConfirmRequest = { material: base, product, partFabrics }
+    // A verified number this session skips the confirmation and goes straight to generating —
+    // unless the request has too many fabrics, which only the confirmation window explains
+    const verified = mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))
+    if (verified && !exceedsAiFabricLimit(request)) handleGenerateClick(request)
+    else setAiConfirm(request)
   }
 
   const [aiConfirm, setAiConfirm] = useState<AiConfirmRequest | null>(null)
