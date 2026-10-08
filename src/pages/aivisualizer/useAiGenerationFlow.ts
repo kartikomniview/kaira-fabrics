@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
-import { generateRender, overlayLogo, logCachedRender, fetchGenerationLimit } from './generateRender'
-import type { SelectedMaterial, SelectedProduct, GenerationLimitInfo } from './generateRender'
+import { useEffect, useState } from 'react'
+import { generateRender, overlayLogo, logCachedRender, fetchGenerationLimit, buildBadges, buildVariantKey, OTP_REQUIRED_ERROR } from './generateRender'
+import type { SelectedMaterial, SelectedProduct, PartFabric, GenerationLimitInfo } from './generateRender'
 import { findCachedRender } from './renderCache'
-import { createRecaptchaVerifier, sendOtp, confirmOtp } from '../../lib/phoneAuth'
-import { isVerified, markVerified } from '../../lib/renderLimit'
-import type { ConfirmationResult, RecaptchaVerifier } from 'firebase/auth'
+import { sendOtp, verifyOtp } from '../../lib/phoneAuth'
+import { isVerified, markVerified, clearVerified } from '../../lib/renderLimit'
 import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
 
 export const LOADING_MESSAGES = [
@@ -17,8 +16,8 @@ export const LOADING_MESSAGES = [
   "Just a few more seconds...",
 ]
 
-// ── Feature flag: set to true to re-enable actual SMS OTP verification via Firebase ─────────
-export const OTP_VALIDATION_ENABLED = false
+// ── Feature flag: WhatsApp OTP verification via the Lambda (/otp/send, /otp/verify) ────────
+export const OTP_VALIDATION_ENABLED = true
 
 const isValidIndianMobile = (num: string) => {
   const phone = parsePhoneNumberFromString(num, 'IN')
@@ -43,17 +42,18 @@ const MIN_CACHED_LOADER_MS = 8000
 export function useAiGenerationFlow(onGenerated?: () => void) {
   const [selectedMaterial, setSelectedMaterial] = useState<SelectedMaterial | null>(null)
   const [selectedProduct, setSelectedProduct] = useState<SelectedProduct | null>(null)
+  // Per-part fabric overrides (3D Studio); kept in state so they survive the OTP step
+  const [selectedPartFabrics, setSelectedPartFabrics] = useState<PartFabric[]>([])
 
   const [showLeadForm, setShowLeadForm] = useState(false)
   const [mobileNumber, setMobileNumber] = useState(() => localStorage.getItem('kaira_lead_mobile') ?? '')
   const [mobileError, setMobileError] = useState('')
   const [otpCode, setOtpCode] = useState('')
   const [leadStep, setLeadStep] = useState<'mobile' | 'otp' | 'limit'>('mobile')
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
   const [sendingOtp, setSendingOtp] = useState(false)
   const [verifyingOtp, setVerifyingOtp] = useState(false)
   const [otpError, setOtpError] = useState('')
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null)
+  const [resendIn, setResendIn] = useState(0)
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [generateError, setGenerateError] = useState<string | null>(null)
@@ -61,11 +61,6 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
   const [limitInfo, setLimitInfo] = useState<GenerationLimitInfo | null>(null)
   const [showImageModal, setShowImageModal] = useState(false)
   const [imgZoom, setImgZoom] = useState(1)
-
-  const refreshRecaptchaVerifier = () => {
-    recaptchaVerifierRef.current?.clear()
-    recaptchaVerifierRef.current = createRecaptchaVerifier('recaptcha-container')
-  }
 
   const checkGenerationLimit = async (mobile: string): Promise<GenerationLimitInfo> => {
     if (!IS_GENERATE_LIMITED) {
@@ -93,16 +88,12 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mobileNumber])
 
+  // Resend-code countdown
   useEffect(() => {
-    if (!OTP_VALIDATION_ENABLED) return
-    if (showLeadForm) {
-      refreshRecaptchaVerifier()
-    } else if (recaptchaVerifierRef.current) {
-      recaptchaVerifierRef.current.clear()
-      recaptchaVerifierRef.current = null
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showLeadForm])
+    if (resendIn <= 0) return
+    const id = setTimeout(() => setResendIn((s) => s - 1), 1000)
+    return () => clearTimeout(id)
+  }, [resendIn])
 
   useEffect(() => {
     if (!isGenerating) { setCyclingMsg(LOADING_MESSAGES[0]); return }
@@ -122,30 +113,29 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
     name: string,
     materialOverride?: SelectedMaterial,
     productOverride?: SelectedProduct,
+    partFabricsOverride?: PartFabric[],
   ) => {
     const material = materialOverride ?? selectedMaterial
     const product = productOverride ?? selectedProduct
+    const partFabrics = partFabricsOverride ?? selectedPartFabrics
     if (!material || !product) return
     setGenerateError(null)
 
-    const cacheEligible = !material.isCustom && !product.isCustom && !!material.materialCode
+    const cacheEligible = !material.isCustom && !product.isCustom && !!material.materialCode &&
+      partFabrics.every((pf) => !pf.material.isCustom && !!pf.material.materialCode)
 
     if (cacheEligible) {
       const startedAt = Date.now()
       setIsGenerating(true)
-      const cachedUrl = await findCachedRender(material.collectionName, material.materialCode!, product.productName)
+      const cachedUrl = await findCachedRender(material.collectionName, material.materialCode!, product.productName, buildVariantKey(partFabrics))
       if (cachedUrl) {
-        const watermarked = await overlayLogo(cachedUrl, '/images/kaira.webp', {
-          collectionName: material.collectionName,
-          materialCode: material.materialCode,
-          thumbnailUrl: material.textureUrl,
-        })
+        const watermarked = await overlayLogo(cachedUrl, '/images/kaira.webp', buildBadges(material, partFabrics))
         const elapsed = Date.now() - startedAt
         const remaining = MIN_CACHED_LOADER_MS - elapsed
         if (remaining > 0) {
           await new Promise((resolve) => setTimeout(resolve, remaining))
         }
-        await logCachedRender({ selectedMaterial: material, selectedProduct: product, mobileNumber: mobile, name, outputUrl: cachedUrl })
+        await logCachedRender({ selectedMaterial: material, selectedProduct: product, partFabrics, mobileNumber: mobile, name, outputUrl: cachedUrl })
         checkGenerationLimit(mobile)
         setGeneratedImage(watermarked)
         setShowImageModal(true)
@@ -160,6 +150,7 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
     generateRender({
       selectedMaterial: material,
       selectedProduct: product,
+      partFabrics,
       mobileNumber: mobile,
       name,
       onGeneratingChange: setIsGenerating,
@@ -170,27 +161,36 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
         setShowImageModal(true)
         onGenerated?.()
       },
-      onError: setGenerateError,
+      onError: (message) => {
+        if (message === OTP_REQUIRED_ERROR) {
+          // Server rejected the stored token (expired / invalid) — send the user back to verify
+          clearVerified(mobile)
+          setLeadStep('mobile')
+          setMobileError('Please verify your number again')
+          return
+        }
+        setGenerateError(message)
+      },
     })
   }
 
-  const handleGenerateClick = async (explicit?: { material: SelectedMaterial; product: SelectedProduct }) => {
+  const handleGenerateClick = async (explicit?: { material: SelectedMaterial; product: SelectedProduct; partFabrics?: PartFabric[] }) => {
     const product = explicit?.product ?? selectedProduct
     if (!product) return
     if (explicit) {
       setSelectedMaterial(explicit.material)
       setSelectedProduct(explicit.product)
+      setSelectedPartFabrics(explicit.partFabrics ?? [])
     }
     setGenerateError(null)
     setOtpCode('')
     setOtpError('')
-    setConfirmationResult(null)
     const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
     if (cleaned.length === 10 && isVerified(cleaned)) {
       const info = await checkGenerationLimit(cleaned)
       if (info.remaining > 0) {
         setShowLeadForm(true)
-        handleGenerate(cleaned, 'NA', explicit?.material, explicit?.product)
+        handleGenerate(cleaned, 'NA', explicit?.material, explicit?.product, explicit ? (explicit.partFabrics ?? []) : undefined)
         return
       }
       setLeadStep('limit')
@@ -202,10 +202,33 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
 
   const closeLeadForm = () => {
     setShowLeadForm(false)
-    setConfirmationResult(null)
     setOtpCode('')
     setOtpError('')
     setMobileError('')
+  }
+
+  const continueIfWithinLimit = async (cleaned: string) => {
+    const info = await checkGenerationLimit(cleaned)
+    if (info.remaining > 0) {
+      handleGenerate(cleaned, 'NA')
+    } else {
+      setLeadStep('limit')
+    }
+  }
+
+  /** Sends a WhatsApp code; returns false (with otpError set) if the Lambda refused. */
+  const requestOtp = async (cleaned: string): Promise<boolean> => {
+    setSendingOtp(true)
+    try {
+      const { resendAfter } = await sendOtp(cleaned)
+      setResendIn(resendAfter ?? 30)
+      return true
+    } catch (err) {
+      setOtpError(err instanceof Error ? err.message : 'Failed to send code')
+      return false
+    } finally {
+      setSendingOtp(false)
+    }
   }
 
   const handleSendOtp = async () => {
@@ -216,72 +239,46 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
     }
     setMobileError('')
     setOtpError('')
+    localStorage.setItem('kaira_lead_mobile', cleaned)
 
-    if (!OTP_VALIDATION_ENABLED) {
-      localStorage.setItem('kaira_lead_mobile', cleaned)
-      markVerified(cleaned)
-      const info = await checkGenerationLimit(cleaned)
-      if (info.remaining > 0) {
-        handleGenerate(cleaned, 'NA')
-      } else {
-        setLeadStep('limit')
-      }
+    if (!OTP_VALIDATION_ENABLED || isVerified(cleaned)) {
+      await continueIfWithinLimit(cleaned)
       return
     }
 
-    if (isVerified(cleaned)) {
-      localStorage.setItem('kaira_lead_mobile', cleaned)
-      const info = await checkGenerationLimit(cleaned)
-      if (info.remaining > 0) {
-        handleGenerate(cleaned, 'NA')
-      } else {
-        setLeadStep('limit')
-      }
-      return
-    }
-
-    if (!recaptchaVerifierRef.current) refreshRecaptchaVerifier()
-    setSendingOtp(true)
-    try {
-      const result = await sendOtp(`+91${cleaned}`, recaptchaVerifierRef.current!)
-      setConfirmationResult(result)
-      localStorage.setItem('kaira_lead_mobile', cleaned)
+    if (await requestOtp(cleaned)) {
+      setOtpCode('')
       setLeadStep('otp')
-    } catch (err) {
-      setOtpError(err instanceof Error ? err.message : 'Failed to send OTP')
-      refreshRecaptchaVerifier()
-    } finally {
-      setSendingOtp(false)
     }
+  }
+
+  const handleResendOtp = async () => {
+    const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
+    setOtpError('')
+    setOtpCode('')
+    await requestOtp(cleaned)
   }
 
   const handleVerifyOtp = async () => {
-    if (!confirmationResult) return
+    const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
     setOtpError('')
     setVerifyingOtp(true)
     try {
-      await confirmOtp(confirmationResult, otpCode)
-      const cleaned = mobileNumber.replace(/\D/g, '').slice(0, 10)
-      markVerified(cleaned)
-      setVerifyingOtp(false)
-      const info = await checkGenerationLimit(cleaned)
-      if (info.remaining > 0) {
-        handleGenerate(cleaned, 'NA')
-      } else {
-        setLeadStep('limit')
-      }
+      const { token, expiresAt } = await verifyOtp(cleaned, otpCode)
+      markVerified(cleaned, token, expiresAt)
     } catch (err) {
       setOtpError(err instanceof Error ? err.message : 'Invalid code')
+      return
+    } finally {
       setVerifyingOtp(false)
     }
+    await continueIfWithinLimit(cleaned)
   }
 
   const handleChangeMobile = () => {
-    setConfirmationResult(null)
     setOtpCode('')
     setOtpError('')
     setLeadStep('mobile')
-    refreshRecaptchaVerifier()
   }
 
   const handleDownload = async () => {
@@ -305,6 +302,7 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
   const reset = () => {
     setSelectedMaterial(null)
     setSelectedProduct(null)
+    setSelectedPartFabrics([])
     setGeneratedImage(null)
     setShowImageModal(false)
     closeLeadForm()
@@ -316,11 +314,11 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
     showLeadForm, setShowLeadForm,
     mobileNumber, setMobileNumber, mobileError,
     otpCode, setOtpCode, leadStep,
-    sendingOtp, verifyingOtp, otpError,
+    sendingOtp, verifyingOtp, otpError, resendIn,
     isGenerating, generatedImage, generateError, setGenerateError, cyclingMsg,
     limitInfo,
     showImageModal, setShowImageModal, imgZoom, setImgZoom,
-    handleGenerateClick, closeLeadForm, handleSendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
+    handleGenerateClick, closeLeadForm, handleSendOtp, handleResendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
     reset,
   }
 }

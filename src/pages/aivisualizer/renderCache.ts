@@ -1,7 +1,7 @@
 const S3_OUTPUTS_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ai-visualizer/outputs'
 
 // Mirrors the Lambda's safeKeyPart() so the S3 key we probe matches the one it writes to.
-const safeKeyPart = (v: string) => (v || 'NA').trim().replace(/[^a-zA-Z0-9-_]+/g, '_') || 'NA'
+export const safeKeyPart = (v: string) => (v || 'NA').trim().replace(/[^a-zA-Z0-9-_]+/g, '_') || 'NA'
 
 // Lambda's `ext` comes from the Gemini response mimeType, so a cached output may be png or webp.
 const EXTENSIONS = ['png']
@@ -17,17 +17,22 @@ const probe = async (url: string): Promise<boolean> => {
 }
 
 /** Check S3 directly for a previously rendered output, avoiding a round trip through the logs API. */
-export async function findCachedRender(collectionName: string, materialCode: string, productName: string): Promise<string | null> {
+export async function findCachedRender(collectionName: string, materialCode: string, productName: string, variantKey?: string): Promise<string | null> {
   const collectionKeyPart = safeKeyPart(collectionName)
   const productKeyPart = safeKeyPart(productName)
   const materialKeyPart = safeKeyPart(materialCode)
-  const keyBase = `${collectionKeyPart}/${productKeyPart}/${collectionKeyPart}_${materialKeyPart}`
+  // Part-level combinations are stored under `<base>__<variant>` (see the Lambda's variant_key)
+  const variantSuffix = variantKey ? `__${safeKeyPart(variantKey)}` : ''
+  const keyBase = `${collectionKeyPart}/${productKeyPart}/${collectionKeyPart}_${materialKeyPart}${variantSuffix}`
   const altKeyBase = `${collectionKeyPart}/${productKeyPart}/${materialKeyPart}`
 
   for (const ext of EXTENSIONS) {
     const url = `${S3_OUTPUTS_BASE}/${keyBase}.${ext}`
     if (await probe(url)) return url
   }
+
+  // Legacy key layout only exists for whole-sofa renders
+  if (variantKey) return null
 
   const altUrl = `${S3_OUTPUTS_BASE}/${altKeyBase}.webp`
   if (await probe(altUrl)) return altUrl

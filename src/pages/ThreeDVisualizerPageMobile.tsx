@@ -3,12 +3,19 @@ import { useMaterials } from '../contexts/MaterialsContext'
 import { kairaProducts } from '../data/products'
 import type { KairaProduct } from '../data/products'
 import {
-  fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS,
+  fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, blinkFabricPart,
   getRoughnessMapURL, getNormalMapURL, getSheenMapUrl, getUvValue, getRoughnessValue,
 } from '../utils/textureUtils'
 import * as THREE from 'three'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './threedvisualizer/MaterialSelector'
+import PartDropdown, { partLabel } from './threedvisualizer/PartDropdown'
 import { useCachedMedia } from '../hooks/useCachedMedia'
+import { AI_VISUALIZER_PRODUCTS } from './aivisualizer/AiVisualizerEngine'
+import { useAiGenerationFlow, OTP_VALIDATION_ENABLED, DEFAULT_GENERATION_LIMIT } from './aivisualizer/useAiGenerationFlow'
+import type { SelectedProduct as AiSelectedProduct, PartFabric } from './aivisualizer/generateRender'
+import LeadFormModal from './aivisualizer/LeadFormModal'
+import GeneratedImageModal from './admin/GeneratedImageModal'
+import { isVerified } from '../lib/renderLimit'
 
 const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }) => {
   const { newMaterials } = useMaterials()
@@ -40,6 +47,53 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
       setToastVisible(false)
       setTimeout(() => setToast(null), 300)
     }, 2200)
+  }
+
+  // Whole-product fabric, plus any per-part overrides layered on top of it
+  const [baseMaterial, setBaseMaterial] = useState<SelectedMaterial | null>(null)
+  const [partOverrides, setPartOverrides] = useState<Record<string, SelectedMaterial>>({})
+
+  // "<part> selected" flash; key bumps on every pick to replay the animation
+  const [partFlash, setPartFlash] = useState<{ label: string; key: number } | null>(null)
+  const partFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const blinkCancelRef = useRef<(() => void) | null>(null)
+
+  const flashPart = (part: string) => {
+    if (partFlashTimerRef.current) clearTimeout(partFlashTimerRef.current)
+    setPartFlash({ label: partLabel(part), key: Date.now() })
+    partFlashTimerRef.current = setTimeout(() => setPartFlash(null), 1800)
+    blinkCancelRef.current?.()
+    const mv = mvRef.current as any
+    if (mv && modelLoaded) blinkCancelRef.current = blinkFabricPart(mv, fabricMeshesRef.current, part)
+  }
+
+  useEffect(() => () => {
+    if (partFlashTimerRef.current) clearTimeout(partFlashTimerRef.current)
+    blinkCancelRef.current?.()
+  }, [])
+
+  const {
+    showLeadForm, mobileNumber, setMobileNumber, mobileError,
+    otpCode, setOtpCode, leadStep,
+    sendingOtp, verifyingOtp, otpError, resendIn,
+    isGenerating, generatedImage, generateError, setGenerateError, cyclingMsg,
+    limitInfo,
+    showImageModal, setShowImageModal, imgZoom, setImgZoom,
+    handleGenerateClick, closeLeadForm, handleSendOtp, handleResendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
+  } = useAiGenerationFlow()
+
+  const handleVisualizeWithAI = () => {
+    if (!selected) return
+    const match = AI_VISUALIZER_PRODUCTS.find((p) => p.productName === currentProduct.product_name)
+    const product: AiSelectedProduct = match
+      ? { id: match.productName, productName: match.productName, imageUrl: match.productImageUrl }
+      : { id: currentProduct.id, productName: currentProduct.product_name, imageUrl: currentProduct.model_url }
+    // Send what the 3D view shows: the whole-sofa fabric plus any part overrides that differ from it
+    const base = baseMaterial ?? selected
+    const partFabrics: PartFabric[] = Object.entries(partOverrides)
+      .filter(([, mat]) => mat.id !== base.id)
+      .map(([part, mat]) => ({ part, partLabel: partLabel(part), material: mat }))
+    handleGenerateClick({ material: base, product, partFabrics })
   }
 
   const [applyRoughnessMap] = useState(true)
@@ -80,6 +134,13 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     if (roughnessBlobUrl) URL.revokeObjectURL(roughnessBlobUrl)
     if (normalBlobUrl) URL.revokeObjectURL(normalBlobUrl)
     if (sheenBlobUrl) URL.revokeObjectURL(sheenBlobUrl)
+    // Applying to "All" repaints every fabric mesh, so it supersedes any earlier part overrides
+    if (currSelectedPartForFinish === 'All') {
+      setBaseMaterial(mat)
+      setPartOverrides({})
+    } else {
+      setPartOverrides((prev) => ({ ...prev, [currSelectedPartForFinish]: mat }))
+    }
     setIsApplying(false)
   }
 
@@ -164,32 +225,10 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     setModelLoaded(false)
     fabricMeshesRef.current = []
     setMeshNames([])
+    setBaseMaterial(null)
+    setPartOverrides({})
+    blinkCancelRef.current?.()
   }, [currentProduct])
-
-  useEffect(() => {
-    if (currSelectedPartForFinish === 'All' || !modelLoaded) return
-    const meshes = fabricMeshesRef.current.filter((m: any) =>
-      (m.name ?? '').toLowerCase().includes(currSelectedPartForFinish.toLowerCase())
-    )
-    if (meshes.length === 0) return
-    const originals = meshes.map((m: any) => ({
-      emissive: (m.material as THREE.MeshPhysicalMaterial).emissive.clone(),
-      intensity: (m.material as THREE.MeshPhysicalMaterial).emissiveIntensity,
-    }))
-    const on = () => meshes.forEach((m: any) => {
-      (m.material as THREE.MeshPhysicalMaterial).emissive.set(0xffffff)
-        ; (m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.7
-    })
-    const off = () => meshes.forEach((m: any, i: number) => {
-      (m.material as THREE.MeshPhysicalMaterial).emissive.copy(originals[i].emissive)
-        ; (m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = originals[i].intensity
-    })
-    on()
-    const t1 = setTimeout(off, 300)
-    const t2 = setTimeout(on, 550)
-    const t3 = setTimeout(off, 850)
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
-  }, [currSelectedPartForFinish, modelLoaded])
 
   return (
     <div
@@ -266,6 +305,48 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
               </div>
             )}
           </div>
+
+          {/* Part selected flash */}
+          {partFlash && modelLoaded && !isApplying && (
+            <div className="absolute top-14 right-3 z-20 pointer-events-none">
+              <div
+                key={partFlash.key}
+                className="bg-secondary shadow-xl px-4 py-2 rounded-none"
+                style={{ animation: 'kaira-part-flash 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards' }}
+              >
+                <span className="text-white text-[10px] font-bold tracking-[0.15em] uppercase">
+                  {partFlash.label} selected
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Part selector */}
+          {modelLoaded && (
+            <div className="absolute bottom-3 left-3 z-20">
+              <PartDropdown
+                productName={currentProduct.product_name}
+                selectedPart={currSelectedPartForFinish}
+                onPartChange={setCurrSelectedPartForFinish}
+                onUserSelect={flashPart}
+                disabled={isApplying}
+                compact
+              />
+            </div>
+          )}
+
+          {/* Visualize with AI */}
+          <button
+            onClick={handleVisualizeWithAI}
+            disabled={!selected || !modelLoaded || isApplying}
+            style={{ touchAction: 'manipulation' }}
+            className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 h-8 px-3 bg-primary hover:bg-primary/90 color-secondary-dark shadow-lg transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+          >
+            <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span className="text-[10px] tracking-[0.08em] uppercase font-bold">Visualize with AI</span>
+          </button>
 
           {/* Corner bracket decorations */}
           <div className="absolute top-2 left-2 w-4 h-4 border-t border-l border-secondary/30 pointer-events-none" />
@@ -472,6 +553,55 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
           </div>
         </div>
       )}
+
+      {/* ── AI Visualize: Lead Form / Generating Modal ── */}
+      {showLeadForm && (
+        <LeadFormModal
+          isGenerating={isGenerating}
+          generateError={generateError}
+          cyclingMsg={cyclingMsg}
+          mobileNumber={mobileNumber}
+          setMobileNumber={setMobileNumber}
+          mobileError={mobileError}
+          otpCode={otpCode}
+          setOtpCode={setOtpCode}
+          leadStep={leadStep}
+          dailyLimit={limitInfo?.limit ?? DEFAULT_GENERATION_LIMIT}
+          isKnownVerifiedNumber={mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))}
+          otpValidationEnabled={OTP_VALIDATION_ENABLED}
+          sendingOtp={sendingOtp}
+          verifyingOtp={verifyingOtp}
+          otpError={otpError}
+          resendIn={resendIn}
+          onClose={closeLeadForm}
+          onDismissError={() => { setGenerateError(null); closeLeadForm() }}
+          onSendOtp={handleSendOtp}
+          onVerifyOtp={handleVerifyOtp}
+          onResendOtp={handleResendOtp}
+          onChangeMobile={handleChangeMobile}
+        />
+      )}
+
+      {/* ── AI Visualize: Result ── */}
+      <GeneratedImageModal
+        open={showImageModal && !!generatedImage}
+        imgZoom={imgZoom}
+        setImgZoom={setImgZoom}
+        cachedImageUrl={generatedImage}
+        isWatermarking={false}
+        stampSuccess
+        infoSlot={selected && (
+          <div className="flex items-center gap-3">
+            <img src={selected.textureUrl} className="w-9 h-9 object-cover border border-white/20 shadow-sm" alt="" />
+            <div>
+              <p className="text-[10px] color-secondary-dark uppercase tracking-widest">Fabric Applied</p>
+              <p className="text-xs font-bold text-white truncate max-w-[180px]">{selected.fabricName}</p>
+            </div>
+          </div>
+        )}
+        onClose={() => { setShowImageModal(false); setImgZoom(1) }}
+        onDownload={handleDownload}
+      />
     </div>
   )
 }

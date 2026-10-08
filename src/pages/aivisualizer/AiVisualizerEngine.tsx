@@ -32,11 +32,11 @@ const AiVisualizerEngine = () => {
     selectedProduct, setSelectedProduct,
     showLeadForm, mobileNumber, setMobileNumber, mobileError,
     otpCode, setOtpCode, leadStep,
-    sendingOtp, verifyingOtp, otpError,
+    sendingOtp, verifyingOtp, otpError, resendIn,
     isGenerating, generatedImage, generateError, setGenerateError, cyclingMsg,
     limitInfo,
     showImageModal, setShowImageModal, imgZoom, setImgZoom,
-    handleGenerateClick, closeLeadForm, handleSendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
+    handleGenerateClick, closeLeadForm, handleSendOtp, handleResendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
     reset,
   } = useAiGenerationFlow(() => setCurrentStep(3))
 
@@ -488,10 +488,12 @@ const AiVisualizerEngine = () => {
           sendingOtp={sendingOtp}
           verifyingOtp={verifyingOtp}
           otpError={otpError}
+          resendIn={resendIn}
           onClose={closeLeadForm}
           onDismissError={() => { setGenerateError(null); closeLeadForm() }}
           onSendOtp={handleSendOtp}
           onVerifyOtp={handleVerifyOtp}
+          onResendOtp={handleResendOtp}
           onChangeMobile={handleChangeMobile}
         />
       )}

@@ -1,7 +1,9 @@
 const STORAGE_KEY = 'kaira_render_limits'
 
 interface MobileRenderRecord {
-  verified: boolean
+  /** Signed token from /otp/verify; older entries only had `verified: true` and no token */
+  token?: string
+  expiresAt?: number
 }
 
 type RenderLimitStore = Record<string, MobileRenderRecord>
@@ -18,12 +20,24 @@ function writeStore(store: RenderLimitStore): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
 }
 
-export function isVerified(mobile: string): boolean {
-  return !!readStore()[mobile]?.verified
+export function getVerificationToken(mobile: string): string | null {
+  const record = readStore()[mobile]
+  if (!record?.token || !record.expiresAt || record.expiresAt <= Date.now()) return null
+  return record.token
 }
 
-export function markVerified(mobile: string): void {
+export function isVerified(mobile: string): boolean {
+  return getVerificationToken(mobile) !== null
+}
+
+export function markVerified(mobile: string, token: string, expiresAt: number): void {
   const store = readStore()
-  store[mobile] = { verified: true }
+  store[mobile] = { token, expiresAt }
+  writeStore(store)
+}
+
+export function clearVerified(mobile: string): void {
+  const store = readStore()
+  delete store[mobile]
   writeStore(store)
 }

@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# AWS Lambda API source (deployed separately, not part of the website build)
+Kaira-Api/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

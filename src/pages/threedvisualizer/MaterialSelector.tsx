@@ -99,7 +99,21 @@ export interface SelectedMaterial {
   colorGroup: string | null
 }
 
-const PART_OPTIONS = ['All', 'Pillow', 'Base', 'Back', 'Seat']
+// Selectable parts per product (matched against product name, case-insensitive)
+const PRODUCT_PARTS: Record<string, string[]> = {
+  alden: ['Seat', 'Back', 'Base'],
+  petal: ['Base'],
+  luna: ['Pillow', 'Back', 'Seat'],
+  hudson: ['Base', 'Back', 'Seat'],
+}
+
+// Products with zero or one part only get "All"
+export const getPartOptions = (productName?: string): string[] => {
+  const name = (productName ?? '').toLowerCase()
+  const key = Object.keys(PRODUCT_PARTS).find(k => name.includes(k))
+  const parts = key ? PRODUCT_PARTS[key] : []
+  return parts.length > 1 ? ['All', ...parts] : ['All']
+}
 
 interface MaterialSelectorProps {
   selectedId: number | null
@@ -110,6 +124,7 @@ interface MaterialSelectorProps {
   onToast?: (msg: string, type: 'success' | 'error') => void
   className?: string
   showPartFilter?: boolean
+  productName?: string
   onClose?: () => void
   disabled?: boolean
   id?: string
@@ -117,8 +132,14 @@ interface MaterialSelectorProps {
 
 const PAGE_SIZE = 24
 
-const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = false, onClose, disabled = false, id }: MaterialSelectorProps) => {
+const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = false, productName, onClose, disabled = false, id }: MaterialSelectorProps) => {
   const { newMaterials, collections, isLoading: materialsLoading, error: materialsError } = useMaterials()
+  const partOptions = useMemo(() => getPartOptions(productName), [productName])
+
+  // Fall back to "All" when the current part isn't offered for this product
+  useEffect(() => {
+    if (showPartFilter && selectedPart && !partOptions.includes(selectedPart)) onPartChange?.('All')
+  }, [showPartFilter, partOptions, selectedPart])
   const colorScrollRef = useRef<HTMLDivElement>(null)
   const typeScrollRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -340,7 +361,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
         {showPartFilter && (
           <div className="flex items-center gap-1.5">
             <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest color-secondary-dark/50 pr-0.5">Part</span>
-            {PART_OPTIONS.map(p => {
+            {partOptions.map(p => {
               const isActive = selectedPart === p
               return (
                 <button

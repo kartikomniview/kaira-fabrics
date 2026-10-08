@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import { kairaProducts } from '../../data/products'
 import type { KairaProduct } from '../../data/products'
-import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, getNormalMapURL, getRoughnessMapURL, getUvValue } from '../../utils/textureUtils'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, blinkFabricPart, getNormalMapURL, getRoughnessMapURL, getUvValue } from '../../utils/textureUtils'
 import * as THREE from 'three'
 import '@google/model-viewer'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './MaterialSelector'
+import PartDropdown, { partLabel } from './PartDropdown'
+import { AI_VISUALIZER_PRODUCTS } from '../aivisualizer/AiVisualizerEngine'
 import { useAiGenerationFlow, OTP_VALIDATION_ENABLED, DEFAULT_GENERATION_LIMIT } from '../aivisualizer/useAiGenerationFlow'
+import type { SelectedProduct as AiSelectedProduct, PartFabric } from '../aivisualizer/generateRender'
 import LeadFormModal from '../aivisualizer/LeadFormModal'
 import MyGalleryPanel from '../aivisualizer/MyGalleryPanel'
 import GeneratedImageModal from '../admin/GeneratedImageModal'
@@ -81,6 +84,31 @@ const ThreeDVisualizerEngine = ({
     }, 2200)
   }
 
+  // Centered "<part> selected" flash; key bumps on every pick to replay the animation
+  const [partFlash, setPartFlash] = useState<{ label: string; key: number } | null>(null)
+  const partFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const blinkCancelRef = useRef<(() => void) | null>(null)
+
+  const blinkPart = (part: string) => {
+    blinkCancelRef.current?.()
+    const mv = mvRef.current as any
+    if (!mv || !modelLoaded) return
+    blinkCancelRef.current = blinkFabricPart(mv, fabricMeshesRef.current, part)
+  }
+
+  const flashPart = (part: string) => {
+    if (partFlashTimerRef.current) clearTimeout(partFlashTimerRef.current)
+    setPartFlash({ label: partLabel(part), key: Date.now() })
+    partFlashTimerRef.current = setTimeout(() => setPartFlash(null), 1800)
+    blinkPart(part)
+  }
+
+  useEffect(() => () => {
+    if (partFlashTimerRef.current) clearTimeout(partFlashTimerRef.current)
+    blinkCancelRef.current?.()
+  }, [])
+
   const [applyRoughnessMap] = useState(true)
   const [applyNormalMap] = useState(true)
   const [applySheenMap] = useState(true)
@@ -93,12 +121,26 @@ const ThreeDVisualizerEngine = ({
   const {
     showLeadForm, mobileNumber, setMobileNumber, mobileError,
     otpCode, setOtpCode, leadStep,
-    sendingOtp, verifyingOtp, otpError,
+    sendingOtp, verifyingOtp, otpError, resendIn,
     isGenerating, generatedImage, generateError, setGenerateError, cyclingMsg,
     limitInfo,
     showImageModal, setShowImageModal, imgZoom, setImgZoom,
-    closeLeadForm, handleSendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
+    handleGenerateClick, closeLeadForm, handleSendOtp, handleResendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
   } = useAiGenerationFlow()
+
+  const handleVisualizeWithAI = () => {
+    if (!selected) return
+    const match = AI_VISUALIZER_PRODUCTS.find((p) => p.productName === currentProduct.product_name)
+    const product: AiSelectedProduct = match
+      ? { id: match.productName, productName: match.productName, imageUrl: match.productImageUrl }
+      : { id: currentProduct.id, productName: currentProduct.product_name, imageUrl: currentProduct.model_url }
+    // Send what the 3D view shows: the whole-sofa fabric plus any part overrides that differ from it
+    const base = baseMaterial ?? selected
+    const partFabrics: PartFabric[] = Object.entries(partOverrides)
+      .filter(([, mat]) => mat.id !== base.id)
+      .map(([part, mat]) => ({ part, partLabel: partLabel(part), material: mat }))
+    handleGenerateClick({ material: base, product, partFabrics })
+  }
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
@@ -218,30 +260,8 @@ const ThreeDVisualizerEngine = ({
     setPartOverrides({})
   }, [currentProduct])
 
-  useEffect(() => {
-    if (currSelectedPartForFinish === 'All' || !modelLoaded) return
-    const meshes = fabricMeshesRef.current.filter((m: any) =>
-      (m.name ?? '').toLowerCase().includes(currSelectedPartForFinish.toLowerCase())
-    )
-    if (meshes.length === 0) return
-    const originals = meshes.map((m: any) => ({
-      emissive: (m.material as THREE.MeshPhysicalMaterial).emissive.clone(),
-      intensity: (m.material as THREE.MeshPhysicalMaterial).emissiveIntensity,
-    }))
-    const on = () => meshes.forEach((m: any) => {
-      (m.material as THREE.MeshPhysicalMaterial).emissive.set(0xffffff)
-      ;(m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.7
-    })
-    const off = () => meshes.forEach((m: any, i: number) => {
-      (m.material as THREE.MeshPhysicalMaterial).emissive.copy(originals[i].emissive)
-      ;(m.material as THREE.MeshPhysicalMaterial).emissiveIntensity = originals[i].intensity
-    })
-    on()
-    const t1 = setTimeout(off, 300)
-    const t2 = setTimeout(on, 550)
-    const t3 = setTimeout(off, 850)
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
-  }, [currSelectedPartForFinish, modelLoaded])
+  // Stop any running blink when the model is swapped out
+  useEffect(() => () => blinkCancelRef.current?.(), [currentProduct])
 
   return (
     <>
@@ -444,8 +464,36 @@ const ThreeDVisualizerEngine = ({
               </div>
             )}
 
+            {/* Part selector */}
+            {modelLoaded && (
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+                <PartDropdown
+                  productName={currentProduct.product_name}
+                  selectedPart={currSelectedPartForFinish}
+                  onPartChange={setCurrSelectedPartForFinish}
+                  onUserSelect={flashPart}
+                  disabled={isApplying}
+                />
+              </div>
+            )}
+
+            {/* Part selected flash */}
+            {partFlash && modelLoaded && !isApplying && (
+              <div className="absolute top-4 right-4 z-20 pointer-events-none">
+                <div
+                  key={partFlash.key}
+                  className="bg-secondary shadow-xl px-6 py-3 rounded-none"
+                  style={{ animation: 'kaira-part-flash 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards' }}
+                >
+                  <span className="text-white text-[12px] font-bold tracking-[0.2em] uppercase">
+                    {partFlash.label} selected
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Disclaimer */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none">
+            <div className="absolute bottom-6 left-9 pointer-events-none">
               <span className="text-[10px] color-secondary-dark/40 tracking-wider select-none font-medium">
                 For visualization only · Actual product may vary
               </span>
@@ -454,7 +502,7 @@ const ThreeDVisualizerEngine = ({
             {/* Visualize with AI */}
             <button
               id="tour-visualize-ai"
-              onClick={() => showToast('Coming soon', 'success')}
+              onClick={handleVisualizeWithAI}
               disabled={!selected || !modelLoaded || isApplying}
               className="absolute bottom-6 right-6 z-20 flex items-center gap-2 h-9 px-4 bg-primary hover:bg-primary/90 color-secondary-dark transition-all rounded-none shadow-xl disabled:opacity-40 disabled:pointer-events-none"
             >
@@ -485,10 +533,12 @@ const ThreeDVisualizerEngine = ({
           sendingOtp={sendingOtp}
           verifyingOtp={verifyingOtp}
           otpError={otpError}
+          resendIn={resendIn}
           onClose={closeLeadForm}
           onDismissError={() => { setGenerateError(null); closeLeadForm() }}
           onSendOtp={handleSendOtp}
           onVerifyOtp={handleVerifyOtp}
+          onResendOtp={handleResendOtp}
           onChangeMobile={handleChangeMobile}
         />
       )}

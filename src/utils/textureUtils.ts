@@ -380,3 +380,61 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
     }
   }
 }
+
+/**
+ * Pulses a part's fabric meshes red to show which part is selected ('All' = every fabric mesh).
+ * model-viewer only redraws on demand, so queueRender is called on every animation frame.
+ * Returns a cancel function that stops the pulse and restores the original look.
+ */
+export function blinkFabricPart(mv: any, meshes: any[], part: string): () => void {
+  const sceneSymbol: any = Object.getOwnPropertySymbols(mv).find((s: any) => s.description === 'scene')
+  const scene = sceneSymbol ? mv[sceneSymbol] : null
+  const render = () => scene?.queueRender?.()
+
+  const targets = meshes.filter((m: any) => {
+    const name = (m.name ?? '').toLowerCase()
+    if (!name || name.includes('shadow') || NO_FABRIC_PARTS.some((p) => name.includes(p))) return false
+    return part === 'All'
+      ? FABRIC_PARTS.some((p) => name.includes(p))
+      : name.includes(part.toLowerCase())
+  })
+  if (targets.length === 0) return () => {}
+
+  const mats = targets.map((m: any) => m.material as THREE.MeshPhysicalMaterial)
+  const originals = mats.map((mat) => ({ emissive: mat.emissive.clone(), intensity: mat.emissiveIntensity }))
+  const red = new THREE.Color(0xff0000)
+  const PULSES = 2
+  const DURATION = 1200
+  const start = performance.now()
+  let frame = 0
+  let done = false
+
+  const restore = () => {
+    if (done) return
+    done = true
+    mats.forEach((mat, i) => {
+      mat.emissive.copy(originals[i].emissive)
+      mat.emissiveIntensity = originals[i].intensity
+    })
+    render()
+  }
+
+  const tick = (now: number) => {
+    const t = Math.min((now - start) / DURATION, 1)
+    // Smooth 0 → 1 → 0 sine pulses
+    const strength = Math.sin(t * Math.PI * PULSES) ** 2
+    mats.forEach((mat) => {
+      mat.emissive.copy(red)
+      mat.emissiveIntensity = 0.6 * strength
+    })
+    render()
+    if (t < 1) frame = requestAnimationFrame(tick)
+    else restore()
+  }
+  frame = requestAnimationFrame(tick)
+
+  return () => {
+    cancelAnimationFrame(frame)
+    restore()
+  }
+}

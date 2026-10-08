@@ -1,38 +1,37 @@
-import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth'
-import { auth } from './firebase'
+const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 
-export function createRecaptchaVerifier(containerId: string): RecaptchaVerifier {
-  return new RecaptchaVerifier(auth, containerId, { size: 'invisible' })
+export interface SendOtpResult {
+  /** Seconds until another code may be requested */
+  resendAfter: number
 }
 
-function friendlyAuthError(err: unknown): string {
-  const code = (err as { code?: string })?.code
-  switch (code) {
-    case 'auth/invalid-phone-number':
-      return 'Please enter a valid 10-digit mobile number'
-    case 'auth/too-many-requests':
-      return 'Too many attempts. Please try again later'
-    case 'auth/invalid-verification-code':
-      return 'Incorrect code. Please try again'
-    case 'auth/code-expired':
-      return 'This code has expired. Please request a new one'
-    default:
-      return err instanceof Error ? err.message : 'Something went wrong. Please try again'
-  }
+export interface VerifyOtpResult {
+  token: string
+  expiresAt: number
 }
 
-export async function sendOtp(phoneE164: string, verifier: RecaptchaVerifier): Promise<ConfirmationResult> {
+async function postJson<T>(path: string, body: unknown): Promise<T> {
+  let res: Response
   try {
-    return await signInWithPhoneNumber(auth, phoneE164, verifier)
-  } catch (err) {
-    throw new Error(friendlyAuthError(err))
+    res = await fetch(`${API}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch {
+    throw new Error('Network error. Please check your connection and try again')
   }
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.message || 'Something went wrong. Please try again')
+  return data as T
 }
 
-export async function confirmOtp(confirmationResult: ConfirmationResult, code: string): Promise<void> {
-  try {
-    await confirmationResult.confirm(code)
-  } catch (err) {
-    throw new Error(friendlyAuthError(err))
-  }
+/** Asks the Lambda to send a 6-digit code to the number on WhatsApp. */
+export function sendOtp(mobile: string): Promise<SendOtpResult> {
+  return postJson<SendOtpResult>('/otp/send', { mobile })
+}
+
+/** Checks the code with the Lambda; on success returns a signed verification token. */
+export function verifyOtp(mobile: string, code: string): Promise<VerifyOtpResult> {
+  return postJson<VerifyOtpResult>('/otp/verify', { mobile, code })
 }
