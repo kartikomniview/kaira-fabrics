@@ -12,9 +12,11 @@ type SeoProps = {
   image?: string
   /** Set true only for pages that must not be indexed (e.g. /admin) */
   noindex?: boolean
+  /** Defaults to `noindex`. Pass false with noindex to keep links followable (e.g. material pages). */
+  nofollow?: boolean
 }
 
-export default function Seo({ title, description, image = DEFAULT_OG_IMAGE, noindex = false }: SeoProps) {
+export default function Seo({ title, description, image = DEFAULT_OG_IMAGE, noindex = false, nofollow = noindex }: SeoProps) {
   const { pathname } = useLocation()
   const canonicalPath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '')
   const canonicalUrl = `${SITE_URL}${canonicalPath}`
@@ -24,7 +26,7 @@ export default function Seo({ title, description, image = DEFAULT_OG_IMAGE, noin
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
-      {noindex && <meta name="robots" content="noindex, nofollow" />}
+      {noindex && <meta name="robots" content={`noindex, ${nofollow ? 'nofollow' : 'follow'}`} />}
 
       <meta property="og:type" content="website" />
       <meta property="og:title" content={title} />

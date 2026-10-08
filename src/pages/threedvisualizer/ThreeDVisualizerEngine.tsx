@@ -6,11 +6,14 @@ import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, blinkFabricPart, ge
 import * as THREE from 'three'
 import '@google/model-viewer'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './MaterialSelector'
+import { findInitialMaterial } from './initialMaterial'
 import PartDropdown, { partLabel } from './PartDropdown'
+import FabricHotspot, { appliedFabrics, fabricForPart, useFabricHotspot, type AppliedFabric } from './FabricHotspot'
 import { AI_VISUALIZER_PRODUCTS } from '../aivisualizer/AiVisualizerEngine'
 import { useAiGenerationFlow, OTP_VALIDATION_ENABLED, DEFAULT_GENERATION_LIMIT } from '../aivisualizer/useAiGenerationFlow'
 import type { SelectedProduct as AiSelectedProduct, PartFabric } from '../aivisualizer/generateRender'
 import LeadFormModal from '../aivisualizer/LeadFormModal'
+import AiConfirmModal, { type AiConfirmRequest } from '../aivisualizer/AiConfirmModal'
 import MyGalleryPanel from '../aivisualizer/MyGalleryPanel'
 import GeneratedImageModal from '../admin/GeneratedImageModal'
 import { isVerified } from '../../lib/renderLimit'
@@ -50,6 +53,8 @@ interface EngineProps {
   setIsApplying: (v: boolean) => void
   modelLoaded: boolean
   setModelLoaded: (v: boolean) => void
+  /** Reports the fabrics currently on the model (e.g. for the studio header's Request Sample) */
+  onAppliedFabricsChange?: (fabrics: AppliedFabric[], productName: string) => void
 }
 
 const ThreeDVisualizerEngine = ({
@@ -61,6 +66,7 @@ const ThreeDVisualizerEngine = ({
   setIsApplying,
   modelLoaded,
   setModelLoaded,
+  onAppliedFabricsChange,
 }: EngineProps) => {
   const { newMaterials } = useMaterials()
   const mvRef = useRef<HTMLElement>(null)
@@ -139,12 +145,16 @@ const ThreeDVisualizerEngine = ({
     const partFabrics: PartFabric[] = Object.entries(partOverrides)
       .filter(([, mat]) => mat.id !== base.id)
       .map(([part, mat]) => ({ part, partLabel: partLabel(part), material: mat }))
-    handleGenerateClick({ material: base, product, partFabrics })
+    setAiConfirm({ material: base, product, partFabrics })
   }
+
+  const [aiConfirm, setAiConfirm] = useState<AiConfirmRequest | null>(null)
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  const modelUrl = isIOS ? currentProduct.ios_model_url : currentProduct.image_url
+  // Some products have no iOS build on S3 (403) — fall back to the standard GLB rather than spinning forever
+  const [iosModelFailed, setIosModelFailed] = useState(false)
+  const modelUrl = isIOS && !iosModelFailed ? currentProduct.ios_model_url : currentProduct.image_url
 
   const applyTexture = async (mat: SelectedMaterial) => {
     const mv = mvRef.current as any
@@ -222,7 +232,12 @@ const ThreeDVisualizerEngine = ({
       setModelLoaded(true)
     }
     mv.addEventListener('load', onLoad)
-    return () => mv.removeEventListener('load', onLoad)
+    const onError = () => { if (isIOS) setIosModelFailed(true) }
+    mv.addEventListener('error', onError)
+    return () => {
+      mv.removeEventListener('load', onLoad)
+      mv.removeEventListener('error', onError)
+    }
   }, [])
 
   useEffect(() => {
@@ -230,10 +245,10 @@ const ThreeDVisualizerEngine = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelLoaded])
 
-  // Auto-apply first Koral material on initial load
+  // Auto-apply the linked material (?collection=...&code=...) or the first Koral material on initial load
   useEffect(() => {
     if (autoAppliedRef.current || newMaterials.length === 0) return
-    const firstKoral = newMaterials.find(m => m.collection_name === 'Koral')
+    const firstKoral = findInitialMaterial(newMaterials)
     if (!firstKoral) return
     autoAppliedRef.current = true
     const mat: SelectedMaterial = {
@@ -254,11 +269,25 @@ const ThreeDVisualizerEngine = ({
 
   useEffect(() => {
     setModelLoaded(false)
+    setIosModelFailed(false)
     fabricMeshesRef.current = []
     setMeshNames([])
     setBaseMaterial(null)
     setPartOverrides({})
   }, [currentProduct])
+
+  useEffect(() => {
+    onAppliedFabricsChange?.(appliedFabrics(baseMaterial, partOverrides), currentProduct.product_name)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseMaterial, partOverrides, currentProduct.product_name])
+
+  // Tap a fabric part of the model to pin its fabric details there
+  const { hotspot: fabricHotspot, close: closeFabricHotspot } = useFabricHotspot({
+    mvRef,
+    meshesRef: fabricMeshesRef,
+    productName: currentProduct.product_name,
+    enabled: modelLoaded,
+  })
 
   // Stop any running blink when the model is swapped out
   useEffect(() => () => blinkCancelRef.current?.(), [currentProduct])
@@ -288,7 +317,7 @@ const ThreeDVisualizerEngine = ({
             <button
               id="tour-change-product"
               onClick={() => setProductPanelOpen(true)}
-              className="flex items-center gap-2 h-8 px-4 bg-secondary-dark hover:bg-stone-800 text-white transition-all rounded-none shrink-0 shadow-sm"
+              className="flex items-center gap-2 h-8 px-4 bg-secondary-dark hover:bg-stone-800 text-white transition-all rounded-none shrink-0 shadow-sm hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.97] duration-200"
             >
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -303,7 +332,7 @@ const ThreeDVisualizerEngine = ({
             {mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10)) && (
               <button
                 onClick={() => setShowGalleryPanel(true)}
-                className="flex items-center gap-2 h-8 px-4 border border-primary text-primary hover:bg-stone-50 transition-all rounded-none shrink-0 shadow-sm"
+                className="flex items-center gap-2 h-8 px-4 bg-secondary hover:bg-secondary-dark text-white transition-all rounded-none shrink-0 shadow-sm hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.97] duration-200"
                 title="My Gallery"
               >
                 <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -349,7 +378,13 @@ const ThreeDVisualizerEngine = ({
               ar
               ar-modes="scene-viewer webxr"
               style={{ width: '100%', height: '100%', background: '#fafaf9' }}
-            />
+            >
+              <FabricHotspot
+                hotspot={fabricHotspot}
+                material={fabricHotspot && fabricForPart(fabricHotspot.part, baseMaterial, partOverrides)}
+                onClose={closeFabricHotspot}
+              />
+            </model-viewer>
 
             {/* ── Product selector slide panel ── */}
             <div
@@ -504,7 +539,7 @@ const ThreeDVisualizerEngine = ({
               id="tour-visualize-ai"
               onClick={handleVisualizeWithAI}
               disabled={!selected || !modelLoaded || isApplying}
-              className="absolute bottom-6 right-6 z-20 flex items-center gap-2 h-9 px-4 bg-primary hover:bg-primary/90 color-secondary-dark transition-all rounded-none shadow-xl disabled:opacity-40 disabled:pointer-events-none"
+              className="absolute bottom-6 right-6 z-20 flex items-center gap-2 h-9 px-4 bg-primary hover:bg-primary/90 color-secondary-dark transition-all rounded-none shadow-xl hover:-translate-y-0.5 hover:shadow-2xl active:translate-y-0 active:scale-[0.97] duration-200 disabled:opacity-40 disabled:pointer-events-none"
             >
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -514,6 +549,15 @@ const ThreeDVisualizerEngine = ({
           </div>
         </div>
       </div>
+
+      {/* ── AI Visualize: Confirmation ── */}
+      {aiConfirm && (
+        <AiConfirmModal
+          request={aiConfirm}
+          onClose={() => setAiConfirm(null)}
+          onConfirm={async () => { await handleGenerateClick(aiConfirm); setAiConfirm(null) }}
+        />
+      )}
 
       {/* ── AI Visualize: Lead Form / Generating Modal ── */}
       {showLeadForm && (

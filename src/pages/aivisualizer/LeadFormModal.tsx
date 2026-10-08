@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useRef } from 'react'
+import AnimatedModal from '../../components/ui/AnimatedModal'
 
 // ── Feature flag: set to false to re-enable the OTP / generation flow ─────────
 const isComingSoon = false
@@ -65,11 +66,19 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
   onResendOtp,
   onChangeMobile,
 }) => {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => !isGenerating && onClose()} />
-      <div className="relative w-full max-w-[340px] sm:max-w-[380px] bg-white shadow-2xl border border-stone-200 overflow-hidden flex flex-col">
+  // "Try Again" closes through the same exit animation but must run onDismissError instead of onClose
+  const dismissErrorRef = useRef(false)
+  // Re-keying on each step replays a soft fade, so mobile → OTP → generating → error don't snap
+  const stepKey = isComingSoon ? 'soon' : isGenerating ? 'generating' : generateError ? 'error' : leadStep
 
+  return (
+    <AnimatedModal
+      onClose={() => (dismissErrorRef.current ? onDismissError() : onClose())}
+      dismissible={!isGenerating}
+      panelClassName="w-full max-w-[340px] sm:max-w-[380px] bg-white shadow-2xl border border-stone-200 overflow-hidden flex flex-col"
+    >
+      {(requestClose) => (
+      <div key={stepKey} className="kaira-content-in flex flex-col">
         {isComingSoon ? (
           <div className="p-8 sm:p-10 flex flex-col items-center justify-center pb-10 sm:pb-12 gap-4 text-center">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 border border-primary/30 flex items-center justify-center">
@@ -81,7 +90,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
               <p className="text-[11px] color-secondary-dark">We're putting the finishing touches on this feature. Check back soon!</p>
             </div>
             <button
-              onClick={onClose}
+              onClick={requestClose}
               className="px-6 py-2 bg-primary color-secondary-dark text-[11px] uppercase font-bold tracking-widest hover:bg-primary/90 transition-colors"
             >
               Got It
@@ -108,7 +117,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
               <p className="text-[11px] sm:text-xs text-red-500">{generateError}</p>
             </div>
             <button
-              onClick={onDismissError}
+              onClick={() => { dismissErrorRef.current = true; requestClose() }}
               className="px-6 py-2 bg-primary color-secondary-dark text-[11px] uppercase font-bold tracking-widest hover:bg-primary/90 transition-colors"
             >
               Try Again
@@ -125,7 +134,7 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
                   {leadStep === 'limit' && 'Daily preview limit reached'}
                 </p>
               </div>
-              <button onClick={onClose} className="color-secondary-dark hover:color-secondary-dark">
+              <button onClick={requestClose} aria-label="Close" className="color-secondary-dark hover:color-secondary-dark">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -244,9 +253,9 @@ const LeadFormModal: React.FC<LeadFormModalProps> = ({
             )}
           </>
         )}
-
       </div>
-    </div>
+      )}
+    </AnimatedModal>
   )
 }
 

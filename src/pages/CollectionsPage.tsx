@@ -369,7 +369,8 @@ const CollectionsPage = () => {
     } else {
       setActiveMaterialType('All')
     }
-  }, [location.search])
+    // Re-run once collections load, so a hard-loaded ?category= link isn't matched against an empty list
+  }, [location.search, materialTypeOptions])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -399,9 +400,12 @@ const CollectionsPage = () => {
   const navigate = useNavigate()
   const [showQuoteModal, setShowQuoteModal] = useState(false)
   const chipsRef = useRef<HTMLDivElement>(null)
-  const scrollChips = (dir: 'left' | 'right') => {
-    if (chipsRef.current) chipsRef.current.scrollBy({ left: dir === 'right' ? 140 : -140, behavior: 'smooth' })
-  }
+  // Keep the active type tab in view on mobile (e.g. arriving via ?category=Boucle)
+  useEffect(() => {
+    const row = chipsRef.current
+    const active = row?.querySelector<HTMLElement>('[aria-selected="true"]')
+    if (row && active) row.scrollTo({ left: Math.max(0, active.offsetLeft - 16), behavior: 'smooth' })
+  }, [activeMaterialType])
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f5f4 50%, #e7e5e4 100%)' }}>
@@ -491,22 +495,18 @@ const CollectionsPage = () => {
 
           {/* Filter bar */}
           <div className="mb-6 md:mb-8">
-            {/* Row: chips left, search right */}
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 md:gap-4">
-              {/* Left: type chips — horizontally scrollable */}
-              <div className="flex-1 min-w-0 flex items-center gap-1">
-                {/* Scroll left — mobile only */}
-                <button
-                  onClick={() => scrollChips('left')}
-                  className="lg:hidden shrink-0 w-7 h-7 flex items-center justify-center bg-white border border-stone-200  shadow-sm text-color-secondary-dark hover:text-color-secondary-dark hover:border-stone-400 transition-colors"
-                  aria-label="Scroll left"
+            {/* Toolbar: type pills left + search right (desktop); search first, then swipeable pills (mobile) */}
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-6 px-2 md:px-0">
+              {/* Material type pills — wrap on desktop, one swipeable row on mobile */}
+              <div className="flex-1 min-w-0 relative">
+                <div
+                  ref={chipsRef}
+                  role="tablist"
+                  aria-label="Material type"
+                  className="relative overflow-x-auto lg:overflow-visible [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <div ref={chipsRef} className="flex-1 min-w-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  <div className="flex gap-2 pb-0.5">
+                  {/* w-max so pr-10 adds real scroll room and the last pill can clear the fade */}
+                  <div className="flex w-max lg:w-auto lg:flex-wrap gap-2 py-0.5 pr-10 lg:pr-0">
                     {materialTypeOptions.map((type) => {
                       const isActive = activeMaterialType === type
                       const count = type === 'All'
@@ -515,56 +515,63 @@ const CollectionsPage = () => {
                       return (
                         <button
                           key={type}
+                          role="tab"
+                          aria-selected={isActive}
                           onClick={() => setActiveMaterialType(type)}
-                          className={`flex items-center gap-1.5 px-3 md:px-4 py-2 md:py-2.5 text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-200  shadow-sm whitespace-nowrap ${isActive
-                            ? 'bg-color-secondary-dark text-white'
-                            : 'bg-white border border-stone-200 text-color-secondary-dark hover:border-primary/40 hover:text-color-secondary-dark'
+                          className={`shrink-0 h-9 px-4 flex items-center border text-[13px] font-medium whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${isActive
+                            ? 'bg-secondary-dark border-secondary-dark text-white font-bold shadow-md'
+                            : 'bg-white border-stone-300 text-secondary-dark/70 hover:border-secondary hover:text-secondary-dark'
                             }`}
                         >
                           {getTypeLabel(type)}
-                          <span className={`text-[8px] md:text-[9px] px-1.5 py-0.5  ${isActive ? 'bg-white/10 text-white' : 'bg-stone-100 text-color-secondary-dark'}`}>
-                            {count}
-                          </span>
+                          <span className={`ml-1.5 text-[11px] tabular-nums ${isActive ? 'text-white/70' : 'text-secondary-dark/40'}`}>{count}</span>
                         </button>
                       )
                     })}
                   </div>
                 </div>
-                {/* Scroll right — mobile only */}
-                <button
-                  onClick={() => scrollChips('right')}
-                  className="lg:hidden shrink-0 w-7 h-7 flex items-center justify-center bg-white border border-stone-200  shadow-sm text-color-secondary-dark hover:text-color-secondary-dark hover:border-stone-400 transition-colors"
-                  aria-label="Scroll right"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
+                {/* Fade on the right hints that the row scrolls (mobile only) */}
+                <div className="lg:hidden pointer-events-none absolute right-0 inset-y-0 w-10 bg-gradient-to-l from-stone-50 to-transparent" />
               </div>
 
-              {/* Right: search input — pinned, bigger */}
-              <div className="shrink-0 flex items-center gap-2 border border-stone-200  bg-white px-3 py-2 md:py-2.5 focus-within:border-stone-500 focus-within:shadow-sm transition-all shadow-sm w-full lg:w-auto">
-                <svg className="w-4 h-4 text-color-secondary-dark shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Search — first on mobile */}
+              <div className="order-first lg:order-none shrink-0 w-full lg:w-80 h-11 flex items-center gap-2.5 bg-white border border-stone-300 shadow-sm pl-4 pr-1 transition-shadow focus-within:border-secondary focus-within:ring-4 focus-within:ring-primary/15">
+                <svg className="w-4 h-4 text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
-                  type="text"
+                  type="search"
+                  enterKeyHint="search"
+                  aria-label="Search collections"
                   value={collectionSearch}
                   onChange={(e) => setCollectionSearch(e.target.value)}
-                  placeholder="Search collections…"
-                  className="bg-transparent text-xs md:text-sm text-color-secondary-dark placeholder-stone-400 focus:outline-none flex-1 lg:w-52"
+                  onKeyDown={(e) => { if (e.key === 'Escape') setCollectionSearch('') }}
+                  placeholder="Search by collection name…"
+                  className="flex-1 min-w-0 bg-transparent text-base sm:text-sm text-secondary-dark placeholder-stone-400 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
                 />
                 {collectionSearch && (
-                  <button onClick={() => setCollectionSearch('')} className="text-color-secondary-dark hover:text-color-secondary-dark transition-colors">
+                  <button
+                    onClick={() => setCollectionSearch('')}
+                    aria-label="Clear search"
+                    className="shrink-0 w-8 h-8 flex items-center justify-center text-secondary-dark/60 hover:bg-stone-100 hover:text-secondary-dark transition-colors"
+                  >
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Bottom: count text */}
-            <p className="mt-2 md:mt-3 text-[10px] md:text-[10px] uppercase font-bold tracking-[0.2em] text-color-secondary-dark">
+            {/* Result line */}
+            <p className="mt-3 px-2 md:px-0 text-xs text-secondary-dark/60">
               {filtered.length} collection{filtered.length !== 1 ? 's' : ''}{collectionSearch ? ` matching "${collectionSearch}"` : ''}
+              {(activeMaterialType !== 'All' || collectionSearch) && (
+                <button
+                  onClick={() => { setActiveMaterialType('All'); setCollectionSearch('') }}
+                  className="ml-3 font-semibold text-secondary underline underline-offset-2 hover:text-secondary-dark transition-colors"
+                >
+                  Clear filters
+                </button>
+              )}
             </p>
           </div>
 

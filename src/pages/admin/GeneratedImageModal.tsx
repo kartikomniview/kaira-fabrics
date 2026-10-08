@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Dispatch, ReactNode, SetStateAction } from 'react'
 import { renderOverlayToCanvas, type MaterialBadgeInfo } from '../aivisualizer/generateRender'
+import AnimatedModal from '../../components/ui/AnimatedModal'
 
 const LOGO_URL = '/images/kaira.webp'
 
@@ -31,6 +32,9 @@ const GeneratedImageModal = ({
   onDownload,
 }: GeneratedImageModalProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  // Fade the render in once it has decoded instead of popping in
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null)
+  const imgLoaded = !!cachedImageUrl && loadedSrc === cachedImageUrl
 
   useEffect(() => {
     if (stampSuccess || !cachedImageUrl || !canvasRef.current) return
@@ -65,11 +69,16 @@ const GeneratedImageModal = ({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-8">
-      <div className="absolute inset-0 bg-secondary-dark/90 backdrop-blur-md" onClick={onClose} />
-      <div className="relative w-full max-w-4xl flex flex-col">
+    <AnimatedModal
+      onClose={onClose}
+      containerClassName="z-[60] p-4 sm:p-8"
+      backdropClassName="bg-secondary-dark/90 backdrop-blur-md"
+      panelClassName="w-full max-w-4xl flex flex-col"
+    >
+      {(requestClose) => (<>
         <button
-          onClick={onClose}
+          onClick={requestClose}
+          aria-label="Close"
           className="absolute -top-3 -right-3 z-10 w-9 h-9 bg-white shadow-xl flex items-center justify-center hover:bg-stone-100 transition-colors"
         >
           <svg className="w-5 h-5 color-secondary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -104,7 +113,8 @@ const GeneratedImageModal = ({
                 <img
                   src={cachedImageUrl}
                   alt="Generated render"
-                  className="object-contain h-full w-full max-h-[75vh]"
+                  onLoad={() => setLoadedSrc(cachedImageUrl)}
+                  className={`object-contain h-full w-full max-h-[75vh] transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
                 />
               ) : (
                 // Overlay isn't baked into cachedImageUrl yet — draw it live so the
@@ -159,8 +169,8 @@ const GeneratedImageModal = ({
             </div>
           </>
         )}
-      </div>
-    </div>
+      </>)}
+    </AnimatedModal>
   )
 }
 

@@ -5,6 +5,7 @@ import { isTextureMapCode } from '../../data/collections'
 import { categoryMeta, normalizeType, compareMaterialTypes } from '../../components/sections/FabricCategoriesSection'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
 import SectionLoader from '../../components/ui/SectionLoader'
+import { hasLinkedMaterial, initialCollectionName } from './initialMaterial'
 
 export const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
@@ -132,6 +133,28 @@ interface MaterialSelectorProps {
 
 const PAGE_SIZE = 24
 
+// Recently picked finishes, newest first — session only (sessionStorage): kept across a refresh,
+// cleared when the tab closes, never persisted on the device
+const RECENT_KEY = 'kaira_recent_finishes'
+const MAX_RECENT = 5
+const RECENT_AUTO_CLOSE_MS = 6000
+
+// Older builds kept this list in localStorage — drop that copy
+try { localStorage.removeItem(RECENT_KEY) } catch { /* storage unavailable */ }
+
+const loadRecentIds = (): number[] => {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(RECENT_KEY) ?? '[]')
+    return Array.isArray(parsed) ? parsed.filter((v): v is number => typeof v === 'number').slice(0, MAX_RECENT) : []
+  } catch {
+    return []
+  }
+}
+
+const saveRecentIds = (ids: number[]) => {
+  try { sessionStorage.setItem(RECENT_KEY, JSON.stringify(ids)) } catch { /* storage unavailable */ }
+}
+
 const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = false, productName, onClose, disabled = false, id }: MaterialSelectorProps) => {
   const { newMaterials, collections, isLoading: materialsLoading, error: materialsError } = useMaterials()
   const partOptions = useMemo(() => getPartOptions(productName), [productName])
@@ -144,14 +167,17 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   const typeScrollRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
-  const homeCollectionRef = useRef('Koral')
+  const homeCollectionRef = useRef(initialCollectionName())
   const [activeMaterialType, setActiveMaterialType] = useState('All')
-  const [activeCollection, setActiveCollection] = useState('Koral')
+  const [activeCollection, setActiveCollection] = useState(initialCollectionName)
   const [activeColorGroup, setActiveColorGroup] = useState('All')
   const [activePattern, setActivePattern] = useState('All')
   const [search, setSearch] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
-  const [view, setView] = useState<'collections' | 'materials'>('collections')
+  const rootRef = useRef<HTMLDivElement>(null)
+  const linkedRevealPendingRef = useRef(hasLinkedMaterial())
+  // Linked from a material page (?collection=&code=): open straight on that collection's shades
+  const [view, setView] = useState<'collections' | 'materials'>(() => hasLinkedMaterial() ? 'materials' : 'collections')
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -243,6 +269,18 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   }, [newMaterials, activeMaterialType, activeCollection, activeColorGroup, activePattern])
 
   const visibleMaterials = filtered.slice(0, visibleCount)
+
+  // Linked shade: once it's applied, page far enough to include it and scroll it into view (first time only)
+  useEffect(() => {
+    if (!linkedRevealPendingRef.current || selectedId === null) return
+    const index = filtered.findIndex(m => m.id === selectedId)
+    if (index === -1) return
+    if (index >= visibleCount) { setVisibleCount(Math.ceil((index + 1) / PAGE_SIZE) * PAGE_SIZE); return }
+    linkedRevealPendingRef.current = false
+    requestAnimationFrame(() => {
+      rootRef.current?.querySelector(`[data-material-id="${selectedId}"]`)?.scrollIntoView({ block: 'center' })
+    })
+  }, [selectedId, filtered, visibleCount])
   const hasMore = visibleCount < filtered.length
   const activeFilterCount = [activeCollection, activeColorGroup, activePattern].filter(v => v !== 'All').length
 
@@ -270,7 +308,40 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
     showToast(`${part} selected`, 'success')
   }
 
-  const handleSelect = (m: NewMaterial) => {
+  const [recentIds, setRecentIds] = useState<number[]>(loadRecentIds)
+
+  // Resolve ids against the live inventory, dropping any finish that no longer exists
+  const recentMaterials = useMemo(() => {
+    const byId = new Map(newMaterials.map(m => [m.id, m]))
+    return recentIds.map(id => byId.get(id)).filter((m): m is NewMaterial => !!m)
+  }, [recentIds, newMaterials])
+
+  const rememberRecent = (id: number) => {
+    setRecentIds(prev => {
+      const next = [id, ...prev.filter(x => x !== id)].slice(0, MAX_RECENT)
+      saveRecentIds(next)
+      return next
+    })
+  }
+
+  const clearRecent = () => {
+    setRecentIds([])
+    saveRecentIds([])
+  }
+
+  const [recentOpen, setRecentOpen] = useState(false)
+  const [recentHover, setRecentHover] = useState(false)
+
+  // Auto-close the drawer after a while; hovering it pauses, and each pick restarts the countdown
+  useEffect(() => {
+    if (!recentOpen || recentHover) return
+    const id = setTimeout(() => setRecentOpen(false), RECENT_AUTO_CLOSE_MS)
+    return () => clearTimeout(id)
+  }, [recentOpen, recentHover, selectedId])
+
+  const handleSelect = (m: NewMaterial, fromRecent = false) => {
+    // Picks from the recent drawer keep its order stable instead of jumping to the front
+    if (!fromRecent) rememberRecent(m.id)
     onSelect({
       id: m.id,
       fabricName: `${m.collection_name} ${m.material_name}`,
@@ -323,7 +394,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
   }
 
   return (
-    <div id={id} className={`relative ${className ?? "w-[430px] xl:w-[490px] shrink-0 flex flex-col overflow-hidden bg-white rounded-none shadow-sm border border-stone-200/80"}`}>
+    <div ref={rootRef} id={id} className={`relative ${className ?? "w-[430px] xl:w-[490px] shrink-0 flex flex-col overflow-hidden bg-white rounded-none shadow-sm border border-stone-200/80"}`}>
 
       {/* Disabled overlay — blocks interaction while a texture is being applied */}
       {disabled && (
@@ -553,7 +624,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
       </div>
 
       {/* Collections / Materials window */}
-      <div className="flex-1 overflow-y-auto p-3 bg-stone-50 relative">
+      <div className={`flex-1 overflow-y-auto p-3 bg-stone-50 relative ${recentMaterials.length > 0 ? 'pb-16' : ''}`}>
         {isTransitioning && !materialsLoading && <SectionLoader overlay size="sm" />}
         <div
           key={`${view}-${activeMaterialType}-${activeCollection}`}
@@ -582,15 +653,6 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-3">
-              <button
-                onClick={() => handleCollectionClick('All')}
-                className="flex flex-col items-center gap-1.5 group"
-              >
-                <div className={`w-full aspect-square rounded-none border flex items-center justify-center transition-all ${activeCollection === 'All' ? 'border-primary shadow-sm bg-primary/5' : 'border-stone-200 bg-white group-hover:border-stone-300'}`}>
-                  <span className="text-xs font-bold color-secondary-dark/50">ALL</span>
-                </div>
-                <span className="text-[10px] font-semibold color-secondary-dark uppercase tracking-wider text-center w-full truncate">All Materials</span>
-              </button>
               {collectionsWithThumbs.map(c => {
                 const isActive = activeCollection === c.name
                 return (
@@ -642,23 +704,35 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
                 return (
                   <button
                     key={m.id}
+                    data-material-id={m.id}
                     onClick={() => handleSelect(m)}
-                    className={`overflow-hidden rounded-none border-2 relative aspect-square transition-all ${isActive ? 'border-primary shadow-md scale-[1.03]' : 'border-transparent hover:border-stone-300'}`}
+                    className={`group cursor-pointer overflow-hidden rounded-none border-2 relative aspect-square transition-all duration-200 ${isActive ? 'border-primary shadow-md scale-[1.03]' : 'border-transparent hover:border-primary/70 hover:shadow-lg hover:-translate-y-0.5 active:scale-95'}`}
                   >
                     <CachedThumbImg
                       src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
                       alt={`${m.collection_name} ${m.material_name}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       onError={(e) => {
                         const el = e.currentTarget as HTMLImageElement
                         el.style.display = 'none'
                         if (el.parentElement) el.parentElement.style.backgroundColor = '#f5f5f4'
                       }}
                     />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex flex-col items-center justify-center transition-opacity p-1 text-center">
+                    {/* Hover cue: makes it clear a click applies this fabric to the model */}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity p-1 text-center">
+                      <span className="flex items-center gap-1 mb-1 px-1.5 py-0.5 bg-primary color-secondary-dark text-[8px] font-bold uppercase tracking-wider translate-y-1 group-hover:translate-y-0 transition-transform duration-200">
+                        <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" /></svg>
+                        {isActive ? 'Selected' : 'Select this'}
+                      </span>
                       <span className="text-[10px] text-white font-bold uppercase leading-tight">{m.collection_name}</span>
                       <span className="text-[9px] text-white/70 mt-0.5">{m.material_name}</span>
                     </div>
+                    {/* Applying: spinner on the swatch that was just picked */}
+                    {isActive && disabled && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                      </div>
+                    )}
                     {isActive && (
                       <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-none flex items-center justify-center shadow-sm">
                         <svg className="w-2.5 h-2.5 color-secondary-dark" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" /></svg>
@@ -680,6 +754,77 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
         )}
         </div>
       </div>
+
+      {/* Recently selected finishes: history button that slides a drawer in from the left */}
+      {recentMaterials.length > 0 && !recentOpen && (
+        <button
+          onClick={() => setRecentOpen(true)}
+          title="Recently selected"
+          aria-label="Recently selected"
+          className="absolute bottom-3 left-3 z-30 w-10 h-10 flex items-center justify-center bg-secondary hover:bg-secondary-dark text-white shadow-lg cursor-pointer transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-3.3-6.95M21 4v4h-4" />
+          </svg>
+        </button>
+      )}
+
+      {recentMaterials.length > 0 && (
+        <div
+          onPointerEnter={(e) => { if (e.pointerType === 'mouse') setRecentHover(true) }}
+          onPointerLeave={() => setRecentHover(false)}
+          aria-hidden={!recentOpen}
+          className={`absolute bottom-3 left-3 z-50 w-[260px] max-w-[calc(100%-24px)] bg-white border border-stone-200 shadow-2xl px-3 py-2.5 transition-all duration-300 ease-out ${recentOpen ? 'translate-x-0 opacity-100' : '-translate-x-[calc(100%+24px)] opacity-0 pointer-events-none'} ${disabled ? 'pointer-events-none' : ''}`}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <svg className="w-3.5 h-3.5 shrink-0 color-secondary-dark/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-3.3-6.95M21 4v4h-4" />
+            </svg>
+            <span className="flex-1 text-[10px] font-bold uppercase tracking-widest color-secondary-dark/60">
+              Recently Selected
+            </span>
+            <button
+              onClick={() => { clearRecent(); setRecentOpen(false) }}
+              className="text-[10px] font-semibold uppercase tracking-widest text-primary hover:underline cursor-pointer"
+            >
+              Clear
+            </button>
+            <button
+              onClick={() => { setRecentOpen(false); setRecentHover(false) }}
+              aria-label="Close"
+              className="w-6 h-6 flex items-center justify-center color-secondary-dark/50 hover:color-secondary-dark hover:bg-stone-100 transition-colors cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="grid grid-cols-5 gap-1.5 max-h-[140px] overflow-y-auto">
+            {recentMaterials.map(m => {
+              const isActive = selectedId === m.id
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => handleSelect(m, true)}
+                  title={`${m.collection_name} ${m.material_name}`}
+                  className={`group cursor-pointer aspect-square overflow-hidden rounded-none border-2 relative transition-all duration-200 ${isActive ? 'border-primary shadow-sm' : 'border-transparent hover:border-primary/70 hover:-translate-y-0.5 hover:shadow-md'}`}
+                >
+                  <CachedThumbImg
+                    src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
+                    alt={`${m.collection_name} ${m.material_name}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  {isActive && (
+                    <div className="absolute top-0 right-0 w-3 h-3 bg-primary flex items-center justify-center">
+                      <svg className="w-2 h-2 color-secondary-dark" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" /></svg>
+                    </div>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
     </div>
   )

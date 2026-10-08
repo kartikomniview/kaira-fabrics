@@ -8,16 +8,24 @@ import {
 } from '../utils/textureUtils'
 import * as THREE from 'three'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './threedvisualizer/MaterialSelector'
+import { findInitialMaterial } from './threedvisualizer/initialMaterial'
 import PartDropdown, { partLabel } from './threedvisualizer/PartDropdown'
+import FabricHotspot, { appliedFabrics, fabricForPart, useFabricHotspot, type AppliedFabric } from './threedvisualizer/FabricHotspot'
 import { useCachedMedia } from '../hooks/useCachedMedia'
 import { AI_VISUALIZER_PRODUCTS } from './aivisualizer/AiVisualizerEngine'
 import { useAiGenerationFlow, OTP_VALIDATION_ENABLED, DEFAULT_GENERATION_LIMIT } from './aivisualizer/useAiGenerationFlow'
 import type { SelectedProduct as AiSelectedProduct, PartFabric } from './aivisualizer/generateRender'
 import LeadFormModal from './aivisualizer/LeadFormModal'
+import AiConfirmModal, { type AiConfirmRequest } from './aivisualizer/AiConfirmModal'
+import MyGalleryPanel from './aivisualizer/MyGalleryPanel'
 import GeneratedImageModal from './admin/GeneratedImageModal'
 import { isVerified } from '../lib/renderLimit'
 
-const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }) => {
+const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }: {
+  embedded?: boolean
+  /** Reports the fabrics currently on the model (e.g. for the studio header's Request Sample) */
+  onAppliedFabricsChange?: (fabrics: AppliedFabric[], productName: string) => void
+}) => {
   const { newMaterials } = useMaterials()
   const mvRef = useRef<HTMLElement>(null)
   const fabricMeshesRef = useRef<any[]>([])
@@ -31,6 +39,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   )
   const [productPanelOpen, setProductPanelOpen] = useState(false)
   const [quotationOpen, setQuotationOpen] = useState(false)
+  const [showGalleryPanel, setShowGalleryPanel] = useState(false)
   const [currSelectedPartForFinish, setCurrSelectedPartForFinish] = useState('All')
   const [meshNames, setMeshNames] = useState<string[]>([])
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
@@ -93,8 +102,10 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     const partFabrics: PartFabric[] = Object.entries(partOverrides)
       .filter(([, mat]) => mat.id !== base.id)
       .map(([part, mat]) => ({ part, partLabel: partLabel(part), material: mat }))
-    handleGenerateClick({ material: base, product, partFabrics })
+    setAiConfirm({ material: base, product, partFabrics })
   }
+
+  const [aiConfirm, setAiConfirm] = useState<AiConfirmRequest | null>(null)
 
   const [applyRoughnessMap] = useState(true)
   const [applyNormalMap] = useState(true)
@@ -103,7 +114,9 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   const isAndroid = /Android/.test(navigator.userAgent)
-  const modelUrl = isIOS ? currentProduct.ios_model_url : currentProduct.image_url
+  // Some products have no iOS build on S3 (403) — fall back to the standard GLB rather than spinning forever
+  const [iosModelFailed, setIosModelFailed] = useState(false)
+  const modelUrl = isIOS && !iosModelFailed ? currentProduct.ios_model_url : currentProduct.image_url
 
   const applyTexture = async (mat: SelectedMaterial) => {
     const mv = mvRef.current as any
@@ -177,6 +190,9 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
     }
     mv.addEventListener('load', onLoad)
 
+    const onError = () => { if (isIOS) setIosModelFailed(true) }
+    mv.addEventListener('error', onError)
+
     const onArStatus = (e: any) => {
       if (arHintTimerRef.current) clearTimeout(arHintTimerRef.current)
       if (e.detail?.status === 'session-started' && isAndroid) {
@@ -190,6 +206,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
 
     return () => {
       mv.removeEventListener('load', onLoad)
+      mv.removeEventListener('error', onError)
       mv.removeEventListener('ar-status', onArStatus)
       if (arHintTimerRef.current) clearTimeout(arHintTimerRef.current)
     }
@@ -202,7 +219,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
 
   useEffect(() => {
     if (autoAppliedRef.current || newMaterials.length === 0) return
-    const firstKoral = newMaterials.find(m => m.collection_name === 'Koral')
+    const firstKoral = findInitialMaterial(newMaterials)
     if (!firstKoral) return
     autoAppliedRef.current = true
     const mat: SelectedMaterial = {
@@ -223,12 +240,29 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
 
   useEffect(() => {
     setModelLoaded(false)
+    setIosModelFailed(false)
     fabricMeshesRef.current = []
     setMeshNames([])
     setBaseMaterial(null)
     setPartOverrides({})
     blinkCancelRef.current?.()
   }, [currentProduct])
+
+  useEffect(() => {
+    onAppliedFabricsChange?.(appliedFabrics(baseMaterial, partOverrides), currentProduct.product_name)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseMaterial, partOverrides, currentProduct.product_name])
+
+  // Tap a fabric part of the model to pin its fabric details there
+  const { hotspot: fabricHotspot, close: closeFabricHotspot } = useFabricHotspot({
+    mvRef,
+    meshesRef: fabricMeshesRef,
+    productName: currentProduct.product_name,
+    enabled: modelLoaded,
+  })
+
+  // Same rule as desktop (ThreeDVisualizerEngine): My Gallery only once this number has been verified
+  const showGalleryButton = mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))
 
   return (
     <div
@@ -260,13 +294,18 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             <button
               slot="ar-button"
               style={{ touchAction: 'manipulation' }}
-              className="absolute top-3 right-3 z-10 flex items-center gap-1 pl-2 pr-2.5 min-h-[28px] bg-secondary hover:bg-[#b8943f] text-white shadow-lg transition-all text-[10px] font-semibold tracking-wide active:scale-95"
+              className={`absolute ${showGalleryButton ? 'top-[44px]' : 'top-3'} right-3 z-10 flex items-center gap-1 pl-2 pr-2.5 min-h-[28px] bg-secondary hover:bg-[#b8943f] text-white shadow-lg transition-all text-[10px] font-semibold tracking-wide active:scale-95`}
             >
               <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
               View in your space
             </button>
+            <FabricHotspot
+              hotspot={fabricHotspot}
+              material={fabricHotspot && fabricForPart(fabricHotspot.part, baseMaterial, partOverrides)}
+              onClose={closeFabricHotspot}
+            />
             {arHintVisible && (
               <div
                 style={{ position: 'fixed', left: '50%', bottom: '10%', transform: 'translateX(-50%)', touchAction: 'none' }}
@@ -290,10 +329,25 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
             <span className="text-[10px] font-semibold tracking-wide truncate max-w-[90px]">{currentProduct.product_name}</span>
           </button>
 
+          {/* My Gallery — top right; the AR button drops below it while this is shown */}
+          {showGalleryButton && (
+            <button
+              onClick={() => setShowGalleryPanel(true)}
+              style={{ touchAction: 'manipulation' }}
+              className="absolute top-3 right-3 z-10 flex items-center gap-1 pl-2 pr-2.5 min-h-[28px] bg-secondary-dark hover:bg-stone-800 text-white shadow-sm transition-all active:scale-95"
+            >
+              <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 16l5-5a2 2 0 012.83 0L16 16m-2-2l1.17-1.17a2 2 0 012.83 0L21 16M8.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+              </svg>
+              <span className="text-[10px] font-semibold tracking-wide">My Gallery</span>
+            </button>
+          )}
+
 
 
           {/* Toast */}
-          <div className={`absolute top-14 right-3 z-20 pointer-events-none transition-all duration-300 ease-out ${toastVisible ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'}`}>
+          <div className={`absolute ${showGalleryButton ? 'top-[84px]' : 'top-14'} right-3 z-20 pointer-events-none transition-all duration-300 ease-out ${toastVisible ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'}`}>
             {toast && (
               <div className={`flex items-center gap-2 px-3 py-2 shadow-2xl whitespace-nowrap border-l-4 ${toast.type === 'success' ? 'bg-stone-900 border-emerald-400' : 'bg-stone-900 border-red-400'}`}>
                 {toast.type === 'success' ? (
@@ -308,7 +362,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
 
           {/* Part selected flash */}
           {partFlash && modelLoaded && !isApplying && (
-            <div className="absolute top-14 right-3 z-20 pointer-events-none">
+            <div className={`absolute ${showGalleryButton ? 'top-[84px]' : 'top-14'} right-3 z-20 pointer-events-none`}>
               <div
                 key={partFlash.key}
                 className="bg-secondary shadow-xl px-4 py-2 rounded-none"
@@ -554,6 +608,15 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
         </div>
       )}
 
+      {/* ── AI Visualize: Confirmation ── */}
+      {aiConfirm && (
+        <AiConfirmModal
+          request={aiConfirm}
+          onClose={() => setAiConfirm(null)}
+          onConfirm={async () => { await handleGenerateClick(aiConfirm); setAiConfirm(null) }}
+        />
+      )}
+
       {/* ── AI Visualize: Lead Form / Generating Modal ── */}
       {showLeadForm && (
         <LeadFormModal
@@ -579,6 +642,14 @@ const ThreeDVisualizerPageMobile = ({ embedded = false }: { embedded?: boolean }
           onVerifyOtp={handleVerifyOtp}
           onResendOtp={handleResendOtp}
           onChangeMobile={handleChangeMobile}
+        />
+      )}
+
+      {/* ── My Gallery Panel ── */}
+      {showGalleryPanel && (
+        <MyGalleryPanel
+          mobileNumber={mobileNumber.replace(/\D/g, '').slice(0, 10)}
+          onClose={() => setShowGalleryPanel(false)}
         />
       )}
 

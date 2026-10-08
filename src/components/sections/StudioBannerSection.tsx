@@ -74,7 +74,7 @@ const StudioBannerSection = () => {
 
         {/* CTA row */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button to="/3d-visualizer" variant="secondary" size="lg">
+          <Button to="/ai-visualizer/studio" variant="secondary" size="lg">
             Launch 3D Studio
           </Button>
           <a

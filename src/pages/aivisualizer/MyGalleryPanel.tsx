@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { overlayLogo, type MaterialBadgeInfo } from './generateRender'
 import GeneratedImageModal from '../admin/GeneratedImageModal'
+import AnimatedModal from '../../components/ui/AnimatedModal'
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
@@ -121,9 +122,16 @@ const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 mt-16 lg:mt-20">
-      <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-4xl h-[85vh] sm:h-[80vh] bg-white shadow-2xl border border-stone-200 overflow-hidden flex flex-col">
+    <>
+    <AnimatedModal
+      onClose={onClose}
+      // Esc / backdrop belong to the lightbox while it is open
+      dismissible={!lightboxLog}
+      // Phones: fill the screen below the 48px studio header; the old mt-16 + 85vh ran past the bottom edge
+      containerClassName="z-50 px-3 pt-[60px] pb-3 sm:p-6 sm:mt-16 lg:mt-20"
+      panelClassName="w-full max-w-4xl h-full sm:h-[80vh] bg-white shadow-2xl border border-stone-200 overflow-hidden flex flex-col"
+    >
+      {(requestClose) => (<>
 
         {/* Header */}
         <div className="shrink-0 bg-white/70 backdrop-blur border-b border-stone-100 px-6 py-5 flex justify-between items-center">
@@ -134,7 +142,8 @@ const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
             </p>
           </div>
           <button
-            onClick={onClose}
+            onClick={requestClose}
+            aria-label="Close"
             className="w-9 h-9 border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
           >
             <svg className="w-4 h-4 color-secondary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,7 +185,7 @@ const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
 
           {!loading && !error && logs.length > 0 && (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="kaira-content-in grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 {logs.slice(0, visibleCount).map((log) => {
                   const thumbSrc = brandedImages[log.id] ?? log.output_url
                   return (
@@ -219,9 +228,10 @@ const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
             </>
           )}
         </div>
-      </div>
+      </>)}
+    </AnimatedModal>
 
-      {/* ── Lightbox ── */}
+      {/* ── Lightbox ── (outside the animated panel so its fixed overlay isn't affected by the panel transform) */}
       <GeneratedImageModal
         open={!!lightboxLog}
         imgZoom={imgZoom}
@@ -242,7 +252,7 @@ const MyGalleryPanel = ({ mobileNumber, onClose }: MyGalleryPanelProps) => {
         onClose={() => { setLightboxId(null); setImgZoom(1) }}
         onDownload={handleDownload}
       />
-    </div>
+    </>
   )
 }
 

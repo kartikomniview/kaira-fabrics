@@ -112,7 +112,7 @@ const AIVisualizerSection = () => {
                 Launch Studio
               </Link>
               <Link
-                to="/3d-visualizer"
+                to="/ai-visualizer/studio"
                 className="inline-flex items-center gap-2 px-7 py-3 border border-stone-700 text-stone-400 text-xs font-bold uppercase tracking-[0.15em] hover:border-stone-500 hover:text-white transition-colors duration-200"
               >
                 Try 3D Viewer

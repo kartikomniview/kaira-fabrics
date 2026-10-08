@@ -129,7 +129,12 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
       setIsGenerating(true)
       const cachedUrl = await findCachedRender(material.collectionName, material.materialCode!, product.productName, buildVariantKey(partFabrics))
       if (cachedUrl) {
+        // Fall back to the raw render if branding fails, otherwise the loader would never close
         const watermarked = await overlayLogo(cachedUrl, '/images/kaira.webp', buildBadges(material, partFabrics))
+          .catch((err) => {
+            console.error('Failed to brand cached render, showing raw render:', err)
+            return cachedUrl
+          })
         const elapsed = Date.now() - startedAt
         const remaining = MIN_CACHED_LOADER_MS - elapsed
         if (remaining > 0) {

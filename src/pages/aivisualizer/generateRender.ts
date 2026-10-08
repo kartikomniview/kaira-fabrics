@@ -40,6 +40,23 @@ function loadImage(url: string, anonymous = true): Promise<HTMLImageElement> {
   })
 }
 
+/**
+ * loadImage() for a remote image drawn onto a canvas. On failure it retries with a cache-busting
+ * query: the same S3 URL may already be in the browser cache from a plain (non-CORS) <img>, e.g.
+ * in My Gallery, and that cached copy has no CORS headers, so the anonymous load fails.
+ */
+async function loadCorsImage(url: string, attempts = 3): Promise<HTMLImageElement> {
+  for (let i = 0; ; i++) {
+    try {
+      const src = i === 0 || !/^https?:/.test(url) ? url : `${url}${url.includes('?') ? '&' : '?'}cb=${Date.now()}`
+      return await loadImage(src)
+    } catch (err) {
+      if (i >= attempts - 1) throw err
+      await new Promise((resolve) => setTimeout(resolve, 500 * (i + 1)))
+    }
+  }
+}
+
 export interface MaterialBadgeInfo {
   collectionName: string
   materialCode?: string
@@ -179,9 +196,9 @@ function composeOverlay(
 
 export async function overlayLogo(imageUrl: string, logoUrl: string, materialInfo?: MaterialBadgeInfo | MaterialBadgeInfo[]): Promise<string> {
   const badges = toBadgeList(materialInfo)
-  const [mainImg, logoImg] = await Promise.all([loadImage(imageUrl), loadImage(logoUrl)])
+  const [mainImg, logoImg] = await Promise.all([loadCorsImage(imageUrl), loadImage(logoUrl)])
 
-  const thumbImgs = await Promise.all(badges.map((b) => loadImage(b.thumbnailUrl).catch(() => null)))
+  const thumbImgs = await Promise.all(badges.map((b) => loadCorsImage(b.thumbnailUrl, 2).catch(() => null)))
 
   if (badges.length > 0) {
     await document.fonts.load(`700 20px ${BADGE_FONT_STACK}`).catch(() => {})
@@ -422,7 +439,12 @@ export async function generateRender({
       throw new Error('API returned no image URL')
     }
 
+    // The render is already generated and saved; if branding it fails, show the raw image rather than an error
     const composited = await overlayLogo(data.imageUrl, logoUrl, buildBadges(selectedMaterial, partFabrics))
+      .catch((err) => {
+        console.error('Failed to brand generated image, showing raw render:', err)
+        return data.imageUrl as string
+      })
     onResult(composited)
   } catch (err) {
     hasError = true

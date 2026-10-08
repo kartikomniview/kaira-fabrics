@@ -189,6 +189,12 @@ section h4 {
   }
 }
 
+/* 3D studio fabric hotspot: model-viewer sets [data-visible] only while the pinned point faces the camera */
+.fabric-hotspot:not([data-visible]) .fabric-hotspot-card {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
 @keyframes kaira-fade-scale-in {
   from {
     opacity: 0;
@@ -288,6 +294,70 @@ section h4 {
   }
 }
 
+/* ─── Modal motion (used by AnimatedModal) ─── */
+@keyframes kaira-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes kaira-backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes kaira-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes kaira-modal-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+/* Step changes inside an open modal */
+@keyframes kaira-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.kaira-backdrop-in { animation: kaira-backdrop-in 0.25s ease-out both; }
+.kaira-backdrop-out { animation: kaira-backdrop-out 0.18s ease-in both; }
+.kaira-modal-in { animation: kaira-modal-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.kaira-modal-out { animation: kaira-modal-out 0.18s ease-in both; }
+.kaira-content-in { animation: kaira-content-in 0.25s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kaira-backdrop-in,
+  .kaira-backdrop-out,
+  .kaira-modal-in,
+  .kaira-modal-out,
+  .kaira-content-in {
+    animation-duration: 1ms;
+  }
+}
+
 @layer base {
 
   *,
@@ -298,6 +368,25 @@ section h4 {
 
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Tailwind v4's preflight resets buttons to cursor: default — restore the hand pointer site-wide */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  label[for],
+  label:has(> input[type="checkbox"], > input[type="radio"]),
+  select:not(:disabled),
+  select:not(:disabled) option,
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled {
+    cursor: not-allowed;
   }
 
   body {

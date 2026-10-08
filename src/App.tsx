@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Lenis from 'lenis'
 import Layout from './components/layout/Layout'
 import PageLoader from './components/ui/PageLoader'
@@ -11,11 +11,12 @@ import Seo, { pageTitle } from './components/seo/Seo'
 const HomePage             = lazy(() => import('./pages/HomePage'))
 const CollectionsPage      = lazy(() => import('./pages/CollectionsPage'))
 const CollectionDetailPage = lazy(() => import('./pages/CollectionDetailPage'))
+const MaterialDetailPage   = lazy(() => import('./pages/MaterialDetailPage'))
 const AboutPage            = lazy(() => import('./pages/AboutPage'))
 const MaterialsPage        = lazy(() => import('./pages/materialslist/MaterialsPage'))
 const GalleryPage          = lazy(() => import('./pages/GalleryPage'))
-const ThreeDVisualizerPage = lazy(() => import('./pages/ThreeDVisualizerPage'))
 const AIVisualizerPage     = lazy(() => import('./pages/AIVisualizerPage'))
+const VisualizerStudioPage = lazy(() => import('./pages/aivisualizer/VisualizerStudioPage'))
 const ContactPage          = lazy(() => import('./pages/ContactPage'))
 const AdminPage            = lazy(() => import('./pages/admin/AdminPage'))
 
@@ -47,6 +48,12 @@ function LenisManager() {
     }
   }, [pathname])
   return null
+}
+
+/** Old /3d-visualizer links → the studio, keeping any ?collection=&code= deep link. */
+function StudioRedirect() {
+  const { search } = useLocation()
+  return <Navigate to={`/ai-visualizer/studio${search}`} replace />
 }
 
 function App() {
@@ -91,12 +98,15 @@ function App() {
               <Route path="about" element={<AboutPage />} />
               <Route path="collections" element={<CollectionsPage />} />
               <Route path="collections/:slug" element={<CollectionDetailPage />} />
+              <Route path="collections/:slug/:code" element={<MaterialDetailPage />} />
               <Route path="materials" element={<MaterialsPage />} />
               <Route path="gallery" element={<GalleryPage />} />
-              <Route path="3d-visualizer" element={<ThreeDVisualizerPage />} />
               <Route path="ai-visualizer" element={<AIVisualizerPage />} />
               <Route path="contact" element={<ContactPage />} />
             </Route>
+            {/* 3D Fabric Studio — full-screen, outside Layout. /3d-visualizer is the old standalone page. */}
+            <Route path="/ai-visualizer/studio" element={<VisualizerStudioPage />} />
+            <Route path="/3d-visualizer" element={<StudioRedirect />} />
             {/* Admin — rendered outside Layout (no header/footer) */}
             <Route
               path="/admin"

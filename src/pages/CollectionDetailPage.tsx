@@ -1,43 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { categoryMeta, normalizeType } from '../components/sections/FabricCategoriesSection'
+import EnquiryFormModal from '../components/ui/EnquiryFormModal'
 import InlineLoader from '../components/ui/InlineLoader'
-import MaterialZoomOverlay from '../components/ui/MaterialZoomOverlay'
 import Seo, { pageTitle } from '../components/seo/Seo'
 import { useMaterials } from '../contexts/MaterialsContext'
 import { type Collection, isTextureMapCode } from '../data/collections'
-import { type NewMaterial } from '../data/newmaterials'
+import { materialTypeCopy, SWATCH_NOTE } from '../data/materialTypeCopy'
 import { useCachedMedia } from '../hooks/useCachedMedia'
-import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
-
-const isValidIndianMobile = (num: string) => {
-  const phone = parsePhoneNumberFromString(num, 'IN')
-  return !!phone && phone.isValid() &&
-    (phone.getType() === 'MOBILE' || phone.getType() === 'FIXED_LINE_OR_MOBILE')
-}
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 
 /* ── Material Thumbnail (lazy + per-image skeleton) ─────────────── */
-function MaterialThumb({
+export function MaterialThumb({
   src,
   alt,
-  onClick,
-  onView3D,
+  to,
   label,
   subLabel,
+  show3DButton = true,
 }: {
   src: string
   alt: string
-  onClick: () => void
-  onView3D: () => void
+  /** Material detail page URL; the 3D button links to the same page with ?view=3d. */
+  to: string
   label: string
   subLabel?: string
+  show3DButton?: boolean
 }) {
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
   const [inView, setInView] = useState(false)
-  const thumbRef = useRef<HTMLDivElement>(null)
+  const thumbRef = useRef<HTMLAnchorElement>(null)
   const cachedSrc = useCachedMedia(inView ? src : undefined)
 
   useEffect(() => {
@@ -52,8 +46,8 @@ function MaterialThumb({
   }, [])
 
   return (
-    <div className="group flex flex-col cursor-pointer" onClick={onClick}>
-      <div ref={thumbRef} className="aspect-square overflow-hidden bg-stone-100 border border-stone-200  shadow-sm hover:shadow-md transition-all group-hover:border-primary/40 relative">
+    <div className="group flex flex-col">
+      <Link to={to} ref={thumbRef} className="block aspect-square overflow-hidden bg-stone-100 border border-stone-200  shadow-sm hover:shadow-md transition-all group-hover:border-primary/40 relative">
         {(!inView || !loaded) && !error && (
           <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
             <div
@@ -87,29 +81,31 @@ function MaterialThumb({
             View Details
           </span>
         </div>
-      </div>
+      </Link>
       <div className="mt-2 px-0.5 flex items-center justify-between gap-1.5">
-        <div className="min-w-0 flex-1">
+        <Link to={to} className="min-w-0 flex-1">
           <p className="text-xs font-semibold text-charcoal uppercase truncate leading-tight">{label}</p>
           {subLabel && <p className="text-[10px] text-color-secondary-dark truncate">{subLabel}</p>}
-        </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); onView3D() }}
-          className="shrink-0 flex items-center justify-center gap-1 px-3 py-1.5 whitespace-nowrap bg-secondary-dark text-white text-[8px] uppercase font-bold tracking-[0.1em] hover:bg-stone-800 transition-colors"
-          title="View in 3D"
-        >
-          <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25m0-9L3 7.5m9 5.25v9M3 7.5v9l9 5.25" />
-          </svg>
-          View in 3D
-        </button>
+        </Link>
+        {show3DButton && (
+          <Link
+            to={`${to}?view=3d`}
+            className="shrink-0 flex items-center justify-center gap-1 px-2.5 sm:px-3 py-2 sm:py-1.5 whitespace-nowrap bg-secondary-dark text-white text-[8px] uppercase font-bold tracking-[0.1em] hover:bg-stone-800 transition-colors"
+            title="View in 3D"
+          >
+            <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25m0-9L3 7.5m9 5.25v9M3 7.5v9l9 5.25" />
+            </svg>
+            View in 3D
+          </Link>
+        )}
       </div>
     </div>
   )
 }
 
 /* ── Related collection card ─────────────────────────────────────── */
-function RelatedCollectionCard({ col }: { col: Collection }) {
+export function RelatedCollectionCard({ col }: { col: Collection }) {
   const cachedSrc = useCachedMedia(col.image)
   return (
     <Link
@@ -133,40 +129,6 @@ function RelatedCollectionCard({ col }: { col: Collection }) {
   )
 }
 
-/** Material-type description + key features shown on the collection detail page. */
-const SUEDE_FABRIC_COPY = {
-  description:
-    'Suede Fabric is a soft, smooth upholstery fabric with a fine, velvety surface that gives furniture a rich and luxurious look. It is ideal for sofas, lounge chairs, cushions, headboards, and other upholstered furniture. Each swatch below can be viewed up close, previewed on a 3D sofa model, or requested as a full physical catalog.',
-  features: ['Soft and velvety feel', 'Elegant appearance', 'Comfortable', 'Easy to style', 'Available in a wide range of colours'],
-}
-
-const ARTIFICIAL_LEATHER_COPY = {
-  description:
-    'Artificial Leather is a synthetic upholstery material designed to offer the look and feel of leather with a practical, versatile finish. It is ideal for sofas, chairs, dining seating, office furniture, and commercial interiors. Each swatch below can be viewed up close, previewed on a 3D sofa model, or requested as a full physical catalog.',
-  features: ['Leather-like appearance', 'Easy to maintain', 'Durable', 'Practical', 'Wide range of colours and finishes'],
-}
-
-const materialTypeCopy: Record<string, { description: string; features: string[] }> = {
-  SUEDEFABRIC: SUEDE_FABRIC_COPY,
-  ARTIFICIALLEATHER: ARTIFICIAL_LEATHER_COPY,
-  LEATHERITE: ARTIFICIAL_LEATHER_COPY,
-  SUEDELEATHER: {
-    description:
-      'Suede Leather is a type of suede fabric with a leather-like finish, offering the soft, smooth feel of suede with the sophisticated appearance of leather. It is ideal for sofas, lounge chairs, cushions, and premium upholstered furniture. Each swatch below can be viewed up close, previewed on a 3D sofa model, or requested as a full physical catalog.',
-    features: ['Soft and smooth texture', 'Leather-like appearance', 'Elegant finish', 'Comfortable', 'Easy to style'],
-  },
-  BOUCLE: {
-    description:
-      'Boucle is a textured upholstery fabric made with looped or curled yarns, creating its distinctive soft and tactile surface. Its rich texture adds warmth, depth, and a contemporary feel to furniture and interiors.',
-    features: ['Distinctive looped texture', 'Soft and cosy', 'Adds visual depth', 'Contemporary look', 'Comfortable'],
-  },
-  DIGITALPRINT: {
-    description:
-      'Digital Prints are upholstery fabrics with designs printed directly onto the surface using digital printing technology. They offer greater freedom to create detailed patterns, artistic designs, and vibrant visuals for distinctive furniture and interiors.',
-    features: ['Detailed designs', 'Wide design possibilities', 'Rich colours', 'Custom-look appearance', 'Creative and distinctive'],
-  },
-}
-
 function buildMetaDescription(collection: Collection): string {
   const meta = categoryMeta[normalizeType(collection.category)]
   const label = meta?.label ?? collection.category
@@ -182,11 +144,6 @@ export default function CollectionDetailPage() {
   const collection = useMemo(() => collections.find((c) => c.id === slug), [collections, slug])
 
   const [showContactForm, setShowContactForm] = useState(false)
-  const [contactSubmitted, setContactSubmitted] = useState(false)
-  const [contactData, setContactData] = useState({ name: '', mobile: '', email: '', company: '', message: '' })
-  const [contactLoading, setContactLoading] = useState(false)
-  const [contactError, setContactError] = useState<string | null>(null)
-  const [zoomTarget, setZoomTarget] = useState<{ material: NewMaterial; show3D: boolean } | null>(null)
   const [materialSearch, setMaterialSearch] = useState('')
 
   const materials = useMemo(
@@ -214,22 +171,6 @@ export default function CollectionDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [slug])
-
-  // Contact form: Escape to close (the zoom overlay handles its own Escape internally).
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (showContactForm && e.key === 'Escape') setShowContactForm(false)
-    }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [showContactForm])
-
-  // Lock background scroll while a full-screen overlay (contact form / zoom) is open
-  useEffect(() => {
-    const locked = showContactForm || zoomTarget !== null
-    document.body.style.overflow = locked ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [showContactForm, zoomTarget])
 
   if (!collection) {
     if (materialsLoading) {
@@ -266,34 +207,35 @@ export default function CollectionDetailPage() {
       <Seo title={pageTitle(`${collection.name} Fabric Collection`)} description={buildMetaDescription(collection)} image={collection.image} />
 
       {/* ── Top bar: Back to Collections + breadcrumb ──────────────── */}
-      <div className="pt-24 max-w-7xl mx-auto px-6 lg:px-10 flex flex-wrap items-center justify-between gap-3">
+      <div className="pt-20 md:pt-24 max-w-7xl mx-auto px-4 md:px-6 lg:px-10 flex items-center justify-between gap-3">
         <Link
           to="/collections"
-          className="group flex items-center gap-2 px-4 py-2 border border-secondary bg-secondary text-[10px] uppercase tracking-[0.2em] font-bold text-white hover:bg-secondary-dark hover:border-secondary-dark transition-all shadow-sm"
+          className="group shrink-0 flex items-center gap-2 px-3 md:px-4 py-2 border border-secondary bg-secondary text-[10px] uppercase tracking-[0.2em] font-bold text-white hover:bg-secondary-dark hover:border-secondary-dark transition-all shadow-sm"
         >
           <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Back to Collections
+          <span className="sm:hidden">Back</span>
+          <span className="hidden sm:inline">Back to Collections</span>
         </Link>
-        <nav className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-color-secondary-dark/70" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+        <nav className="min-w-0 flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] md:tracking-[0.2em] text-color-secondary-dark/70" aria-label="Breadcrumb">
+          <Link to="/" className="hidden sm:inline hover:text-primary transition-colors">Home</Link>
+          <span className="hidden sm:inline">/</span>
+          <Link to="/collections" className="shrink-0 hover:text-primary transition-colors">Collections</Link>
           <span>/</span>
-          <Link to="/collections" className="hover:text-primary transition-colors">Collections</Link>
-          <span>/</span>
-          <span className="text-color-secondary-dark">{collection.name}</span>
+          <span className="truncate text-color-secondary-dark">{collection.name}</span>
         </nav>
       </div>
 
       {/* ── Header: catalog image left, title/description right ───── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-4 pb-6 flex flex-col md:flex-row gap-6 md:gap-10 items-start">
-        {/* Image — width follows the image's own aspect ratio at a fixed height */}
-        <div className="w-full md:w-auto md:shrink-0 h-64 md:h-80 overflow-hidden bg-stone-100 border border-stone-200 shadow-sm flex items-center justify-center mx-auto md:mx-0">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-10 pt-4 pb-6 flex flex-col md:flex-row gap-5 md:gap-10 items-start">
+        {/* Image — full width at its natural ratio on mobile; fixed height on desktop */}
+        <div className="w-full md:w-auto md:shrink-0 min-h-64 md:min-h-0 md:h-80 overflow-hidden bg-stone-100 border border-stone-200 shadow-sm flex items-center justify-center mx-auto md:mx-0">
           {cachedCoverSrc && (
             <img
               src={cachedCoverSrc}
               alt={collection.name}
-              className="h-full w-auto max-w-full object-contain"
+              className="w-full h-auto max-h-[70vh] md:h-full md:w-auto md:max-w-full md:max-h-none object-contain"
               onError={(e) => {
                 const el = e.currentTarget as HTMLImageElement
                 el.style.display = 'none'
@@ -309,7 +251,7 @@ export default function CollectionDetailPage() {
           <h1 className="font-serif text-2xl md:text-4xl text-color-secondary-dark leading-tight">{collection.name}</h1>
           {typeCopy && (
             <p className="mt-3 text-xs md:text-sm text-color-secondary-dark/80 font-light leading-relaxed">
-              {typeCopy.description}
+              {typeCopy.showSwatchNote ? `${typeCopy.description} ${SWATCH_NOTE}` : typeCopy.description}
             </p>
           )}
 
@@ -351,10 +293,10 @@ export default function CollectionDetailPage() {
           )}
 
           {/* CTAs */}
-          <div className="flex flex-wrap items-center gap-3 mt-5">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 mt-5">
             <button
               onClick={() => setShowContactForm(true)}
-              className="flex items-center justify-center gap-2.5 px-8 py-3.5 bg-primary text-secondary-dark text-xs uppercase font-bold tracking-[0.2em] hover:bg-primary-dark transition-all shadow-md"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-3.5 bg-primary text-secondary-dark text-xs uppercase font-bold tracking-[0.2em] hover:bg-primary-dark transition-all shadow-md"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -365,7 +307,7 @@ export default function CollectionDetailPage() {
               href={`https://wa.me/918589925666?text=${encodeURIComponent(`I'm interested in the ${collection.name} collection`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2.5 px-6 py-3.5 border border-secondary text-secondary text-xs uppercase font-bold tracking-[0.2em] hover:bg-secondary hover:text-white transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-3.5 border border-secondary text-secondary text-xs uppercase font-bold tracking-[0.2em] hover:bg-secondary hover:text-white transition-all"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -392,10 +334,10 @@ export default function CollectionDetailPage() {
                 value={materialSearch}
                 onChange={(e) => setMaterialSearch(e.target.value)}
                 placeholder="Search…"
-                className="flex-1 bg-transparent text-[12px] text-color-secondary-dark placeholder-stone-400 focus:outline-none min-w-0"
+                className="flex-1 bg-transparent text-base sm:text-[12px] text-color-secondary-dark placeholder-stone-400 focus:outline-none min-w-0"
               />
               {materialSearch && (
-                <button onClick={() => setMaterialSearch('')} className="text-color-secondary-dark hover:text-color-secondary-dark transition-colors">
+                <button onClick={() => setMaterialSearch('')} aria-label="Clear search" className="-m-1.5 p-1.5 text-color-secondary-dark hover:text-color-secondary-dark transition-colors">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
                 </button>
               )}
@@ -404,8 +346,8 @@ export default function CollectionDetailPage() {
               {materialSearch ? `${materials.filter(m => (m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) || m.material_code?.toLowerCase().includes(materialSearch.toLowerCase()) || m.color_group?.toLowerCase().includes(materialSearch.toLowerCase()))).length} results` : `${materials.length} items`}
             </span>
           </div>
-          <div className="p-4 md:p-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="p-3 sm:p-4 md:p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-3 gap-y-5 sm:gap-4 md:gap-6">
               {materials.filter(m =>
                 !materialSearch ||
                 m.material_name?.toLowerCase().includes(materialSearch.toLowerCase()) ||
@@ -415,9 +357,8 @@ export default function CollectionDetailPage() {
                 <MaterialThumb
                   key={idx}
                   src={`${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`}
-                  alt={m.material_name}
-                  onClick={() => setZoomTarget({ material: m, show3D: false })}
-                  onView3D={() => setZoomTarget({ material: m, show3D: true })}
+                  alt={`${m.collection_name} ${m.material_name}`}
+                  to={`/collections/${collection.id}/${encodeURIComponent(m.material_code)}`}
                   label={m.material_name}
                   subLabel={m.color_group ?? undefined}
                 />
@@ -437,9 +378,9 @@ export default function CollectionDetailPage() {
 
       {/* ── Related Collections ────────────────────────────────────── */}
       {relatedCollections.length > 0 && (
-        <div className="max-w-7xl mx-auto px-2 md:px-6 lg:px-10 pt-10 pb-16">
-          <div className="border-t border-stone-200 mb-10" />
-          <h2 className="font-serif text-xl md:text-2xl text-color-secondary-dark mb-8 text-center">More {categoryLabel} Collections</h2>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-10 pt-6 md:pt-10 pb-12 md:pb-16">
+          <div className="border-t border-stone-200 mb-6 md:mb-10" />
+          <h2 className="font-serif text-xl md:text-2xl text-color-secondary-dark mb-5 md:mb-8 text-center">More {categoryLabel} Collections</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-5">
             {relatedCollections.map((c) => (
               <RelatedCollectionCard key={c.id} col={c} />
@@ -449,177 +390,13 @@ export default function CollectionDetailPage() {
       )}
 
       {showContactForm && (
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm"
-          onClick={() => setShowContactForm(false)}
-        >
-          <div
-            className="bg-white w-full max-w-md shadow-2xl overflow-hidden  border border-stone-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="px-6 py-5 bg-secondary-dark flex items-center justify-between">
-              <div>
-                <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-primary mb-1">Request Catalog</p>
-                <h3 className="font-serif text-xl text-white leading-tight">{collection.name}</h3>
-              </div>
-              <button
-                onClick={() => { setShowContactForm(false); setContactSubmitted(false); setContactError(null) }}
-                className="w-8 h-8 flex items-center justify-center text-color-secondary-dark hover:text-white transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {contactSubmitted ? (
-              <div className="px-6 py-12 text-center bg-stone-50">
-                <div className="w-12 h-12 mx-auto mb-5 flex items-center justify-center bg-primary/10 border border-primary/20 text-primary">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                  </svg>
-                </div>
-                <h4 className="font-serif text-2xl text-color-secondary-dark mb-2">Request Sent</h4>
-                <p className="text-xs text-color-secondary-dark leading-relaxed max-w-xs mx-auto">
-                  Thank you! We'll get back to you with the catalog shortly.
-                </p>
-                <button
-                  onClick={() => { setShowContactForm(false); setContactSubmitted(false) }}
-                  className="mt-8 px-8 py-3 bg-secondary-dark text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-colors w-full sm:w-auto "
-                >
-                  Close
-                </button>
-              </div>
-            ) : (
-              <form
-                className="px-6 py-5 flex flex-col gap-4 bg-white"
-                onSubmit={async (e) => {
-                  e.preventDefault()
-                  if (!isValidIndianMobile(contactData.mobile)) {
-                    setContactError('Please enter a valid mobile number')
-                    return
-                  }
-                  setContactLoading(true)
-                  setContactError(null)
-                  try {
-                    const messageBody = [
-                      `Catalog Request: ${collection.name}`,
-                      contactData.company ? `Company: ${contactData.company}` : '',
-                      contactData.message ? contactData.message : '',
-                    ].filter(Boolean).join(' | ')
-                    const res = await fetch('https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage/contact', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        name: contactData.name,
-                        mobile: contactData.mobile,
-                        email: contactData.email || 'not provided',
-                        message: messageBody,
-                      }),
-                    })
-                    if (!res.ok) throw new Error('Failed to send request. Please try again.')
-                    setContactSubmitted(true)
-                  } catch (err) {
-                    setContactError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
-                  } finally {
-                    setContactLoading(false)
-                  }
-                }}
-              >
-                <p className="text-[10px] text-color-secondary-dark leading-relaxed -mt-1">
-                  Fill in your details and we'll send the full catalog for <span className="text-color-secondary-dark font-semibold">{collection.name}</span>.
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Name <span className="text-primary">*</span></label>
-                    <input
-                      required
-                      type="text"
-                      value={contactData.name}
-                      onChange={(e) => setContactData((d) => ({ ...d, name: e.target.value }))}
-                      placeholder="Your name"
-                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Mobile <span className="text-primary">*</span></label>
-                    <input
-                      required
-                      type="tel"
-                      pattern="^[0-9\-\+\s]{10,15}$"
-                      title="Please enter a valid mobile number (10-15 digits)"
-                      value={contactData.mobile}
-                      onChange={(e) => setContactData((d) => ({ ...d, mobile: e.target.value }))}
-                      placeholder="+91 XXXXX XXXXX"
-                      className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Email <span className="normal-case tracking-normal font-normal text-color-secondary-dark/60 text-[9px] ml-1">(Optional)</span></label>
-                  <input
-                    type="email"
-                    value={contactData.email}
-                    onChange={(e) => setContactData((d) => ({ ...d, email: e.target.value }))}
-                    placeholder="you@company.com"
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Company</label>
-                  <input
-                    type="text"
-                    value={contactData.company}
-                    onChange={(e) => setContactData((d) => ({ ...d, company: e.target.value }))}
-                    placeholder="Your company (optional)"
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all "
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark">Message</label>
-                  <textarea
-                    rows={3}
-                    value={contactData.message}
-                    onChange={(e) => setContactData((d) => ({ ...d, message: e.target.value }))}
-                    placeholder="Any specific requirements..."
-                    className="border border-stone-200 bg-stone-50 px-3 py-2 text-[11px] text-color-secondary-dark placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:bg-white transition-all resize-none "
-                  />
-                </div>
-                {contactError && (
-                  <p className="text-red-600 text-[11px] font-medium border border-red-200 bg-red-50 px-3 py-2 shadow-sm">{contactError}</p>
-                )}
-                <div className="flex items-center justify-between pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setShowContactForm(false)}
-                    disabled={contactLoading}
-                    className="text-[10px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark hover:text-color-secondary-dark transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={contactLoading}
-                    className="px-5 py-2.5 bg-secondary-dark text-white text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-stone-800 transition-all shadow-sm disabled:opacity-70 disabled:cursor-not-allowed min-w-[110px] flex items-center justify-center"
-                  >
-                    {contactLoading ? 'Sending...' : 'Send Request'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Material Zoom Overlay ────────────────────────────────── */}
-      {zoomTarget && (
-        <MaterialZoomOverlay
-          key={zoomTarget.material.id}
-          material={zoomTarget.material}
-          newMaterials={newMaterials}
-          initialShow3D={zoomTarget.show3D}
-          onClose={() => setZoomTarget(null)}
+        <EnquiryFormModal
+          eyebrow="Request Catalog"
+          title={collection.name}
+          intro={<>Fill in your details and we'll send the full catalog for <span className="text-color-secondary-dark font-semibold">{collection.name}</span>.</>}
+          subject={`Catalog Request: ${collection.name}`}
+          successText="Thank you! We'll get back to you with the catalog shortly."
+          onClose={() => setShowContactForm(false)}
         />
       )}
     </div>

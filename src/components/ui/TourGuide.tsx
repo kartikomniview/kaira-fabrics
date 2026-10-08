@@ -28,11 +28,25 @@ function seenKey(tourId: string) {
   return `kaira_tour_seen_${tourId}`
 }
 
+/** Set when the visitor ticks "Don't show again" — the tour then never auto-starts for them. */
+function hiddenKey(tourId: string) {
+  return `kaira_tour_hidden_${tourId}`
+}
+
+const readFlag = (key: string) => {
+  try { return localStorage.getItem(key) === '1' } catch { return false }
+}
+
+const writeFlag = (key: string) => {
+  try { localStorage.setItem(key, '1') } catch { /* storage unavailable */ }
+}
+
 /**
  * Global spotlight-style walkthrough. Points at DOM elements by id, one step at a time.
  * The very first time a given `tourId` runs (nothing in localStorage yet) the Skip button
  * is hidden, so the visitor has to step through every stage via "Next". Once that tour has
- * been completed at least once, later runs show a small Skip link.
+ * been completed at least once, later runs show a small Skip link. A "Don't show again"
+ * checkbox lets the visitor opt out of the tour entirely on future visits.
  */
 const TourGuide = ({ tourId, steps, active, onFinish }: TourGuideProps) => {
   const [stepIndex, setStepIndex] = useState(0)
@@ -41,10 +55,14 @@ const TourGuide = ({ tourId, steps, active, onFinish }: TourGuideProps) => {
   const [isLoading, setIsLoading] = useState(true)
   const boxRef = useRef<HTMLDivElement>(null)
   const allowSkipRef = useRef(false)
+  const [dontShowAgain, setDontShowAgain] = useState(false)
+  const isHidden = active && readFlag(hiddenKey(tourId))
 
   useEffect(() => {
     if (!active) return
-    allowSkipRef.current = localStorage.getItem(seenKey(tourId)) === '1'
+    if (readFlag(hiddenKey(tourId))) { onFinish(); return }
+    allowSkipRef.current = readFlag(seenKey(tourId))
+    setDontShowAgain(false)
     setStepIndex(0)
     setIsLoading(true)
     const t = setTimeout(() => setIsLoading(false), LOADER_DELAY_MS)
@@ -87,7 +105,7 @@ const TourGuide = ({ tourId, steps, active, onFinish }: TourGuideProps) => {
     return () => { document.body.style.overflow = prevOverflow }
   }, [active])
 
-  if (!active || !step) return null
+  if (!active || !step || isHidden) return null
 
   if (isLoading) {
     return (
@@ -98,10 +116,12 @@ const TourGuide = ({ tourId, steps, active, onFinish }: TourGuideProps) => {
   }
 
   const isLast = stepIndex === steps.length - 1
-  const allowSkip = allowSkipRef.current
+  // Opting out also lets a first-time visitor leave right away
+  const allowSkip = allowSkipRef.current || dontShowAgain
 
   const finish = () => {
-    localStorage.setItem(seenKey(tourId), '1')
+    writeFlag(seenKey(tourId))
+    if (dontShowAgain) writeFlag(hiddenKey(tourId))
     onFinish()
   }
 
@@ -186,6 +206,15 @@ const TourGuide = ({ tourId, steps, active, onFinish }: TourGuideProps) => {
               )}
             </button>
           </div>
+          <label className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100 cursor-pointer select-none w-fit">
+            <input
+              type="checkbox"
+              checked={dontShowAgain}
+              onChange={(e) => setDontShowAgain(e.target.checked)}
+              className="w-3.5 h-3.5 accent-[var(--color-primary)] cursor-pointer"
+            />
+            <span className="text-[10px] uppercase tracking-widest color-secondary-dark/60 font-semibold">Don't show again</span>
+          </label>
         </div>
       </div>
     </div>

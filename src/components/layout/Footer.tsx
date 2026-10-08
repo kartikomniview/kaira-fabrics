@@ -12,7 +12,7 @@ const footerColumns = [
   {
     heading: 'Technology',
     links: [
-      { label: '3D Visualizer', to: '/3d-visualizer' },
+      { label: '3D Visualizer', to: '/ai-visualizer/studio' },
       { label: 'AI Visualizer', to: '/ai-visualizer' },
     ],
   },
