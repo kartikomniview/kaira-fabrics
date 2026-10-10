@@ -5,6 +5,9 @@ import type { PartFabric, SelectedMaterial, SelectedProduct } from './generateRe
 /** Max distinct fabrics (base + part overrides) the AI render reliably handles */
 const MAX_AI_FABRICS = 2
 
+/** Temporarily disabled — set back to true to re-enable the MAX_AI_FABRICS check */
+const ENFORCE_AI_FABRIC_LIMIT = false
+
 /** Distinct fabrics in a request: the base fabric plus any different part-override fabrics */
 const countDistinctFabrics = (base: SelectedMaterial, partFabrics: PartFabric[]) =>
   new Set([base.id, ...partFabrics.map((pf) => pf.material.id)]).size
@@ -17,7 +20,7 @@ export interface AiConfirmRequest {
 
 /** True when the request has more fabrics than the AI render allows — the modal must then show its warning. */
 export const exceedsAiFabricLimit = (request: AiConfirmRequest) =>
-  countDistinctFabrics(request.material, request.partFabrics) > MAX_AI_FABRICS
+  ENFORCE_AI_FABRIC_LIMIT && countDistinctFabrics(request.material, request.partFabrics) > MAX_AI_FABRICS
 
 interface AiConfirmModalProps {
   request: AiConfirmRequest
@@ -27,8 +30,8 @@ interface AiConfirmModalProps {
 }
 
 const AiConfirmModal = ({ request, onConfirm, onClose }: AiConfirmModalProps) => {
-  const { material, product, partFabrics } = request
-  const tooManyFabrics = countDistinctFabrics(material, partFabrics) > MAX_AI_FABRICS
+  const { product, partFabrics } = request
+  const tooManyFabrics = exceedsAiFabricLimit(request)
   // onConfirm may wait on the generation-limit check; show progress so the click feels answered
   const [pending, setPending] = useState(false)
 
