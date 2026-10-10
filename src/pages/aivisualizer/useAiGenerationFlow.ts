@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { generateRender, overlayLogo, logCachedRender, fetchGenerationLimit, buildBadges, buildVariantKey, OTP_REQUIRED_ERROR } from './generateRender'
+import { generateRender, overlayLogo, logCachedRender, fetchGenerationLimit, buildBadges, buildVariantKey, OTP_REQUIRED_ERROR, AI_DRY_RUN } from './generateRender'
 import type { SelectedMaterial, SelectedProduct, PartFabric, GenerationLimitInfo } from './generateRender'
 import { findCachedRender } from './renderCache'
 import { sendOtp, verifyOtp } from '../../lib/phoneAuth'
@@ -121,7 +121,7 @@ export function useAiGenerationFlow(onGenerated?: () => void) {
     if (!material || !product) return
     setGenerateError(null)
 
-    const cacheEligible = !material.isCustom && !product.isCustom && !!material.materialCode &&
+    const cacheEligible = !AI_DRY_RUN && !material.isCustom && !product.isCustom && !!material.materialCode &&
       partFabrics.every((pf) => !pf.material.isCustom && !!pf.material.materialCode)
 
     if (cacheEligible) {

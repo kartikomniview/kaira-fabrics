@@ -6,7 +6,7 @@ import type { PartFabric, SelectedMaterial, SelectedProduct } from './generateRe
 const MAX_AI_FABRICS = 2
 
 /** Temporarily disabled — set back to true to re-enable the MAX_AI_FABRICS check */
-const ENFORCE_AI_FABRIC_LIMIT = true
+const ENFORCE_AI_FABRIC_LIMIT = false
 
 /** Distinct fabrics in a request: the base fabric plus any different part-override fabrics */
 const countDistinctFabrics = (base: SelectedMaterial, partFabrics: PartFabric[]) =>

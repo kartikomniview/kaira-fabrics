@@ -3,9 +3,14 @@ import { getUvValue } from '../../utils/textureUtils'
 import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
 import { getVerificationToken } from '../../lib/renderLimit'
 import { safeKeyPart } from './renderCache'
+import { getPartOptions } from '../threedvisualizer/MaterialSelector'
+import { partLabel } from '../threedvisualizer/PartDropdown'
 
 // ── Dev toggle: set to true to skip OTP and go directly to result ─────────────
 export const BYPASS_OTP = false
+
+// ── Dev toggle: set to true to log the /ai-visualize request instead of sending it (also skips the render cache) ──
+export const AI_DRY_RUN = false
 
 const API_BASE = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 
@@ -309,19 +314,46 @@ const materialTypeLabelOf = (m: SelectedMaterial) =>
 
 const resolveFabricImage = (m: SelectedMaterial) => (m.isCustom ? extractFromDataUrl(m.textureUrl) : m.textureUrl)
 
-/** Original single-fabric prompt — unchanged so whole-product renders behave exactly as before. */
+const LEATHER_FINISH =
+  'a smooth, non-woven leather surface with a soft satin sheen — visible specular highlights and gentle reflections along curves, cushion edges and seams; fine leather grain only; slight natural creasing at stress points. It must NOT look like woven cloth: no weave, no fuzz, no pile, no rough matte texture'
+
+/** Explicit surface finish per material type (keyed by normalizeType) — "true to its type" alone renders everything as rough cloth */
+const MATERIAL_FINISH: Record<string, string> = {
+  ARTIFICIALLEATHER: LEATHER_FINISH,
+  LEATHERITE: LEATHER_FINISH,
+  SUEDELEATHER: LEATHER_FINISH,
+  SUEDEFABRIC: 'a soft, velvety brushed nap with a matte finish and a subtle directional sheen where light grazes the surface; no gloss',
+  BOUCLE: 'a looped, nubby, three-dimensional yarn texture; fully matte with visible loop depth and soft shadows; no sheen',
+  DIGITALPRINT: 'a smooth, tight flat-weave fabric with a low-sheen matte finish; the printed artwork stays crisp and sharp',
+}
+
+const finishOf = (m: SelectedMaterial) => (m.materialType ? MATERIAL_FINISH[normalizeType(m.materialType)] ?? null : null)
+
+const isLeather = (m: SelectedMaterial) => finishOf(m) === LEATHER_FINISH
+
+/** Single-fabric prompt; leather gets leather wording (grain, not weave) so it isn't rendered as cloth. */
 function buildSingleFabricPrompt(material: SelectedMaterial): string {
   const uvScale = getUvValue(material.collectionName)
   const materialTypeLabel = materialTypeLabelOf(material)
+  const finish = finishOf(material)
+  const leather = isLeather(material)
   return [
     `You are a photorealistic furniture renderer.`,
-    `Your task: apply the fabric texture (first image) onto the furniture product (second image) and produce a complete lifestyle render.`,
-    `CRITICAL — do not alter the product in any way: preserve its exact silhouette, structure, leg style, arm style, back height, cushion count, and all design details. Only the upholstery fabric changes.`,
-    `The fabric texture (color, weave, and pattern) must be replicated exactly as shown in the first image.`,
-    materialTypeLabel
-      ? `This fabric is a ${materialTypeLabel} material — render its surface properties (sheen, texture depth, and light response) true to that material type.`
-      : ``,
-    `Use the correct UV mapping and tiling scale for the fabric: repeat the texture pattern approximately ${uvScale} times across the full upholstered surface, matching real-world fabric scale — do not stretch, shrink, or distort the weave/pattern to fit the surface.`,
+    leather
+      ? `Your task: apply the leather material (first image) onto the furniture product (second image) and produce a complete lifestyle render.`
+      : `Your task: apply the fabric texture (first image) onto the furniture product (second image) and produce a complete lifestyle render.`,
+    `CRITICAL — do not alter the product in any way: preserve its exact silhouette, structure, leg style, arm style, back height, cushion count, and all design details. Only the upholstery ${leather ? 'material' : 'fabric'} changes.`,
+    leather
+      ? `The leather's color and grain must be replicated exactly as shown in the first image.`
+      : `The fabric texture (color, weave, and pattern) must be replicated exactly as shown in the first image.`,
+    finish
+      ? `CRITICAL — surface finish: this is ${materialTypeLabel} — render it as ${finish}.`
+      : materialTypeLabel
+        ? `This fabric is a ${materialTypeLabel} material — render its surface properties (sheen, texture depth, and light response) true to that material type.`
+        : ``,
+    leather
+      ? `Take the color and grain from the first image and apply them at real-world leather scale (approximately ${uvScale} repeats across the full upholstered surface) — do not stretch, shrink, or distort the grain to fit the surface.`
+      : `Use the correct UV mapping and tiling scale for the fabric: repeat the texture pattern approximately ${uvScale} times across the full upholstered surface, matching real-world fabric scale — do not stretch, shrink, or distort the weave/pattern to fit the surface.`,
     `Study the product's style, scale, and design language, then build the ideal lifestyle scene around it — the room era, mood, color palette, lighting quality, and decor props must all be chosen to best complement this specific product.`,
     `The product should be prominently placed and the natural focal point of the fully rendered scene.`,
   ].filter(Boolean).join(' ')
@@ -331,7 +363,7 @@ function buildSingleFabricPrompt(material: SelectedMaterial): string {
  * Multi-fabric prompt + image list. Fabrics are de-duplicated so the same fabric used on several
  * parts is sent once; image order is [fabric 1 (base), fabric 2, …, product].
  */
-function buildPartFabricRequest(material: SelectedMaterial, partFabrics: PartFabric[]) {
+function buildPartFabricRequest(material: SelectedMaterial, partFabrics: PartFabric[], productName: string) {
   const fabrics: SelectedMaterial[] = [material]
   const fabricIndexOf = (m: SelectedMaterial) => {
     const idx = fabrics.findIndex((f) => f.textureUrl === m.textureUrl)
@@ -339,29 +371,51 @@ function buildPartFabricRequest(material: SelectedMaterial, partFabrics: PartFab
     fabrics.push(m)
     return fabrics.length - 1
   }
-  const assignments = partFabrics.map((pf) => ({ label: pf.partLabel, n: fabricIndexOf(pf.material) + 1 }))
+  // Every selectable part gets an explicit fabric (overridden parts their own, the rest Fabric 1),
+  // rather than "everything Fabric 1 except…", which the model tends to misread
+  const productParts = getPartOptions(productName).filter((p) => p !== 'All')
+  const overrideByPart = new Map(partFabrics.map((pf) => [pf.part, pf]))
+  const assignments = [
+    ...productParts.map((part) => {
+      const pf = overrideByPart.get(part)
+      return { label: pf?.partLabel ?? partLabel(part), n: pf ? fabricIndexOf(pf.material) + 1 : 1 }
+    }),
+    ...partFabrics
+      .filter((pf) => !productParts.includes(pf.part))
+      .map((pf) => ({ label: pf.partLabel, n: fabricIndexOf(pf.material) + 1 })),
+  ]
+  // Products without a selectable Base still have frame/arm upholstery, which stays on the base fabric
+  if (!productParts.includes('Base')) assignments.push({ label: 'Sofa Base (frame, arms and sides)', n: 1 })
   const productImageNo = fabrics.length + 1
 
   const fabricLines = fabrics.map((f, i) => {
     const typeLabel = materialTypeLabelOf(f)
+    const finish = finishOf(f)
+    const detail = finish
+      ? ` (${typeLabel} — render it as ${finish})`
+      : typeLabel ? ` (a ${typeLabel} material — render its sheen, texture depth, and light response true to that type)` : ''
     return [
-      `Fabric ${i + 1} is image ${i + 1}${typeLabel ? ` (a ${typeLabel} material — render its sheen, texture depth, and light response true to that type)` : ''};`,
-      `repeat its pattern approximately ${getUvValue(f.collectionName)} times across the surfaces it covers.`,
+      `Fabric ${i + 1} is image ${i + 1}${detail};`,
+      `repeat its ${isLeather(f) ? 'grain' : 'pattern'} approximately ${getUvValue(f.collectionName)} times across the surfaces it covers.`,
     ].join(' ')
   })
+  const mixesLeather = fabrics.some(isLeather) && !fabrics.every(isLeather)
 
   const prompt = [
     `You are a photorealistic furniture renderer.`,
     `You are given ${productImageNo} images: images 1 to ${fabrics.length} are fabric textures, and image ${productImageNo} is the furniture product.`,
     ...fabricLines,
     `Your task: reupholster the product (image ${productImageNo}) using these fabrics and produce a complete lifestyle render.`,
-    `Fabric assignment — the entire upholstery uses Fabric 1, EXCEPT: ${assignments.map((a) => `${a.label} → Fabric ${a.n}`).join('; ')}.`,
+    `Fabric assignment, part by part: ${assignments.map((a) => `${a.label} → apply Fabric ${a.n} (image ${a.n})`).join('; ')}.`,
     `Each part must show only its assigned fabric, with clean, natural seams where different fabrics meet. Do not blend fabrics together and do not apply a fabric to any part it is not assigned to.`,
+    mixesLeather
+      ? `Each fabric must keep its own surface finish: leather parts stay smooth and slightly glossy even next to matte fabric parts.`
+      : ``,
     `CRITICAL — do not alter the product in any way: preserve its exact silhouette, structure, leg style, arm style, back height, cushion count, and all design details. Only the upholstery fabric changes.`,
     `Each fabric's color, weave, and pattern must be replicated exactly as shown in its image — do not stretch, shrink, or distort the weave/pattern to fit the surface.`,
     `Study the product's style, scale, and design language, then build the ideal lifestyle scene around it — the room era, mood, color palette, lighting quality, and decor props must all be chosen to best complement this specific product.`,
     `The product should be prominently placed and the natural focal point of the fully rendered scene.`,
-  ].join(' ')
+  ].filter(Boolean).join(' ')
 
   return { prompt, fabricImages: fabrics.map(resolveFabricImage) }
 }
@@ -401,29 +455,37 @@ export async function generateRender({
 
     // The API uses only `prompt` for Gemini generateImages, so embed context in prompt.
     const { prompt, fabricImages } = partFabrics?.length
-      ? buildPartFabricRequest(selectedMaterial, partFabrics)
+      ? buildPartFabricRequest(selectedMaterial, partFabrics, selectedProduct.productName)
       : { prompt: buildSingleFabricPrompt(selectedMaterial), fabricImages: [resolveFabricImage(selectedMaterial)] }
 
     const device_info = buildDeviceInfo()
 
     const logoUrl = '/images/kaira.webp'
 
+    const body = {
+      inputImages: [...fabricImages, productImage],
+      prompt,
+      mobile_number: mobileNumber,
+      name,
+      device_info,
+      collection_name: selectedMaterial.collectionName,
+      material_code: selectedMaterial.materialCode,
+      product_name: selectedProduct.productName,
+      part_fabrics: serializePartFabrics(partFabrics),
+      variant_key: buildVariantKey(partFabrics),
+      verification_token: getVerificationToken(mobileNumber),
+    }
+
+    if (AI_DRY_RUN) {
+      console.log('[AI dry run] /ai-visualize request (not sent):', body)
+      console.log('[AI dry run] prompt:\n' + prompt)
+      return
+    }
+
     const response = await fetch(`${API_BASE}/ai-visualize`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        inputImages: [...fabricImages, productImage],
-        prompt,
-        mobile_number: mobileNumber,
-        name,
-        device_info,
-        collection_name: selectedMaterial.collectionName,
-        material_code: selectedMaterial.materialCode,
-        product_name: selectedProduct.productName,
-        part_fabrics: serializePartFabrics(partFabrics),
-        variant_key: buildVariantKey(partFabrics),
-        verification_token: getVerificationToken(mobileNumber),
-      }),
+      body: JSON.stringify(body),
     })
 
     if (!response.ok) {
