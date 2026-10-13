@@ -116,6 +116,17 @@ const Footer = () => {
           <p className="text-xs text-stone-500 tracking-wider">
             &copy; {new Date().getFullYear()} KAIRA Fabrics & Leather. All rights reserved.
           </p>
+          <p className="mt-2 text-xs text-stone-500 tracking-wider">
+            Powered by{' '}
+            <a
+              href="https://omniviewlabs.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-stone-400 hover:text-white transition-colors duration-200"
+            >
+              omniviewlabs.com
+            </a>
+          </p>
         </div>
       </div>
     </footer>
