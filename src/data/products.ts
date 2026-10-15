@@ -43,14 +43,14 @@ export const kairaProducts: KairaProduct[] = [
     product_name: 'Alden',
     model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Alden.webp',
     image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v2/Alden.glb',
-    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Alden.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v2/Alden.glb',
   },
   {
     id: 2,
     product_name: 'Petal',
     model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Petal.webp',
     image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Petal.glb',
-    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Petal.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v2/Petal.glb',
   },
   {
     id: 3,
@@ -64,14 +64,14 @@ export const kairaProducts: KairaProduct[] = [
     product_name: 'Solstice',
     model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Solstice.webp',
     image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v3/Solstice.glb',
-    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Solstice.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v2/Solstice.glb',
   },
   {
     id: 5,
     product_name: 'Hudson',
     model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/productImages/v1/Hudson.webp',
     image_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/v1/Hudson.glb',
-    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v1/Hudson.glb',
+    ios_model_url: 'https://kairafabrics.s3.ap-south-1.amazonaws.com/ThreeAssets/models/ios/v2/Hudson.glb',
   },
 ]
 
