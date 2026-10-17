@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { getAdminToken } from './adminAuth'
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 
@@ -67,7 +68,7 @@ const GalleryUploadModal = ({ activeTab, onClose, onUploadSuccess }: Props) => {
     setError(null)
 
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       let asset_type = file.type.startsWith('video/') ? 'Gallery' : 'Image'
       const asset_s3_key = `${asset_type}/${activeTab === 'testimonial' ? 'Testimonial' : 'Other'}`
 

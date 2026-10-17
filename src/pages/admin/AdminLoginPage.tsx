@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { setAdminToken } from './adminAuth'
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 
 const AdminLoginPage = ({ onSuccess }: { onSuccess: () => void }) => {
-  const [username, setUsername] = useState(() => localStorage.getItem('adminUsername') ?? '')
-  const [password, setPassword] = useState(() => localStorage.getItem('adminPassword') ?? '')
-  const [remember, setRemember] = useState(() => !!localStorage.getItem('adminUsername'))
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [remember, setRemember] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -23,14 +24,10 @@ const AdminLoginPage = ({ onSuccess }: { onSuccess: () => void }) => {
       if (!res.ok) throw new Error('Invalid credentials. Please try again.')
       const data = await res.json()
       if (!data.token) throw new Error('No token received from server.')
-      localStorage.setItem('adminToken', data.token)
-      if (remember) {
-        localStorage.setItem('adminUsername', username)
-        localStorage.setItem('adminPassword', password)
-      } else {
-        localStorage.removeItem('adminUsername')
-        localStorage.removeItem('adminPassword')
-      }
+      setAdminToken(data.token, remember)
+      // Purge credentials saved in plain text by the old "Remember me"
+      localStorage.removeItem('adminUsername')
+      localStorage.removeItem('adminPassword')
       onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed.')
@@ -105,7 +102,7 @@ const AdminLoginPage = ({ onSuccess }: { onSuccess: () => void }) => {
                 onChange={(e) => setRemember(e.target.checked)}
                 className="accent-stone-800 w-3.5 h-3.5"
               />
-              <span className="text-xs text-stone-400 uppercase tracking-widest">Remember me</span>
+              <span className="text-xs text-stone-400 uppercase tracking-widest">Keep me signed in</span>
             </label>
             {error && <p className="text-red-500 text-xs">{error}</p>}
             <button

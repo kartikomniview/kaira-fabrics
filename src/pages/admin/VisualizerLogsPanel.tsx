@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
 import GeneratedImageModal from './GeneratedImageModal'
 import { overlayLogo, type MaterialBadgeInfo } from '../aivisualizer/generateRender'
+import { getAdminToken } from './adminAuth'
 
 // interface DeviceInfo {
 //   browser?: { name?: string; version?: string }
@@ -257,7 +258,7 @@ const VisualizerLogsPanel = () => {
 
   const deleteLog = useCallback(async (id: string) => {
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/visualizer-logs/delete`, {
         method: 'POST',
         headers: { 'admin-token': token, 'Content-Type': 'application/json' },
@@ -328,7 +329,7 @@ const VisualizerLogsPanel = () => {
     setLoading(true)
     setError(null)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/visualizer-logs`, {
         headers: { 'admin-token': token },
       })

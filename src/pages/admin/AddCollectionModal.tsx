@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { loadNewMaterials } from '../../data/newmaterials'
 import type { NewMaterial } from '../../data/newmaterials'
+import { getAdminToken } from './adminAuth'
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 const MAX_MATERIALS = 100
@@ -198,7 +199,7 @@ export default function AddCollectionModal({ onClose, onSuccess }: Props) {
     setSubmitError(null)
     setSubmitting(true)
 
-    const token = localStorage.getItem('adminToken') ?? ''
+    const token = getAdminToken()
     const name = collectionName.trim()
     const totalUploads = 1 + materialFiles.length // cover + materials
     let done = 0
@@ -255,7 +256,7 @@ export default function AddCollectionModal({ onClose, onSuccess }: Props) {
         'export const newMaterials = ' + JSON.stringify(updated, null, 4) + ';\n'
 
       // Get a presigned URL for the data file
-      const { uploadUrl: dataUrl } = await getPresignedUrl(token, 'materials/v5/newmaterials.ts', 'data')
+      const { uploadUrl: dataUrl } = await getPresignedUrl(token, 'materials/v6/newmaterials.ts', 'data')
       // PUT as text/plain (the bucket serves it as-is)
       const dataBlob = new Blob([tsContent], { type: 'text/plain' })
       const dataFile = new File([dataBlob], 'newmaterials.ts', { type: 'text/plain' })

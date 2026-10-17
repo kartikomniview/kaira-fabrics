@@ -164,7 +164,6 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
     if (showPartFilter && selectedPart && !partOptions.includes(selectedPart)) onPartChange?.('All')
   }, [showPartFilter, partOptions, selectedPart])
   const colorScrollRef = useRef<HTMLDivElement>(null)
-  const typeScrollRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
   const homeCollectionRef = useRef(initialCollectionName())
@@ -239,16 +238,27 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
     }
   }
 
-  const scrollTypes = (direction: 'left' | 'right') => {
-    if (typeScrollRef.current) {
-      typeScrollRef.current.scrollBy({ left: direction === 'left' ? -150 : 150, behavior: 'smooth' })
-    }
-  }
+  const materialTypeOptions = useMemo(
+    () => Array.from(new Set(newMaterials.map(m => m.material_type).filter(Boolean))).sort(compareMaterialTypes),
+    [newMaterials]
+  )
 
-  const materialTypeOptions = useMemo(() => [
-    'All',
-    ...Array.from(new Set(newMaterials.map(m => m.material_type).filter(Boolean))).sort(compareMaterialTypes),
-  ], [newMaterials])
+  const activeCollectionCover = useMemo(
+    () => (activeCollection === 'All' ? undefined : collections.find(c => c.name === activeCollection)?.image),
+    [activeCollection, collections]
+  )
+
+  // One representative swatch per type: first shade of that type's alphabetically-first collection
+  const materialTypeThumbs = useMemo(() => {
+    const map: Record<string, string> = {}
+    const sorted = newMaterials
+      .filter(m => m.material_type && !isTextureMapCode(m.material_code))
+      .sort((a, b) => a.collection_name.localeCompare(b.collection_name) || a.material_code.localeCompare(b.material_code))
+    for (const m of sorted) {
+      if (!map[m.material_type]) map[m.material_type] = `${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`
+    }
+    return map
+  }, [newMaterials])
 
   const allColorGroups = useMemo(() => [
     'All',
@@ -379,8 +389,9 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
     triggerTransition()
   }
 
+  // Chips toggle: clicking the active type clears the filter
   const handleMaterialTypeClick = (t: string) => {
-    setActiveMaterialType(t)
+    setActiveMaterialType(prev => (prev === t ? 'All' : t))
     triggerTransition()
   }
 
@@ -401,32 +412,20 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
         <div className="absolute inset-0 z-40 bg-white/50 backdrop-blur-[1px] cursor-not-allowed" />
       )}
 
-      {/* Top bar */}
-      <div className="shrink-0 bg-stone-50 border-b border-stone-200/80 px-4 pt-3 pb-3 space-y-2.5">
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 z-30 p-1 color-secondary-dark/50 hover:color-secondary-dark transition-colors"
+          aria-label="Close"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
 
-        {/* Title row */}
-        <div className={`items-center gap-2 ${onClose ? 'flex' : 'hidden md:flex'}`}>
-          <h2 className="text-[12px] font-bold color-secondary-dark uppercase tracking-widest flex-1">Kaira Inventory</h2>
-          <span className="text-[11px] color-secondary-dark/60">
-            {view === 'collections' ? `${collectionsWithThumbs.length} collections` : `${filtered.length} fabrics`}
-          </span>
-          {view === 'materials' && activeFilterCount > 0 && (
-            <button onClick={clearFilters} className="text-[11px] uppercase tracking-widest text-primary hover:underline ml-2 font-semibold">
-              Clear ({activeFilterCount})
-            </button>
-          )}
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="ml-1 p-1 color-secondary-dark/50 hover:color-secondary-dark transition-colors"
-              aria-label="Close"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-        </div>
+      {/* Top bar */}
+      <div className={`shrink-0 bg-stone-50 border-b border-stone-200/80 px-4 pt-3 pb-3 space-y-2.5 ${onClose ? 'pr-10' : ''}`}>
 
         {/* Part chips */}
         {showPartFilter && (
@@ -518,47 +517,41 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
             </div>
 
             {/* Type chips */}
-            <div className="flex items-center gap-1 overflow-hidden">
-              <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest color-secondary-dark/50 pr-0.5">Type</span>
-              <button
-                onClick={() => scrollTypes('left')}
-                className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
-              </button>
-              <div
-                ref={typeScrollRef}
-                className="flex-1 flex items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5"
-              >
+            <div className="border border-stone-300 bg-stone-50 p-1.5 shadow-sm">
+              <div className="grid grid-cols-3 gap-1">
+                <span className="flex items-center gap-1 sm:gap-1.5 px-1 text-[11px] font-bold uppercase tracking-wider sm:tracking-[0.15em] leading-none text-secondary-dark">
+                  <span className="shrink-0 w-0.5 h-3.5 bg-secondary-dark" aria-hidden="true" />
+                  <span className="truncate">Material Type</span>
+                  <svg className="w-3 h-3 shrink-0 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+                </span>
                 {materialTypeOptions.map(t => {
                   const isActive = activeMaterialType === t
+                  const label = categoryMeta[normalizeType(t)]?.label ?? t
+                  const thumb = materialTypeThumbs[t]
                   return (
                     <button
                       key={t}
                       onClick={() => handleMaterialTypeClick(t)}
-                      className={`shrink-0 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-none border transition-all ${
+                      aria-pressed={isActive}
+                      title={label}
+                      className={`min-w-0 flex items-center gap-1 text-left text-[10px] font-bold uppercase tracking-normal sm:tracking-wider leading-tight p-0.5 pr-1 rounded-none border transition-all ${
                         isActive
                           ? 'bg-secondary-dark text-white border-secondary-dark'
                           : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-700'
                       }`}
                     >
-                      {t === 'All' ? t : categoryMeta[normalizeType(t)]?.label ?? t}
+                      {thumb && <CachedThumbImg src={thumb} alt="" className="shrink-0 w-5 h-5 object-cover" />}
+                      <span className="min-w-0 flex-1 text-center line-clamp-2">{label}</span>
                     </button>
                   )
                 })}
               </div>
-              <button
-                onClick={() => scrollTypes('right')}
-                className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
-              </button>
             </div>
           </>
         ) : (
           <>
-            {/* Back to collections + color group selector — one prominent row */}
-            <div className="flex items-center gap-2 py-1.5 border-b border-stone-200">
+            {/* Back to collections */}
+            <div className="flex items-center">
               <button
                 onClick={handleBackToCollections}
                 className="shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-none bg-primary text-white border border-primary hover:bg-primary/90 transition-all"
@@ -566,10 +559,17 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
                 Back to Collections
               </button>
-              <span className="shrink-0 w-px h-4 bg-stone-200" />
-              <span className="shrink-0 max-w-[70px] text-[11px] font-bold uppercase tracking-wider text-primary truncate" title={activeCollection}>
-                {activeCollection === 'All' ? 'All' : activeCollection}
+            </div>
+
+            {/* Selected collection: cover, name, color options */}
+            <div className="flex items-center gap-2 py-1.5 border-b border-stone-200">
+              {activeCollectionCover && (
+                <CachedThumbImg src={activeCollectionCover} alt={activeCollection} className="shrink-0 w-8 h-8 object-cover border border-stone-200" />
+              )}
+              <span className="shrink-0 max-w-[90px] text-[11px] font-bold uppercase tracking-wider text-primary truncate" title={activeCollection}>
+                {activeCollection === 'All' ? 'All Collections' : activeCollection}
               </span>
+              <span className="shrink-0 w-px h-4 bg-stone-200" />
               <button
                 onClick={() => scrollColors('left')}
                 className="shrink-0 w-5 h-5 flex items-center justify-center bg-white border border-stone-200 rounded-none shadow-sm color-secondary-dark/40 hover:color-secondary-dark"
@@ -620,6 +620,18 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
             )}
           </>
         )}
+
+        {/* Status row */}
+        <div className={`items-center justify-between gap-2 text-[10px] uppercase tracking-wider color-secondary-dark/60 ${onClose ? 'flex' : 'hidden md:flex'}`}>
+          <span>
+            {view === 'collections' ? `${collectionsWithThumbs.length} collections` : `${filtered.length} fabrics`}
+          </span>
+          {view === 'materials' && activeFilterCount > 0 && (
+            <button onClick={clearFilters} className="font-bold text-primary hover:underline">
+              Clear ({activeFilterCount})
+            </button>
+          )}
+        </div>
 
       </div>
 

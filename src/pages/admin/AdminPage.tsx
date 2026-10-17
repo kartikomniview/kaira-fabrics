@@ -5,6 +5,7 @@ import LeadsPanel from './LeadsPanel'
 import VisualizerLogsPanel from './VisualizerLogsPanel'
 import GalleryPanel from './GalleryPanel'
 import CollectionsPanel from './CollectionsPanel'
+import { getAdminToken, clearAdminToken } from './adminAuth'
 
 type Module = 'leads' | 'visualizer-logs' | 'gallery' | 'collections'
 
@@ -53,7 +54,7 @@ const NAV_ITEMS: { id: Module; label: string; icon: React.ReactNode; isShow: boo
 
 // ─── Admin Dashboard ──────────────────────────────────────────────────────────
 const AdminPage = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('adminToken'))
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAdminToken())
   const [activeModule, setActiveModule] = useState<Module>('leads')
 
   if (!isAuthenticated) {
@@ -74,7 +75,7 @@ const AdminPage = () => {
           <span className="text-stone-500 text-xs md:text-sm uppercase tracking-widest mt-0.5 md:mt-1 font-medium hidden sm:inline">Admin</span>
         </Link>
         <button
-          onClick={() => { localStorage.removeItem('adminToken'); setIsAuthenticated(false) }}
+          onClick={() => { clearAdminToken(); setIsAuthenticated(false) }}
           className="flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-red-50 hover:bg-red-100 text-[10px] md:text-xs uppercase tracking-widest text-red-600 transition-colors rounded font-medium"
         >
           <svg className="w-3 md:w-3.5 h-3 md:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

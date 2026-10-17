@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { GalleryItem } from './TestimonialsGrid'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
+import { getAdminToken } from './adminAuth'
 
 interface Props {
   items: GalleryItem[]
@@ -181,7 +182,7 @@ const OtherGrid = ({ items, loading, error, onRefresh, isViewMode }: Props) => {
     setFeaturedMap(prev => ({ ...prev, [id]: newVal }))
     setToggling(prev => ({ ...prev, [id]: true }))
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/gallery/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token },
@@ -219,7 +220,7 @@ const OtherGrid = ({ items, loading, error, onRefresh, isViewMode }: Props) => {
     if (!editItem) return
     setDeleting(true)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/gallery/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token },
@@ -241,7 +242,7 @@ const OtherGrid = ({ items, loading, error, onRefresh, isViewMode }: Props) => {
     setThumbnailError(null)
     setThumbnailSuccess(false)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const videoFileName = decodeURIComponent(editItem.asset_url.split('/').pop() ?? '')
       const thumbFileName = videoFileName.replace(/\.[^/.]+$/, '') + '.webp'
       const asset_s3_key = 'thumbnails/Other'
@@ -275,7 +276,7 @@ const OtherGrid = ({ items, loading, error, onRefresh, isViewMode }: Props) => {
     if (!editItem) return
     setSaving(true)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/gallery/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token },

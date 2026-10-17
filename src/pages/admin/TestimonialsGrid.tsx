@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
+import { getAdminToken } from './adminAuth'
 
 export interface GalleryItem {
   id: string
@@ -206,7 +207,7 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh, isViewMode }: Prop
     try {
       await new Promise(resolve => setTimeout(resolve, 800))
 
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const item = items.find(i => i.id === id)
       const res = await fetch(`${API}/gallery/update`, {
         method: 'POST',
@@ -248,7 +249,7 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh, isViewMode }: Prop
     if (!editItem) return
     setDeleting(true)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/gallery/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token },
@@ -268,7 +269,7 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh, isViewMode }: Prop
     if (!editItem) return
     setSaving(true)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/gallery/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token },
@@ -290,7 +291,7 @@ const TestimonialsGrid = ({ items, loading, error, onRefresh, isViewMode }: Prop
     setThumbnailError(null)
     setThumbnailSuccess(false)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const videoFileName = decodeURIComponent(editItem.asset_url.split('/').pop() ?? '')
       const thumbFileName = videoFileName.replace(/\.[^/.]+$/, '') + '.webp'
       const asset_s3_key = 'thumbnails/Testimonial/v1'

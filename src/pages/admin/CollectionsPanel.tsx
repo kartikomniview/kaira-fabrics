@@ -3,6 +3,7 @@ import { useMaterials } from '../../contexts/MaterialsContext'
 import { loadNewMaterials } from '../../data/newmaterials'
 import AddCollectionModal from './AddCollectionModal'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
+import { getAdminToken } from './adminAuth'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const S3_COVER = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics'
@@ -40,14 +41,14 @@ function MaterialsDrawer({
     setIsDeleting(true)
     setDeleteError(null)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const existing = await loadNewMaterials(true)
       const updated = existing.filter((m) => m.collection_name !== collectionName)
       const tsContent = 'export const newMaterials = ' + JSON.stringify(updated, null, 4) + ';\n'
       const res = await fetch(`${API}/getuploadurl`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token },
-        body: JSON.stringify({ file_name: 'materials/v5/newmaterials.ts', mime_type: 'text/plain', asset_type: 'data' }),
+        body: JSON.stringify({ file_name: 'materials/v6/newmaterials.ts', mime_type: 'text/plain', asset_type: 'data' }),
       })
       if (!res.ok) throw new Error(`Could not get upload URL (${res.status})`)
       const { uploadUrl } = await res.json()

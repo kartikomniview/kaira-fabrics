@@ -2,6 +2,7 @@
 import GalleryUploadModal, { type GalleryTab } from './GalleryUploadModal'
 import TestimonialsGrid, { type GalleryItem } from './TestimonialsGrid'
 import OtherGrid from './OtherGrid'
+import { getAdminToken } from './adminAuth'
 
 const API = 'https://kcef1hkto8.execute-api.ap-south-1.amazonaws.com/stage'
 
@@ -18,7 +19,7 @@ const GalleryPanel = () => {
     setListLoading(true)
     setListError(null)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/gallery`, {
         headers: { 'admin-token': token },
       })

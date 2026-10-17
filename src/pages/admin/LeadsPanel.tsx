@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { getAdminToken } from './adminAuth'
 
 interface Submission {
   id?: string
@@ -25,7 +26,7 @@ const LeadsPanel = () => {
 
   const deleteSubmission = useCallback(async (id: string) => {
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/contact/delete`, {
         method: 'POST',
         headers: { 'admin-token': token, 'Content-Type': 'application/json' },
@@ -44,7 +45,7 @@ const LeadsPanel = () => {
     setLoading(true)
     setError(null)
     try {
-      const token = localStorage.getItem('adminToken') ?? ''
+      const token = getAdminToken()
       const res = await fetch(`${API}/getsubmissions`, {
         headers: { 'admin-token': token },
       })

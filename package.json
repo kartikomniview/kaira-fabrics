@@ -1,7 +1,7 @@
 {
   "name": "kaira-fabrics",
   "private": true,
-  "version": "0.0.21",
+  "version": "0.0.22",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1016.0",
     "@google/model-viewer": "^4.0.0",
+    "@google/model-viewer-effects": "1.4.0",
     "@tailwindcss/vite": "^4.2.1",
     "@types/three": "^0.183.1",
     "firebase": "^12.16.0",
