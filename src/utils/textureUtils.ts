@@ -21,12 +21,51 @@ export function getNormalMapURL(collectionName: string, materials: NewMaterial[]
   return `${S3_KAIRA_ORIGIN}/textures/${COMPANY}/${collectionName}/${collectionName}_Normal.webp`
 }
 
+/** How a fabric reacts to light, on top of its textures. */
+export interface FabricLook {
+  roughness: number
+  /** Strength of the plain (non-sheen) highlight. 1 = three.js default, which reads as plastic on cloth. */
+  specularIntensity: number
+  /** Soft rim glow of napped / pile fabrics. 0 = off. */
+  sheen: number
+  sheenRoughness: number
+  /** Multiplier on the normal map — how deep the weave looks. */
+  normalScale: number
+  /** Thin glossy coat, for leathers. 0 = off. */
+  clearcoat: number
+  clearcoatRoughness: number
+}
+
+/** Collections that render slightly glossier than their material type would. */
+const GLOSSY_COLLECTIONS = ['Intense', 'Modello']
+
+/** Per-collection tweaks layered over the material-type look, e.g. `Impression: { normalScale: 1.4 }`. */
+const COLLECTION_LOOK_OVERRIDES: Record<string, Partial<FabricLook>> = {}
+
+function materialTypeLook(materialType: string, collectionName: string, baseRoughness: number): FabricLook {
+  const t = materialType.toLowerCase().replace(/\s+/g, '')
+  const look = (l: Partial<FabricLook>): FabricLook => ({
+    roughness: baseRoughness, specularIntensity: 1, sheen: 0, sheenRoughness: 1,
+    normalScale: 1, clearcoat: 0, clearcoatRoughness: 0, ...l,
+  })
+  if (t.includes('velvet')) return look({ roughness: 0.7, specularIntensity: 0.3, sheen: 1, sheenRoughness: 0.3, normalScale: 0.6 })
+  if (t.includes('boucle') || t.includes('chenille')) return look({ roughness: 0.9, specularIntensity: 0.3, sheen: 0.8, sheenRoughness: 0.6, normalScale: 1.2 })
+  // Suede (fabric or leather) is a napped surface — matte with a soft sheen, not a glossy leather
+  if (t.includes('suede')) return look({ roughness: 0.85, specularIntensity: 0.35, sheen: 0.8, sheenRoughness: 0.45, normalScale: 1 })
+  if (t.includes('fabric') || t.includes('digitalprint')) return look({ roughness: 0.85, specularIntensity: 0.4, sheen: 0.6, sheenRoughness: 0.5, normalScale: 1 })
+  if (GLOSSY_COLLECTIONS.includes(collectionName)) return look({ roughness: 0.6 })
+  if (t.includes('leather')) return look({ roughness: 0.6, specularIntensity: 0.8, normalScale: 0.8, clearcoat: 0.15, clearcoatRoughness: 0.35 })
+  return look({})
+}
+
+export function getFabricLook(materialType: string, collectionName: string, baseRoughness: number): FabricLook {
+  return { ...materialTypeLook(materialType, collectionName, baseRoughness), ...COLLECTION_LOOK_OVERRIDES[collectionName] }
+}
+
 export function getSheenMapUrl(materialType: string): string {
-  const t = materialType.toLowerCase()
-  if (t.includes('fabric') || t.includes('boucle') || t.includes('chenille') || t.includes('velvet')) {
-    return `${S3_KAIRA_ORIGIN}/textures/Common/SheenColorMap.webp`
-  }
-  return ''
+  return getFabricLook(materialType, '', 0).sheen > 0
+    ? `${S3_KAIRA_ORIGIN}/textures/Common/SheenColorMap.webp`
+    : ''
 }
 
 export function getUvValue(collectionName: string,materialCode:string = ""): number {
@@ -45,18 +84,11 @@ export function getUvValue(collectionName: string,materialCode:string = ""): num
   return 16
 }
 
-export function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
-  const t = materialType.toLowerCase()
-  if (t.includes('boucle') || t.includes('chenille') || t.includes('fabric') || t.includes('digitalprint')) return 0.8
-  if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
-  if (t.includes('leather')) return 0.5
-  return baseRoughness
-}
-
 /**
  * Traverses a model-viewer's internal Three.js scene, replaces each mesh's
  * material with a MeshPhysicalMaterial (preserving original maps), and returns
  * the collected mesh objects so textures can be applied via the fast direct path.
+ * The model's own normal map is kept on `userData.baseNormalMap`.
  */
 export function setupModelMeshes(mv: any): any[] {
   const meshes: any[] = []
@@ -76,12 +108,17 @@ export function setupModelMeshes(mv: any): any[] {
         metalnessMap: old.metalnessMap,
         aoMap: old.aoMap,
         aoMapIntensity: old.aoMapIntensity ?? 1,
+        emissive: old.emissive,
+        emissiveMap: old.emissiveMap,
+        emissiveIntensity: old.emissiveIntensity ?? 1,
         roughness: old.roughness ?? 0.5,
         metalness: old.metalness ?? 0.5,
         transparent: old.transparent,
         opacity: old.opacity,
         side: old.side,
       })
+      if (old.normalScale) child.material.normalScale.copy(old.normalScale)
+      child.userData.baseNormalMap = old.normalMap ?? null
       meshes.push(child)
     }
   })
@@ -207,11 +244,18 @@ export interface ApplyTextureOptions {
   normalBlobUrl?: string | null
   /** Pre-fetched blob URL for the sheen color map. Pass null to skip. */
   sheenBlobUrl?: string | null
+  /** Specular, sheen, normal-strength and coat settings (see getFabricLook). Only used on the
+   * direct Three.js path; when omitted, the plain three.js defaults are kept. */
+  look?: FabricLook
   /** Three.js mesh objects collected at model-load time. When provided, textures
    * are applied directly to their MeshPhysicalMaterial instead of going through
    * the model-viewer abstraction layer. */
   meshes?: any[]
 }
+
+/** Textures created by applyTextureToModel — the only ones it may dispose. */
+const ownedTextures = new WeakSet<THREE.Texture>()
+const FABRIC_TEXTURE_SLOTS = ['map', 'roughnessMap', 'normalMap', 'sheenColorMap'] as const
 
 /**
  * Applies a fabric texture (and optional PBR maps) to all eligible materials
@@ -233,6 +277,7 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
     normalBlobUrl = null,
     sheenBlobUrl = null,
     meshes,
+    look,
   } = options
 
   // ── Fast path: apply directly to Three.js MeshPhysicalMaterial instances ──
@@ -266,13 +311,31 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
     }
 
 
+    const loadedTextures = [baseTex, roughTex, normalTex, sheenTex].filter((t): t is THREE.Texture => !!t)
     const rotationRad = THREE.MathUtils.degToRad(rotation)
-    for (const tex of [baseTex, roughTex, normalTex, sheenTex]) {
-      if (!tex) continue
+    for (const tex of loadedTextures) {
+      ownedTextures.add(tex)
       tex.wrapS = tex.wrapT = THREE.RepeatWrapping
       if (uvScale !== 1) tex.repeat.set(uvScale, uvScale)
       if (rotationRad !== 0) tex.rotation = rotationRad
+      // Keeps the tiled weave sharp at grazing angles; three.js caps it at the GPU's maximum
+      tex.anisotropy = 16
       tex.needsUpdate = true
+    }
+
+    const l: FabricLook = look ?? {
+      roughness, specularIntensity: 1, sheen: sheenTex ? 1 : 0, sheenRoughness: 1,
+      normalScale: 1, clearcoat: 0, clearcoatRoughness: 0,
+    }
+    // Sheen tint from the fabric's average colour — computed once, not per mesh
+    const sheenColor = l.sheen > 0 && baseTex?.image
+      ? getAverageColorHex(baseTex.image as HTMLImageElement, { lighten: 0.25, desaturate: 0.4, hueShift: -0.02 })
+      : new THREE.Color(0xffffff)
+
+    const replacedTextures = new Set<THREE.Texture>()
+    const swap = (mat: any, slot: string, tex: THREE.Texture | null) => {
+      if (mat[slot] && mat[slot] !== tex) replacedTextures.add(mat[slot])
+      mat[slot] = tex
     }
 
     for (const mesh of meshes) {
@@ -286,28 +349,38 @@ export async function applyTextureToModel(mv: any, options: ApplyTextureOptions)
       if (onlyParts.length > 0 && !onlyParts.some((p) => partName.includes(p.toLowerCase()))) continue
 
       const mat = mesh.material as THREE.MeshPhysicalMaterial
-      if (baseTex) mat.map = baseTex
-      if (roughTex) mat.roughnessMap = roughTex
-      if (normalTex) mat.normalMap = normalTex
-      if (sheenTex) {
-        let avgBaseColor = new THREE.Color(0xffffff)
-        if (baseTex && baseTex.image) {
-          if (mat.map && (mat.map as any).image) {
-            avgBaseColor = getAverageColorHex((mat.map as any).image, { lighten: 0.25, desaturate: 0.4, hueShift: -0.02 })
-          }
-        }
-
-        mat.sheenColorMap = sheenTex
-        mat.sheen = 1.0
-        mat.sheenColor = avgBaseColor
+      if (baseTex) swap(mat, 'map', baseTex)
+      if (roughTex) swap(mat, 'roughnessMap', roughTex)
+      if (normalTex) swap(mat, 'normalMap', normalTex)
+      if (l.sheen > 0) {
+        swap(mat, 'sheenColorMap', sheenTex)
+        mat.sheen = l.sheen
+        mat.sheenRoughness = l.sheenRoughness
+        mat.sheenColor.copy(sheenColor)
       } else {
         mat.sheen = 0.0
-        mat.sheenColorMap = null
+        swap(mat, 'sheenColorMap', null)
       }
+      mat.specularIntensity = l.specularIntensity
+      mat.clearcoat = l.clearcoat
+      mat.clearcoatRoughness = l.clearcoatRoughness
+      mat.normalScale.set(l.normalScale, l.normalScale)
       mat.roughness = roughness
       mat.metalness = metalness
       mat.color.set(0xffffff)
       mat.needsUpdate = true
+    }
+
+    // Free GPU memory for fabric textures no mesh uses any more (never the model's own textures)
+    const inUse = new Set<THREE.Texture>()
+    for (const mesh of meshes) {
+      for (const slot of FABRIC_TEXTURE_SLOTS) {
+        const tex = (mesh.material as any)?.[slot]
+        if (tex) inUse.add(tex)
+      }
+    }
+    for (const tex of [...replacedTextures, ...loadedTextures]) {
+      if (ownedTextures.has(tex) && !inUse.has(tex)) tex.dispose()
     }
 
     // Force render update for direct Three.js modifications

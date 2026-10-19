@@ -4,9 +4,8 @@ import { kairaProducts } from '../data/products'
 import type { KairaProduct } from '../data/products'
 import {
   fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, blinkFabricPart,
-  getRoughnessMapURL, getNormalMapURL, getSheenMapUrl, getUvValue, getRoughnessValue,
+  getRoughnessMapURL, getNormalMapURL, getSheenMapUrl, getUvValue, getFabricLook, setupModelMeshes,
 } from '../utils/textureUtils'
-import * as THREE from 'three'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './threedvisualizer/MaterialSelector'
 import { findInitialMaterial } from './threedvisualizer/initialMaterial'
 import PartDropdown, { partLabel } from './threedvisualizer/PartDropdown'
@@ -134,10 +133,11 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
       applySheenMap ? (() => { const u = getSheenMapUrl(mat.materialType); return u ? fetchBlobUrl(u) : Promise.resolve(null) })() : Promise.resolve(null),
     ])
     const uvScale = getUvValue(mat.collectionName,mat.materialCode)
-    const roughness = getRoughnessValue(mat.materialType, mat.collectionName, mat.roughness)
+    const look = getFabricLook(mat.materialType, mat.collectionName, mat.roughness)
     await applyTextureToModel(mv, {
       baseBlobUrl,
-      roughness,
+      roughness: look.roughness,
+      look,
       metalness: mat.metalness,
       uvScale,
       rotation: currentProduct.uvRotation ?? 0,
@@ -166,30 +166,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
     const mv = mvRef.current as any
     if (!mv) return
     const onLoad = () => {
-      fabricMeshesRef.current = []
-      const sceneSymbol: any = Object.getOwnPropertySymbols(mv).find(s => s.description === 'scene')
-      const scene = mv[sceneSymbol]
-      scene.traverse((child: any) => {
-        if (child.isMesh && child.material) {
-          const oldMaterial = child.material
-          const newMaterial = new THREE.MeshPhysicalMaterial({
-            map: oldMaterial.map,
-            color: oldMaterial.color,
-            normalMap: oldMaterial.normalMap,
-            roughnessMap: oldMaterial.roughnessMap,
-            metalnessMap: oldMaterial.metalnessMap,
-            aoMap: oldMaterial.aoMap,
-            aoMapIntensity: oldMaterial.aoMapIntensity ?? 1,
-            roughness: oldMaterial.roughness ?? 0.5,
-            metalness: oldMaterial.metalness ?? 0.5,
-            transparent: oldMaterial.transparent,
-            opacity: oldMaterial.opacity,
-            side: oldMaterial.side,
-          })
-          child.material = newMaterial
-          fabricMeshesRef.current.push(child)
-        }
-      })
+      fabricMeshesRef.current = setupModelMeshes(mv)
       setMeshNames(fabricMeshesRef.current.map((m: any) => m.name ?? ''))
       setModelLoaded(true)
     }

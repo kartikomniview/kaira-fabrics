@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useMaterials } from '../../contexts/MaterialsContext'
 import { kairaProducts } from '../../data/products'
 import type { KairaProduct } from '../../data/products'
-import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, blinkFabricPart, getNormalMapURL, getRoughnessMapURL, getUvValue } from '../../utils/textureUtils'
-import * as THREE from 'three'
+import { fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS, blinkFabricPart, getNormalMapURL, getRoughnessMapURL, getUvValue, getFabricLook, getSheenMapUrl, setupModelMeshes } from '../../utils/textureUtils'
 import '@google/model-viewer'
 import MaterialSelector, { type SelectedMaterial, S3_THUMB, CachedThumbImg } from './MaterialSelector'
 import { findInitialMaterial } from './initialMaterial'
@@ -20,22 +19,6 @@ import { isVerified } from '../../lib/renderLimit'
 import TourGuide, { type TourStep } from '../../components/ui/TourGuide'
 
 export type { SelectedMaterial } from './MaterialSelector'
-
-const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
-
-function getSheenMapUrl(materialType: string) {
-  if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('boucle') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
-    return `${S3_BASE}/textures/Common/SheenColorMap.webp`
-  }
-  return ''
-}
-
-function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
-  if (materialType.toLowerCase().includes('boucle') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8
-  if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
-  if (materialType.toLowerCase().includes('leather')) return 0.6
-  return baseRoughness
-}
 
 const TOUR_STEPS: TourStep[] = [
   { id: 'tour-material-selector', title: 'Pick a Fabric', subtitle: 'Browse Kaira\'s collection here and tap any swatch to apply it to the product.' },
@@ -172,10 +155,11 @@ const ThreeDVisualizerEngine = ({
       applySheenMap ? (() => { const u = getSheenMapUrl(mat.materialType); return u ? fetchBlobUrl(u) : Promise.resolve(null) })() : Promise.resolve(null),
     ])
     const uvScale = getUvValue(mat.collectionName,mat.materialCode)
-    const roughness = getRoughnessValue(mat.materialType, mat.collectionName, mat.roughness)
+    const look = getFabricLook(mat.materialType, mat.collectionName, mat.roughness)
     await applyTextureToModel(mv, {
       baseBlobUrl,
-      roughness,
+      roughness: look.roughness,
+      look,
       metalness: mat.metalness,
       uvScale,
       rotation: currentProduct.uvRotation ?? 0,
@@ -204,35 +188,7 @@ const ThreeDVisualizerEngine = ({
     const mv = mvRef.current as any
     if (!mv) return
     const onLoad = () => {
-      fabricMeshesRef.current = []
-
-      const sceneSymbol: any = Object.getOwnPropertySymbols(mv).find(s => s.description === 'scene')
-      const scene = mv[sceneSymbol]
-
-      scene.traverse((child: any) => {
-        if (child.isMesh && child.material) {
-          const oldMaterial = child.material
-
-          const newMaterial = new THREE.MeshPhysicalMaterial({
-            map: oldMaterial.map,
-            color: oldMaterial.color,
-            normalMap: oldMaterial.normalMap,
-            roughnessMap: oldMaterial.roughnessMap,
-            metalnessMap: oldMaterial.metalnessMap,
-            aoMap: oldMaterial.aoMap,
-            aoMapIntensity: oldMaterial.aoMapIntensity ?? 1,
-            roughness: oldMaterial.roughness ?? 0.5,
-            metalness: oldMaterial.metalness ?? 0.5,
-            transparent: oldMaterial.transparent,
-            opacity: oldMaterial.opacity,
-            side: oldMaterial.side,
-          })
-
-          child.material = newMaterial
-          fabricMeshesRef.current.push(child)
-        }
-      })
-
+      fabricMeshesRef.current = setupModelMeshes(mv)
       setMeshNames(fabricMeshesRef.current.map((m: any) => m.name ?? ''))
       setModelLoaded(true)
     }

@@ -8,7 +8,7 @@ import type { Collection } from '../../data/collections'
 import {
   fetchBlobUrl, applyTextureToModel, NO_FABRIC_PARTS,
   getRoughnessMapURL, getNormalMapURL, getSheenMapUrl,
-  getUvValue, getRoughnessValue, setupModelMeshes,
+  getUvValue, getFabricLook, setupModelMeshes,
 } from '../../utils/textureUtils'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
 
@@ -128,9 +128,11 @@ const MaterialDetailModal = ({ material, onClose }: MaterialDetailModalProps) =>
           fetchBlobUrl(getNormalMapURL(collectionName, newMaterials, material.material_code)),
           sheenUrl ? fetchBlobUrl(sheenUrl) : Promise.resolve(null),
         ])
+        const look = getFabricLook(materialType, collectionName, material.roughness)
         await applyTextureToModel(mv, {
           baseBlobUrl,
-          roughness: getRoughnessValue(materialType, collectionName, material.roughness),
+          roughness: look.roughness,
+          look,
           metalness: material.metalness,
           uvScale: getUvValue(collectionName,material.material_code),
           skipParts: NO_FABRIC_PARTS,

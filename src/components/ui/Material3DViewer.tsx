@@ -1,32 +1,16 @@
 import '@google/model-viewer'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import * as THREE from 'three'
 import InlineLoader from './InlineLoader'
 import { type NewMaterial } from '../../data/newmaterials'
 import { kairaProducts, type KairaProduct } from '../../data/products'
-import { applyTextureToModel, fetchBlobUrl, getNormalMapURL, getRoughnessMapURL, getUvValue, NO_FABRIC_PARTS } from '../../utils/textureUtils'
+import { applyTextureToModel, fetchBlobUrl, getFabricLook, getNormalMapURL, getRoughnessMapURL, getSheenMapUrl, getUvValue, NO_FABRIC_PARTS, setupModelMeshes } from '../../utils/textureUtils'
 import { useCachedMedia } from '../../hooks/useCachedMedia'
 
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
-const S3_BASE = 'https://kairafabrics.s3.ap-south-1.amazonaws.com'
 const SHOW_PRODUCT_PICKER = false // set to true to re-enable the "Change product" picker on the 3D view
 
 const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-
-function getSheenMapUrl(materialType: string) {
-  if (materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('boucle') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('velvet')) {
-    return `${S3_BASE}/textures/Common/SheenColorMap.webp`
-  }
-  return ''
-}
-
-function getRoughnessValue(materialType: string, collectionName: string, baseRoughness: number): number {
-  if (materialType.toLowerCase().includes('boucle') || materialType.toLowerCase().includes('chenille') || materialType.toLowerCase().includes('fabric') || materialType.toLowerCase().includes('digitalprint')) return 0.8
-  if (collectionName === 'Intense' || collectionName === 'Modello') return 0.6
-  if (materialType.toLowerCase().includes('leather')) return 0.6
-  return baseRoughness
-}
 
 /** One product thumbnail in the horizontally-scrollable strip. */
 function ProductThumb({ product, isActive, onClick }: { product: KairaProduct; isActive: boolean; onClick: () => void }) {
@@ -92,7 +76,7 @@ export default function Material3DViewer({ material: m, newMaterials }: Material
     try {
       const textureUrl = `${S3_THUMB}/${m.collection_name}/${m.material_code}.webp`
       const uvScale = getUvValue(m.collection_name, m.material_code)
-      const roughness = getRoughnessValue(m.material_type ?? '', m.collection_name, m.roughness ?? 0.8)
+      const look = getFabricLook(m.material_type ?? '', m.collection_name, m.roughness ?? 0.8)
       const [baseBlobUrl, roughnessBlobUrl, normalBlobUrl, sheenBlobUrl] = await Promise.all([
         fetchBlobUrl(textureUrl),
         fetchBlobUrl(getRoughnessMapURL(m.collection_name)),
@@ -101,7 +85,8 @@ export default function Material3DViewer({ material: m, newMaterials }: Material
       ])
       await applyTextureToModel(mv, {
         baseBlobUrl,
-        roughness,
+        roughness: look.roughness,
+        look,
         metalness: m.metalness ?? 0.0,
         uvScale,
         rotation: currentProduct.uvRotation ?? 0,
@@ -139,30 +124,7 @@ export default function Material3DViewer({ material: m, newMaterials }: Material
 
     const onLoad = () => {
       // Setup meshes with MeshPhysicalMaterial — same as ThreeDVisualizerEngine
-      fabricMeshesRef.current = []
-      const sceneSymbol: any = Object.getOwnPropertySymbols(mv).find((s: any) => s.description === 'scene')
-      const scene = mv[sceneSymbol]
-      scene.traverse((child: any) => {
-        if (child.isMesh && child.material) {
-          const oldMaterial = child.material
-          const newMaterial = new THREE.MeshPhysicalMaterial({
-            map: oldMaterial.map,
-            color: oldMaterial.color,
-            normalMap: oldMaterial.normalMap,
-            roughnessMap: oldMaterial.roughnessMap,
-            metalnessMap: oldMaterial.metalnessMap,
-            aoMap: oldMaterial.aoMap,
-            aoMapIntensity: oldMaterial.aoMapIntensity ?? 1,
-            roughness: oldMaterial.roughness ?? 0.5,
-            metalness: oldMaterial.metalness ?? 0.5,
-            transparent: oldMaterial.transparent,
-            opacity: oldMaterial.opacity,
-            side: oldMaterial.side,
-          })
-          child.material = newMaterial
-          fabricMeshesRef.current.push(child)
-        }
-      })
+      fabricMeshesRef.current = setupModelMeshes(mv)
 
       modelReadyRef.current = true
       setIsModelLoading(false)
