@@ -518,8 +518,8 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
 
             {/* Type chips */}
             <div className="border border-stone-300 bg-stone-50 p-1.5 shadow-sm">
-              <div className="grid grid-cols-3 gap-1">
-                <span className="flex items-center gap-1 sm:gap-1.5 px-1 text-[11px] font-bold uppercase tracking-wider sm:tracking-[0.15em] leading-none text-secondary-dark">
+              <div className="flex gap-1 overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] md:grid md:grid-cols-3 md:overflow-visible">
+                <span className="hidden md:flex items-center gap-1 sm:gap-1.5 px-1 text-[11px] font-bold uppercase tracking-wider sm:tracking-[0.15em] leading-none text-secondary-dark">
                   <span className="shrink-0 w-0.5 h-3.5 bg-secondary-dark" aria-hidden="true" />
                   <span className="truncate">Material Type</span>
                   <svg className="w-3 h-3 shrink-0 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
@@ -534,14 +534,14 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
                       onClick={() => handleMaterialTypeClick(t)}
                       aria-pressed={isActive}
                       title={label}
-                      className={`min-w-0 flex items-center gap-1 text-left text-[10px] font-bold uppercase tracking-normal sm:tracking-wider leading-tight p-0.5 pr-1 rounded-none border transition-all ${
+                      className={`shrink-0 md:shrink md:min-w-0 flex items-center gap-1 text-left text-[10px] font-bold uppercase tracking-normal sm:tracking-wider leading-tight p-0.5 pr-1 rounded-none border transition-all ${
                         isActive
                           ? 'bg-secondary-dark text-white border-secondary-dark'
                           : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-700'
                       }`}
                     >
                       {thumb && <CachedThumbImg src={thumb} alt="" className="shrink-0 w-5 h-5 object-cover" />}
-                      <span className="min-w-0 flex-1 text-center line-clamp-2">{label}</span>
+                      <span className="whitespace-nowrap md:whitespace-normal md:min-w-0 md:flex-1 text-center md:line-clamp-2">{label}</span>
                     </button>
                   )
                 })}
@@ -551,7 +551,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
         ) : (
           <>
             {/* Back to collections */}
-            <div className="flex items-center">
+            <div className="hidden md:flex items-center">
               <button
                 onClick={handleBackToCollections}
                 className="shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-none bg-primary text-white border border-primary hover:bg-primary/90 transition-all"
@@ -563,8 +563,15 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
 
             {/* Selected collection: cover, name, color options */}
             <div className="flex items-center gap-2 py-1.5 border-b border-stone-200">
+              <button
+                onClick={handleBackToCollections}
+                className="md:hidden shrink-0 flex items-center gap-0.5 text-[10px] font-bold uppercase tracking-wider px-1.5 py-1 rounded-none bg-primary text-white border border-primary hover:bg-primary/90 transition-all"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+                Go back
+              </button>
               {activeCollectionCover && (
-                <CachedThumbImg src={activeCollectionCover} alt={activeCollection} className="shrink-0 w-8 h-8 object-cover border border-stone-200" />
+                <CachedThumbImg src={activeCollectionCover} alt={activeCollection} className="hidden md:block shrink-0 w-8 h-8 object-cover border border-stone-200" />
               )}
               <span className="shrink-0 max-w-[90px] text-[11px] font-bold uppercase tracking-wider text-primary truncate" title={activeCollection}>
                 {activeCollection === 'All' ? 'All Collections' : activeCollection}
