@@ -13,7 +13,7 @@ import path from 'node:path'
 const SITE_NAME = 'KAIRA'
 const SITE_URL = 'https://kairafabrics.com'
 // Must match S3_URL in src/data/newmaterials.ts
-const MATERIALS_URL = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/data/materials/v6/newmaterials.ts'
+const MATERIALS_URL = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/data/materials/v7/newmaterials.ts'
 const S3_COVER = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/coverpages/KairaFabrics'
 const S3_THUMB = 'https://kairafabrics.s3.ap-south-1.amazonaws.com/textures/KairaFabrics'
 const DIST_DIR = path.resolve(import.meta.dirname, '..', 'dist')
