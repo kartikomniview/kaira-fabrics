@@ -255,12 +255,14 @@ const ThreeDVisualizerEngine = ({
 
   return (
     <>
-      {/* ── Main Layout ── */}
-      <div className="flex-1 flex overflow-hidden p-4 md:p-6 gap-6">
+      {/* ── Main Layout ── side by side on desktop; below lg the viewport stacks over the selector (pure CSS, so
+           resizing never remounts the model or resets the selection) */}
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden p-0 lg:p-6 gap-0 lg:gap-6">
 
-        {/* ── LEFT: Material Selector ── */}
+        {/* ── LEFT (bottom below lg): Material Selector ── */}
         <MaterialSelector
           id="tour-material-selector"
+          className="order-2 lg:order-1 w-full h-[42%] lg:h-auto lg:w-[430px] xl:w-[490px] shrink-0 flex flex-col overflow-hidden bg-white rounded-none shadow-sm border-t-2 border-stone-200 lg:border lg:border-stone-200/80"
           selectedId={selected?.id ?? null}
           onSelect={(mat) => { setSelected(mat); if (modelLoaded) applyTexture(mat) }}
           selectedPart={currSelectedPartForFinish}
@@ -270,11 +272,11 @@ const ThreeDVisualizerEngine = ({
           disabled={isApplying}
         />
 
-        {/* ── RIGHT: 3D Viewport ── */}
-        <div className="flex-1 flex flex-col bg-stone-50 rounded-none shadow-sm border border-stone-200 overflow-hidden relative">
+        {/* ── RIGHT (top below lg): 3D Viewport ── */}
+        <div className="order-1 lg:order-2 flex-1 min-h-0 flex flex-col bg-stone-50 rounded-none shadow-sm border-0 lg:border border-stone-200 overflow-hidden relative">
 
           {/* Viewport title bar */}
-          <div className="h-12 shrink-0 bg-white border-b border-stone-200/80 flex items-center px-4 gap-4 z-10 relative">
+          <div className="h-12 shrink-0 bg-white border-b border-stone-200/80 flex items-center px-3 lg:px-4 gap-3 lg:gap-4 z-10 relative">
             <button
               id="tour-change-product"
               onClick={() => setProductPanelOpen(true)}
@@ -283,7 +285,7 @@ const ThreeDVisualizerEngine = ({
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
-              <span className="text-[11px] tracking-[0.1em] uppercase font-bold">Change Product</span>
+              <span className="hidden sm:inline text-[11px] tracking-[0.1em] uppercase font-bold">Change Product</span>
             </button>
 
             <div className="w-px h-5 bg-stone-200" />
@@ -353,7 +355,7 @@ const ThreeDVisualizerEngine = ({
               onClick={() => setProductPanelOpen(false)}
             />
             <div
-              className={`absolute inset-y-0 left-0 z-30 w-72 flex flex-col bg-white border-r border-stone-200 shadow-2xl transition-transform duration-300 ease-in-out ${productPanelOpen ? 'translate-x-0' : '-translate-x-full'}`}
+              className={`absolute inset-y-0 left-0 z-30 w-56 lg:w-72 flex flex-col bg-white border-r border-stone-200 shadow-2xl transition-transform duration-300 ease-in-out ${productPanelOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
               <div className="h-12 shrink-0 bg-stone-50 border-b border-stone-200 flex items-center px-5 justify-between">
                 <p className="text-[10px] color-secondary-dark font-bold uppercase tracking-[0.2em]">Products</p>
@@ -406,10 +408,10 @@ const ThreeDVisualizerEngine = ({
             </div>
 
             {/* Corner bracket decorations */}
-            <div className="absolute top-5 left-5 w-6 h-6 border-t border-l border-stone-300 pointer-events-none" />
-            <div className="absolute top-5 right-5 w-6 h-6 border-t border-r border-stone-300 pointer-events-none" />
-            <div className="absolute bottom-5 left-5 w-6 h-6 border-b border-l border-stone-300 pointer-events-none" />
-            <div className="absolute bottom-5 right-5 w-6 h-6 border-b border-r border-stone-300 pointer-events-none" />
+            <div className="absolute top-2 left-2 lg:top-5 lg:left-5 w-4 h-4 lg:w-6 lg:h-6 border-t border-l border-stone-300 pointer-events-none" />
+            <div className="absolute top-2 right-2 lg:top-5 lg:right-5 w-4 h-4 lg:w-6 lg:h-6 border-t border-r border-stone-300 pointer-events-none" />
+            <div className="absolute bottom-2 left-2 lg:bottom-5 lg:left-5 w-4 h-4 lg:w-6 lg:h-6 border-b border-l border-stone-300 pointer-events-none" />
+            <div className="absolute bottom-2 right-2 lg:bottom-5 lg:right-5 w-4 h-4 lg:w-6 lg:h-6 border-b border-r border-stone-300 pointer-events-none" />
 
             {/* Model loading overlay */}
             {!modelLoaded && (
@@ -432,7 +434,7 @@ const ThreeDVisualizerEngine = ({
 
             {/* Selected fabric info */}
             {modelLoaded && !isApplying && (baseMaterial || Object.keys(partOverrides).length > 0) && (
-              <div className="absolute top-5 left-5 bg-white/85 backdrop-blur-sm border border-stone-200 shadow-sm px-2.5 py-2 pointer-events-none flex flex-col gap-1 rounded-none max-w-[180px]">
+              <div className="absolute top-3 left-3 lg:top-5 lg:left-5 bg-white/85 backdrop-blur-sm border border-stone-200 shadow-sm px-2.5 py-2 pointer-events-none flex flex-col gap-1 rounded-none max-w-[180px]">
                 {baseMaterial && (
                   <div className="flex items-center gap-1.5">
                     <img
@@ -462,7 +464,7 @@ const ThreeDVisualizerEngine = ({
 
             {/* Part selector */}
             {modelLoaded && (
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+              <div className="absolute bottom-3 left-3 lg:bottom-6 lg:left-1/2 lg:-translate-x-1/2 z-20">
                 <PartDropdown
                   productName={currentProduct.product_name}
                   selectedPart={currSelectedPartForFinish}
@@ -489,7 +491,7 @@ const ThreeDVisualizerEngine = ({
             )}
 
             {/* Disclaimer */}
-            <div className="absolute bottom-6 left-9 pointer-events-none">
+            <div className="hidden lg:block absolute bottom-6 left-9 pointer-events-none">
               <span className="text-[10px] color-secondary-dark/40 tracking-wider select-none font-medium">
                 For visualization only · Actual product may vary
               </span>
@@ -500,12 +502,12 @@ const ThreeDVisualizerEngine = ({
               id="tour-visualize-ai"
               onClick={handleVisualizeWithAI}
               disabled={!selected || !modelLoaded || isApplying}
-              className="absolute bottom-6 right-6 z-20 flex items-center gap-2 h-9 px-4 bg-primary hover:bg-primary/90 color-secondary-dark transition-all rounded-none shadow-xl hover:-translate-y-0.5 hover:shadow-2xl active:translate-y-0 active:scale-[0.97] duration-200 disabled:opacity-40 disabled:pointer-events-none"
+              className="absolute bottom-3 right-3 lg:bottom-6 lg:right-6 z-20 flex items-center gap-1.5 lg:gap-2 h-8 lg:h-9 px-3 lg:px-4 bg-primary hover:bg-primary/90 color-secondary-dark transition-all rounded-none shadow-xl hover:-translate-y-0.5 hover:shadow-2xl active:translate-y-0 active:scale-[0.97] duration-200 disabled:opacity-40 disabled:pointer-events-none"
             >
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <span className="text-[11px] tracking-[0.1em] uppercase font-bold">Visualize with AI</span>
+              <span className="text-[10px] lg:text-[11px] tracking-[0.1em] uppercase font-bold">Visualize with AI</span>
             </button>
           </div>
         </div>

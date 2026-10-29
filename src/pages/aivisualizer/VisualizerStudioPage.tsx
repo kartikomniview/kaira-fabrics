@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ThreeDVisualizerEngine, { type SelectedMaterial } from '../threedvisualizer/ThreeDVisualizerEngine'
 import ThreeDVisualizerPageMobile from '../ThreeDVisualizerPageMobile'
@@ -11,11 +11,10 @@ import Seo, { pageTitle } from '../../components/seo/Seo'
 
 const typeLabel = (m: SelectedMaterial) => categoryMeta[normalizeType(m.materialType)]?.label ?? m.materialType
 
-const checkIsMobile = () => {
-  const isTouch = navigator.maxTouchPoints > 0
-  const isPortrait = window.innerHeight > window.innerWidth
-  return window.innerWidth < 1024 || (isTouch && isPortrait)
-}
+// Phones/tablets held upright get the dedicated mobile studio; decided once per page load, never re-evaluated,
+// so resizing or rotating never swaps components (which would reset the product and fabrics)
+const isMobilePortraitDevice = () =>
+  window.matchMedia('(pointer: coarse)').matches && window.innerHeight > window.innerWidth
 
 /** Full-screen 3D Fabric Studio (with built-in AI render), rendered outside Layout.
  *  Accepts ?collection=<name>&code=<material_code> to open on a specific shade (see threedvisualizer/initialMaterial.ts). */
@@ -23,16 +22,7 @@ export default function VisualizerStudioPage() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [isMobile, setIsMobile] = useState(checkIsMobile)
-  useEffect(() => {
-    const handler = () => setIsMobile(checkIsMobile())
-    window.addEventListener('resize', handler)
-    window.addEventListener('orientationchange', handler)
-    return () => {
-      window.removeEventListener('resize', handler)
-      window.removeEventListener('orientationchange', handler)
-    }
-  }, [])
+  const [isMobile] = useState(isMobilePortraitDevice)
 
   const [currentProduct, setCurrentProduct] = useState<KairaProduct>(
     kairaProducts.find((p) => p.product_name === 'Luna') ?? kairaProducts[0]
