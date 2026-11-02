@@ -16,6 +16,7 @@ import { useAiGenerationFlow, OTP_VALIDATION_ENABLED, DEFAULT_GENERATION_LIMIT }
 import type { SelectedProduct as AiSelectedProduct, PartFabric } from './aivisualizer/generateRender'
 import LeadFormModal from './aivisualizer/LeadFormModal'
 import AiConfirmModal, { exceedsAiFabricLimit, type AiConfirmRequest } from './aivisualizer/AiConfirmModal'
+import UploadOwnModal from './aivisualizer/UploadOwnModal'
 import MyGalleryPanel from './aivisualizer/MyGalleryPanel'
 import GeneratedImageModal from './admin/GeneratedImageModal'
 import { isVerified } from '../lib/renderLimit'
@@ -39,6 +40,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
   const [productPanelOpen, setProductPanelOpen] = useState(false)
   const [quotationOpen, setQuotationOpen] = useState(false)
   const [showGalleryPanel, setShowGalleryPanel] = useState(false)
+  const [showUploadOwn, setShowUploadOwn] = useState(false)
   const [currSelectedPartForFinish, setCurrSelectedPartForFinish] = useState('All')
   const [meshNames, setMeshNames] = useState<string[]>([])
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
@@ -81,6 +83,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
   }, [])
 
   const {
+    selectedMaterial: renderedMaterial,
     showLeadForm, mobileNumber, setMobileNumber, mobileError,
     otpCode, setOtpCode, leadStep,
     sendingOtp, verifyingOtp, otpError, resendIn,
@@ -88,7 +91,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
     limitInfo,
     showImageModal, setShowImageModal, imgZoom, setImgZoom,
     handleGenerateClick, closeLeadForm, handleSendOtp, handleResendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
-  } = useAiGenerationFlow()
+  } = useAiGenerationFlow(() => setShowUploadOwn(false)) // "Upload your own" stays open behind the lead form until a render lands
 
   const handleVisualizeWithAI = () => {
     if (!selected) return
@@ -467,7 +470,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
         </div>
 
         {/* ── Materials Panel ── */}
-        <div className="min-h-0" style={{ flex: '42 1 0%' }}>
+        <div className="relative min-h-0" style={{ flex: '42 1 0%' }}>
           <MaterialSelector
             selectedId={selected?.id ?? null}
             onSelect={(mat) => { setSelected(mat); if (modelLoaded) applyTexture(mat) }}
@@ -476,7 +479,20 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
             availableMeshNames={meshNames}
             onToast={showToast}
             className="w-full h-full flex flex-col overflow-hidden bg-white border-t-2 border-stone-200"
+            reserveBottomSpace
           />
+
+          {/* Upload your own fabric → AI render */}
+          <button
+            onClick={() => setShowUploadOwn(true)}
+            style={{ touchAction: 'manipulation' }}
+            className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 h-9 px-3 bg-primary hover:bg-primary/90 color-secondary-dark shadow-lg transition-all active:scale-95"
+          >
+            <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span className="text-[10px] tracking-[0.1em] uppercase font-bold">Upload your own</span>
+          </button>
         </div>
       </div>
 
@@ -590,6 +606,15 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
         </div>
       )}
 
+      {/* ── Upload your own: fabric → product → generate (rendered before the lead form so it stacks underneath) ── */}
+      {showUploadOwn && (
+        <UploadOwnModal
+          onClose={() => setShowUploadOwn(false)}
+          onGenerate={(req) => handleGenerateClick({ ...req, partFabrics: [] })}
+          dismissible={!showLeadForm}
+        />
+      )}
+
       {/* ── AI Visualize: Confirmation ── */}
       {aiConfirm && (
         <AiConfirmModal
@@ -643,12 +668,12 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
         cachedImageUrl={generatedImage}
         isWatermarking={false}
         stampSuccess
-        infoSlot={selected && (
+        infoSlot={renderedMaterial && (
           <div className="flex items-center gap-3">
-            <img src={selected.textureUrl} className="w-9 h-9 object-cover border border-white/20 shadow-sm" alt="" />
+            <img src={renderedMaterial.textureUrl} className="w-9 h-9 object-cover border border-white/20 shadow-sm" alt="" />
             <div>
               <p className="text-[10px] color-secondary-dark uppercase tracking-widest">Fabric Applied</p>
-              <p className="text-xs font-bold text-white truncate max-w-[180px]">{selected.fabricName}</p>
+              <p className="text-xs font-bold text-white truncate max-w-[180px]">{renderedMaterial.fabricName}</p>
             </div>
           </div>
         )}

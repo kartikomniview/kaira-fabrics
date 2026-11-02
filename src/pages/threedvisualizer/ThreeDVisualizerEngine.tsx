@@ -13,6 +13,7 @@ import { useAiGenerationFlow, OTP_VALIDATION_ENABLED, DEFAULT_GENERATION_LIMIT }
 import type { SelectedProduct as AiSelectedProduct, PartFabric } from '../aivisualizer/generateRender'
 import LeadFormModal from '../aivisualizer/LeadFormModal'
 import AiConfirmModal, { exceedsAiFabricLimit, type AiConfirmRequest } from '../aivisualizer/AiConfirmModal'
+import UploadOwnModal from '../aivisualizer/UploadOwnModal'
 import MyGalleryPanel from '../aivisualizer/MyGalleryPanel'
 import GeneratedImageModal from '../admin/GeneratedImageModal'
 import { isVerified } from '../../lib/renderLimit'
@@ -57,6 +58,7 @@ const ThreeDVisualizerEngine = ({
   const autoAppliedRef = useRef(false)
   const [productPanelOpen, setProductPanelOpen] = useState(false)
   const [showGalleryPanel, setShowGalleryPanel] = useState(false)
+  const [showUploadOwn, setShowUploadOwn] = useState(false)
   const [showTour, setShowTour] = useState(true)
   const [meshNames, setMeshNames] = useState<string[]>([])
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
@@ -108,6 +110,7 @@ const ThreeDVisualizerEngine = ({
   const [partOverrides, setPartOverrides] = useState<Record<string, SelectedMaterial>>({})
 
   const {
+    selectedMaterial: renderedMaterial,
     showLeadForm, mobileNumber, setMobileNumber, mobileError,
     otpCode, setOtpCode, leadStep,
     sendingOtp, verifyingOtp, otpError, resendIn,
@@ -115,7 +118,7 @@ const ThreeDVisualizerEngine = ({
     limitInfo,
     showImageModal, setShowImageModal, imgZoom, setImgZoom,
     handleGenerateClick, closeLeadForm, handleSendOtp, handleResendOtp, handleVerifyOtp, handleChangeMobile, handleDownload,
-  } = useAiGenerationFlow()
+  } = useAiGenerationFlow(() => setShowUploadOwn(false)) // "Upload your own" stays open behind the lead form until a render lands
 
   const handleVisualizeWithAI = () => {
     if (!selected) return
@@ -260,17 +263,31 @@ const ThreeDVisualizerEngine = ({
       <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden p-0 lg:p-6 gap-0 lg:gap-6">
 
         {/* ── LEFT (bottom below lg): Material Selector ── */}
-        <MaterialSelector
-          id="tour-material-selector"
-          className="order-2 lg:order-1 w-full h-[42%] lg:h-auto lg:w-[430px] xl:w-[490px] shrink-0 flex flex-col overflow-hidden bg-white rounded-none shadow-sm border-t-2 border-stone-200 lg:border lg:border-stone-200/80"
-          selectedId={selected?.id ?? null}
-          onSelect={(mat) => { setSelected(mat); if (modelLoaded) applyTexture(mat) }}
-          selectedPart={currSelectedPartForFinish}
-          onPartChange={setCurrSelectedPartForFinish}
-          availableMeshNames={meshNames}
-          onToast={showToast}
-          disabled={isApplying}
-        />
+        <div className="relative order-2 lg:order-1 w-full h-[42%] lg:h-auto lg:w-[430px] xl:w-[490px] shrink-0 flex flex-col">
+          <MaterialSelector
+            id="tour-material-selector"
+            className="w-full h-full flex flex-col overflow-hidden bg-white rounded-none shadow-sm border-t-2 border-stone-200 lg:border lg:border-stone-200/80"
+            selectedId={selected?.id ?? null}
+            onSelect={(mat) => { setSelected(mat); if (modelLoaded) applyTexture(mat) }}
+            selectedPart={currSelectedPartForFinish}
+            onPartChange={setCurrSelectedPartForFinish}
+            availableMeshNames={meshNames}
+            onToast={showToast}
+            disabled={isApplying}
+            reserveBottomSpace
+          />
+
+          {/* Upload your own fabric → AI render */}
+          <button
+            onClick={() => setShowUploadOwn(true)}
+            className="absolute bottom-3 right-3 z-30 flex items-center gap-2 h-10 px-4 bg-primary hover:bg-primary/90 color-secondary-dark rounded-none shadow-xl transition-all hover:-translate-y-0.5 hover:shadow-2xl active:translate-y-0 active:scale-[0.97] duration-200"
+          >
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span className="text-[11px] tracking-[0.1em] uppercase font-bold">Upload your own</span>
+          </button>
+        </div>
 
         {/* ── RIGHT (top below lg): 3D Viewport ── */}
         <div className="order-1 lg:order-2 flex-1 min-h-0 flex flex-col bg-stone-50 rounded-none shadow-sm border-0 lg:border border-stone-200 overflow-hidden relative">
@@ -513,6 +530,15 @@ const ThreeDVisualizerEngine = ({
         </div>
       </div>
 
+      {/* ── Upload your own: fabric → product → generate (rendered before the lead form so it stacks underneath) ── */}
+      {showUploadOwn && (
+        <UploadOwnModal
+          onClose={() => setShowUploadOwn(false)}
+          onGenerate={(req) => handleGenerateClick({ ...req, partFabrics: [] })}
+          dismissible={!showLeadForm}
+        />
+      )}
+
       {/* ── AI Visualize: Confirmation ── */}
       {aiConfirm && (
         <AiConfirmModal
@@ -558,12 +584,12 @@ const ThreeDVisualizerEngine = ({
         cachedImageUrl={generatedImage}
         isWatermarking={false}
         stampSuccess
-        infoSlot={selected && (
+        infoSlot={renderedMaterial && (
           <div className="flex items-center gap-3">
-            <img src={selected.textureUrl} className="w-9 h-9 object-cover border border-white/20 shadow-sm" alt="" />
+            <img src={renderedMaterial.textureUrl} className="w-9 h-9 object-cover border border-white/20 shadow-sm" alt="" />
             <div>
               <p className="text-[10px] color-secondary-dark uppercase tracking-widest">Fabric Applied</p>
-              <p className="text-xs font-bold text-white truncate max-w-[180px]">{selected.fabricName}</p>
+              <p className="text-xs font-bold text-white truncate max-w-[180px]">{renderedMaterial.fabricName}</p>
             </div>
           </div>
         )}

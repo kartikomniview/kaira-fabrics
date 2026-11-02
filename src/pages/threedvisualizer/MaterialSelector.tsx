@@ -128,6 +128,8 @@ interface MaterialSelectorProps {
   productName?: string
   onClose?: () => void
   disabled?: boolean
+  /** Keep the swatch list clear of a floating button the parent places at the bottom of the panel */
+  reserveBottomSpace?: boolean
   id?: string
 }
 
@@ -155,7 +157,7 @@ const saveRecentIds = (ids: number[]) => {
   try { sessionStorage.setItem(RECENT_KEY, JSON.stringify(ids)) } catch { /* storage unavailable */ }
 }
 
-const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = false, productName, onClose, disabled = false, id }: MaterialSelectorProps) => {
+const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, availableMeshNames = [], onToast, className, showPartFilter = false, productName, onClose, disabled = false, id, reserveBottomSpace = false }: MaterialSelectorProps) => {
   const { newMaterials, collections, isLoading: materialsLoading, error: materialsError } = useMaterials()
   const partOptions = useMemo(() => getPartOptions(productName), [productName])
 
@@ -643,7 +645,7 @@ const MaterialSelector = ({ selectedId, onSelect, selectedPart, onPartChange, av
       </div>
 
       {/* Collections / Materials window */}
-      <div className={`flex-1 overflow-y-auto p-3 bg-stone-50 relative ${recentMaterials.length > 0 ? 'pb-16' : ''}`}>
+      <div className={`flex-1 overflow-y-auto p-3 bg-stone-50 relative ${recentMaterials.length > 0 || reserveBottomSpace ? 'pb-16' : ''}`}>
         {isTransitioning && !materialsLoading && <SectionLoader overlay size="sm" />}
         <div
           key={`${view}-${activeMaterialType}-${activeCollection}`}
