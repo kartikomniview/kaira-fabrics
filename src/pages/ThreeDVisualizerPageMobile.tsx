@@ -486,7 +486,7 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
           <button
             onClick={() => setShowUploadOwn(true)}
             style={{ touchAction: 'manipulation' }}
-            className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 h-9 px-3 bg-primary hover:bg-primary/90 color-secondary-dark shadow-lg transition-all active:scale-95"
+            className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 h-9 px-3 bg-white hover:bg-stone-50 border border-primary text-primary shadow-md transition-all active:scale-95"
           >
             <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />

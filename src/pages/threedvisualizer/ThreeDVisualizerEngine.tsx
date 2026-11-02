@@ -280,12 +280,12 @@ const ThreeDVisualizerEngine = ({
           {/* Upload your own fabric → AI render */}
           <button
             onClick={() => setShowUploadOwn(true)}
-            className="absolute bottom-3 right-3 z-30 flex items-center gap-2 h-10 px-4 bg-primary hover:bg-primary/90 color-secondary-dark rounded-none shadow-xl transition-all hover:-translate-y-0.5 hover:shadow-2xl active:translate-y-0 active:scale-[0.97] duration-200"
+            className="absolute bottom-3 right-3 z-30 flex items-center gap-2 h-10 px-4 bg-white hover:bg-stone-50 border border-primary text-primary rounded-none shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.97] duration-200"
           >
             <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
-            <span className="text-[11px] tracking-[0.1em] uppercase font-bold">Upload your own</span>
+            <span className="text-[11px] tracking-[0.1em] uppercase font-bold">Upload Own Fabric</span>
           </button>
         </div>
 

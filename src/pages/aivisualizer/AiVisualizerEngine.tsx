@@ -346,7 +346,7 @@ const AiVisualizerEngine = () => {
 
                   <button onClick={() => handleGenerateClick()} className="w-full h-12 sm:h-14 bg-primary color-secondary-dark font-bold uppercase tracking-widest shadow-md hover:bg-primary/90 transition-all hover:-translate-y-1 mt-2 sm:mt-4 flex justify-center items-center gap-2 text-[11px] sm:text-xs">
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    Generate Render
+                    Generate
                   </button>
                   {mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10)) && limitInfo && (
                     <div className="flex items-center gap-1.5 -mt-1 sm:-mt-2">
