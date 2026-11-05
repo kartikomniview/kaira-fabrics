@@ -150,20 +150,40 @@ function drawMaterialBadge(
 
 /** Draws a subtle "AI Generated" watermark bottom-right of the canvas. */
 function drawAiWatermark(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
-  const fontSize = Math.round(canvas.height * 0.018)
+  let fontSize = Math.round(canvas.height * 0.018)
   const margin = Math.round(canvas.height * 0.02)
+  const maxWidth = canvas.width - margin * 2
 
-  ctx.font = `600 ${fontSize}px ${BADGE_FONT_STACK}`
+  const fullText = 'For visualization purposes only. Actual fabric appearance may vary.'
+  const splitLines = ['For visualization purposes only.', 'Actual fabric appearance may vary.']
+
+  const setFont = () => { ctx.font = `600 ${fontSize}px ${BADGE_FONT_STACK}` }
+  const widest = (lines: string[]) => Math.max(...lines.map((l) => ctx.measureText(l).width))
+
+  setFont()
+  // Narrow (portrait) images: wrap onto two lines; shrink only if even that doesn't fit
+  const lines = ctx.measureText(fullText).width <= maxWidth ? [fullText] : splitLines
+  if (lines.length > 1) {
+    const w = widest(lines)
+    if (w > maxWidth) {
+      fontSize = Math.max(8, Math.floor(fontSize * (maxWidth / w)))
+      setFont()
+    }
+  }
+
   ctx.textAlign = 'right'
   ctx.textBaseline = 'bottom'
 
   const x = canvas.width - margin
-  const y = canvas.height - margin
+  const lineHeight = Math.round(fontSize * 1.25)
 
   ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'
   ctx.shadowBlur = fontSize * 0.3
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'
-  ctx.fillText('For visualization purposes only. Actual fabric appearance may vary.', x, y)
+  lines.forEach((line, i) => {
+    const y = canvas.height - margin - (lines.length - 1 - i) * lineHeight
+    ctx.fillText(line, x, y)
+  })
   ctx.shadowColor = 'transparent'
   ctx.shadowBlur = 0
 }
