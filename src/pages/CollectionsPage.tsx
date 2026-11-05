@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { categoryMeta, normalizeType, compareMaterialTypes } from '../components/sections/FabricCategoriesSection'
 import Seo, { pageTitle, SITE_URL } from '../components/seo/Seo'
@@ -393,6 +394,49 @@ const CollectionsPage = () => {
   }, [activeMaterialType, collectionSearch, collections])
 
   const [visibleCount, setVisibleCount] = useState(12)
+  // Mobile only: the intro paragraph is clamped to 2 lines until expanded (full text stays in the DOM for SEO)
+  const [introExpanded, setIntroExpanded] = useState(false)
+
+  // Mobile only: the search bar stays hidden behind an icon until tapped (desktop always shows it).
+  // It stays open while it holds a query, so an active search is never hidden.
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const showSearch = searchOpen || !!collectionSearch
+  const openSearch = () => {
+    // Render the input synchronously so focus() runs inside the tap — iOS only raises the keyboard then
+    flushSync(() => setSearchOpen(true))
+    searchInputRef.current?.focus()
+  }
+  const closeSearch = () => {
+    setCollectionSearch('')
+    setSearchOpen(false)
+  }
+
+  // Get a Quote + WhatsApp Us — two half-width buttons side by side on mobile
+  const ctaButtons = (
+    <div className="flex flex-row items-center gap-2 sm:gap-3">
+      <button
+        onClick={() => setShowQuoteModal(true)}
+        className="flex-1 sm:flex-none flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-8 py-3 sm:py-3.5 bg-primary text-secondary-dark text-[11px] sm:text-xs uppercase font-bold tracking-[0.12em] sm:tracking-[0.2em] whitespace-nowrap hover:bg-primary-dark transition-all shadow-md"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Get a Quote
+      </button>
+      <a
+        href="https://wa.me/918589925666"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 sm:flex-none flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-6 py-3 sm:py-3.5 border border-secondary text-secondary text-[11px] sm:text-xs uppercase font-bold tracking-[0.12em] sm:tracking-[0.2em] whitespace-nowrap hover:bg-secondary hover:text-white transition-all"
+      >
+        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+        </svg>
+        WhatsApp Us
+      </a>
+    </div>
+  )
 
   // Reset visible count whenever filters change
   useEffect(() => { setVisibleCount(12) }, [activeMaterialType, collectionSearch])
@@ -424,30 +468,38 @@ const CollectionsPage = () => {
       />
 
       {/* ── Page Header ──────────────────────────────────── */}
-      <div className="pt-24 pb-8 max-w-7xl mx-auto px-6 lg:px-10">
+      <div className="pt-20 md:pt-24 pb-5 md:pb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
         <nav className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-color-secondary-dark/70" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span>/</span>
           <span className="text-color-secondary-dark" aria-current="page">Collections</span>
         </nav>
 
-        <p className="mt-5 text-[11px] tracking-[0.3em] font-bold uppercase text-primary mb-1">
+        <p className="mt-3 md:mt-5 text-[10px] md:text-[11px] tracking-[0.25em] md:tracking-[0.3em] font-bold uppercase text-primary mb-1">
           Upholstery Fabrics &amp; Leathers
         </p>
-        <h1 className="font-serif text-3xl md:text-5xl text-color-secondary-dark leading-tight">
+        <h1 className="font-serif text-[26px] md:text-5xl text-color-secondary-dark leading-tight">
           Fabric Collections
         </h1>
-        <p className="mt-3 text-xs md:text-sm text-color-secondary-dark/80 font-light max-w-2xl leading-relaxed">
+        <p className={`mt-2 md:mt-3 text-xs md:text-sm text-color-secondary-dark/80 font-light max-w-2xl leading-relaxed md:line-clamp-none ${introExpanded ? '' : 'line-clamp-2'}`}>
           Discover KAIRA’s collection of premium upholstery fabrics and leather, including suede 
           fabrics, artificial leather, suede leather, boucle and digital prints. Available in a variety of 
           colours, textures, patterns, and finishes, each collection is designed to help you find the 
           right material for your space. 
           Explore swatches, product details, 3D sofa previews, and downloadable catalogues to 
-          compare, visualize, and choose your upholstery with confidence. 
+          compare, visualize, and choose your upholstery with confidence.
         </p>
+        <button
+          type="button"
+          onClick={() => setIntroExpanded((v) => !v)}
+          className="md:hidden mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-primary"
+          aria-expanded={introExpanded}
+        >
+          {introExpanded ? 'Read less' : 'Read more'}
+        </button>
 
         {/* Stats */}
-        <div className="mt-4 flex flex-wrap gap-x-6 sm:gap-x-8 gap-y-2">
+        <div className="mt-3 md:mt-4 flex flex-wrap gap-x-5 sm:gap-x-8 gap-y-2">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-color-secondary-dark/60">Collections</p>
             <p className="text-color-secondary-dark font-bold text-base">{collections.length}</p>
@@ -462,29 +514,8 @@ const CollectionsPage = () => {
           </div>
         </div>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-5">
-          <button
-            onClick={() => setShowQuoteModal(true)}
-            className="flex items-center justify-center gap-2.5 px-8 py-3.5 bg-primary text-secondary-dark text-xs uppercase font-bold tracking-[0.2em] hover:bg-primary-dark transition-all shadow-md w-full sm:w-auto"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Get a Quote
-          </button>
-          <a
-            href="https://wa.me/918589925666"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2.5 px-6 py-3.5 border border-secondary text-secondary text-xs uppercase font-bold tracking-[0.2em] hover:bg-secondary hover:text-white transition-all w-full sm:w-auto"
-          >
-            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-            </svg>
-            WhatsApp Us
-          </a>
-        </div>
+        {/* CTAs — header on desktop only; mobile shows them after the grid to keep the header short */}
+        <div className="hidden md:block mt-5">{ctaButtons}</div>
       </div>
 
       {/* ── Filter & Grid ────────────────────────────────────────── */}
@@ -497,7 +528,20 @@ const CollectionsPage = () => {
           <div className="mb-6 md:mb-8">
             {/* Toolbar: type pills left + search right (desktop); search first, then swipeable pills (mobile) */}
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-6 px-2 md:px-0">
-              {/* Material type pills — wrap on desktop, one swipeable row on mobile */}
+              {/* Material type pills — wrap on desktop, one swipeable row on mobile (led by the search toggle) */}
+              <div className="flex-1 min-w-0 flex items-center gap-2">
+              {!showSearch && (
+                <button
+                  type="button"
+                  onClick={openSearch}
+                  aria-label="Search collections"
+                  className="lg:hidden shrink-0 w-9 h-9 flex items-center justify-center bg-white border border-stone-300 text-secondary hover:border-secondary transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              )}
               <div className="flex-1 min-w-0 relative">
                 <div
                   ref={chipsRef}
@@ -533,27 +577,31 @@ const CollectionsPage = () => {
                 {/* Fade on the right hints that the row scrolls (mobile only) */}
                 <div className="lg:hidden pointer-events-none absolute right-0 inset-y-0 w-10 bg-gradient-to-l from-stone-50 to-transparent" />
               </div>
+              </div>
 
-              {/* Search — first on mobile */}
-              <div className="order-first lg:order-none shrink-0 w-full lg:w-80 h-11 flex items-center gap-2.5 bg-white border border-stone-300 shadow-sm pl-4 pr-1 transition-shadow focus-within:border-secondary focus-within:ring-4 focus-within:ring-primary/15">
+              {/* Search — always shown on desktop; on mobile only once opened via the toggle (first in the column) */}
+              <div className={`${showSearch ? 'flex' : 'hidden'} lg:flex order-first lg:order-none shrink-0 w-full lg:w-80 h-11 items-center gap-2.5 bg-white border border-stone-300 shadow-sm pl-4 pr-1 transition-shadow focus-within:border-secondary focus-within:ring-4 focus-within:ring-primary/15`}>
                 <svg className="w-4 h-4 text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
+                  ref={searchInputRef}
                   type="search"
                   enterKeyHint="search"
                   aria-label="Search collections"
                   value={collectionSearch}
                   onChange={(e) => setCollectionSearch(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Escape') setCollectionSearch('') }}
+                  onKeyDown={(e) => { if (e.key === 'Escape') closeSearch() }}
+                  onBlur={() => { if (!collectionSearch) setSearchOpen(false) }}
                   placeholder="Search by collection name…"
                   className="flex-1 min-w-0 bg-transparent text-base sm:text-sm text-secondary-dark placeholder-stone-400 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
                 />
-                {collectionSearch && (
+                {/* Clears the query; on mobile it also closes the search (shown there even while empty) */}
+                {(collectionSearch || showSearch) && (
                   <button
-                    onClick={() => setCollectionSearch('')}
-                    aria-label="Clear search"
-                    className="shrink-0 w-8 h-8 flex items-center justify-center text-secondary-dark/60 hover:bg-stone-100 hover:text-secondary-dark transition-colors"
+                    onClick={closeSearch}
+                    aria-label={collectionSearch ? 'Clear search' : 'Close search'}
+                    className={`shrink-0 w-8 h-8 flex items-center justify-center text-secondary-dark/60 hover:bg-stone-100 hover:text-secondary-dark transition-colors ${collectionSearch ? '' : 'lg:hidden'}`}
                   >
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
                   </button>
@@ -566,7 +614,7 @@ const CollectionsPage = () => {
               {filtered.length} collection{filtered.length !== 1 ? 's' : ''}{collectionSearch ? ` matching "${collectionSearch}"` : ''}
               {(activeMaterialType !== 'All' || collectionSearch) && (
                 <button
-                  onClick={() => { setActiveMaterialType('All'); setCollectionSearch('') }}
+                  onClick={() => { setActiveMaterialType('All'); closeSearch() }}
                   className="ml-3 font-semibold text-secondary underline underline-offset-2 hover:text-secondary-dark transition-colors"
                 >
                   Clear filters
@@ -647,6 +695,14 @@ const CollectionsPage = () => {
               </button>
             </div>
           )}
+
+          {/* CTAs — mobile only, at the end of the list (desktop has them in the header) */}
+          <div className="md:hidden mt-8 px-2">
+            <p className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-secondary-dark/60 mb-3">
+              Need help choosing?
+            </p>
+            {ctaButtons}
+          </div>
         </div>
       </div>
 
