@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ThreeDVisualizerEngine, { type SelectedMaterial } from '../threedvisualizer/ThreeDVisualizerEngine'
 import ThreeDVisualizerPageMobile from '../ThreeDVisualizerPageMobile'
@@ -23,6 +23,19 @@ export default function VisualizerStudioPage() {
   const location = useLocation()
 
   const [isMobile] = useState(isMobilePortraitDevice)
+
+  // Always open at the top: stop the browser restoring an old scroll offset (refresh / back-forward), and reset any
+  // offset carried over from the previous page. Re-applied next frame since mobile browsers can restore late.
+  useLayoutEffect(() => {
+    const prevRestoration = history.scrollRestoration
+    history.scrollRestoration = 'manual'
+    window.scrollTo(0, 0)
+    const raf = requestAnimationFrame(() => window.scrollTo(0, 0))
+    return () => {
+      cancelAnimationFrame(raf)
+      history.scrollRestoration = prevRestoration
+    }
+  }, [])
 
   const [currentProduct, setCurrentProduct] = useState<KairaProduct>(
     kairaProducts.find((p) => p.product_name === 'Luna') ?? kairaProducts[0]
