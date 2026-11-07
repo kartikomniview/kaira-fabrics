@@ -413,6 +413,7 @@ const CollectionsPage = () => {
   }
 
   // Get a Quote + WhatsApp Us — two half-width buttons side by side on mobile
+  const [showQuoteModal, setShowQuoteModal] = useState(false)
   const ctaButtons = (
     <div className="flex flex-row items-center gap-2 sm:gap-3">
       <button
@@ -442,7 +443,6 @@ const CollectionsPage = () => {
   useEffect(() => { setVisibleCount(12) }, [activeMaterialType, collectionSearch])
 
   const navigate = useNavigate()
-  const [showQuoteModal, setShowQuoteModal] = useState(false)
   const chipsRef = useRef<HTMLDivElement>(null)
   // Keep the active type tab in view on mobile (e.g. arriving via ?category=Boucle)
   useEffect(() => {

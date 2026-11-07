@@ -18,6 +18,7 @@ const GalleryPage          = lazy(() => import('./pages/GalleryPage'))
 const AIVisualizerPage     = lazy(() => import('./pages/AIVisualizerPage'))
 const VisualizerStudioPage = lazy(() => import('./pages/aivisualizer/VisualizerStudioPage'))
 const ContactPage          = lazy(() => import('./pages/ContactPage'))
+const FabXpertPage         = lazy(() => import('./pages/FabXpertPage'))
 const AdminPage            = lazy(() => import('./pages/admin/AdminPage'))
 
 // Disable smooth scroll on routes that manage their own scroll (e.g. 3D Studio)
@@ -103,6 +104,7 @@ function App() {
               <Route path="gallery" element={<GalleryPage />} />
               <Route path="ai-visualizer" element={<AIVisualizerPage />} />
               <Route path="contact" element={<ContactPage />} />
+              <Route path="fabxpert" element={<FabXpertPage />} />
             </Route>
             {/* 3D Fabric Studio — full-screen, outside Layout. /3d-visualizer is the old standalone page. */}
             <Route path="/ai-visualizer/studio" element={<VisualizerStudioPage />} />
