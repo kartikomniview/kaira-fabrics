@@ -20,14 +20,14 @@ const FabXpertPage = () => {
 
       <div className="min-h-[80vh] flex items-center justify-center pt-28 pb-20">
         <div className="max-w-2xl mx-auto px-6 text-center">
-          <motion.span
-            className="inline-block text-[11px] uppercase tracking-[0.35em] text-gold font-bold font-serif mb-4"
+          <motion.img
+            src="/images/fabxpert_logo.png"
+            alt="FabXpert"
+            className="block mx-auto h-12 sm:h-14 w-auto mb-6"
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: EXPO_OUT }}
-          >
-            FabXpert
-          </motion.span>
+          />
 
           <div className="overflow-hidden">
             <motion.h1
