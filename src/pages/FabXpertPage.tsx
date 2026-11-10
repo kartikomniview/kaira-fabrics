@@ -23,7 +23,7 @@ const FabXpertPage = () => {
           <motion.img
             src="/images/fabxpert_logo.png"
             alt="FabXpert"
-            className="block mx-auto h-12 sm:h-14 w-auto mb-6"
+            className="block mx-auto h-8 sm:h-10 w-auto mb-5"
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: EXPO_OUT }}
