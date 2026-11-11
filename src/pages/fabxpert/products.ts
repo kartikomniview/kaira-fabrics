@@ -37,8 +37,8 @@ export type Product = {
   role: string
   /** One-sentence summary used on cards and the product hero */
   summary: string
-  /** Longer "What is it?" copy */
-  about: string[]
+  /** Short "What is it?" paragraph (what it is + why it matters) */
+  about: string
   size: string
   technology: string
   price: string
@@ -53,7 +53,6 @@ export type Product = {
   limitations: string[]
   /** Positioning statement shown as a pull quote */
   statement: string
-  why: string
   faqs: { q: string; a: string }[]
   seoDescription: string
   /** Product photo (transparent PNG/WebP works best); until supplied, an illustrated bottle is shown */
@@ -73,7 +72,9 @@ export const SURFACES = [
 ]
 
 
-export const IDEAL_FOR ='Homes, offices, furniture owners, carpet and curtain customers'
+export const IDEAL_FOR = 'Homes, offices, furniture owners, carpet and curtain customers'
+
+export const SAFETY_NOTE = 'Read the label and safety information before use.'
 
 export const FABSEAL: Product = {
   id: 'fabseal',
@@ -83,20 +84,18 @@ export const FABSEAL: Product = {
   role: 'Prevent',
   summary:
     'A fabric stain repellent designed to help protect suitable fabric surfaces from water, food and coffee spills through a nano-coating layer.',
-  about: [
-    'FABSEAL is a fabric-protection product developed to help repel everyday spills before they become difficult-to-remove stains. It uses a nano-coating approach to help protect fabric from water, food and coffee spills.',
-    'It’s preventive fabric care: a simple step that helps you keep your sofas, upholstery and other compatible fabric surfaces looking their best.',
-  ],
+  about:
+    'A nano-coating stain repellent for sofas, upholstery and other compatible fabrics. Use it before spills happen: it helps repel water, food and coffee so they’re less likely to become stubborn stains. Protect first, instead of waiting for a stain.',
   size: '650 ml',
   technology: 'Nano-coating layer',
   price: '₹1,299',
   mrp: '₹1,499',
   problemsTitle: 'Spills happen. Stains don’t have to.',
   problems: [
-    'Everyday spills can soak into fabric and leave visible stains.',
-    'Accidental spills make sofas and upholstered furniture harder to look after.',
-    'Frequent cleaning is inconvenient.',
-    'Most fabric care starts after the stain. FABSEAL helps protect fabric before a spill happens.',
+    'Spills soak in and leave stains',
+    'Upholstery gets harder to look after',
+    'Frequent cleaning is a chore',
+    'Most care only starts after the stain',
   ],
   targetsLabel: 'Helps protect against',
   targets: [
@@ -105,38 +104,37 @@ export const FABSEAL: Product = {
     { label: 'Coffee spills', icon: ICONS.coffee },
   ],
   howItWorks: {
-    intro: 'FABSEAL is a nano-coating fabric stain repellent. Here’s what happens once it’s on your fabric:',
+    intro: 'What happens once FABSEAL is on your fabric:',
     points: [
-      'It’s applied to compatible fabric following the label instructions.',
-      'As it dries and cures, the coating forms a protective layer.',
+      'Apply it to compatible fabric as the label directs.',
+      'As it dries and cures, it forms a protective layer.',
       'The treated surface helps resist liquids soaking in.',
-      'Spills can be easier to remove when they’re wiped up promptly.',
+      'Spills can be easier to wipe up when caught early.',
     ],
   },
   steps: [
-    { title: 'Prepare', body: 'Start with clean fabric, prepared as the label directs.' },
-    { title: 'Spot-test', body: 'Try a small hidden area first and check for any change in colour or texture.' },
-    { title: 'Apply', body: 'Spray evenly, following the distance, coverage and number of coats on the label.' },
-    { title: 'Dry & cure', body: 'Leave it for the full drying and curing time given on the label.' },
-    { title: 'Enjoy', body: 'Use your furniture again once the curing time on the label has passed.' },
+    { title: 'Prepare', body: 'Clean the fabric as the label directs.' },
+    { title: 'Spot-test', body: 'Check a hidden area for colour or texture change.' },
+    { title: 'Apply', body: 'Spray evenly: distance, coverage and coats per label.' },
+    { title: 'Dry & cure', body: 'Allow the full drying and curing time.' },
+    { title: 'Enjoy', body: 'Use the furniture once curing is complete.' },
   ],
   benefits: [
-    'Helps protect compatible fabric from everyday spills',
-    'A preventive approach to fabric care',
+    'Everyday spill protection',
+    'Preventive fabric care',
     'Can make spill cleanup easier',
-    'Helps maintain the appearance of fabric furniture',
-    'Simple DIY fabric protection at home',
-    'Fits easily into a regular upholstery-care routine',
+    'Keeps fabric furniture looking its best',
+    'Simple DIY application',
+    'Fits a regular upholstery-care routine',
   ],
   limitations: [
-    'It’s a stain repellent, not a remover for stains that are already on the fabric.',
-    'It does not make fabric completely stain-proof.',
-    'Results can vary with the type of fabric and the spill.',
-    'Delicate or specially treated fabrics may not be suitable. Check the label and spot-test first.',
-    'Apply it exactly as the label directs. Incorrect application can affect results.',
+    'Doesn’t remove existing stains',
+    'Not completely stain-proof',
+    'Results vary by fabric and spill',
+    'Delicate or treated fabrics may not suit: spot-test first',
+    'Apply exactly as the label directs',
   ],
   statement: 'Protect your fabric today. Be ready for tomorrow’s spills.',
-  why: 'FABSEAL focuses on stopping spills from becoming stubborn stains. Rather than waiting until a stain appears, you take a simple preventive step to help protect your fabric furniture.',
   faqs: [
     { q: 'What is FABSEAL used for?', a: 'FABSEAL is designed to help protect compatible fabrics from water, food and coffee spills.' },
     { q: 'Does FABSEAL remove existing stains?', a: 'No. FABSEAL is the protective product. For stains that have already happened, use FABFIX, the stain remover in the FABXPERT range.' },
@@ -161,21 +159,19 @@ export const FABFIX: Product = {
   role: 'Remove',
   summary:
     'A multi-enzyme spray designed to help remove oil, food, coffee and ink stains from suitable fabric surfaces.',
-  about: [
-    'FABFIX is a fabric stain remover developed to help tackle everyday stains on compatible fabric surfaces. It’s a multi-enzyme spray made for oil, food, coffee and ink stains.',
-    'It’s corrective fabric care: a convenient way to deal with stains yourself, after they happen.',
-  ],
+  about:
+    'A multi-enzyme spray for oil, food, coffee and ink stains on compatible fabrics. It handles what FABSEAL isn’t designed for, stains that have already happened, so you can treat them yourself.',
   size: '100 ml',
   technology: 'Multi-enzyme spray',
   price: '₹299',
   mrp: '₹349',
   problemsTitle: 'Tough stains happen.',
   problems: [
-    'Oil and food stains can leave visible marks on fabric.',
-    'Coffee spills may leave discolouration.',
-    'Ink stains can be difficult to remove from some materials.',
-    'Ordinary cleaning methods don’t work equally well on every stain.',
-    'Calling in professional cleaning isn’t convenient for every small stain.',
+    'Oil and food leave visible marks',
+    'Coffee can discolour fabric',
+    'Ink is hard to remove from some materials',
+    'Ordinary cleaners don’t suit every stain',
+    'Pro cleaning isn’t practical for small stains',
   ],
   targetsLabel: 'Targets',
   targets: [
@@ -185,39 +181,38 @@ export const FABFIX: Product = {
     { label: 'Ink stains', icon: ICONS.ink },
   ],
   howItWorks: {
-    intro: 'FABFIX is a multi-enzyme spray that works on the stain itself:',
+    intro: 'A multi-enzyme formula that works on the stain itself:',
     points: [
-      'Spray it onto the stain following the label instructions.',
-      'Its enzyme formula helps lift the targeted stain from the fabric.',
-      'Blot, wipe or rinse as the label directs to clear the treated stain away.',
+      'Spray it onto the stain as the label directs.',
+      'The enzymes help lift the targeted stain.',
+      'Blot, wipe or rinse it away as directed.',
     ],
   },
   steps: [
-    { title: 'Identify', body: 'Identify the stain and check that the fabric is compatible.' },
-    { title: 'Spot-test', body: 'Try a small hidden area first and check for any change in colour or texture.' },
-    { title: 'Spray', body: 'Apply the spray to the stain as directed on the label.' },
-    { title: 'Wait', body: 'Let it act for the time given on the label.' },
-    { title: 'Blot or wipe', body: 'Blot, wipe or rinse only as the label instructs for your fabric.' },
-    { title: 'Inspect', body: 'Check the result. Repeat only if the label says you can.' },
-    { title: 'Dry', body: 'Let the fabric dry as directed before use.' },
+    { title: 'Identify', body: 'Identify the stain; check the fabric is compatible.' },
+    { title: 'Spot-test', body: 'Check a hidden area for colour or texture change.' },
+    { title: 'Spray', body: 'Apply to the stain as directed.' },
+    { title: 'Wait', body: 'Leave it for the time on the label.' },
+    { title: 'Blot or wipe', body: 'Blot, wipe or rinse only as the label says.' },
+    { title: 'Inspect', body: 'Repeat only if the label allows.' },
+    { title: 'Dry', body: 'Let the fabric dry before use.' },
   ],
   benefits: [
-    'Targets four everyday stain types: oil, food, coffee and ink',
-    'Convenient DIY stain treatment',
-    'Tackle small stains without calling in professional cleaning',
+    'Tackles oil, food, coffee and ink',
+    'Easy DIY stain treatment',
+    'No pro cleaning needed for small stains',
     'Compact 100 ml spray',
-    'Pairs with FABSEAL for complete fabric care',
-    'Keeps your fabric-care routine simple',
+    'Pairs with FABSEAL for complete care',
+    'Keeps fabric care simple',
   ],
   limitations: [
-    'FABFIX is not a stain repellent and won’t protect against future spills.',
-    'Results can vary with the stain’s age and composition, and the type of fabric.',
-    'Some stains may not be completely removable.',
-    'Delicate, dyed or specially treated fabrics may need extra care.',
-    'Incorrect application can damage or discolour fabric, so always spot-test and follow the label.',
+    'Won’t protect against future spills',
+    'Results vary with stain age, type and fabric',
+    'Some stains may not fully come out',
+    'Extra care on delicate, dyed or treated fabrics',
+    'Wrong use can damage or discolour fabric: spot-test first',
   ],
   statement: 'Tough stains happen. Make fabric care simpler with FABFIX.',
-  why: 'FABFIX handles what FABSEAL isn’t designed for: stains that have already happened. It gives you a targeted way to treat oil, food, coffee and ink stains on compatible fabrics.',
   faqs: [
     { q: 'What is FABFIX used for?', a: 'FABFIX is designed to help remove oil, food, coffee and ink stains from suitable fabric surfaces.' },
     { q: 'Can FABFIX remove old stains?', a: 'Results can vary depending on how old the stain is, what caused it and the fabric. Follow the label, and repeat only if it says you can.' },
@@ -250,5 +245,7 @@ export const COMPARE_ROWS: { label: string; fabseal: string; fabfix: string }[] 
   { label: 'Pack size', fabseal: '650 ml', fabfix: '100 ml' },
   { label: 'Application', fabseal: 'DIY', fabfix: 'DIY' },
   { label: 'Price', fabseal: '₹1,299 (MRP ₹1,499)', fabfix: '₹299 (MRP ₹349)' },
+  { label: 'Ideal for', fabseal: IDEAL_FOR, fabfix: IDEAL_FOR },
+  { label: 'Availability', fabseal: 'Through KAIRA dealers', fabfix: 'Through KAIRA dealers' },
 ]
 

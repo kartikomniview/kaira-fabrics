@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from 'react'
+import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ICONS, SURFACES, COMPARE_ROWS, PRODUCTS, productPath, EXPO_OUT, DOT_PATTERN, type Product } from './products'
+import { ICONS, COMPARE_ROWS, PRODUCTS, productPath, EXPO_OUT, type Product } from './products'
 
 export const Icon = ({ d, className = 'w-5 h-5' }: { d: string; className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true">
@@ -148,28 +148,66 @@ export const FaqSection = ({ faqs, title = 'Questions, answered' }: { faqs: { q:
   )
 }
 
-export const SurfacesSection = ({ subtitle }: { subtitle: string }) => (
-  <section className="py-12 md:py-20 bg-secondary-dark relative overflow-hidden">
-    <div className="absolute inset-0 opacity-[0.08]" style={DOT_PATTERN} />
-    <div className="relative max-w-6xl mx-auto px-6 lg:px-10">
-      <Reveal className="text-center mb-8 md:mb-12">
-        <Eyebrow light center>Where to Use</Eyebrow>
-        <h2 className="font-serif text-3xl sm:text-4xl text-white">Made for the fabrics you live with</h2>
-        <p className="mt-3 text-stone-400 text-sm sm:text-base font-light max-w-xl mx-auto">{subtitle}</p>
-      </Reveal>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-        {SURFACES.map((s, i) => (
-          <Reveal key={s.label} delay={i * 0.06} className={i === SURFACES.length - 1 ? 'col-span-2 sm:col-span-1' : ''}>
-            <div className="group h-full border border-white/10 bg-white/5 p-4 sm:p-6 flex flex-col items-center text-center gap-2 sm:gap-3 hover:bg-primary hover:border-primary transition-colors duration-300">
-              <span className="text-primary group-hover:text-secondary-dark transition-colors"><Icon d={s.icon} className="w-6 h-6 sm:w-8 sm:h-8" /></span>
-              <span className="text-sm font-medium text-white group-hover:text-secondary-dark transition-colors">{s.label}</span>
-            </div>
-          </Reveal>
-        ))}
+/**
+ * Accessible tabs (one panel visible at a time). Arrow keys move between tabs; on phones the tab row
+ * scrolls sideways instead of wrapping.
+ */
+export const Tabs = ({ label, tabs }: { label: string; tabs: { id: string; label: string; content: ReactNode }[] }) => {
+  const [active, setActive] = useState(0)
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const baseId = useId()
+
+  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0
+    if (!step) return
+    e.preventDefault()
+    const next = (active + step + tabs.length) % tabs.length
+    setActive(next)
+    tabRefs.current[next]?.focus()
+  }
+
+  return (
+    <div>
+      <div role="tablist" aria-label={label} className="flex overflow-x-auto hide-scrollbar -mx-6 px-6 sm:mx-0 sm:px-0 border-b border-stone-200">
+        {tabs.map((t, i) => {
+          const on = active === i
+          return (
+            <button
+              key={t.id}
+              ref={(el) => { tabRefs.current[i] = el }}
+              role="tab"
+              id={`${baseId}-tab-${t.id}`}
+              aria-selected={on}
+              aria-controls={`${baseId}-panel-${t.id}`}
+              tabIndex={on ? 0 : -1}
+              onClick={() => setActive(i)}
+              onKeyDown={onKeyDown}
+              className={`relative shrink-0 px-4 sm:px-6 py-3.5 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] whitespace-nowrap transition-colors ${on ? 'text-secondary-dark' : 'text-stone-400 hover:text-stone-600'}`}
+            >
+              {t.label}
+              {on && <motion.span layoutId={`${baseId}-underline`} className="absolute left-0 right-0 -bottom-px h-0.5 bg-primary" />}
+            </button>
+          )
+        })}
       </div>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={tabs[active].id}
+          role="tabpanel"
+          id={`${baseId}-panel-${tabs[active].id}`}
+          aria-labelledby={`${baseId}-tab-${tabs[active].id}`}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.3, ease: EXPO_OUT }}
+          className="pt-6 sm:pt-8"
+        >
+          {tabs[active].content}
+        </motion.div>
+      </AnimatePresence>
     </div>
-  </section>
-)
+  )
+}
 
 /** FABSEAL vs FABFIX table; `highlight` tints the current product's column on a product page */
 export const CompareTable = ({ highlight }: { highlight?: Product['id'] }) => {
