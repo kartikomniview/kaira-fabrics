@@ -145,6 +145,21 @@ export default function VisualizerStudioPage() {
           </div>
         )}
       </div>
+
+      {/* ── Credit footer ── */}
+      <div className="shrink-0 py-1 bg-white border-t border-stone-200 text-center">
+        <span className="text-[10px] text-stone-400 tracking-wide">
+          Powered by{' '}
+          <a
+            href="https://omniviewlabs.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-stone-500 hover:text-secondary-dark transition-colors"
+          >
+            omniviewlabs.com
+          </a>
+        </span>
+      </div>
     </div>
   )
 }

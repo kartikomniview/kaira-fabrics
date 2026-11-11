@@ -132,11 +132,11 @@ const ThreeDVisualizerEngine = ({
       .filter(([, mat]) => mat.id !== base.id)
       .map(([part, mat]) => ({ part, partLabel: partLabel(part), material: mat }))
     const request: AiConfirmRequest = { material: base, product, partFabrics }
-    // A verified number this session skips the confirmation and goes straight to generating —
-    // unless the request has too many fabrics, which only the confirmation window explains
+    // No verified session → straight to the mobile number form. A verified, active session gets the confirmation
+    // window instead. Too many fabrics always shows the confirmation first, since only it explains that limit.
     const verified = mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))
-    if (verified && !exceedsAiFabricLimit(request)) handleGenerateClick(request)
-    else setAiConfirm(request)
+    if (verified || exceedsAiFabricLimit(request)) setAiConfirm(request)
+    else handleGenerateClick(request)
   }
 
   const [aiConfirm, setAiConfirm] = useState<AiConfirmRequest | null>(null)
@@ -297,19 +297,35 @@ const ThreeDVisualizerEngine = ({
 
             <div className="flex-1" />
 
-            {mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10)) && (
-              <button
-                onClick={() => setShowGalleryPanel(true)}
-                className="flex items-center gap-2 h-8 px-4 bg-secondary hover:bg-secondary-dark text-white transition-all rounded-none shrink-0 shadow-sm hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.97] duration-200"
-                title="My Gallery"
-              >
-                <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 16l5-5a2 2 0 012.83 0L16 16m-2-2l1.17-1.17a2 2 0 012.83 0L21 16M8.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
-                </svg>
-                <span className="hidden lg:inline text-[11px] tracking-[0.1em] uppercase font-bold">My Gallery</span>
-              </button>
-            )}
+            {/* My Gallery — always shown; locked (dimmed + hover hint) until the visitor has verified via an AI render */}
+            {(() => {
+              const galleryUnlocked = mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))
+              return (
+                <div className="relative group shrink-0">
+                  <button
+                    onClick={() => setShowGalleryPanel(true)}
+                    disabled={!galleryUnlocked}
+                    aria-label={galleryUnlocked ? 'My Gallery' : 'My Gallery (Visualize with AI to access gallery)'}
+                    className="flex items-center gap-2 h-8 px-4 bg-secondary hover:bg-secondary-dark text-white transition-all rounded-none shrink-0 shadow-sm hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.97] duration-200 disabled:opacity-40 disabled:pointer-events-none"
+                    title={galleryUnlocked ? 'My Gallery' : undefined}
+                  >
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 16l5-5a2 2 0 012.83 0L16 16m-2-2l1.17-1.17a2 2 0 012.83 0L21 16M8.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                    </svg>
+                    <span className="hidden lg:inline text-[11px] tracking-[0.1em] uppercase font-bold">My Gallery</span>
+                  </button>
+                  {!galleryUnlocked && (
+                    <div
+                      role="tooltip"
+                      className="pointer-events-none absolute right-0 top-full mt-2 z-30 whitespace-nowrap bg-secondary-dark text-white text-[11px] font-medium px-3 py-1.5 shadow-lg opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150"
+                    >
+                      Visualize with AI to access gallery
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
           </div>
 
           {/* model-viewer fills remaining space */}

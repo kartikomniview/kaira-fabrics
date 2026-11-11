@@ -105,11 +105,11 @@ const ThreeDVisualizerPageMobile = ({ embedded = false, onAppliedFabricsChange }
       .filter(([, mat]) => mat.id !== base.id)
       .map(([part, mat]) => ({ part, partLabel: partLabel(part), material: mat }))
     const request: AiConfirmRequest = { material: base, product, partFabrics }
-    // A verified number this session skips the confirmation and goes straight to generating —
-    // unless the request has too many fabrics, which only the confirmation window explains
+    // No verified session → straight to the mobile number form. A verified, active session gets the confirmation
+    // window instead. Too many fabrics always shows the confirmation first, since only it explains that limit.
     const verified = mobileNumber.length === 10 && isVerified(mobileNumber.replace(/\D/g, '').slice(0, 10))
-    if (verified && !exceedsAiFabricLimit(request)) handleGenerateClick(request)
-    else setAiConfirm(request)
+    if (verified || exceedsAiFabricLimit(request)) setAiConfirm(request)
+    else handleGenerateClick(request)
   }
 
   const [aiConfirm, setAiConfirm] = useState<AiConfirmRequest | null>(null)
