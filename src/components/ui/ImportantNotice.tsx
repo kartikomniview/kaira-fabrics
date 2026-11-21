@@ -51,7 +51,7 @@ export default function ImportantNotice({ onClose }: { onClose: () => void }) {
                   <a href="tel:+918589925666" className="font-bold whitespace-nowrap underline decoration-primary decoration-2 underline-offset-2 hover:text-secondary">
                     858 99 25 666
                   </a>{' '}
-                  for confirmation.
+                  for color confirmation.
                 </p>
               </li>
             </ol>
