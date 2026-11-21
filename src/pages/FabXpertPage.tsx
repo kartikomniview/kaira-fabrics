@@ -57,10 +57,8 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
               ))}
             </div>
 
-            <div className="mt-3 sm:mt-4 flex flex-wrap items-baseline gap-x-2 sm:gap-x-3 gap-y-0.5">
-              <span className="font-serif text-lg sm:text-3xl color-secondary-dark">{product.price}</span>
-              <span className="text-[11px] sm:text-sm text-stone-400 line-through">MRP {product.mrp}</span>
-              <span className="text-[11px] sm:text-sm text-stone-500">· {product.size}</span>
+            <div className="mt-3 sm:mt-4">
+              <span className="text-[11px] sm:text-sm text-stone-500">{product.size}</span>
             </div>
           </div>
         </div>

@@ -8,6 +8,8 @@ import { kairaProducts, type KairaProduct } from '../../data/products'
 import { categoryMeta, normalizeType } from '../../components/sections/FabricCategoriesSection'
 import EnquiryFormModal from '../../components/ui/EnquiryFormModal'
 import Seo, { pageTitle } from '../../components/seo/Seo'
+import ImportantNotice from '../../components/ui/ImportantNotice'
+import { useImportantNotice } from '../../hooks/useImportantNotice'
 
 const typeLabel = (m: SelectedMaterial) => categoryMeta[normalizeType(m.materialType)]?.label ?? m.materialType
 
@@ -23,6 +25,8 @@ export default function VisualizerStudioPage() {
   const location = useLocation()
 
   const [isMobile] = useState(isMobilePortraitDevice)
+  // Disclaimer shown on entry; the desktop onboarding tour waits until it's dismissed
+  const [showNotice, dismissNotice] = useImportantNotice('3d-studio')
 
   // Always open at the top: stop the browser restoring an old scroll offset (refresh / back-forward), and reset any
   // offset carried over from the previous page. Re-applied next frame since mobile browsers can restore late.
@@ -141,10 +145,13 @@ export default function VisualizerStudioPage() {
               modelLoaded={modelLoaded}
               setModelLoaded={setModelLoaded}
               onAppliedFabricsChange={handleAppliedFabricsChange}
+              tourReady={!showNotice}
             />
           </div>
         )}
       </div>
+
+      {showNotice && <ImportantNotice onClose={dismissNotice} />}
 
       {/* ── Credit footer ── */}
       <div className="shrink-0 py-1 bg-white border-t border-stone-200 text-center">

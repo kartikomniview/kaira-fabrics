@@ -41,8 +41,6 @@ export type Product = {
   about: string
   size: string
   technology: string
-  price: string
-  mrp: string
   problemsTitle: string
   problems: string[]
   targetsLabel: string
@@ -88,8 +86,6 @@ export const FABSEAL: Product = {
     'A nano-coating stain repellent for sofas, upholstery and other compatible fabrics. Use it before spills happen: it helps repel water, food and coffee so they’re less likely to become stubborn stains. Protect first, instead of waiting for a stain.',
   size: '650 ml',
   technology: 'Nano-coating layer',
-  price: '₹1,299',
-  mrp: '₹1,499',
   problemsTitle: 'Spills happen. Stains don’t have to.',
   problems: [
     'Spills soak in and leave stains',
@@ -163,8 +159,6 @@ export const FABFIX: Product = {
     'A multi-enzyme spray for oil, food, coffee and ink stains on compatible fabrics. It handles what FABSEAL isn’t designed for, stains that have already happened, so you can treat them yourself.',
   size: '100 ml',
   technology: 'Multi-enzyme spray',
-  price: '₹299',
-  mrp: '₹349',
   problemsTitle: 'Tough stains happen.',
   problems: [
     'Oil and food leave visible marks',
@@ -244,7 +238,6 @@ export const COMPARE_ROWS: { label: string; fabseal: string; fabfix: string }[] 
   { label: 'Technology', fabseal: 'Nano-coating layer', fabfix: 'Multi-enzyme spray' },
   { label: 'Pack size', fabseal: '650 ml', fabfix: '100 ml' },
   { label: 'Application', fabseal: 'DIY', fabfix: 'DIY' },
-  { label: 'Price', fabseal: '₹1,299 (MRP ₹1,499)', fabfix: '₹299 (MRP ₹349)' },
   { label: 'Ideal for', fabseal: IDEAL_FOR, fabfix: IDEAL_FOR },
   { label: 'Availability', fabseal: 'Through KAIRA dealers', fabfix: 'Through KAIRA dealers' },
 ]

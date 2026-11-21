@@ -69,11 +69,7 @@ const FabXpertProductPage = () => {
                 <p className="mt-5 font-serif text-2xl sm:text-3xl text-primary">{product.tagline}</p>
                 <p className="mt-4 text-stone-300 text-sm sm:text-base md:text-lg font-light leading-relaxed max-w-xl">{product.summary}</p>
 
-                <div className="mt-6 sm:mt-7 flex items-baseline gap-3">
-                  <span className="font-serif text-3xl sm:text-4xl text-white">{product.price}</span>
-                  <span className="text-sm text-stone-400 line-through">MRP {product.mrp}</span>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-6 sm:mt-7 flex flex-wrap gap-2">
                   {[product.size, product.technology, 'DIY application'].map((s) => (
                     <span key={s} className="px-3 py-1.5 border border-white/20 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/80">{s}</span>
                   ))}

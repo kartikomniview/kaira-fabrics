@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { categoryMeta, normalizeType } from '../components/sections/FabricCategoriesSection'
 import EnquiryFormModal from '../components/ui/EnquiryFormModal'
+import ImportantNotice from '../components/ui/ImportantNotice'
+import { useImportantNotice } from '../hooks/useImportantNotice'
 import InlineLoader from '../components/ui/InlineLoader'
 import Seo, { pageTitle } from '../components/seo/Seo'
 import { useMaterials } from '../contexts/MaterialsContext'
@@ -145,6 +147,8 @@ export default function CollectionDetailPage() {
 
   const [showContactForm, setShowContactForm] = useState(false)
   const [materialSearch, setMaterialSearch] = useState('')
+  // Disclaimer: once per session across all collection pages, and only once the collection has loaded
+  const [showNotice, dismissNotice] = useImportantNotice('collection-detail')
 
   const materials = useMemo(
     () =>
@@ -399,6 +403,8 @@ export default function CollectionDetailPage() {
           onClose={() => setShowContactForm(false)}
         />
       )}
+
+      {showNotice && <ImportantNotice onClose={dismissNotice} />}
     </div>
   )
 }

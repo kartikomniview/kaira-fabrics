@@ -39,6 +39,8 @@ interface EngineProps {
   setModelLoaded: (v: boolean) => void
   /** Reports the fabrics currently on the model (e.g. for the studio header's Request Sample) */
   onAppliedFabricsChange?: (fabrics: AppliedFabric[], productName: string) => void
+  /** False holds the onboarding tour back (e.g. while the studio's Important Notice is open) */
+  tourReady?: boolean
 }
 
 const ThreeDVisualizerEngine = ({
@@ -51,6 +53,7 @@ const ThreeDVisualizerEngine = ({
   modelLoaded,
   setModelLoaded,
   onAppliedFabricsChange,
+  tourReady = true,
 }: EngineProps) => {
   const { newMaterials } = useMaterials()
   const mvRef = useRef<HTMLElement>(null)
@@ -625,7 +628,7 @@ const ThreeDVisualizerEngine = ({
       <TourGuide
         tourId="3d-visualizer"
         steps={TOUR_STEPS}
-        active={showTour}
+        active={showTour && tourReady}
         onFinish={() => setShowTour(false)}
       />
     </>
