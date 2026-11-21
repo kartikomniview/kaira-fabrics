@@ -2,7 +2,7 @@ import { useEffect, useId } from 'react'
 import AnimatedModal from './AnimatedModal'
 
 /** "Important Notice" disclaimer: previews are for reference only, confirm by phone before ordering.
- *  Pair with hooks/useImportantNotice for the once-per-session open state. */
+ *  Pair with hooks/useImportantNotice for the open state (shown again after every refresh). */
 export default function ImportantNotice({ onClose }: { onClose: () => void }) {
   const titleId = useId()
 

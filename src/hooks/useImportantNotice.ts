@@ -1,18 +1,15 @@
 import { useCallback, useState } from 'react'
 
-const storageKey = (id: string) => `kaira_notice_seen_${id}`
+// In-memory only: a page refresh clears it, so the notice shows again after every reload.
+// Moving between pages inside the site keeps it, so once dismissed it stays hidden until the next refresh.
+const dismissedNotices = new Set<string>()
 
-/**
- * Open/close state for the Important Notice (components/ui/ImportantNotice), shown once per browser
- * session per `noticeId`: a new tab or a new visit shows it again; moving around the site in the same tab does not.
- */
+/** Open/close state for the Important Notice (components/ui/ImportantNotice), tracked per `noticeId`. */
 export function useImportantNotice(noticeId: string) {
-  const [open, setOpen] = useState(() => {
-    try { return sessionStorage.getItem(storageKey(noticeId)) !== '1' } catch { return true }
-  })
+  const [open, setOpen] = useState(() => !dismissedNotices.has(noticeId))
   const dismiss = useCallback(() => {
+    dismissedNotices.add(noticeId)
     setOpen(false)
-    try { sessionStorage.setItem(storageKey(noticeId), '1') } catch { /* storage unavailable */ }
   }, [noticeId])
   return [open, dismiss] as const
 }

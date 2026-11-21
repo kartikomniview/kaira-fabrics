@@ -147,7 +147,7 @@ export default function CollectionDetailPage() {
 
   const [showContactForm, setShowContactForm] = useState(false)
   const [materialSearch, setMaterialSearch] = useState('')
-  // Disclaimer: once per session across all collection pages, and only once the collection has loaded
+  // Disclaimer: shown on each page load (refresh); once dismissed, hidden on every collection page until the next refresh
   const [showNotice, dismissNotice] = useImportantNotice('collection-detail')
 
   const materials = useMemo(
